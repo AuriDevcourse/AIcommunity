@@ -1,0 +1,84 @@
+{
+  "upcoming": [
+    {
+      "date": "2026-05-03",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "roles": {
+        "host": "Auri",
+        "timekeeper": "",
+        "noteTaker": "",
+        "demoCurator": "Auri",
+        "recapWriter": ""
+      },
+      "notes": "First session after the gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
+    },
+    {
+      "date": "2026-05-17",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-05-31",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-06-14",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-06-28",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-07-12",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    }
+  ],
+  "gaps": [
+    {
+      "from": "2026-02-22",
+      "to": "2026-04-19",
+      "reason": "Protocol paused — sessions in this window were not logged."
+    }
+  ]
+}
