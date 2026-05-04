@@ -17,34 +17,34 @@ export default function News() {
   const items = filter === 'all' ? news.items : news.items.filter((i) => i.category === filter);
 
   return (
-    <div className="space-y-6">
-      <div className="card card-pad">
+    <div className="space-y-10">
+      <div>
         <div className="flex items-baseline justify-between flex-wrap gap-3">
           <div>
-            <div className="h-section">AI News Roundup</div>
-            <div className="text-xl font-semibold mt-1">{news.windowLabel}</div>
+            <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted">AI News Roundup</div>
+            <div className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</div>
           </div>
-          <div className="text-xs text-ink-400 num">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
+          <div className="text-xs text-muted num">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           {Object.entries(news.themes).map(([key, theme]) => (
-            <div key={key} className="border-l-2 border-accent/50 pl-3 py-1">
-              <div className="text-[10px] uppercase tracking-wider text-accent font-semibold mb-1">{CATEGORY_LABEL[key]}</div>
-              <div className="text-ink-200 italic">{theme}</div>
+            <div key={key} className="border-l-2 border-foreground pl-4 py-1">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-foreground font-semibold mb-1">{CATEGORY_LABEL[key]}</div>
+              <div className="text-muted leading-relaxed">{theme}</div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 flex gap-2 flex-wrap">
+        <div className="mt-6 flex gap-2 flex-wrap">
           {CATEGORIES.map((c) => (
             <button
               key={c.key}
               onClick={() => setFilter(c.key)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 filter === c.key
-                  ? 'bg-accent text-ink-950 border-accent'
-                  : 'bg-ink-800/60 text-ink-300 border-ink-700 hover:border-ink-600'
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
               }`}
             >
               {c.label} <span className="num opacity-70 ml-1">{c.count}</span>
@@ -53,7 +53,7 @@ export default function News() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
         {items.map((item) => (
           <NewsCard key={item.id} item={item} />
         ))}
@@ -67,43 +67,49 @@ function NewsCard({ item }) {
   const date = new Date(item.date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
   return (
-    <article className="card overflow-hidden flex flex-col group">
-      <a href={primary.url} target="_blank" rel="noreferrer" className="block relative aspect-[16/9] bg-ink-800 overflow-hidden">
+    <article className="group flex flex-col">
+      <a
+        href={primary.url}
+        target="_blank"
+        rel="noreferrer"
+        className="relative aspect-square overflow-hidden rounded-[2.5rem] bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
+      >
         {item.image ? (
           <img
             src={item.image}
             alt=""
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-ink-500 text-xs">no image</div>
+          <div className="absolute inset-0 flex items-center justify-center text-muted text-xs">no image</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink-950/60 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-2 left-2 flex items-center gap-2">
-          <span className="num text-[10px] bg-ink-950/80 text-ink-200 px-1.5 py-0.5 rounded border border-ink-700">#{item.n}</span>
-          <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-            item.category === 'eu-policy' ? 'bg-accent/20 text-accent border-accent/40' : 'bg-ink-950/80 text-ink-300 border-ink-700'
-          }`}>{item.category === 'eu-policy' ? 'EU / Policy' : 'Global'}</span>
-        </div>
-        <div className="absolute bottom-2 right-2 num text-[10px] text-ink-200 bg-ink-950/80 px-1.5 py-0.5 rounded border border-ink-700">{date}</div>
+        <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground">
+          {item.category === 'eu-policy' ? 'EU / Policy' : 'Global'}
+        </span>
+        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground num">
+          #{item.n}
+        </span>
+        <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
+          {date}
+        </span>
       </a>
 
-      <div className="p-4 flex-1 flex flex-col">
-        <h3 className="text-base font-semibold leading-snug">
-          <a href={primary.url} target="_blank" rel="noreferrer" className="hover:text-accent transition">{item.title}</a>
+      <div className="mt-4 flex flex-col">
+        <h3 className="text-base font-semibold leading-snug tracking-tight">
+          <a href={primary.url} target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">{item.title}</a>
         </h3>
-        {item.subtitle && <p className="text-xs text-ink-400 mt-1">{item.subtitle}</p>}
-        <p className="text-sm text-ink-300 mt-2 leading-relaxed flex-1">{item.summary}</p>
+        {item.subtitle && <p className="text-xs text-muted mt-1">{item.subtitle}</p>}
+        <p className="text-sm text-muted mt-2 leading-relaxed">{item.summary}</p>
 
-        <div className="mt-3 pt-3 border-t border-ink-800 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-          <span className="text-ink-500">Sources:</span>
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+          <span className="text-muted">Sources:</span>
           {item.sources.map((s, i) => (
             <span key={s.url} className="flex items-center gap-1">
-              <a href={s.url} target="_blank" rel="noreferrer" className="text-ink-300 hover:text-accent transition underline-offset-2 hover:underline">
+              <a href={s.url} target="_blank" rel="noreferrer" className="text-foreground hover:underline underline-offset-2">
                 {s.name}
               </a>
-              {i < item.sources.length - 1 && <span className="text-ink-700">·</span>}
+              {i < item.sources.length - 1 && <span className="text-border">·</span>}
             </span>
           ))}
         </div>

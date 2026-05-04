@@ -1,0 +1,561 @@
+{
+  "generatedAt": "2026-05-04T10:33:10.846Z",
+  "sessions": [
+    {
+      "number": 1,
+      "date": "2025-06-29",
+      "location": "In-person",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Aiza"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "AI Workshop Overview"
+        },
+        {
+          "presenter": "Ignas",
+          "topic": "Deployment & Monitoring"
+        },
+        {
+          "presenter": "Sany",
+          "topic": "Browser Automation & AI Tools"
+        },
+        {
+          "presenter": "Aiza",
+          "topic": "Document Template Transfer"
+        }
+      ],
+      "actions": [
+        {
+          "done": false,
+          "text": "Create Google Drive → \"AI Collective\"",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Upload presentations → Meetups folder",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Upload images → Pictures folder",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Invite a few more members (8 members at the time)",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Brainstorm group name / AI names",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Each member find 5 fun/useful AIs to introduce next time",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        },
+        {
+          "done": false,
+          "text": "Schedule next meeting (WhenAvailable)",
+          "sessionNumber": 1,
+          "sessionDate": "2025-06-29"
+        }
+      ],
+      "summary": "First meeting — getting to know each other as AI enthusiasts. Discussed the format, how we do things, and future prospects."
+    },
+    {
+      "number": 2,
+      "date": "2025-07-12",
+      "location": "In-person",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Aiza",
+        "Eividas",
+        "Valentin",
+        "Mari"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Automated Visual Creation Tool for TechBBQ"
+        },
+        {
+          "presenter": "Ignas",
+          "topic": "Make.com Automation for Content Creation"
+        }
+      ],
+      "actions": [
+        {
+          "done": false,
+          "text": "Each member: Create a Make.com automation scenario",
+          "sessionNumber": 2,
+          "sessionDate": "2025-07-12"
+        },
+        {
+          "done": false,
+          "text": "Set up Instagram chat for casual conversations",
+          "sessionNumber": 2,
+          "sessionDate": "2025-07-12"
+        },
+        {
+          "done": false,
+          "text": "Set up Discord and make sure it's used",
+          "sessionNumber": 2,
+          "sessionDate": "2025-07-12"
+        },
+        {
+          "done": false,
+          "text": "WhatsApp for joining/onboarding",
+          "sessionNumber": 2,
+          "sessionDate": "2025-07-12"
+        },
+        {
+          "done": false,
+          "text": "Check AI funding opportunities (EU or Denmark)",
+          "sessionNumber": 2,
+          "sessionDate": "2025-07-12"
+        }
+      ],
+      "summary": ""
+    },
+    {
+      "number": 3,
+      "date": "2025-07-27",
+      "location": "In-person",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Eividas",
+        "Dovile"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Particles & Cooking App"
+        },
+        {
+          "presenter": "Ignas",
+          "topic": "AI-Powered 3D Modeling Tools"
+        },
+        {
+          "presenter": "Sany",
+          "topic": "Apartment Scraping AI Tool"
+        },
+        {
+          "presenter": "Dovile",
+          "topic": "Discord Bots"
+        }
+      ],
+      "actions": [],
+      "summary": ""
+    },
+    {
+      "number": 4,
+      "date": "2025-09-14",
+      "location": "In-person + Online",
+      "attendees": [
+        "Auri",
+        "Eividas",
+        "Ignas",
+        "Martin",
+        "Tady",
+        "Cristina"
+      ],
+      "demos": [
+        {
+          "presenter": "Ignas",
+          "topic": "Prompting"
+        },
+        {
+          "presenter": "Auri",
+          "topic": "Money Management & No-Code Tools"
+        },
+        {
+          "presenter": "Tady",
+          "topic": "Lovable for Web/App Generation"
+        }
+      ],
+      "actions": [],
+      "summary": ""
+    },
+    {
+      "number": 5,
+      "date": "2025-09-28",
+      "location": "In-person",
+      "attendees": [
+        "Auri",
+        "Mari"
+      ],
+      "demos": [
+        {
+          "presenter": "Mari",
+          "topic": "Honkai Star Rail Character Generator"
+        }
+      ],
+      "actions": [],
+      "summary": "Short meeting with just two members."
+    },
+    {
+      "number": 6,
+      "date": "2025-10-12",
+      "location": "In-person",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Aiza",
+        "Eividas"
+      ],
+      "demos": [],
+      "actions": [],
+      "summary": "Build-together / brainstorm session — designing an AI-powered dating app concept."
+    },
+    {
+      "number": 7,
+      "date": "2026-01-25",
+      "location": "Sany's place (2nd floor)",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Dovydas"
+      ],
+      "demos": [],
+      "actions": [
+        {
+          "done": false,
+          "text": "Sany: Prepare programming basics presentation",
+          "sessionNumber": 7,
+          "sessionDate": "2026-01-25"
+        }
+      ],
+      "summary": "Reunion session after a break. Discussed AI coding, watched a video about why people struggle with AI coding and how to improve."
+    },
+    {
+      "number": 8,
+      "date": "2026-02-08",
+      "location": "Matrikel1 (gate code: #1623*)",
+      "attendees": [],
+      "demos": [],
+      "actions": [],
+      "summary": ""
+    },
+    {
+      "number": 9,
+      "date": "2026-05-03",
+      "location": "TBD",
+      "attendees": [
+        "> First session after the Feb–Apr gap (sessions #09–#13 in original numbering not held / not logged). Numbering reset to #09 for May 3."
+      ],
+      "demos": [],
+      "actions": [],
+      "summary": ""
+    }
+  ],
+  "members": [
+    {
+      "name": "Aurimas Baciauskas",
+      "status": "Organizer"
+    },
+    {
+      "name": "Ignas Valavicius",
+      "status": "Active"
+    },
+    {
+      "name": "Dovydas Vinickis",
+      "status": "Active"
+    },
+    {
+      "name": "Maria Krupa",
+      "status": "Active"
+    },
+    {
+      "name": "Inigo Casillas",
+      "status": "Active"
+    },
+    {
+      "name": "Sany Ivanova",
+      "status": "Active"
+    },
+    {
+      "name": "Martin Windsor",
+      "status": "Active"
+    },
+    {
+      "name": "Aiza Watzlawek",
+      "status": "Active"
+    },
+    {
+      "name": "Cristina Bodnari",
+      "status": "Active"
+    },
+    {
+      "name": "Kernius Savickas",
+      "status": "Active"
+    },
+    {
+      "name": "Kristina Juozapaviciute",
+      "status": "Active"
+    },
+    {
+      "name": "Vasare Liutkeviciute",
+      "status": "Active"
+    },
+    {
+      "name": "Eividas Maciulis",
+      "status": "Active"
+    },
+    {
+      "name": "Tady Kapic",
+      "status": "Active"
+    },
+    {
+      "name": "Valentin",
+      "status": "Active"
+    },
+    {
+      "name": "Dovile",
+      "status": "Active"
+    },
+    {
+      "name": "Justas Petrauskas",
+      "status": "Active"
+    },
+    {
+      "name": "Unknown #1",
+      "status": "Number only"
+    },
+    {
+      "name": "Unknown #2",
+      "status": "Number only"
+    }
+  ],
+  "schedule": {
+    "upcoming": [
+      {
+        "date": "2026-05-03",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "roles": {
+          "host": "Auri",
+          "timekeeper": "",
+          "noteTaker": "",
+          "demoCurator": "Auri",
+          "recapWriter": ""
+        },
+        "notes": "First session after the gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
+      },
+      {
+        "date": "2026-05-17",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-05-31",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-06-14",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-06-28",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-07-12",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      }
+    ],
+    "gaps": [
+      {
+        "from": "2026-02-22",
+        "to": "2026-04-19",
+        "reason": "Protocol paused — sessions in this window were not logged."
+      }
+    ]
+  },
+  "backlog": [],
+  "openActions": [
+    {
+      "done": false,
+      "text": "Decide who presents at the Feb 8 session",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Generate logo (Ideogram/Midjourney + Figma/Canva)",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Create Luma recurring event series with branded banner",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Create Canva announcement card template (1080x1080)",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Post first WhatsApp announcement",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Set up social media presence (pick platforms)",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Create a shared photo/content folder for session media",
+      "source": "hub"
+    },
+    {
+      "done": false,
+      "text": "Create Google Drive → \"AI Collective\"",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Upload presentations → Meetups folder",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Upload images → Pictures folder",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Invite a few more members (8 members at the time)",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Brainstorm group name / AI names",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Each member find 5 fun/useful AIs to introduce next time",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Schedule next meeting (WhenAvailable)",
+      "sessionNumber": 1,
+      "sessionDate": "2025-06-29",
+      "source": "#1"
+    },
+    {
+      "done": false,
+      "text": "Each member: Create a Make.com automation scenario",
+      "sessionNumber": 2,
+      "sessionDate": "2025-07-12",
+      "source": "#2"
+    },
+    {
+      "done": false,
+      "text": "Set up Instagram chat for casual conversations",
+      "sessionNumber": 2,
+      "sessionDate": "2025-07-12",
+      "source": "#2"
+    },
+    {
+      "done": false,
+      "text": "Set up Discord and make sure it's used",
+      "sessionNumber": 2,
+      "sessionDate": "2025-07-12",
+      "source": "#2"
+    },
+    {
+      "done": false,
+      "text": "WhatsApp for joining/onboarding",
+      "sessionNumber": 2,
+      "sessionDate": "2025-07-12",
+      "source": "#2"
+    },
+    {
+      "done": false,
+      "text": "Check AI funding opportunities (EU or Denmark)",
+      "sessionNumber": 2,
+      "sessionDate": "2025-07-12",
+      "source": "#2"
+    },
+    {
+      "done": false,
+      "text": "Sany: Prepare programming basics presentation",
+      "sessionNumber": 7,
+      "sessionDate": "2026-01-25",
+      "source": "#7"
+    }
+  ]
+}

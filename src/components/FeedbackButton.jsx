@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Plus, X } from 'lucide-react';
 
 const CATEGORIES = [
   { key: 'general',  label: 'General' },
@@ -69,33 +70,34 @@ export default function FeedbackButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-accent text-ink-950 font-semibold text-sm px-4 py-2.5 rounded-full shadow-lg shadow-accent/30 hover:scale-105 transition-transform flex items-center gap-2"
+        className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-[0_20px_40px_rgba(0,0,0,0.18)] transition-transform hover:scale-105"
         title="Add feedback / signal"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <Plus size={14} strokeWidth={2.5} />
         Feedback
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 bg-ink-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="card w-full max-w-lg p-6"
+            className="card w-full max-w-lg p-6 shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-baseline justify-between mb-4">
               <div>
                 <div className="h-section">Drop a thought</div>
-                <h2 className="text-lg font-semibold mt-1">What's on your mind?</h2>
+                <h2 className="text-lg font-semibold mt-1 tracking-tight">What's on your mind?</h2>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="text-ink-400 hover:text-ink-100 text-xl leading-none"
-              >×</button>
+                className="text-muted hover:text-foreground transition-colors"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
             </div>
 
             <div className="flex gap-2 flex-wrap mb-3">
@@ -103,10 +105,10 @@ export default function FeedbackButton() {
                 <button
                   key={c.key}
                   onClick={() => setCategory(c.key)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition ${
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     category === c.key
-                      ? 'bg-accent text-ink-950 border-accent'
-                      : 'bg-ink-800/60 text-ink-300 border-ink-700 hover:border-ink-600'
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
                   }`}
                 >{c.label}</button>
               ))}
@@ -123,7 +125,7 @@ export default function FeedbackButton() {
                                          "Anything — idea, observation, todo, feedback..."
               }
               rows={5}
-              className="w-full bg-ink-950/60 border border-ink-700 rounded-md p-3 text-sm text-ink-100 focus:outline-none focus:border-accent/60 resize-none font-sans"
+              className="w-full bg-background border border-border rounded-md p-3 text-sm text-foreground focus:outline-none focus:border-foreground resize-none font-sans"
             />
 
             <div className="flex items-center gap-2 mt-3">
@@ -131,42 +133,42 @@ export default function FeedbackButton() {
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
                 placeholder="From (optional)"
-                className="flex-1 bg-ink-950/60 border border-ink-700 rounded-md px-3 py-1.5 text-xs text-ink-100 focus:outline-none focus:border-accent/60"
+                className="flex-1 bg-background border border-border rounded-md px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground"
               />
-              <span className="text-[10px] text-ink-500 num">⌘↵ to send</span>
+              <span className="text-[10px] text-muted num">⌘↵ to send</span>
             </div>
 
             <div className="flex items-center justify-between mt-4">
-              <div className="text-xs text-ink-500">
-                Saved to <span className="font-mono text-ink-400">data/feedback.md</span>
+              <div className="text-xs text-muted">
+                Saved to <span className="font-mono text-foreground">data/feedback.md</span>
               </div>
               <button
                 onClick={submit}
                 disabled={!text.trim() || status === 'sending'}
-                className={`px-4 py-2 rounded-md text-sm font-semibold transition ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   status === 'sent'
-                    ? 'bg-ok text-ink-950'
+                    ? 'bg-ok text-background'
                     : status === 'error'
-                    ? 'bg-err text-ink-950'
-                    : 'bg-accent text-ink-950 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02]'
+                    ? 'bg-err text-background'
+                    : 'bg-foreground text-background disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02]'
                 }`}
               >
-                {status === 'sending' ? 'Saving…' : status === 'sent' ? 'Saved ✓' : status === 'error' ? 'Error' : 'Save'}
+                {status === 'sending' ? 'Saving…' : status === 'sent' ? 'Saved' : status === 'error' ? 'Error' : 'Save'}
               </button>
             </div>
 
             {recent.length > 0 && (
-              <div className="mt-5 pt-4 border-t border-ink-800">
+              <div className="mt-5 pt-4 border-t border-border">
                 <div className="h-section mb-2">Recent</div>
                 <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
                   {recent.map((r, i) => (
                     <li key={i} className="text-xs">
-                      <div className="flex items-center gap-2 text-ink-500">
+                      <div className="flex items-center gap-2 text-muted">
                         <span className="num">{r.timestamp}</span>
                         <span className="pill pill-mute text-[10px]">{r.category}</span>
                         {r.from && r.from !== 'anon' && <span>· {r.from}</span>}
                       </div>
-                      <div className="text-ink-300 mt-0.5 line-clamp-2">{r.text}</div>
+                      <div className="text-foreground mt-0.5 line-clamp-2">{r.text}</div>
                     </li>
                   ))}
                 </ul>

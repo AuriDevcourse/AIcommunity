@@ -1,4 +1,4 @@
-import { fmtDateLong, relative, parseDate, TODAY, daysBetween, fmtDate } from '../lib/dates.js';
+import { fmtDateLong, relative, parseDate, TODAY } from '../lib/dates.js';
 
 const FORMATS = {
   'show-tell':    { label: 'Show & Tell' },
@@ -45,7 +45,7 @@ function stepStatus(sessionIso, offset) {
 
 export default function NextSession({ session, backlog }) {
   if (!session) {
-    return <div className="card card-pad"><div className="h-section">Next session</div><div className="mt-3 text-ink-400">No upcoming session scheduled.</div></div>;
+    return <div className="card card-pad"><div className="h-section">Next session</div><div className="mt-3 text-muted">No upcoming session scheduled.</div></div>;
   }
   const fmt = FORMATS[session.format] || FORMATS.tbd;
   const queued = backlog.filter((b) => b.status === 'queued').length;
@@ -60,8 +60,8 @@ export default function NextSession({ session, backlog }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="h-section">Next session</div>
-          <div className="text-2xl font-semibold mt-1">{fmtDateLong(session.date)}</div>
-          <div className="text-accent text-sm font-medium mt-0.5">{relative(session.date)} · 12:30–14:30</div>
+          <div className="text-2xl font-semibold mt-1 tracking-tight">{fmtDateLong(session.date)}</div>
+          <div className="text-sm font-medium text-muted mt-0.5">{relative(session.date)} · 12:30–14:30</div>
         </div>
         <div className="flex flex-col items-end gap-2">
           <span className="pill pill-acc">{fmt.label}</span>
@@ -77,17 +77,17 @@ export default function NextSession({ session, backlog }) {
       </div>
 
       {session.notes && (
-        <div className="mt-4 text-sm text-ink-300 border-l-2 border-ink-700 pl-3 italic">{session.notes}</div>
+        <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
 
       {leanCoffeeFlag && (
         <div className="mt-4 p-3 rounded-lg border border-warn/40 bg-warn/10 text-sm">
           <span className="font-semibold text-warn">Lean Coffee suggested:</span>{' '}
-          <span className="text-ink-200">It's past Friday and fewer than 2 demos are queued. Default to Lean Coffee — propose topics, dot-vote, time-box.</span>
+          <span className="text-foreground">It's past Friday and fewer than 2 demos are queued. Default to Lean Coffee — propose topics, dot-vote, time-box.</span>
         </div>
       )}
 
-      <div className="mt-5">
+      <div className="mt-6">
         <div className="h-section mb-2">Lifecycle</div>
         <ol className="space-y-1">
           {LIFECYCLE.map((step) => {
@@ -95,9 +95,9 @@ export default function NextSession({ session, backlog }) {
             const date = stepDate(session.date, step.offset);
             const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
             const cls =
-              status === 'today'  ? 'bg-accent/10 border-accent/40 text-ink-100' :
-              status === 'past'   ? 'border-ink-800 text-ink-500' :
-                                    'border-ink-700/60 text-ink-200';
+              status === 'today'  ? 'bg-accent border-foreground text-foreground' :
+              status === 'past'   ? 'border-border text-muted opacity-60' :
+                                    'border-border text-foreground';
             return (
               <li key={step.offset} className={`flex items-center gap-3 text-sm border rounded-md px-2.5 py-1.5 ${cls}`}>
                 <span className="num text-[11px] w-9 flex-shrink-0 opacity-70">{step.label}</span>
@@ -111,13 +111,13 @@ export default function NextSession({ session, backlog }) {
         </ol>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-6">
         <div className="h-section mb-2">Roles for this session</div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           {ROLES.map((r) => (
-            <div key={r.key} className="flex items-center justify-between border-b border-ink-800/60 py-1">
-              <span className="text-ink-400 text-xs">{r.label}</span>
-              <span className={roles[r.key] ? 'text-ink-100' : 'text-warn text-xs italic'}>
+            <div key={r.key} className="flex items-center justify-between border-b border-border py-1">
+              <span className="text-muted text-xs">{r.label}</span>
+              <span className={roles[r.key] ? 'text-foreground' : 'text-warn text-xs italic'}>
                 {roles[r.key] || 'open'}
               </span>
             </div>
@@ -131,8 +131,8 @@ export default function NextSession({ session, backlog }) {
 function Field({ label, value, status }) {
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-wider text-ink-500">{label}</div>
-      <div className="mt-0.5 text-ink-100 flex items-center gap-2">
+      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+      <div className="mt-0.5 text-foreground flex items-center gap-2">
         <span>{value}</span>
         {status === 'open' && <span className="pill pill-warn">open</span>}
         {status === 'tentative' && <span className="pill pill-warn">tentative</span>}

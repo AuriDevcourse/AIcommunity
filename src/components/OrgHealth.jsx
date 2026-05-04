@@ -1,9 +1,6 @@
-// Org health metrics computed from session data.
-// Some metrics aren't tracked yet — those are marked "track manually".
 export default function OrgHealth({ sessions, members }) {
   const last6 = sessions.slice(-6);
 
-  // Active members: appeared in ≥3 of last 6 sessions.
   const attendanceCount = new Map();
   for (const s of last6) {
     for (const a of s.attendees) {
@@ -13,11 +10,9 @@ export default function OrgHealth({ sessions, members }) {
   }
   const activeCount = [...attendanceCount.values()].filter((n) => n >= 3).length;
 
-  // Demo rotation: distinct presenters across last 6.
   const presenters = new Set();
   for (const s of last6) for (const d of s.demos) presenters.add(d.presenter.toLowerCase());
 
-  // Avg attendance last 6.
   const avgAttendance = last6.length
     ? Math.round((last6.reduce((sum, s) => sum + s.attendees.length, 0) / last6.length) * 10) / 10
     : 0;
@@ -50,7 +45,7 @@ export default function OrgHealth({ sessions, members }) {
     <div className="card card-pad h-full">
       <div className="flex items-baseline justify-between">
         <div className="h-section">Org health</div>
-        <div className="text-xs text-ink-500">framework targets</div>
+        <div className="text-xs text-muted">framework targets</div>
       </div>
       <ul className="mt-3 space-y-2">
         {metrics.map((m) => (
@@ -59,20 +54,20 @@ export default function OrgHealth({ sessions, members }) {
               m.status === 'ok' ? 'bg-ok' :
               m.status === 'warn' ? 'bg-warn' :
               m.status === 'err' ? 'bg-err' :
-              'bg-ink-700'
+              'bg-border'
             }`} />
             <div className="flex-1">
               <div className="flex items-baseline justify-between">
-                <span className="text-ink-100">{m.label}</span>
-                <span className="num text-ink-300">{m.value}</span>
+                <span className="text-foreground">{m.label}</span>
+                <span className="num text-muted">{m.value}</span>
               </div>
-              <div className="text-[11px] text-ink-500">{m.hint}</div>
+              <div className="text-[11px] text-muted">{m.hint}</div>
             </div>
           </li>
         ))}
       </ul>
-      <div className="mt-4 text-[11px] text-ink-500 border-t border-ink-700/60 pt-3">
-        Computed from session notes. See <span className="font-mono text-ink-300">Community Operations Framework.md</span>.
+      <div className="mt-4 text-[11px] text-muted border-t border-border pt-3">
+        Computed from session notes. See <span className="font-mono text-foreground">Community Operations Framework.md</span>.
       </div>
     </div>
   );

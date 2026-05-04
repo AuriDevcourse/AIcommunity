@@ -1,0 +1,26 @@
+name: Deploy to Hetzner
+
+# Hetzner deploy — currently disabled. Re-enable the push trigger when moving
+# off Vercel by uncommenting the lines below.
+on:
+  # push:
+  #   branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-aiworkshop
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy on server
+        env:
+          DEPLOY_KEY: ${{ secrets.HETZNER_DEPLOY_KEY_AIWORKSHOP }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 46.225.135.183 >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 root@46.225.135.183 deploy

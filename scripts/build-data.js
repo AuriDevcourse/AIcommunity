@@ -5,12 +5,24 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const NOTES_DIR = '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop';
+const NOTES_DIR = process.env.AI_WORKSHOP_NOTES_DIR
+  || (process.platform === 'win32'
+    ? 'C:\\Users\\User\\Documents\\Obsidian Vault\\AI Workshop'
+    : '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop');
 const SESSIONS_DIR = join(NOTES_DIR, 'Sessions');
 const HUB_FILE = join(NOTES_DIR, 'AI Workshop.md');
 const SCHEDULE_FILE = join(ROOT, 'data', 'schedule.json');
 const BACKLOG_FILE = join(ROOT, 'data', 'backlog.json');
 const OUT_FILE = join(ROOT, 'src', 'data.json');
+
+if (!existsSync(SESSIONS_DIR)) {
+  if (existsSync(OUT_FILE)) {
+    console.log(`build-data: notes dir not found (${SESSIONS_DIR}) — keeping existing src/data.json snapshot`);
+    process.exit(0);
+  }
+  console.error(`build-data: notes dir not found (${SESSIONS_DIR}) and no existing src/data.json snapshot to fall back on`);
+  process.exit(1);
+}
 
 const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
 const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : null);
