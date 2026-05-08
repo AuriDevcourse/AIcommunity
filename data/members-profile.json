@@ -1,0 +1,52 @@
+{
+  "Aurimas Baciauskas": {
+    "linkedin": "https://www.linkedin.com/in/auribaci/",
+    "photo": "/members/auri.png",
+    "order": 1
+  },
+  "Eividas Maciulis": {
+    "linkedin": "https://www.linkedin.com/in/eividas-m/",
+    "photo": "/members/eividas.jpg",
+    "order": 2
+  },
+  "Ignas Valavicius": {
+    "linkedin": "https://www.linkedin.com/in/valavicius/",
+    "photo": "/members/ignas.jpg"
+  },
+  "Dovydas Vinickis": {
+    "linkedin": "https://dk.linkedin.com/in/dovydas-vinickis",
+    "photo": "/members/dovydas.jpg"
+  },
+  "Sany Ivanova": {
+    "linkedin": "https://www.linkedin.com/in/sany-ivanova-307373120/",
+    "photo": "/members/sany.jpg"
+  },
+  "Martin Windsor": {
+    "linkedin": "https://www.linkedin.com/in/martin-windsor/",
+    "photo": "/members/martin.jpg"
+  },
+  "Justas Petrauskas": {
+    "linkedin": "https://www.linkedin.com/in/petrauskasjustas/",
+    "photo": "/members/justas.jpg",
+    "linkedinBug": "black"
+  },
+  "Pavel Kucera": {
+    "linkedin": "https://www.linkedin.com/in/pavelkucera-cph/",
+    "photo": "/members/pavel.jpg"
+  },
+  "Ernestas Sažinas": {
+    "linkedin": "https://www.linkedin.com/in/ernestas-sazinas/",
+    "photo": "/members/ernestas.jpg",
+    "linkedinBug": "black"
+  },
+  "Dovile": {
+    "displayName": "Dovile Perednyte",
+    "linkedin": "https://www.linkedin.com/in/dovile-perednyte/",
+    "photo": "/members/dovile.jpg"
+  },
+  "Maria Krupa": {
+    "linkedin": "https://www.linkedin.com/in/maria-krupa-/",
+    "photo": "/members/maria.jpg",
+    "order": 99
+  }
+}

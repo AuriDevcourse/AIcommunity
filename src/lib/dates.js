@@ -1,4 +1,9 @@
-export const TODAY = new Date('2026-05-01T12:00:00');
+function todayAtNoon() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12, 0, 0));
+}
+
+export const TODAY = todayAtNoon();
 
 export function parseDate(s) {
   return new Date(`${s}T12:00:00`);

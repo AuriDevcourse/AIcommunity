@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T10:33:10.846Z",
+  "generatedAt": "2026-05-04T15:45:44.378Z",
   "sessions": [
     {
       "number": 1,
@@ -73,7 +73,8 @@
           "sessionDate": "2025-06-29"
         }
       ],
-      "summary": "First meeting — getting to know each other as AI enthusiasts. Discussed the format, how we do things, and future prospects."
+      "summary": "First meeting — getting to know each other as AI enthusiasts. Discussed the format, how we do things, and future prospects.",
+      "photos": []
     },
     {
       "number": 2,
@@ -130,7 +131,8 @@
           "sessionDate": "2025-07-12"
         }
       ],
-      "summary": ""
+      "summary": "",
+      "photos": []
     },
     {
       "number": 3,
@@ -162,7 +164,8 @@
         }
       ],
       "actions": [],
-      "summary": ""
+      "summary": "",
+      "photos": []
     },
     {
       "number": 4,
@@ -191,7 +194,8 @@
         }
       ],
       "actions": [],
-      "summary": ""
+      "summary": "",
+      "photos": []
     },
     {
       "number": 5,
@@ -208,7 +212,8 @@
         }
       ],
       "actions": [],
-      "summary": "Short meeting with just two members."
+      "summary": "Short meeting with just two members.",
+      "photos": []
     },
     {
       "number": 6,
@@ -223,7 +228,8 @@
       ],
       "demos": [],
       "actions": [],
-      "summary": "Build-together / brainstorm session — designing an AI-powered dating app concept."
+      "summary": "Build-together / brainstorm session — designing an AI-powered dating app concept.",
+      "photos": []
     },
     {
       "number": 7,
@@ -244,7 +250,8 @@
           "sessionDate": "2026-01-25"
         }
       ],
-      "summary": "Reunion session after a break. Discussed AI coding, watched a video about why people struggle with AI coding and how to improve."
+      "summary": "Reunion session after a break. Discussed AI coding, watched a video about why people struggle with AI coding and how to improve.",
+      "photos": []
     },
     {
       "number": 8,
@@ -253,7 +260,8 @@
       "attendees": [],
       "demos": [],
       "actions": [],
-      "summary": ""
+      "summary": "",
+      "photos": []
     },
     {
       "number": 9,
@@ -264,7 +272,20 @@
       ],
       "demos": [],
       "actions": [],
-      "summary": ""
+      "summary": "",
+      "photos": [
+        "/sessions/2026-05-03/03052026_01.jpeg",
+        "/sessions/2026-05-03/03052026_02.jpeg",
+        "/sessions/2026-05-03/03052026_03.jpeg",
+        "/sessions/2026-05-03/03052026_04.jpeg",
+        "/sessions/2026-05-03/03052026_05.jpeg",
+        "/sessions/2026-05-03/03052026_06.jpeg",
+        "/sessions/2026-05-03/03052026_07.jpeg",
+        "/sessions/2026-05-03/03052026_08.jpeg",
+        "/sessions/2026-05-03/03052026_09.jpeg",
+        "/sessions/2026-05-03/03052026_10.jpeg",
+        "/sessions/2026-05-03/03052026_11.jpeg"
+      ]
     }
   ],
   "members": [
@@ -371,8 +392,8 @@
         "theme": "",
         "format": "tbd",
         "presenter": "",
-        "venue": "",
-        "venueStatus": "open",
+        "venue": "Matrikel1",
+        "venueStatus": "confirmed",
         "luma": "",
         "notes": ""
       },

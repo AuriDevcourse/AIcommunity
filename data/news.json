@@ -13,6 +13,8 @@
       "title": "OpenAI ships GPT-5.5 \"Spud\"",
       "subtitle": "Agentic super-app push goes mainstream",
       "summary": "Released Apr 23, sharper and more token-efficient, built to run multi-step tool-using workflows end-to-end across ChatGPT and Codex. The model OpenAI is betting will turn ChatGPT from chatbot into 'do my work' agent — in the API one day later for builders.",
+      "whyItMatters": "Marks the shift from 'AI assistant' to 'AI worker' — agents that complete real multi-step jobs (research, code, ops) without supervision. The inflection point most builders have been waiting for.",
+      "whyForUs": "Anyone shipping a side project in Copenhagen should retest agentic flows that didn't work six months ago — they likely work now end-to-end. Worth a Show & Tell session.",
       "sources": [
         {
           "name": "OpenAI",

@@ -30,6 +30,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html { scrollbar-gutter: stable; }
 html, body, #root { height: 100%; }
 
 body {
@@ -58,7 +59,10 @@ body {
     border: 1px solid var(--border);
     border-radius: 1rem;
   }
-  .card-pad { padding: 1.25rem; }
+  .card-pad { padding: 1rem; }
+  @media (min-width: 640px) {
+    .card-pad { padding: 1.25rem; }
+  }
   .h-section {
     font-size: 11px;
     text-transform: uppercase;

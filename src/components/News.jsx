@@ -53,7 +53,7 @@ export default function News() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
         {items.map((item) => (
           <NewsCard key={item.id} item={item} />
         ))}
@@ -72,7 +72,7 @@ function NewsCard({ item }) {
         href={primary.url}
         target="_blank"
         rel="noreferrer"
-        className="relative aspect-square overflow-hidden rounded-[2.5rem] bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
+        className="relative aspect-video overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
         {item.image ? (
           <img
@@ -102,7 +102,24 @@ function NewsCard({ item }) {
         {item.subtitle && <p className="text-xs text-muted mt-1">{item.subtitle}</p>}
         <p className="text-sm text-muted mt-2 leading-relaxed">{item.summary}</p>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+        {(item.whyItMatters || item.whyForUs) && (
+          <div className="mt-4 space-y-3 border-t border-border pt-3">
+            {item.whyItMatters && (
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground">Why it matters</div>
+                <p className="mt-1 text-sm text-muted leading-relaxed">{item.whyItMatters}</p>
+              </div>
+            )}
+            {item.whyForUs && (
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground">For us in Copenhagen</div>
+                <p className="mt-1 text-sm text-muted leading-relaxed">{item.whyForUs}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
           <span className="text-muted">Sources:</span>
           {item.sources.map((s, i) => (
             <span key={s.url} className="flex items-center gap-1">

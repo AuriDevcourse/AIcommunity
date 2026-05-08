@@ -14,6 +14,25 @@ const HUB_FILE = join(NOTES_DIR, 'AI Workshop.md');
 const SCHEDULE_FILE = join(ROOT, 'data', 'schedule.json');
 const BACKLOG_FILE = join(ROOT, 'data', 'backlog.json');
 const OUT_FILE = join(ROOT, 'src', 'data.json');
+const SESSION_PHOTOS_DIR = join(ROOT, 'public', 'sessions');
+
+const PHOTO_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const DATE_FOLDER = /^\d{4}-\d{2}-\d{2}$/;
+
+function listSessionPhotosForDate(dateIso) {
+  if (!dateIso) return [];
+  const dir = join(SESSION_PHOTOS_DIR, dateIso);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => PHOTO_EXT.test(f))
+    .sort()
+    .map((f) => `/sessions/${dateIso}/${f}`);
+}
+
+function listAllPhotoDates() {
+  if (!existsSync(SESSION_PHOTOS_DIR)) return [];
+  return readdirSync(SESSION_PHOTOS_DIR).filter((f) => DATE_FOLDER.test(f));
+}
 
 if (!existsSync(SESSIONS_DIR)) {
   if (existsSync(OUT_FILE)) {
@@ -68,7 +87,8 @@ function parseSessionFile(filename) {
   const aboutMatch = raw.match(/^## About This Session\s*\n+([^\n][^\n]*(?:\n[^\n#].*)*)/m);
   const summary = aboutMatch ? aboutMatch[1].trim() : '';
 
-  return { number, date, location, attendees, demos, actions, summary };
+  const photos = listSessionPhotosForDate(date);
+  return { number, date, location, attendees, demos, actions, summary, photos };
 }
 
 function parseHub() {
@@ -96,6 +116,24 @@ const sessions = readdirSync(SESSIONS_DIR)
   .map(parseSessionFile)
   .filter(Boolean)
   .sort((a, b) => a.number - b.number);
+
+const documentedDates = new Set(sessions.map((s) => s.date));
+for (const dateIso of listAllPhotoDates()) {
+  if (documentedDates.has(dateIso)) continue;
+  const photos = listSessionPhotosForDate(dateIso);
+  if (photos.length === 0) continue;
+  sessions.push({
+    number: null,
+    date: dateIso,
+    location: '',
+    attendees: [],
+    demos: [],
+    actions: [],
+    summary: '',
+    photos,
+  });
+}
+sessions.sort((a, b) => a.date.localeCompare(b.date));
 
 const { members, hubActions } = parseHub();
 const schedule = readJson(SCHEDULE_FILE) || { upcoming: [], gaps: [] };
