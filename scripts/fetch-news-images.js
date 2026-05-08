@@ -70,8 +70,12 @@ async function downloadImage(imgUrl, outPath) {
   try {
     const res = await timedFetch(imgUrl, 20000);
     if (!res.ok) return { ok: false, reason: `HTTP ${res.status}` };
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    if (ct.includes('svg')) return { ok: false, reason: 'SVG (likely logo)' };
     const buf = await res.arrayBuffer();
-    if (buf.byteLength < 1000) return { ok: false, reason: 'image too small' };
+    if (buf.byteLength < 20000) return { ok: false, reason: `too small (${(buf.byteLength / 1024).toFixed(1)}KB)` };
+    const head = Buffer.from(buf.slice(0, 200)).toString('utf8').toLowerCase();
+    if (head.includes('<svg') || head.includes('<?xml')) return { ok: false, reason: 'SVG content' };
     writeFileSync(outPath, Buffer.from(buf));
     return { ok: true, bytes: buf.byteLength };
   } catch (e) {
@@ -80,9 +84,11 @@ async function downloadImage(imgUrl, outPath) {
 }
 
 const news = JSON.parse(readFileSync(NEWS_FILE, 'utf8'));
+const onlyIds = process.argv.slice(2);
 const results = [];
 
 for (const item of news.items) {
+  if (onlyIds.length && !onlyIds.includes(item.id)) continue;
   let saved = false;
   let chosenSource = null;
   let lastReason = '';

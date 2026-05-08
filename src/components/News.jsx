@@ -1,15 +1,39 @@
 import { useState } from 'react';
 import news from '../../data/news.json';
 
+function NewsImage({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return <div className="absolute inset-0 flex items-center justify-center text-muted text-xs">no image</div>;
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="w-full h-full object-cover"
+    />
+  );
+}
+
 const CATEGORIES = [
-  { key: 'all',       label: 'All',           count: news.items.length },
-  { key: 'global',    label: 'Global',        count: news.items.filter((i) => i.category === 'global').length },
-  { key: 'eu-policy', label: 'EU / Policy',   count: news.items.filter((i) => i.category === 'eu-policy').length },
+  { key: 'all',          label: 'All',           count: news.items.length },
+  { key: 'global',       label: 'Global',        count: news.items.filter((i) => i.category === 'global').length },
+  { key: 'eu-policy',    label: 'EU / Policy',   count: news.items.filter((i) => i.category === 'eu-policy').length },
+  { key: 'lt-community', label: 'LT Community',  count: news.items.filter((i) => i.category === 'lt-community').length },
 ];
 
 const CATEGORY_LABEL = {
   global: 'Global',
   'eu-policy': 'EU / Denmark / Policy',
+  'lt-community': 'LT Community',
+};
+
+const CARD_BADGE = {
+  global: 'Global',
+  'eu-policy': 'EU / Policy',
+  'lt-community': 'LT',
 };
 
 export default function News() {
@@ -74,18 +98,9 @@ function NewsCard({ item }) {
         rel="noreferrer"
         className="relative aspect-video overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
-        {item.image ? (
-          <img
-            src={item.image}
-            alt=""
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-muted text-xs">no image</div>
-        )}
+        <NewsImage src={item.image} alt="" />
         <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground">
-          {item.category === 'eu-policy' ? 'EU / Policy' : 'Global'}
+          {CARD_BADGE[item.category] || 'Global'}
         </span>
         <span className="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground num">
           #{item.n}
