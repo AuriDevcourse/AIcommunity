@@ -87,6 +87,7 @@ function Lightbox({ sessions, state, onChange, onClose }) {
   const session = sessions[state.sessionIdx];
   const photo = session.photos[state.photoIdx];
   const total = session.photos.length;
+  const [loaded, setLoaded] = useState(false);
 
   const next = useCallback(() => {
     onChange((s) => s && {
@@ -111,6 +112,21 @@ function Lightbox({ sessions, state, onChange, onClose }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [next, prev, onClose]);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [photo]);
+
+  useEffect(() => {
+    const photos = session.photos;
+    const ahead = photos[(state.photoIdx + 1) % photos.length];
+    const behind = photos[(state.photoIdx - 1 + photos.length) % photos.length];
+    [ahead, behind].forEach((src) => {
+      if (!src) return;
+      const img = new Image();
+      img.src = src;
+    });
+  }, [session, state.photoIdx]);
 
   return (
     <div
@@ -148,7 +164,19 @@ function Lightbox({ sessions, state, onChange, onClose }) {
         className="flex flex-col items-center gap-3 max-h-full max-w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <img src={photo} alt="" className="max-h-[80vh] max-w-full rounded-xl object-contain" />
+        <div className="relative">
+          {!loaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full border-2 border-background/30 border-t-background/90 animate-spin" />
+            </div>
+          )}
+          <img
+            src={photo}
+            alt=""
+            onLoad={() => setLoaded(true)}
+            className={`max-h-[80vh] max-w-full rounded-xl object-contain transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          />
+        </div>
         <div className="text-xs text-background/80 num">
           {session.number != null && <>#{session.number} · </>}{fmtDate(session.date)}
           {total > 1 && <> · {state.photoIdx + 1} / {total}</>}
