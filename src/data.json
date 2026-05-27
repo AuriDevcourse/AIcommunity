@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T16:37:21.818Z",
+  "generatedAt": "2026-05-27T17:01:56.151Z",
   "sessions": [
     {
       "number": 1,
@@ -74,7 +74,12 @@
         }
       ],
       "summary": "First meeting — getting to know each other as AI enthusiasts. Discussed the format, how we do things, and future prospects.",
-      "photos": []
+      "photos": [
+        "/sessions/2025-06-29/1.jpg",
+        "/sessions/2025-06-29/2.jpg",
+        "/sessions/2025-06-29/3.jpg",
+        "/sessions/2025-06-29/4.jpg"
+      ]
     },
     {
       "number": 2,
@@ -132,7 +137,13 @@
         }
       ],
       "summary": "",
-      "photos": []
+      "photos": [
+        "/sessions/2025-07-12/1.jpg",
+        "/sessions/2025-07-12/2.jpg",
+        "/sessions/2025-07-12/3.jpg",
+        "/sessions/2025-07-12/4.jpg",
+        "/sessions/2025-07-12/5.jpg"
+      ]
     },
     {
       "number": 3,
@@ -165,7 +176,19 @@
       ],
       "actions": [],
       "summary": "",
-      "photos": []
+      "photos": [
+        "/sessions/2025-07-27/IMG_4549.jpg",
+        "/sessions/2025-07-27/IMG_4550.jpg",
+        "/sessions/2025-07-27/IMG_4551.jpg",
+        "/sessions/2025-07-27/IMG_4552.jpg",
+        "/sessions/2025-07-27/IMG_4553.jpg",
+        "/sessions/2025-07-27/IMG_4554.jpg",
+        "/sessions/2025-07-27/IMG_4555.jpg",
+        "/sessions/2025-07-27/IMG_4557.jpg",
+        "/sessions/2025-07-27/IMG_4558.jpg",
+        "/sessions/2025-07-27/IMG_4559.jpg",
+        "/sessions/2025-07-27/Screenshot 2025-09-19 110139.png"
+      ]
     },
     {
       "number": 4,
@@ -195,7 +218,21 @@
       ],
       "actions": [],
       "summary": "",
-      "photos": []
+      "photos": [
+        "/sessions/2025-09-14/IMG_5130.jpg",
+        "/sessions/2025-09-14/IMG_5131.jpg",
+        "/sessions/2025-09-14/IMG_5132.jpg",
+        "/sessions/2025-09-14/IMG_5135.jpg",
+        "/sessions/2025-09-14/IMG_5136.jpg",
+        "/sessions/2025-09-14/IMG_5137.jpg",
+        "/sessions/2025-09-14/IMG_5138.jpg",
+        "/sessions/2025-09-14/IMG_5141.jpg",
+        "/sessions/2025-09-14/IMG_5142.jpg",
+        "/sessions/2025-09-14/IMG_5146.jpg",
+        "/sessions/2025-09-14/IMG_5147.jpg",
+        "/sessions/2025-09-14/IMG_5148.jpg",
+        "/sessions/2025-09-14/IMG_5153.jpg"
+      ]
     },
     {
       "number": 5,

@@ -49,17 +49,14 @@ export default function SessionsGallery({ sessions }) {
 function SessionTile({ session, onOpen }) {
   const hero = session.photos[0];
   const date = fmtDate(session.date);
-  const headline =
-    session.demos.length > 0
-      ? session.demos.map((d) => `${d.presenter}${d.topic ? ' · ' + d.topic : ''}`).join(' / ')
-      : (session.summary?.split('\n')[0] || '');
+  const name = session.number != null ? `Session #${session.number}` : fmtDate(session.date);
 
   return (
     <article className="group flex flex-col">
       <button
         type="button"
         onClick={() => onOpen(0)}
-        className="relative aspect-video w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
         <img
           src={hero}
@@ -67,11 +64,6 @@ function SessionTile({ session, onOpen }) {
           loading="lazy"
           className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
         />
-        {session.number != null && (
-          <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground num">
-            #{session.number}
-          </span>
-        )}
         <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
           {date}
         </span>
@@ -83,12 +75,9 @@ function SessionTile({ session, onOpen }) {
       </button>
 
       <div className="mt-4">
-        <div className="text-base font-semibold leading-snug tracking-tight truncate" title={headline}>
-          {headline || (session.number != null ? `Session #${session.number}` : fmtDate(session.date))}
+        <div className="text-base font-semibold leading-snug tracking-tight">
+          {name}
         </div>
-        {session.attendees.length > 0 && (
-          <p className="text-xs text-muted mt-1">{session.attendees.length} attendees</p>
-        )}
       </div>
     </article>
   );

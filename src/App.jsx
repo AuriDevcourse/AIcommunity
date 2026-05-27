@@ -7,7 +7,7 @@ import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
-import { Calendar, Users } from 'lucide-react';
+import { Calendar, Users, Hammer, CircleCheck } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 
 const TABS = [
@@ -17,6 +17,17 @@ const TABS = [
   { key: 'sessions', label: 'Sessions' },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
+
+const COMING_SOON = [
+  { title: 'Polls', desc: 'Lightweight in-session polls and votes for picking demo topics, rating sessions, and quick gut-checks.' },
+];
+
+const TOOLS_TESTED = [
+  { title: 'Cursor', desc: 'AI-first code editor — used across multiple side-project demos.' },
+  { title: 'Claude Code', desc: 'Anthropic CLI agent — used for multi-step coding sessions and CLAUDE.md-driven projects.' },
+  { title: 'Windsurf', desc: 'AI IDE — TechBBQ-paid daily driver, tested side-by-side with Cursor.' },
+  { title: 'v0 by Vercel', desc: 'Prompt-to-UI generator — tested for landing-page and component scaffolding.' },
+];
 
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
@@ -93,6 +104,12 @@ export default function App() {
             <div className="col-span-12">
               <ScheduleAhead schedule={futureSchedule} />
             </div>
+            <div className="col-span-12 md:col-span-6">
+              <StatusList icon={Hammer} label="Soon implementing" items={COMING_SOON} />
+            </div>
+            <div className="col-span-12 md:col-span-6">
+              <StatusList icon={CircleCheck} label="Tools tested already" items={TOOLS_TESTED} />
+            </div>
           </div>
         )}
 
@@ -104,6 +121,26 @@ export default function App() {
       {import.meta.env.VITE_FEEDBACK_ENABLED === 'true' && <FeedbackButton />}
       {import.meta.env.DEV && <Agentation />}
     </div>
+  );
+}
+
+function StatusList({ icon: Icon, label, items }) {
+  if (!items?.length) return null;
+  return (
+    <section className="h-full rounded-2xl border border-border bg-pill p-5 sm:p-6">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
+        <Icon size={12} strokeWidth={2} />
+        <span>{label}</span>
+      </div>
+      <ul className="mt-4 space-y-3">
+        {items.map((item) => (
+          <li key={item.title} className="rounded-xl border border-border bg-background p-4">
+            <div className="text-sm font-semibold tracking-tight">{item.title}</div>
+            <p className="mt-1 text-xs text-muted leading-relaxed">{item.desc}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

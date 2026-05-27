@@ -20,20 +20,17 @@ function NewsImage({ src, alt }) {
 const CATEGORIES = [
   { key: 'all',          label: 'All',           count: news.items.length },
   { key: 'global',       label: 'Global',        count: news.items.filter((i) => i.category === 'global').length },
-  { key: 'eu-policy',    label: 'EU / Policy',   count: news.items.filter((i) => i.category === 'eu-policy').length },
-  { key: 'lt-community', label: 'LT Community',  count: news.items.filter((i) => i.category === 'lt-community').length },
+  { key: 'eu-policy',    label: 'EU / Denmark',  count: news.items.filter((i) => i.category === 'eu-policy').length },
 ];
 
 const CATEGORY_LABEL = {
   global: 'Global',
   'eu-policy': 'EU / Denmark / Policy',
-  'lt-community': 'LT Community',
 };
 
 const CARD_BADGE = {
   global: 'Global',
-  'eu-policy': 'EU / Policy',
-  'lt-community': 'LT',
+  'eu-policy': 'EU / DK',
 };
 
 export default function News() {
