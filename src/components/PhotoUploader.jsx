@@ -115,6 +115,9 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
             <Upload size={14} strokeWidth={2.2} />
             {done === queue.length && queue.length ? 'Uploaded' : `Upload${queue.length ? ` ${queue.length}` : ''}`}
           </button>
+          {configured && queue.length > 0 && !name.trim() && (
+            <p className="text-xs text-warn text-center">Enter your name above to upload.</p>
+          )}
         </div>
 
         {existing.length > 0 && (
