@@ -5,3 +5,5 @@ data/feedback.md
 .env
 .env.local
 .vercel
+
+data/suggestions-store.json

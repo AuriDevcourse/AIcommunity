@@ -6,6 +6,7 @@ import { handlePolls } from './api/_polls-core.js';
 import { handleAttendees } from './api/_gcal.js';
 import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
+import { handleSuggestions } from './api/_suggestions.js';
 
 const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
 
@@ -41,6 +42,15 @@ function pollsPlugin() {
           const url = new URL(req.url, 'http://localhost');
           const query = Object.fromEntries(url.searchParams);
           const { status, json } = await handleAttendees({ query });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/suggestions', async (req, res) => {
+        try {
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handleSuggestions({ method: req.method, body });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });

@@ -7,9 +7,10 @@ import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
 import Polls from './components/Polls.jsx';
 import PostMaker from './components/PostMaker.jsx';
+import Suggestions from './components/Suggestions.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
-import { Calendar, Users, Hammer, CircleCheck } from 'lucide-react';
+import { Calendar, Users, CircleCheck } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 
 const TABS = [
@@ -21,10 +22,6 @@ const TABS = [
   { key: 'sessions', label: 'Sessions' },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
-
-const COMING_SOON = [
-  { title: 'Session recaps', desc: 'Auto-drafted recap after each session — demos shown, decisions made, action items — pulled from the notes and posted back to the group.' },
-];
 
 const TOOLS_TESTED = [
   { title: 'Cursor', desc: 'AI-first code editor — used across multiple side-project demos.' },
@@ -113,7 +110,7 @@ export default function App() {
               <ScheduleAhead schedule={futureSchedule} />
             </div>
             <div className="col-span-12 md:col-span-6">
-              <StatusList icon={Hammer} label="Soon implementing" items={COMING_SOON} />
+              <Suggestions />
             </div>
             <div className="col-span-12 md:col-span-6">
               <StatusList icon={CircleCheck} label="Tools tested already" items={TOOLS_TESTED} />

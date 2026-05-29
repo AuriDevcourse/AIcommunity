@@ -10,6 +10,7 @@ import { handlePolls } from './api/_polls-core.js';
 import { handleAttendees } from './api/_gcal.js';
 import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
+import { handleSuggestions } from './api/_suggestions.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '3003', 10);
@@ -64,6 +65,15 @@ app.all('/api/polls', async (req, res) => {
 app.get('/api/attendees', async (req, res) => {
   const { status, json } = await handleAttendees({ query: req.query || {} });
   res.status(status).json(json);
+});
+
+app.all('/api/suggestions', async (req, res) => {
+  try {
+    const { status, json } = await handleSuggestions({ method: req.method, body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
 });
 
 app.post('/api/generate-post', async (req, res) => {
