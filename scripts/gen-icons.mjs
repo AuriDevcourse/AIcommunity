@@ -1,6 +1,7 @@
 // Renders public/favicon.svg into all the raster icon sizes (free, no API).
 // Run: npm run gen:icons
 import sharp from 'sharp';
+import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,5 +20,12 @@ const sizes = [
 for (const [size, name] of sizes) {
   await sharp(svg, { density: 512 }).resize(size, size).png().toFile(out(name));
   console.log('wrote', name);
+}
+
+// Social / OG image (1200x630) from the generated hero, if present.
+const hero = join(root, 'public', 'brand', 'hero.png');
+if (existsSync(hero)) {
+  await sharp(hero).resize(1200, 630, { fit: 'cover' }).png().toFile(join(root, 'public', 'brand', 'og.png'));
+  console.log('wrote brand/og.png');
 }
 console.log('done');

@@ -99,6 +99,9 @@ export default function App() {
             <Stat icon={Calendar} value={data.sessions.length} label="sessions" hint={`last #${lastNumber}`} />
             <Stat icon={Users} value={data.members.length} label="members" />
           </div>
+          <div className="mt-6 rounded-2xl border border-border overflow-hidden">
+            <img src="/brand/hero.png" alt="" loading="lazy" className="w-full h-28 sm:h-44 object-cover" />
+          </div>
         </section>
 
         {tab === 'cockpit' && (
