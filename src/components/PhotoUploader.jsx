@@ -176,6 +176,9 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
           {configured && queue.length > 0 && !name.trim() && (
             <p className="text-xs text-warn text-center">Enter your name above to upload.</p>
           )}
+          {queue.length > 0 && done === queue.length && (
+            <p className="text-xs text-ok text-center">Uploaded to sessions/{date}/</p>
+          )}
         </div>
 
         {existing.length > 0 && (
