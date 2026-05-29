@@ -68,19 +68,23 @@ export default function Suggestions() {
         <Lightbulb size={12} strokeWidth={2} />
         <span>Suggestions</span>
       </div>
-      <p className="mt-2 text-xs text-muted">Suggest what to build next. Leave your name, then everyone can upvote or downvote.</p>
+      <p className="mt-2 text-xs text-muted">Suggest what to build next. Enter your name once, then you can suggest and upvote/downvote (one vote each).</p>
 
       {!configured && (
         <div className="mt-3 text-xs text-warn">Not connected to a store yet. Add Upstash Redis and redeploy (same store as Polls).</div>
+      )}
+
+      {configured && !name.trim() && (
+        <div className="mt-3 text-xs text-warn">Enter your name below to vote or suggest.</div>
       )}
 
       <div className="mt-4 rounded-xl border border-border bg-background p-3 space-y-2">
         <input
           value={name}
           onChange={(e) => setName_(e.target.value)}
-          placeholder="Your name"
+          placeholder="Your name (required to vote or suggest)"
           maxLength={48}
-          className="w-full bg-background border border-border rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:border-foreground"
+          className={`w-full bg-background border rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:border-foreground ${name.trim() ? 'border-border' : 'border-warn/60'}`}
         />
         <textarea
           value={text}
