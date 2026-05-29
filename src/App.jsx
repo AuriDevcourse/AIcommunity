@@ -64,7 +64,8 @@ export default function App() {
     <div className="min-h-full flex flex-col">
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
             <span className="text-sm font-semibold tracking-tight text-foreground">AI Workshop</span>
           </div>
           <nav className="flex items-center gap-1 sm:gap-1.5">

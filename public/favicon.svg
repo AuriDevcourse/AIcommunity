@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI Workshop">
+  <rect width="64" height="64" rx="14" fill="#141414"/>
+  <path d="M32 11 Q32 32 53 32 Q32 32 32 53 Q32 32 11 32 Q32 32 32 11 Z" fill="#ffffff"/>
+  <path d="M47 13 Q47 19 53 19 Q47 19 47 25 Q47 19 41 19 Q47 19 47 13 Z" fill="#ffffff" opacity="0.55"/>
+</svg>
