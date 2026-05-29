@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BarChart3, Plus, X, Check, Lock, LockOpen, Trash2, RefreshCw, Users } from 'lucide-react';
+import { BarChart3, Plus, X, Check, RefreshCw, Users } from 'lucide-react';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const ci = (s) => String(s || '').trim().toLowerCase();
@@ -166,24 +166,6 @@ export default function Polls() {
                     <span className="text-xs num">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
                     {poll.closed && <span className="pill pill-warn">closed</span>}
                   </div>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <button
-                    onClick={() => act({ action: 'close', pollId: poll.id, closed: !poll.closed })}
-                    disabled={busy === poll.id}
-                    className="text-muted hover:text-foreground transition-colors p-1.5"
-                    title={poll.closed ? 'Reopen poll' : 'Close poll'}
-                  >
-                    {poll.closed ? <LockOpen size={14} /> : <Lock size={14} />}
-                  </button>
-                  <button
-                    onClick={() => { if (confirm(`Delete poll "${poll.question}"?`)) act({ action: 'delete', pollId: poll.id }); }}
-                    disabled={busy === poll.id}
-                    className="text-muted hover:text-err transition-colors p-1.5"
-                    title="Delete poll"
-                  >
-                    <Trash2 size={14} />
-                  </button>
                 </div>
               </div>
 

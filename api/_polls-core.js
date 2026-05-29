@@ -180,19 +180,9 @@ export async function handlePolls({ method, body, store = createStore() }) {
     return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
   }
 
-  if (action === 'close') {
-    const polls = await store.listPolls();
-    const poll = polls.find((p) => p.id === body.pollId);
-    if (!poll) return { status: 404, json: { ok: false, error: 'poll not found' } };
-    poll.closed = Boolean(body.closed);
-    await store.savePolls(polls);
-    return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
-  }
-
-  if (action === 'delete') {
-    await store.deletePoll(body.pollId);
-    return { status: 200, json: { ok: true } };
-  }
+  // close + delete are intentionally NOT exposed via the API — manage polls
+  // (close/lock, delete) directly in the Upstash database. Set a poll's
+  // "closed": true there and the UI will disable voting on it.
 
   return { status: 400, json: { ok: false, error: 'unknown action' } };
 }
