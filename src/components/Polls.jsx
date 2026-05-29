@@ -20,11 +20,14 @@ export default function Polls() {
   const [showCreate, setShowCreate] = useState(false);
   const [err, setErr] = useState('');
 
+  const [configured, setConfigured] = useState(true);
+
   const load = useCallback(async () => {
     try {
       const r = await fetch('/api/polls');
       const j = await r.json();
       setPolls(j.polls || []);
+      setConfigured(j.configured !== false);
     } catch {
       setPolls([]);
     }
@@ -131,6 +134,12 @@ export default function Polls() {
         />
         {name.trim() && <span className="pill pill-ok flex-shrink-0"><Check size={11} strokeWidth={2.5} />{name.trim()}</span>}
       </div>
+
+      {!configured && (
+        <div className="card card-pad mb-5 text-sm text-warn" role="alert">
+          Polls aren't connected to a store yet. Add an Upstash Redis database and redeploy (see docs/polls-setup.md). Voting is disabled until then.
+        </div>
+      )}
 
       {err && (
         <div className="card card-pad mb-5 text-sm text-err border-err/30" role="alert">{err}</div>

@@ -118,6 +118,11 @@ function withResults(poll, votes) {
   return { ...poll, results: counts, voters, totalVoters };
 }
 
+// Storage is ready if Upstash is configured, or we're somewhere with a writable
+// FS (local dev / self-host). On Vercel without KV, writes would hit a read-only
+// FS, so we refuse them with a clear message instead of crashing (EROFS).
+const storageReady = () => Boolean(KV_URL) || !process.env.VERCEL;
+
 // ---------------------------------------------------------------- main handler
 export async function handlePolls({ method, body, store = createStore() }) {
   if (method === 'GET') {
@@ -126,10 +131,14 @@ export async function handlePolls({ method, body, store = createStore() }) {
       polls.map(async (p) => withResults(p, await store.getVotes(p.id))),
     );
     withVotes.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-    return { status: 200, json: { polls: withVotes } };
+    return { status: 200, json: { polls: withVotes, configured: storageReady() } };
   }
 
   if (method !== 'POST') return { status: 405, json: { ok: false, error: 'method not allowed' } };
+
+  if (!storageReady()) {
+    return { status: 200, json: { ok: false, configured: false, error: 'Polls need a Redis store. Connect Upstash and redeploy.' } };
+  }
 
   const action = body?.action;
 
