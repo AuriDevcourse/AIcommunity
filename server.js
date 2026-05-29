@@ -6,6 +6,10 @@ import express from 'express';
 import { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { handlePolls } from './api/_polls-core.js';
+import { handleAttendees } from './api/_gcal.js';
+import { listPhotos, generateUploadToken, deletePhoto, blobConfigured } from './api/_photos.js';
+import { handleGeneratePost } from './api/_postmaker.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '3003', 10);
@@ -43,6 +47,41 @@ app.post('/api/feedback', (req, res) => {
     const entry = `\n## ${ts}\n**${safeCategory}** — ${safeFrom}\n\n${safeText}\n\n---\n`;
     appendFileSync(FEEDBACK_FILE, entry);
     res.json({ ok: true, timestamp: ts });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.all('/api/polls', async (req, res) => {
+  try {
+    const { status, json } = await handlePolls({ method: req.method, body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/api/attendees', async (req, res) => {
+  const { status, json } = await handleAttendees({ query: req.query || {} });
+  res.status(status).json(json);
+});
+
+app.post('/api/generate-post', async (req, res) => {
+  try {
+    const { status, json } = await handleGeneratePost({ body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.all('/api/photos', async (req, res) => {
+  try {
+    if (req.method === 'GET') return res.status(200).json(await listPhotos());
+    if (!blobConfigured()) return res.status(200).json({ ok: false, configured: false, error: 'uploads not configured' });
+    if (req.method === 'POST') return res.status(200).json(await generateUploadToken({ body: req.body, request: req }));
+    if (req.method === 'DELETE') { await deletePhoto(req.query?.url || ''); return res.status(200).json({ ok: true }); }
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }

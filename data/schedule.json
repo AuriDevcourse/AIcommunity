@@ -32,13 +32,13 @@
     {
       "date": "2026-05-31",
       "number": null,
-      "theme": "",
-      "format": "tbd",
+      "theme": "Run your own local LLM — install & compare",
+      "format": "tool-explore",
       "presenter": "",
       "venue": "",
       "venueStatus": "open",
       "luma": "",
-      "notes": ""
+      "notes": "Hands-on: everyone installs a local model (Ollama / LM Studio / Jan) before or during the session, then we compare speed and quality across our different hardware — paid API vs free local. Bring your laptop. See the brief in docs/ for setup steps."
     },
     {
       "date": "2026-06-14",

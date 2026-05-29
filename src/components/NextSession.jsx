@@ -1,5 +1,6 @@
 import { fmtDateLong, relative } from '../lib/dates.js';
 import { Sparkles, Mic, MapPin, Ticket, CalendarClock, CalendarPlus } from 'lucide-react';
+import Attendees from './Attendees.jsx';
 
 const FORMATS = {
   'show-tell':    { label: 'Show & Tell' },
@@ -59,6 +60,8 @@ export default function NextSession({ session }) {
       {session.notes && (
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
+
+      <Attendees date={session.date} />
 
       <div className="mt-6 flex flex-wrap gap-2">
         <a

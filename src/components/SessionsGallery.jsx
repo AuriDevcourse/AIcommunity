@@ -1,10 +1,34 @@
 import { useEffect, useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ImagePlus } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
+import PhotoUploader from './PhotoUploader.jsx';
 
 export default function SessionsGallery({ sessions }) {
-  const withPhotos = sessions.filter((s) => Array.isArray(s.photos) && s.photos.length > 0);
-  const sorted = [...withPhotos].sort((a, b) => b.date.localeCompare(a.date));
+  const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
+  const [showUpload, setShowUpload] = useState(false);
+
+  const loadUploads = useCallback(async () => {
+    try {
+      const r = await fetch('/api/photos');
+      const j = await r.json();
+      setUploads(j.byDate || {});
+    } catch {
+      setUploads({});
+    }
+  }, []);
+  useEffect(() => { loadUploads(); }, [loadUploads]);
+
+  // Merge committed photos (from build) with runtime Blob uploads, by date.
+  const byDate = new Map();
+  for (const s of sessions) byDate.set(s.date, { ...s, photos: [...(s.photos || [])] });
+  for (const [date, items] of Object.entries(uploads)) {
+    const entry = byDate.get(date) || { date, number: null, photos: [] };
+    entry.photos = [...entry.photos, ...items.map((p) => p.url)];
+    byDate.set(date, entry);
+  }
+  const merged = [...byDate.values()].filter((s) => s.photos.length > 0);
+  const sorted = merged.sort((a, b) => b.date.localeCompare(a.date));
+  const sessionDates = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
 
   const [open, setOpen] = useState(null);
 
@@ -12,21 +36,38 @@ export default function SessionsGallery({ sessions }) {
 
   return (
     <div className="space-y-10">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Archive</div>
-        <div className="mt-2 text-3xl font-semibold tracking-tight">Sessions</div>
-        <p className="mt-2 text-sm text-muted">
-          {sorted.length === 0
-            ? 'No session photos yet. Drop files into public/sessions/<number>/ to populate this view.'
-            : `${sorted.length} sessions with photos.`}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Archive</div>
+          <div className="mt-2 text-3xl font-semibold tracking-tight">Sessions</div>
+          <p className="mt-2 text-sm text-muted">
+            {sorted.length === 0
+              ? 'No session photos yet. Add some from a gathering with the button.'
+              : `${sorted.length} sessions with photos.`}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowUpload(true)}
+          className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-border bg-pill px-4 py-2 text-sm font-medium text-foreground hover:bg-foreground hover:text-background transition-colors"
+        >
+          <ImagePlus size={14} strokeWidth={2.2} />
+          Add photos
+        </button>
       </div>
+
+      {showUpload && (
+        <PhotoUploader
+          dates={sessionDates}
+          onClose={() => setShowUpload(false)}
+          onChanged={loadUploads}
+        />
+      )}
 
       {sorted.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
           {sorted.map((session, i) => (
             <SessionTile
-              key={session.number}
+              key={session.date}
               session={session}
               onOpen={(photoIdx) => openAt(i, photoIdx)}
             />

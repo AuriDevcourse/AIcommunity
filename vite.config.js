@@ -1,9 +1,82 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { handlePolls } from './api/_polls-core.js';
+import { handleAttendees } from './api/_gcal.js';
+import { listPhotos, generateUploadToken, deletePhoto, blobConfigured } from './api/_photos.js';
+import { handleGeneratePost } from './api/_postmaker.js';
 
 const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
+
+function readJsonBody(req) {
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', (c) => { body += c; });
+    req.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch { resolve({}); } });
+  });
+}
+
+function sendJson(res, status, json) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(json));
+}
+
+function pollsPlugin() {
+  return {
+    name: 'polls-api',
+    configureServer(server) {
+      server.middlewares.use('/api/polls', async (req, res) => {
+        try {
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handlePolls({ method: req.method, body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/attendees', async (req, res) => {
+        try {
+          const url = new URL(req.url, 'http://localhost');
+          const query = Object.fromEntries(url.searchParams);
+          const { status, json } = await handleAttendees({ query });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/generate-post', async (req, res) => {
+        try {
+          if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          const body = await readJsonBody(req);
+          const { status, json } = await handleGeneratePost({ body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/photos', async (req, res) => {
+        try {
+          if (req.method === 'GET') return sendJson(res, 200, await listPhotos());
+          if (!blobConfigured()) return sendJson(res, 200, { ok: false, configured: false, error: 'uploads not configured' });
+          if (req.method === 'POST') {
+            const body = await readJsonBody(req);
+            return sendJson(res, 200, await generateUploadToken({ body, request: req }));
+          }
+          if (req.method === 'DELETE') {
+            const url = new URL(req.url, 'http://localhost');
+            await deletePhoto(url.searchParams.get('url') || '');
+            return sendJson(res, 200, { ok: true });
+          }
+          return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+    },
+  };
+}
 
 function feedbackPlugin() {
   return {
@@ -49,7 +122,12 @@ function feedbackPlugin() {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), feedbackPlugin()],
-  server: { port: 5280, open: true, strictPort: true },
+export default defineConfig(({ mode }) => {
+  // Load .env / .env.local (all keys, not just VITE_) into process.env so the
+  // dev API middleware can read GCAL_* secrets the same way the server does.
+  Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
+  return {
+    plugins: [react(), feedbackPlugin(), pollsPlugin()],
+    server: { port: 5280, open: true, strictPort: true },
+  };
 });

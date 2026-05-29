@@ -5,6 +5,8 @@ import ScheduleAhead from './components/ScheduleAhead.jsx';
 import MembersGallery from './components/MembersGallery.jsx';
 import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
+import Polls from './components/Polls.jsx';
+import PostMaker from './components/PostMaker.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
 import { Calendar, Users, Hammer, CircleCheck } from 'lucide-react';
@@ -13,13 +15,15 @@ import { TODAY } from './lib/dates.js';
 const TABS = [
   { key: 'cockpit',  label: 'Cockpit' },
   { key: 'news',     label: 'News' },
+  { key: 'polls',    label: 'Polls' },
+  { key: 'post',     label: 'Post' },
   { key: 'members',  label: 'Members' },
   { key: 'sessions', label: 'Sessions' },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
 
 const COMING_SOON = [
-  { title: 'Polls', desc: 'Lightweight in-session polls and votes for picking demo topics, rating sessions, and quick gut-checks.' },
+  { title: 'Session recaps', desc: 'Auto-drafted recap after each session — demos shown, decisions made, action items — pulled from the notes and posted back to the group.' },
 ];
 
 const TOOLS_TESTED = [
@@ -114,6 +118,8 @@ export default function App() {
         )}
 
         {tab === 'news' && <News />}
+        {tab === 'polls' && <Polls />}
+        {tab === 'post' && <PostMaker sessions={data.sessions} />}
         {tab === 'members' && <MembersGallery members={data.members} />}
         {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
       </main>

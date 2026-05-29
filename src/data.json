@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T17:01:56.151Z",
+  "generatedAt": "2026-05-29T16:01:50.612Z",
   "sessions": [
     {
       "number": 1,
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "number": 5,
+      "number": 6,
       "date": "2025-09-28",
       "location": "In-person",
       "attendees": [
@@ -253,7 +253,7 @@
       "photos": []
     },
     {
-      "number": 6,
+      "number": 7,
       "date": "2025-10-12",
       "location": "In-person",
       "attendees": [
@@ -269,7 +269,7 @@
       "photos": []
     },
     {
-      "number": 7,
+      "number": 8,
       "date": "2026-01-25",
       "location": "Sany's place (2nd floor)",
       "attendees": [
@@ -283,7 +283,7 @@
         {
           "done": false,
           "text": "Sany: Prepare programming basics presentation",
-          "sessionNumber": 7,
+          "sessionNumber": 8,
           "sessionDate": "2026-01-25"
         }
       ],
@@ -291,7 +291,7 @@
       "photos": []
     },
     {
-      "number": 8,
+      "number": 9,
       "date": "2026-02-08",
       "location": "Matrikel1 (gate code: #1623*)",
       "attendees": [],
@@ -301,11 +301,29 @@
       "photos": []
     },
     {
-      "number": 9,
+      "number": 5,
+      "date": "2026-03-08",
+      "location": "Matrikel1",
+      "attendees": [
+        "> Logged later from photos (held during the Feb–Apr window). Numbered #05."
+      ],
+      "demos": [],
+      "actions": [],
+      "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
+      "photos": [
+        "/sessions/2026-03-08/1.jpg",
+        "/sessions/2026-03-08/2.jpg",
+        "/sessions/2026-03-08/3.jpg",
+        "/sessions/2026-03-08/4.jpg"
+      ]
+    },
+    {
+      "number": 10,
       "date": "2026-05-03",
       "location": "TBD",
       "attendees": [
-        "> First session after the Feb–Apr gap (sessions #09–#13 in original numbering not held / not logged). Numbering reset to #09 for May 3."
+        "> Numbering note: the Mar 8 session (#05) was held during the Feb–Apr window and logged later from photos",
+        "so May 3 is #10. Other sessions in that window were not held / not logged."
       ],
       "demos": [],
       "actions": [],
@@ -437,13 +455,13 @@
       {
         "date": "2026-05-31",
         "number": null,
-        "theme": "",
-        "format": "tbd",
+        "theme": "Run your own local LLM — install & compare",
+        "format": "tool-explore",
         "presenter": "",
         "venue": "",
         "venueStatus": "open",
         "luma": "",
-        "notes": ""
+        "notes": "Hands-on: everyone installs a local model (Ollama / LM Studio / Jan) before or during the session, then we compare speed and quality across our different hardware — paid API vs free local. Bring your laptop. See the brief in docs/ for setup steps."
       },
       {
         "date": "2026-06-14",
@@ -611,9 +629,9 @@
     {
       "done": false,
       "text": "Sany: Prepare programming basics presentation",
-      "sessionNumber": 7,
+      "sessionNumber": 8,
       "sessionDate": "2026-01-25",
-      "source": "#7"
+      "source": "#8"
     }
   ]
 }

@@ -6,6 +6,8 @@
   "scripts": {
     "build:data": "node scripts/build-data.js",
     "fetch:news": "node scripts/fetch-news-images.js",
+    "seed:polls": "node scripts/seed-polls.js",
+    "google:auth": "node scripts/google-auth.js",
     "dev": "npm run build:data && vite",
     "build": "npm run build:data && vite build",
     "preview": "vite preview",
@@ -14,6 +16,7 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",
     "@fontsource-variable/geist-mono": "^5.1.0",
+    "@vercel/blob": "^2.4.0",
     "agentation": "^3.0.2",
     "express": "^4.21.1",
     "lucide-react": "^0.460.0",

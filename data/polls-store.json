@@ -1,0 +1,44 @@
+{
+  "polls": [
+    {
+      "id": "which-local-llm-tool-are-you-bri-31b2",
+      "question": "Which local LLM tool are you bringing to Sunday's session?",
+      "multi": false,
+      "options": [
+        {
+          "id": "o1",
+          "label": "LM Studio"
+        },
+        {
+          "id": "o2",
+          "label": "Ollama"
+        },
+        {
+          "id": "o3",
+          "label": "Jan"
+        },
+        {
+          "id": "o4",
+          "label": "GPT4All"
+        },
+        {
+          "id": "o5",
+          "label": "Not sure yet — need help installing"
+        }
+      ],
+      "closed": false,
+      "createdBy": "Auri",
+      "createdAt": "2026-05-29T09:59:47.365Z"
+    }
+  ],
+  "votes": {
+    "which-local-llm-tool-are-you-bri-31b2": {
+      "auri": {
+        "name": "Auri",
+        "optionIds": [
+          "o2"
+        ]
+      }
+    }
+  }
+}

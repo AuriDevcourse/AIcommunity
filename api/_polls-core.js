@@ -1,0 +1,184 @@
+// Shared polls logic — used by the Vercel serverless function (api/polls.js),
+// the Vite dev middleware (vite.config.js), and the self-host server (server.js).
+//
+// Storage: Upstash Redis if KV_REST_API_URL is present (production on Vercel),
+// otherwise a local JSON file (dev + self-host). Same logical operations either way.
+//
+// Vote model: votes for a poll live in a Redis hash keyed by the voter's
+// normalised name → one field per person, so simultaneous voters never clobber
+// each other, and re-voting with the same name overwrites (vote once per name).
+
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const LIST_KEY = 'aiworkshop:polls';
+const votesKey = (id) => `aiworkshop:votes:${id}`;
+
+const normName = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+const slug = (s) =>
+  String(s || 'poll').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'poll';
+
+// ---------------------------------------------------------------- Upstash store
+function upstashStore() {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  const cmd = async (command) => {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(command),
+    });
+    if (!r.ok) throw new Error(`upstash ${r.status}: ${await r.text()}`);
+    return (await r.json()).result;
+  };
+  return {
+    async listPolls() {
+      const raw = await cmd(['GET', LIST_KEY]);
+      return raw ? JSON.parse(raw) : [];
+    },
+    async savePolls(arr) {
+      await cmd(['SET', LIST_KEY, JSON.stringify(arr)]);
+    },
+    async getVotes(pollId) {
+      const flat = (await cmd(['HGETALL', votesKey(pollId)])) || [];
+      const out = {};
+      for (let i = 0; i < flat.length; i += 2) {
+        try { out[flat[i]] = JSON.parse(flat[i + 1]); } catch { /* skip */ }
+      }
+      return out;
+    },
+    async putVote(pollId, key, value) {
+      await cmd(['HSET', votesKey(pollId), key, JSON.stringify(value)]);
+    },
+    async deletePoll(pollId) {
+      const polls = (await this.listPolls()).filter((p) => p.id !== pollId);
+      await this.savePolls(polls);
+      await cmd(['DEL', votesKey(pollId)]);
+    },
+  };
+}
+
+// ------------------------------------------------------------- local-file store
+function fileStore() {
+  const DATA_DIR = process.env.DATA_DIR || join(__dirname, '..', 'data');
+  const FILE = join(DATA_DIR, 'polls-store.json');
+  const load = () => {
+    if (!existsSync(FILE)) return { polls: [], votes: {} };
+    try { return JSON.parse(readFileSync(FILE, 'utf8')); } catch { return { polls: [], votes: {} }; }
+  };
+  const save = (db) => {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(FILE, JSON.stringify(db, null, 2));
+  };
+  return {
+    async listPolls() { return load().polls; },
+    async savePolls(arr) { const db = load(); db.polls = arr; save(db); },
+    async getVotes(pollId) { return load().votes[pollId] || {}; },
+    async putVote(pollId, key, value) {
+      const db = load();
+      db.votes[pollId] = db.votes[pollId] || {};
+      db.votes[pollId][key] = value;
+      save(db);
+    },
+    async deletePoll(pollId) {
+      const db = load();
+      db.polls = db.polls.filter((p) => p.id !== pollId);
+      delete db.votes[pollId];
+      save(db);
+    },
+  };
+}
+
+export function createStore() {
+  return process.env.KV_REST_API_URL ? upstashStore() : fileStore();
+}
+
+// --------------------------------------------------------------------- results
+function withResults(poll, votes) {
+  const counts = {};
+  const voters = {};
+  for (const opt of poll.options) { counts[opt.id] = 0; voters[opt.id] = []; }
+  let totalVoters = 0;
+  for (const v of Object.values(votes)) {
+    totalVoters += 1;
+    for (const oid of v.optionIds || []) {
+      if (counts[oid] === undefined) continue;
+      counts[oid] += 1;
+      voters[oid].push(v.name);
+    }
+  }
+  return { ...poll, results: counts, voters, totalVoters };
+}
+
+// ---------------------------------------------------------------- main handler
+export async function handlePolls({ method, body, store = createStore() }) {
+  if (method === 'GET') {
+    const polls = await store.listPolls();
+    const withVotes = await Promise.all(
+      polls.map(async (p) => withResults(p, await store.getVotes(p.id))),
+    );
+    withVotes.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    return { status: 200, json: { polls: withVotes } };
+  }
+
+  if (method !== 'POST') return { status: 405, json: { ok: false, error: 'method not allowed' } };
+
+  const action = body?.action;
+
+  if (action === 'create') {
+    const question = String(body.question || '').trim().slice(0, 200);
+    const options = (body.options || [])
+      .map((o) => String(o || '').trim().slice(0, 100))
+      .filter(Boolean);
+    if (!question) return { status: 400, json: { ok: false, error: 'question required' } };
+    if (options.length < 2) return { status: 400, json: { ok: false, error: 'need at least 2 options' } };
+    const id = `${slug(question)}-${randomUUID().slice(0, 4)}`;
+    const poll = {
+      id,
+      question,
+      multi: Boolean(body.multi),
+      options: options.slice(0, 12).map((label, i) => ({ id: `o${i + 1}`, label })),
+      closed: false,
+      createdBy: String(body.createdBy || '').trim().slice(0, 64) || 'someone',
+      createdAt: new Date().toISOString(),
+    };
+    const polls = await store.listPolls();
+    polls.push(poll);
+    await store.savePolls(polls);
+    return { status: 200, json: { ok: true, poll } };
+  }
+
+  if (action === 'vote') {
+    const name = String(body.name || '').trim().slice(0, 48);
+    if (!name) return { status: 400, json: { ok: false, error: 'name required' } };
+    const polls = await store.listPolls();
+    const poll = polls.find((p) => p.id === body.pollId);
+    if (!poll) return { status: 404, json: { ok: false, error: 'poll not found' } };
+    if (poll.closed) return { status: 409, json: { ok: false, error: 'poll closed' } };
+    const valid = new Set(poll.options.map((o) => o.id));
+    let optionIds = [...new Set((body.optionIds || []).filter((o) => valid.has(o)))];
+    if (optionIds.length === 0) return { status: 400, json: { ok: false, error: 'pick at least one option' } };
+    if (!poll.multi) optionIds = optionIds.slice(0, 1);
+    await store.putVote(poll.id, normName(name), { name, optionIds });
+    return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
+  }
+
+  if (action === 'close') {
+    const polls = await store.listPolls();
+    const poll = polls.find((p) => p.id === body.pollId);
+    if (!poll) return { status: 404, json: { ok: false, error: 'poll not found' } };
+    poll.closed = Boolean(body.closed);
+    await store.savePolls(polls);
+    return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
+  }
+
+  if (action === 'delete') {
+    await store.deletePoll(body.pollId);
+    return { status: 200, json: { ok: true } };
+  }
+
+  return { status: 400, json: { ok: false, error: 'unknown action' } };
+}
