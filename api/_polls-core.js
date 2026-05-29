@@ -21,10 +21,15 @@ const normName = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' '
 const slug = (s) =>
   String(s || 'poll').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'poll';
 
+// Accept either the Vercel KV names or the raw Upstash names, whichever the
+// integration injects.
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+
 // ---------------------------------------------------------------- Upstash store
 function upstashStore() {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const url = KV_URL;
+  const token = KV_TOKEN;
   const cmd = async (command) => {
     const r = await fetch(url, {
       method: 'POST',
@@ -93,7 +98,7 @@ function fileStore() {
 }
 
 export function createStore() {
-  return process.env.KV_REST_API_URL ? upstashStore() : fileStore();
+  return KV_URL ? upstashStore() : fileStore();
 }
 
 // --------------------------------------------------------------------- results
