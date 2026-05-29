@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handlePolls } from './api/_polls-core.js';
 import { handleAttendees } from './api/_gcal.js';
-import { listPhotos, generateUploadToken, deletePhoto, blobConfigured } from './api/_photos.js';
+import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +23,7 @@ if (!existsSync(FEEDBACK_FILE)) {
 }
 
 const app = express();
-app.use(express.json({ limit: '64kb' }));
+app.use(express.json({ limit: '12mb' }));
 
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
@@ -79,7 +79,7 @@ app.all('/api/photos', async (req, res) => {
   try {
     if (req.method === 'GET') return res.status(200).json(await listPhotos());
     if (!blobConfigured()) return res.status(200).json({ ok: false, configured: false, error: 'uploads not configured' });
-    if (req.method === 'POST') return res.status(200).json(await generateUploadToken({ body: req.body, request: req }));
+    if (req.method === 'POST') { const r = await uploadPhoto(req.body); return res.status(200).json({ ok: true, ...r }); }
     if (req.method === 'DELETE') { await deletePhoto(req.query?.url || ''); return res.status(200).json({ ok: true }); }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {

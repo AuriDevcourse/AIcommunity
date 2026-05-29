@@ -4,7 +4,7 @@ import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { handlePolls } from './api/_polls-core.js';
 import { handleAttendees } from './api/_gcal.js';
-import { listPhotos, generateUploadToken, deletePhoto, blobConfigured } from './api/_photos.js';
+import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
 
 const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
@@ -62,7 +62,8 @@ function pollsPlugin() {
           if (!blobConfigured()) return sendJson(res, 200, { ok: false, configured: false, error: 'uploads not configured' });
           if (req.method === 'POST') {
             const body = await readJsonBody(req);
-            return sendJson(res, 200, await generateUploadToken({ body, request: req }));
+            const r = await uploadPhoto(body);
+            return sendJson(res, 200, { ok: true, ...r });
           }
           if (req.method === 'DELETE') {
             const url = new URL(req.url, 'http://localhost');

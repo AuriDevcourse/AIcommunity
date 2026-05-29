@@ -1,11 +1,50 @@
 import { useEffect, useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { X, Upload, Trash2, Check, ImagePlus } from 'lucide-react';
 
 const NAME_KEY = 'aiworkshop_voter_name';
-const slug = (s) => String(s || 'guest').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'guest';
-const safeFile = (s) => String(s).replace(/[^a-zA-Z0-9.]+/g, '-').slice(-40);
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+// Downscale in the browser so payloads stay small and uploads are fast/reliable.
+function downscale(file, maxDim = 1600, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve({ data: dataUrl.split(',')[1], contentType: 'image/jpeg' });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image (HEIC is not supported, use JPG/PNG)')); };
+    img.src = url;
+  });
+}
+
+// POST the downscaled image to our endpoint via XHR so we get real upload progress.
+function uploadViaXHR({ date, name, file, onProgress }) {
+  return new Promise((resolve, reject) => {
+    downscale(file).then(({ data, contentType }) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/photos');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100)); };
+      xhr.onload = () => {
+        try {
+          const j = JSON.parse(xhr.responseText || '{}');
+          if (xhr.status < 300 && j.ok) resolve(j);
+          else reject(new Error(j.error || `upload failed (${xhr.status})`));
+        } catch { reject(new Error('bad server response')); }
+      };
+      xhr.onerror = () => reject(new Error('network error'));
+      xhr.send(JSON.stringify({ date, name, filename: file.name, contentType, data }));
+    }).catch(reject);
+  });
+}
 
 export default function PhotoUploader({ dates, onClose, onChanged }) {
   const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) || '');
@@ -39,15 +78,11 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
     for (let i = 0; i < queue.length; i++) {
       setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'uploading', pct: 0 } : x)));
       try {
-        const f = queue[i].file;
-        const pathname = `sessions/${date}/${slug(name)}__${safeFile(f.name)}`;
-        await upload(pathname, f, {
-          access: 'public',
-          handleUploadUrl: '/api/photos',
-          contentType: f.type || undefined,
-          onUploadProgress: ({ percentage }) => {
-            setQueue((q) => q.map((x, j) => (j === i ? { ...x, pct: Math.round(percentage) } : x)));
-          },
+        await uploadViaXHR({
+          date,
+          name: name.trim(),
+          file: queue[i].file,
+          onProgress: (pct) => setQueue((q) => q.map((x, j) => (j === i ? { ...x, pct } : x))),
         });
         setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'done', pct: 100 } : x)));
       } catch (err) {

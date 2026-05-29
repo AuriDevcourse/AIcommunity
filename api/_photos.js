@@ -1,16 +1,17 @@
 // Session photo uploads, backed by Vercel Blob. Committed photos in
-// public/sessions/<date>/ are baked in at build time; these are the runtime
-// uploads anyone can add from the gathering. They live under sessions/<date>/
-// in Blob and the Sessions gallery merges both sources by date.
+// public/sessions/<date>/ are baked in at build time; these are runtime uploads
+// anyone can add from the gathering. They live under sessions/<date>/ in Blob and
+// the Sessions gallery merges both sources by date.
 //
-// Needs BLOB_READ_WRITE_TOKEN (auto-injected on Vercel once you add a Blob
-// store; for local dev put it in .env.local). Without it, listing returns
-// empty + uploads report "not configured".
-import { list, del } from '@vercel/blob';
-import { handleUpload } from '@vercel/blob/client';
+// Uploads come in as base64 JSON (the browser downscales first, so payloads are
+// small and well under the function body limit), and we write them with put().
+// Needs BLOB_READ_WRITE_TOKEN (auto-injected on Vercel; .env.local for dev).
+import { list, del, put } from '@vercel/blob';
 
 const PREFIX = 'sessions/';
 const deslug = (s) => s.replace(/[-_]+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
+const slug = (s) => String(s || 'guest').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'guest';
+const safeFile = (s) => String(s || 'photo.jpg').replace(/[^a-zA-Z0-9.]+/g, '-').slice(-40);
 
 export function blobConfigured() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
@@ -29,26 +30,22 @@ export async function listPhotos() {
     const uploader = file.includes('__') ? deslug(file.split('__')[0]) : '';
     (byDate[date] ||= []).push({ url: b.url, pathname: b.pathname, uploader, uploadedAt: b.uploadedAt });
   }
-  // newest upload first within each date
   for (const d of Object.keys(byDate)) byDate[d].sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt)));
   return { configured: true, byDate };
 }
 
-// Client-upload token flow (browser uploads straight to Blob; this only authorizes it).
-export async function generateUploadToken({ body, request }) {
-  return handleUpload({
-    body,
-    request,
-    onBeforeGenerateToken: async (pathname) => {
-      if (!pathname.startsWith(PREFIX)) throw new Error('invalid path');
-      return {
-        allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif'],
-        maximumSizeInBytes: 15 * 1024 * 1024,
-        addRandomSuffix: true,
-      };
-    },
-    onUploadCompleted: async () => {}, // Vercel calls this post-upload in prod; no-op
-  });
+// Server-side upload: browser sends a downscaled base64 image, we put() it to Blob.
+export async function uploadPhoto({ date, name, filename, contentType, data }) {
+  if (!blobConfigured()) throw new Error('uploads not configured');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) throw new Error('valid date required');
+  if (!String(name || '').trim()) throw new Error('name required');
+  if (!data) throw new Error('no image data');
+  const ct = ['image/jpeg', 'image/png', 'image/webp'].includes(contentType) ? contentType : 'image/jpeg';
+  const buffer = Buffer.from(data, 'base64');
+  if (buffer.length > 10 * 1024 * 1024) throw new Error('image too large');
+  const pathname = `${PREFIX}${date}/${slug(name)}__${safeFile(filename)}`;
+  const { url } = await put(pathname, buffer, { access: 'public', contentType: ct, addRandomSuffix: true });
+  return { url };
 }
 
 export async function deletePhoto(url) {
