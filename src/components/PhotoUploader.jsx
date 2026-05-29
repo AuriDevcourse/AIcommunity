@@ -10,9 +10,10 @@ const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB',
 export default function PhotoUploader({ dates, onClose, onChanged }) {
   const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) || '');
   const [date, setDate] = useState(dates[0] || new Date().toISOString().slice(0, 10));
-  const [queue, setQueue] = useState([]); // {file, status}
+  const [queue, setQueue] = useState([]); // {file, status, pct}
   const [existing, setExisting] = useState([]);
   const [configured, setConfigured] = useState(true);
+  const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
 
   async function loadExisting(d) {
@@ -27,21 +28,28 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
   }
   useEffect(() => { loadExisting(date); }, [date]);
 
-  function pick(e) {
-    const files = [...e.target.files];
-    setQueue(files.map((file) => ({ file, status: 'pending' })));
+  function addFiles(list) {
+    const files = [...list].filter((f) => f.type.startsWith('image/'));
+    if (files.length) setQueue(files.map((file) => ({ file, status: 'pending', pct: 0 })));
   }
 
   async function doUpload() {
     if (!name.trim() || queue.length === 0) return;
     localStorage.setItem(NAME_KEY, name.trim());
     for (let i = 0; i < queue.length; i++) {
-      setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'uploading' } : x)));
+      setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'uploading', pct: 0 } : x)));
       try {
         const f = queue[i].file;
         const pathname = `sessions/${date}/${slug(name)}__${safeFile(f.name)}`;
-        await upload(pathname, f, { access: 'public', handleUploadUrl: '/api/photos', contentType: f.type || undefined });
-        setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'done' } : x)));
+        await upload(pathname, f, {
+          access: 'public',
+          handleUploadUrl: '/api/photos',
+          contentType: f.type || undefined,
+          onUploadProgress: ({ percentage }) => {
+            setQueue((q) => q.map((x, j) => (j === i ? { ...x, pct: Math.round(percentage) } : x)));
+          },
+        });
+        setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'done', pct: 100 } : x)));
       } catch (err) {
         setQueue((q) => q.map((x, j) => (j === i ? { ...x, status: 'error', err: err.message } : x)));
       }
@@ -58,6 +66,8 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
   }
 
   const done = queue.filter((q) => q.status === 'done').length;
+  const uploading = queue.some((q) => q.status === 'uploading');
+  const overall = queue.length ? Math.round(queue.reduce((s, q) => s + (q.status === 'done' ? 100 : q.pct || 0), 0) / queue.length) : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
@@ -87,21 +97,34 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
             </select>
           </label>
 
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={!configured}
-            className="w-full rounded-lg border border-dashed border-border bg-pill py-6 text-sm text-muted hover:border-foreground hover:text-foreground transition-colors disabled:opacity-50"
+          <div
+            onClick={() => configured && fileRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); if (configured) setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); if (configured) addFiles(e.dataTransfer.files); }}
+            className={`w-full rounded-lg border border-dashed py-6 text-center text-sm transition-colors ${
+              dragOver ? 'border-foreground bg-accent text-foreground' : 'border-border bg-pill text-muted hover:border-foreground hover:text-foreground'
+            } ${configured ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
           >
-            {queue.length ? `${queue.length} selected` : 'Choose photos'}
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={pick} />
+            {queue.length ? `${queue.length} selected` : 'Drop photos here, or click to choose'}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => addFiles(e.target.files)} />
 
           {queue.length > 0 && (
-            <ul className="space-y-1 text-xs">
+            <ul className="space-y-1.5 text-xs">
               {queue.map((q, i) => (
-                <li key={i} className="flex items-center justify-between gap-2 text-muted">
-                  <span className="truncate">{q.file.name}</span>
-                  <span className={q.status === 'done' ? 'text-ok' : q.status === 'error' ? 'text-err' : ''}>{q.status}</span>
+                <li key={i} className="text-muted">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">{q.file.name}</span>
+                    <span className={`num ${q.status === 'done' ? 'text-ok' : q.status === 'error' ? 'text-err' : ''}`}>
+                      {q.status === 'uploading' ? `${q.pct}%` : q.status === 'done' ? 'done' : q.status}
+                    </span>
+                  </div>
+                  {(q.status === 'uploading' || q.status === 'done') && (
+                    <div className="mt-1 h-1 rounded-full bg-accent overflow-hidden">
+                      <div className="h-full bg-foreground transition-[width] duration-200" style={{ width: `${q.status === 'done' ? 100 : q.pct}%` }} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -109,11 +132,11 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
 
           <button
             onClick={doUpload}
-            disabled={!configured || !name.trim() || queue.length === 0}
+            disabled={!configured || !name.trim() || queue.length === 0 || uploading}
             className="w-full rounded-full bg-foreground text-background py-2.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.01] flex items-center justify-center gap-2"
           >
             <Upload size={14} strokeWidth={2.2} />
-            {done === queue.length && queue.length ? 'Uploaded' : `Upload${queue.length ? ` ${queue.length}` : ''}`}
+            {uploading ? `Uploading ${overall}%` : done === queue.length && queue.length ? 'Uploaded' : `Upload${queue.length ? ` ${queue.length}` : ''}`}
           </button>
           {configured && queue.length > 0 && !name.trim() && (
             <p className="text-xs text-warn text-center">Enter your name above to upload.</p>
