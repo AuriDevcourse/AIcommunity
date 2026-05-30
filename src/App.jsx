@@ -14,7 +14,7 @@ import Learn from './components/Learn.jsx';
 import AuthControls from './components/AuthControls.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, BarChart3, Wrench, Images, MessagesSquare, GraduationCap } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, BarChart3, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 
 const TABS = [
@@ -36,6 +36,7 @@ function readTabFromHash() {
 
 export default function App() {
   const [tab, setTab] = useState(readTabFromHash);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onHashChange = () => setTab(readTabFromHash());
@@ -52,6 +53,13 @@ export default function App() {
       window.history.replaceState(null, '', `#${tab}`);
     }
   }, [tab]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   // Jump to the Forum tab, optionally deep-linking to a specific topic (the
   // Discussions component reads this on mount and expands it).
@@ -95,17 +103,21 @@ export default function App() {
             </nav>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* Mobile: show the active section name for context next to the brand. */}
-            <span className="sm:hidden text-xs font-medium text-muted">
-              {TABS.find((t) => t.key === tab)?.label}
-            </span>
             {import.meta.env.VITE_FEEDBACK_ENABLED === 'true' && <FeedbackButton />}
             <AuthControls />
+            {/* Mobile: hamburger opens the full nav. Desktop uses the top menu. */}
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="sm:hidden grid place-items-center w-9 h-9 rounded-full border border-border bg-pill text-foreground hover:bg-accent transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu size={18} />
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 pb-28 sm:pb-10 flex-1">
+      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
         <section className="mb-8 sm:mb-10">
           <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight">
             Build with AI. Show what you learned.
@@ -143,33 +155,43 @@ export default function App() {
         </div>
       </main>
 
-      {/* Mobile bottom tab bar: app-like nav with large tap targets. */}
-      <nav
-        className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/90 backdrop-blur pb-[env(safe-area-inset-bottom)]"
-        aria-label="Primary"
-      >
-        {/* Fills the width when there's room; scrolls horizontally when tabs outgrow it. */}
-        <div className="flex overflow-x-auto no-scrollbar">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const active = tab === t.key;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                aria-current={active ? 'page' : undefined}
-                className={`relative flex flex-1 min-w-[64px] flex-col items-center justify-center gap-1 min-h-[60px] px-1 py-2 transition-colors ${
-                  active ? 'text-foreground' : 'text-muted'
-                }`}
-              >
-                {active && <span className="absolute top-0 h-0.5 w-6 rounded-full bg-foreground" aria-hidden />}
-                <Icon size={19} strokeWidth={active ? 2.4 : 2} />
-                <span className="text-[10px] font-medium leading-none">{t.label}</span>
+      {/* Mobile menu (hamburger). Desktop uses the top menu. */}
+      {menuOpen && (
+        <div className="sm:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden />
+          <nav className="absolute top-0 inset-x-0 bg-background border-b border-border shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+            <div className="h-14 flex items-center justify-between px-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
+                <span className="text-sm font-semibold tracking-tight">AI Workshop</span>
+              </div>
+              <button onClick={() => setMenuOpen(false)} className="grid place-items-center w-9 h-9 rounded-full text-muted hover:text-foreground hover:bg-accent transition-colors" aria-label="Close menu">
+                <X size={18} />
               </button>
-            );
-          })}
+            </div>
+            <div className="p-2 grid gap-0.5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                const active = tab === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => { setTab(t.key); setMenuOpen(false); }}
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${
+                      active ? 'bg-accent text-foreground' : 'text-muted hover:bg-accent hover:text-foreground'
+                    }`}
+                  >
+                    <Icon size={18} strokeWidth={2} />
+                    <span className="flex-1 text-left">{t.label}</span>
+                    {active && <Check size={16} strokeWidth={2.5} />}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
         </div>
-      </nav>
+      )}
 
       {import.meta.env.DEV && <Agentation />}
     </div>
