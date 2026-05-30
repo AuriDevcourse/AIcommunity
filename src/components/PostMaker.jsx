@@ -40,7 +40,7 @@ function sessionToDraft(s) {
   if (s.summary) lines.push(`\n${s.summary}`);
   if (s.demos?.length) {
     lines.push('\nDemos:');
-    for (const d of s.demos) lines.push(`- ${d.presenter}${d.topic ? ` — ${d.topic}` : ''}`);
+    for (const d of s.demos) lines.push(`- ${d.presenter}${d.topic ? `: ${d.topic}` : ''}`);
   }
   if (s.attendees?.length) lines.push(`\nWho came: ${s.attendees.join(', ')}.`);
   return lines.join('\n');
@@ -196,12 +196,12 @@ export default function PostMaker({ sessions = [] }) {
         <PenLine size={11} strokeWidth={2.2} />
         <span>Post maker</span>
       </div>
-      <h2 className="text-2xl font-semibold tracking-tight mt-1">Turn a session into a post</h2>
-      <p className="text-sm text-muted mt-1">Answer a few prompts, pick a session for the photos, and see the LinkedIn preview on the right.</p>
+      <h2 className="text-3xl font-semibold tracking-tight mt-1">Turn a session into a post</h2>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Answer a few prompts, pick a session for photos, watch the LinkedIn preview build.</p>
 
       {status === 'notconfigured' && (
         <div className="card card-pad mt-5 text-sm text-warn">
-          Post generation isn't connected yet. Add <span className="font-mono">OPENROUTER_API_KEY</span> to the dashboard env (see docs/postmaker-setup.md).
+          Post generation has no key yet. Add <span className="font-mono">OPENROUTER_API_KEY</span> to the dashboard env (see docs/postmaker-setup.md).
         </div>
       )}
 

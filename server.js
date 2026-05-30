@@ -11,6 +11,9 @@ import { handleAttendees } from './api/_gcal.js';
 import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
 import { handleSuggestions } from './api/_suggestions.js';
+import { handleThreads } from './api/_threads.js';
+import { handleTopics } from './api/_topics.js';
+import { handleImageUpload } from './api/_imgbb.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '3003', 10);
@@ -70,6 +73,33 @@ app.get('/api/attendees', async (req, res) => {
 app.all('/api/suggestions', async (req, res) => {
   try {
     const { status, json } = await handleSuggestions({ method: req.method, body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.all('/api/threads', async (req, res) => {
+  try {
+    const { status, json } = await handleThreads({ method: req.method, body: req.body, query: req.query });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.all('/api/topics', async (req, res) => {
+  try {
+    const { status, json } = await handleTopics({ method: req.method, body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.post('/api/upload-image', async (req, res) => {
+  try {
+    const { status, json } = await handleImageUpload({ body: req.body });
     res.status(status).json(json);
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });

@@ -1,0 +1,78 @@
+{
+  "tutorials": [
+    {
+      "id": "local-llm",
+      "title": "Run your own local LLM",
+      "summary": "Install a model on your laptop and compare it to a paid API. No GPU farm required.",
+      "level": "Beginner",
+      "minutes": 20,
+      "tags": ["local", "tools"],
+      "slides": "",
+      "steps": [
+        { "title": "Pick a runner", "body": "Install Ollama (terminal) or LM Studio (a friendly GUI). Both are free and download models for you. On 16GB RAM, stick to 7-8B models." },
+        { "title": "Pull a model", "body": "In Ollama, one command downloads and runs a model. In LM Studio, search a model and click download. Qwen2.5 7B and Llama 3.1 8B are strong all-rounders for code and chat.", "code": "ollama run llama3.1:8b" },
+        { "title": "Talk to it", "body": "Ask it the same prompt you'd send to a paid API. Notice the speed on your hardware and where quality drops off (long context, niche knowledge)." },
+        { "title": "Compare honestly", "body": "Run one real task (refactor a function, summarise a doc) on local vs a paid model. Local wins on cost and privacy; paid wins on hard reasoning. Pick per task, not per religion." }
+      ],
+      "resources": [
+        { "label": "Ollama", "url": "https://ollama.com" },
+        { "label": "LM Studio", "url": "https://lmstudio.ai" }
+      ]
+    },
+    {
+      "id": "first-agent",
+      "title": "Build your first AI agent",
+      "summary": "Go from a single prompt to a loop that uses tools and finishes a real task.",
+      "level": "Intermediate",
+      "minutes": 30,
+      "tags": ["agents", "build"],
+      "slides": "",
+      "steps": [
+        { "title": "Understand the loop", "body": "An agent is a model in a loop: it reads a goal, decides on an action (often calling a tool), runs it, reads the result, and repeats until done. That's the whole trick." },
+        { "title": "Give it tools", "body": "Start with one or two tools the model can call (a web search, a file reader, a calculator). Describe each tool clearly. The model picks when to use them." },
+        { "title": "Add a stop condition", "body": "Decide when the agent is finished (goal met, or a step budget reached). Without a stop condition agents loop forever or wander." },
+        { "title": "Watch it work", "body": "Log every step: the action, the tool result, the next decision. Most agent bugs are obvious once you can see the trace." }
+      ],
+      "resources": [
+        { "label": "Anthropic: building agents", "url": "https://www.anthropic.com/engineering/building-effective-agents" }
+      ]
+    },
+    {
+      "id": "ship-with-claude-code",
+      "title": "Ship a web app with Claude Code",
+      "summary": "From idea to a deployed app, using an AI agent in your terminal as the pair programmer.",
+      "level": "Beginner",
+      "minutes": 25,
+      "tags": ["build", "tools"],
+      "slides": "",
+      "steps": [
+        { "title": "Scaffold", "body": "Pick a stack you can deploy easily (Next.js or Vite + a serverless backend). Ask the agent to set it up and run it, then confirm it builds before adding features.", "code": "npm create vite@latest my-app" },
+        { "title": "Work in small steps", "body": "Ask for one feature at a time, build after each, and read the diff. Small steps keep the agent on track and make bugs easy to spot." },
+        { "title": "Verify before you trust", "body": "Have the agent test what it built (run it, hit the endpoints) instead of assuming. A second pass catches the silent breakages." },
+        { "title": "Deploy", "body": "Push to Vercel (static or serverless) or a small VPS with systemd. Add your env keys, redeploy, and share the link." }
+      ],
+      "resources": [
+        { "label": "Claude Code docs", "url": "https://docs.claude.com/en/docs/claude-code/overview" },
+        { "label": "Vercel", "url": "https://vercel.com" }
+      ]
+    },
+    {
+      "id": "prompting-basics",
+      "title": "Prompting that actually works",
+      "summary": "Practical habits that get better output from any model, with no jargon.",
+      "level": "Beginner",
+      "minutes": 12,
+      "tags": ["prompting"],
+      "slides": "",
+      "steps": [
+        { "title": "Say what good looks like", "body": "Show one example of the output you want. One concrete example beats three paragraphs of description." },
+        { "title": "Give the role and the constraints", "body": "Who is it (a senior reviewer, a copy editor), what must it avoid, what format do you want back. Constraints reduce rambling." },
+        { "title": "Let it think before answering", "body": "For hard tasks, ask it to reason step by step or draft then critique. For simple tasks, ask for the answer directly to save time and tokens." },
+        { "title": "Iterate on the prompt, not the output", "body": "When the answer is wrong, fix the instruction that caused it rather than hand-editing the result. The fixed prompt pays off every next time." }
+      ],
+      "resources": [
+        { "label": "Anthropic prompt library", "url": "https://docs.claude.com/en/resources/prompt-library/library" }
+      ]
+    }
+  ]
+}

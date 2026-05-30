@@ -190,7 +190,7 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
                   <img src={p.url} alt="" className="w-full h-full object-cover rounded-md border border-border" />
                   <button
                     onClick={() => remove(p.url)}
-                    className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-1 text-muted hover:text-err opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-1 text-muted hover:text-err opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                     aria-label="Remove"
                   >
                     <Trash2 size={11} />

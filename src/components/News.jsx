@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import news from '../../data/news.json';
 
 function NewsImage({ src, alt }) {
@@ -42,7 +43,7 @@ export default function News() {
       <div>
         <div className="flex items-baseline justify-between flex-wrap gap-3">
           <div>
-            <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted">AI News Roundup</div>
+            <div className="h-section">AI News Roundup</div>
             <div className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</div>
           </div>
           <div className="text-xs text-muted num">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
@@ -74,18 +75,24 @@ export default function News() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
-        {items.map((item) => (
-          <NewsCard key={item.id} item={item} />
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <div className="card card-pad text-sm text-muted">No stories in this category.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+          {items.map((item) => (
+            <NewsCard key={item.id} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 function NewsCard({ item }) {
+  const [open, setOpen] = useState(false);
   const primary = item.sources[0];
   const date = new Date(item.date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const hasMore = item.summary || item.whyItMatters || item.whyForUs;
 
   return (
     <article className="group flex flex-col">
@@ -111,36 +118,47 @@ function NewsCard({ item }) {
         <h3 className="text-base font-semibold leading-snug tracking-tight">
           <a href={primary.url} target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">{item.title}</a>
         </h3>
-        {item.subtitle && <p className="text-xs text-muted mt-1">{item.subtitle}</p>}
-        <p className="text-sm text-muted mt-2 leading-relaxed">{item.summary}</p>
+        {item.subtitle && <p className="text-xs text-muted mt-1 leading-relaxed">{item.subtitle}</p>}
 
-        {(item.whyItMatters || item.whyForUs) && (
-          <div className="mt-4 space-y-3 border-t border-border pt-3">
+        {open && (
+          <div className="mt-3 space-y-2.5">
+            {item.summary && <p className="text-sm text-muted leading-relaxed">{item.summary}</p>}
             {item.whyItMatters && (
-              <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground">Why it matters</div>
-                <p className="mt-1 text-sm text-muted leading-relaxed">{item.whyItMatters}</p>
-              </div>
+              <p className="text-sm leading-relaxed">
+                <span className="font-semibold text-foreground">Why it matters. </span>
+                <span className="text-muted">{item.whyItMatters}</span>
+              </p>
             )}
             {item.whyForUs && (
-              <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground">For us in Copenhagen</div>
-                <p className="mt-1 text-sm text-muted leading-relaxed">{item.whyForUs}</p>
-              </div>
+              <p className="text-sm leading-relaxed">
+                <span className="font-semibold text-foreground">For us in Copenhagen. </span>
+                <span className="text-muted">{item.whyForUs}</span>
+              </p>
             )}
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-          <span className="text-muted">Sources:</span>
-          {item.sources.map((s, i) => (
-            <span key={s.url} className="flex items-center gap-1">
-              <a href={s.url} target="_blank" rel="noreferrer" className="text-foreground hover:underline underline-offset-2">
-                {s.name}
-              </a>
-              {i < item.sources.length - 1 && <span className="text-border">·</span>}
-            </span>
-          ))}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          {hasMore ? (
+            <button
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-muted transition-colors"
+            >
+              {open ? 'Show less' : 'Read more'}
+              <ChevronDown size={14} strokeWidth={2.2} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+            </button>
+          ) : <span />}
+          <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-xs min-w-0">
+            {item.sources.map((s, i) => (
+              <span key={s.url} className="flex items-center gap-1">
+                <a href={s.url} target="_blank" rel="noreferrer" className="text-muted hover:text-foreground hover:underline underline-offset-2 truncate">
+                  {s.name}
+                </a>
+                {i < item.sources.length - 1 && <span className="text-border">·</span>}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </article>

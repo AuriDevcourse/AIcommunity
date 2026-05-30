@@ -6,6 +6,7 @@
     "order": 1
   },
   "Eividas Maciulis": {
+    "email": "neverkits@gmail.com",
     "linkedin": "https://www.linkedin.com/in/eividas-m/",
     "photo": "/members/eividas.jpg",
     "order": 2
@@ -20,7 +21,6 @@
     "photo": "/members/dovydas.jpg"
   },
   "Sany Ivanova": {
-    "email": "neverkits@gmail.com",
     "linkedin": "https://www.linkedin.com/in/sany-ivanova-307373120/",
     "photo": "/members/sany.jpg"
   },
@@ -51,5 +51,13 @@
     "linkedin": "https://www.linkedin.com/in/maria-krupa-/",
     "photo": "/members/maria.jpg",
     "order": 99
-  }
+  },
+  "Inigo Casillas": { "gender": "male" },
+  "Aiza Watzlawek": { "gender": "female" },
+  "Cristina Bodnari": { "gender": "female" },
+  "Kernius Savickas": { "gender": "male" },
+  "Kristina Juozapaviciute": { "gender": "female" },
+  "Vasare Liutkeviciute": { "gender": "female" },
+  "Tady Kapic": { "gender": "male" },
+  "Valentin": { "gender": "male" }
 }

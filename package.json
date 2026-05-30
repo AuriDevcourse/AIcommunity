@@ -7,6 +7,7 @@
     "build:data": "node scripts/build-data.js",
     "fetch:news": "node scripts/fetch-news-images.js",
     "seed:polls": "node scripts/seed-polls.js",
+    "seed:forum": "node scripts/seed-forum.js",
     "google:auth": "node scripts/google-auth.js",
     "gen:icons": "node scripts/gen-icons.mjs",
     "dev": "npm run build:data && vite",
@@ -17,6 +18,7 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",
     "@fontsource-variable/geist-mono": "^5.1.0",
+    "@supabase/supabase-js": "^2.106.2",
     "@vercel/blob": "^2.4.0",
     "agentation": "^3.0.2",
     "express": "^4.21.1",

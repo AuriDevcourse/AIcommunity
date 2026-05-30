@@ -38,11 +38,11 @@ export default function SessionsGallery({ sessions }) {
     <div className="space-y-10">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Archive</div>
+          <div className="h-section">Archive</div>
           <div className="mt-2 text-3xl font-semibold tracking-tight">Sessions</div>
           <p className="mt-2 text-sm text-muted">
             {sorted.length === 0
-              ? 'No session photos yet. Add some from a gathering with the button.'
+              ? 'No photos yet. Add some with the button.'
               : `${sorted.length} sessions with photos.`}
           </p>
         </div>
@@ -64,7 +64,7 @@ export default function SessionsGallery({ sessions }) {
       )}
 
       {sorted.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
           {sorted.map((session, i) => (
             <SessionTile
               key={session.date}
@@ -97,7 +97,7 @@ function SessionTile({ session, onOpen }) {
       <button
         type="button"
         onClick={() => onOpen(0)}
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
+        className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
         <img
           src={hero}

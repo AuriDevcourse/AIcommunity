@@ -6,8 +6,8 @@
       "theme": "",
       "format": "tbd",
       "presenter": "",
-      "venue": "",
-      "venueStatus": "open",
+      "venue": "Matrikel1",
+      "venueStatus": "confirmed",
       "luma": "",
       "roles": {
         "host": "Auri",
@@ -16,7 +16,7 @@
         "demoCurator": "Auri",
         "recapWriter": ""
       },
-      "notes": "First session after the gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
+      "notes": "First session after the gap. Pick the format on Friday. Lean Coffee if fewer than 2 demos."
     },
     {
       "date": "2026-05-17",
@@ -32,13 +32,13 @@
     {
       "date": "2026-05-31",
       "number": null,
-      "theme": "Run your own local LLM — install & compare",
+      "theme": "Run your own local LLM: install & compare",
       "format": "tool-explore",
       "presenter": "",
-      "venue": "",
-      "venueStatus": "open",
+      "venue": "Matrikel1",
+      "venueStatus": "confirmed",
       "luma": "",
-      "notes": "Hands-on: everyone installs a local model (Ollama / LM Studio / Jan) before or during the session, then we compare speed and quality across our different hardware — paid API vs free local. Bring your laptop. See the brief in docs/ for setup steps."
+      "notes": "Hands-on: everyone installs a local model (Ollama / LM Studio / Jan) before or during the session, then we compare speed and quality across our hardware. Paid API vs free local. Bring your laptop. Setup steps are in the brief in docs/."
     },
     {
       "date": "2026-06-14",
@@ -46,8 +46,8 @@
       "theme": "",
       "format": "tbd",
       "presenter": "",
-      "venue": "",
-      "venueStatus": "open",
+      "venue": "Matrikel1",
+      "venueStatus": "confirmed",
       "luma": "",
       "notes": ""
     },
@@ -57,8 +57,8 @@
       "theme": "",
       "format": "tbd",
       "presenter": "",
-      "venue": "",
-      "venueStatus": "open",
+      "venue": "Matrikel1",
+      "venueStatus": "confirmed",
       "luma": "",
       "notes": ""
     },
@@ -68,8 +68,8 @@
       "theme": "",
       "format": "tbd",
       "presenter": "",
-      "venue": "",
-      "venueStatus": "open",
+      "venue": "Matrikel1",
+      "venueStatus": "confirmed",
       "luma": "",
       "notes": ""
     }
@@ -78,7 +78,7 @@
     {
       "from": "2026-02-22",
       "to": "2026-04-19",
-      "reason": "Protocol paused — sessions in this window were not logged."
+      "reason": "Protocol paused. Sessions in this window went unlogged."
     }
   ]
 }

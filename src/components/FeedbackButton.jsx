@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { MessageSquarePlus, X } from 'lucide-react';
 
 const CATEGORIES = [
   { key: 'general',  label: 'General' },
@@ -70,20 +71,20 @@ export default function FeedbackButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-[0_20px_40px_rgba(0,0,0,0.18)] transition-transform hover:scale-105"
-        title="Add feedback / signal"
+        className="grid place-items-center w-8 h-8 rounded-full border border-border bg-pill text-muted hover:text-foreground hover:bg-accent transition-colors"
+        title="Send feedback"
+        aria-label="Send feedback"
       >
-        <Plus size={14} strokeWidth={2.5} />
-        Feedback
+        <MessageSquarePlus size={16} strokeWidth={2} />
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-foreground/30 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="card w-full max-w-lg p-6 shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
+            className="card w-full max-w-lg p-6 my-auto max-h-[90dvh] overflow-y-auto shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-baseline justify-between mb-4">
@@ -119,10 +120,10 @@ export default function FeedbackButton() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={
-                category === 'demo'    ? "Who wants to demo what? (e.g. 'Sany — programming basics, ready')" :
+                category === 'demo'    ? "Who wants to demo what? (e.g. 'Sany: programming basics, ready')" :
                 category === 'signal'  ? "Something worth capturing from WhatsApp..." :
                 category === 'session' ? "What worked, what didn't, what should change?" :
-                                         "Anything — idea, observation, todo, feedback..."
+                                         "Anything: idea, observation, todo, feedback..."
               }
               rows={5}
               className="w-full bg-background border border-border rounded-md p-3 text-sm text-foreground focus:outline-none focus:border-foreground resize-none font-sans"
@@ -175,7 +176,8 @@ export default function FeedbackButton() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

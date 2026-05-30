@@ -2,7 +2,7 @@
   "windowLabel": "Apr 14 – May 19, 2026",
   "themes": {
     "global": "Google strikes back at I/O with Gemini 3.5 + Spark, OpenAI breaks free from Azure, Anthropic eyes a $900B raise, and open-weight finally has a Sonnet-class option in Mistral Medium 3.5.",
-    "eu-policy": "Europe is spending and consolidating — €1B in Apply-AI calls open, Helsing plants a Nordic flag, the EU AI Act simplification trilogue collapses, and Danish anchors (Novo Nordisk, Performativ, BII AI Lab) prove the local scene is fundable."
+    "eu-policy": "Europe is spending and consolidating. €1B in Apply-AI calls are open, Helsing plants a Nordic flag, the EU AI Act simplification trilogue collapses, and Danish anchors (Novo Nordisk, Performativ, BII AI Lab) show the local scene is fundable."
   },
   "items": [
     {
@@ -12,9 +12,9 @@
       "date": "2026-05-19",
       "title": "Google I/O 2026: Gemini 3.5 Flash + Gemini Spark",
       "subtitle": "Cheap frontier model · personal AI agent on Antigravity platform",
-      "summary": "At I/O May 19–20, Google skipped the behemoth flagship and shipped Gemini 3.5 Flash at roughly half (sometimes a third) the price of comparable frontier models — and Gemini Spark, a 24/7 personal AI agent built on the new Antigravity platform that reasons across your connected apps. Spark rolls out to Google AI Ultra subscribers in the US within a week, then a packed summer roadmap.",
+      "summary": "At I/O May 19–20, Google skipped the behemoth flagship and shipped two things: Gemini 3.5 Flash at roughly half (sometimes a third) the price of comparable frontier models, and Gemini Spark, a 24/7 personal AI agent built on the new Antigravity platform that reasons across your connected apps. Spark rolls out to Google AI Ultra subscribers in the US within a week, then a packed summer roadmap.",
       "whyItMatters": "Google's comeback move is 'cheap + agent,' not 'bigger model.' Frontier-class capability at Flash pricing reshapes the unit economics of every AI product, and Spark on Antigravity is Google's first credible personal-agent platform.",
-      "whyForUs": "If you've been quoting Sonnet or GPT-5.5 prices on a side project, retest with Gemini 3.5 Flash before your next demo — the cost delta is real. Worth a Show & Tell where someone wires Spark into a real personal workflow.",
+      "whyForUs": "If you've been quoting Sonnet or GPT-5.5 prices on a side project, retest with Gemini 3.5 Flash before your next demo. The cost delta is real. Worth a Show & Tell where someone wires Spark into a real personal workflow.",
       "sources": [
         {
           "name": "Google Blog",
@@ -90,7 +90,7 @@
       "title": "Anthropic eyes $900B raise",
       "subtitle": "About to leapfrog OpenAI as world's most valuable AI startup",
       "summary": "Bloomberg broke Apr 29 that Anthropic is fielding $40–50B offers at $900B+, more than double its February $380B mark and above OpenAI's $852B. May board meeting decisive.",
-      "whyItMatters": "If it closes, Anthropic leapfrogs OpenAI as the most valuable AI startup — and the AI top-of-market becomes a duopoly priced like nation-states.",
+      "whyItMatters": "If it closes, Anthropic leapfrogs OpenAI as the most valuable AI startup, and the top of the AI market becomes a duopoly priced like nation-states.",
       "whyForUs": "Valuation pressure flows down: expect Claude pricing to harden and tighter rate limits on lower tiers. Plan API spend with that in mind on anything you ship next.",
       "sources": [
         {
@@ -116,8 +116,8 @@
       "date": "2026-04-29",
       "title": "Mistral Medium 3.5 lands open-weight",
       "subtitle": "128B dense, 256k context, half the price of Sonnet",
-      "summary": "Apr 29: Mistral shipped Medium 3.5 as open weights (Modified MIT). 128B dense, 256k context, 77.6% on SWE-Bench Verified, self-hostable on four GPUs. API at $1.50/$7.50 per M tokens — roughly half Anthropic Sonnet's price. Magistral and Devstral 2 retired.",
-      "whyItMatters": "Open-weight 128B at half Sonnet's price with Modified MIT — production-grade self-hosting just got cheaper than most APIs at scale.",
+      "summary": "Apr 29: Mistral shipped Medium 3.5 as open weights (Modified MIT). 128B dense, 256k context, 77.6% on SWE-Bench Verified, self-hostable on four GPUs. API at $1.50/$7.50 per M tokens, roughly half Anthropic Sonnet's price. Magistral and Devstral 2 retired.",
+      "whyItMatters": "Open-weight 128B at half Sonnet's price with Modified MIT. Production-grade self-hosting just got cheaper than most APIs at scale.",
       "whyForUs": "Anyone hitting Anthropic rate limits or worrying about EU data residency now has a real EU-resident alternative. Worth a side-by-side eval session.",
       "sources": [
         {
@@ -143,9 +143,9 @@
       "date": "2026-04-28",
       "title": "EU AI Act 'Omnibus' trilogue collapses",
       "subtitle": "High-risk Aug 2026 deadline still legally binding",
-      "summary": "Parliament, Council and Commission failed to reach agreement on the simplification package; kicked to 13 May. Until something is signed, the original 2 August 2026 high-risk obligations apply — meaning EU builders shipping HR, biometric, credit-scoring or critical-infra AI cannot count on the rumoured deferral.",
+      "summary": "Parliament, Council and Commission failed to reach agreement on the simplification package; kicked to 13 May. Until something is signed, the original 2 August 2026 high-risk obligations apply. EU builders shipping HR, biometric, credit-scoring or critical-infra AI cannot count on the rumoured deferral.",
       "whyItMatters": "The simplification deferral most builders were counting on isn't happening on schedule. High-risk AI obligations remain legally binding from August 2026.",
-      "whyForUs": "If your side project touches HR, biometrics, credit, or critical infra, start documenting now — don't wait for clarity. The deadline is roughly 90 days out.",
+      "whyForUs": "If your side project touches HR, biometrics, credit, or critical infra, start documenting now. Don't wait for clarity. The deadline is roughly 90 days out.",
       "sources": [
         {
           "name": "IAPP",
@@ -172,7 +172,7 @@
       "subtitle": "Copenhagen AI-native wealth-management OS · Led by Deutsche Börse",
       "summary": "Copenhagen-based Performativ closed €11.96M / $14M led by Deutsche Börse Group, with Rabo Investments, FinTech Collective and Denmark's sovereign fund EIFO participating. AI agents for portfolio management, reporting, compliance and trading. One of the cleanest 2026 examples of a Copenhagen AI startup landing institutional EU money.",
       "whyItMatters": "A Copenhagen AI startup raising institutional EU money (Deutsche Börse, EIFO) is the proof point local builders need: yes, this scene can produce fundable AI-native companies.",
-      "whyForUs": "Performativ is in our backyard. Invite founders to a session — direct local case study for anyone considering the AI-native fintech path.",
+      "whyForUs": "Performativ is in our backyard. Invite the founders to a session. Direct local case study for anyone considering the AI-native fintech path.",
       "sources": [
         {
           "name": "Yahoo Finance",
@@ -197,9 +197,9 @@
       "date": "2026-04-27",
       "title": "OpenAI–Microsoft divorce",
       "subtitle": "Azure exclusivity ends, AGI clause deleted, AWS gets GPT-5.5",
-      "summary": "Apr 27 restructure ended Azure exclusivity, scrapped the AGI trigger clause, cleared the path for OpenAI's $50B Amazon deal. Next day, GPT-5.5, Codex, and Bedrock Managed Agents shipped on AWS — putting OpenAI alongside Anthropic, Meta, Mistral on Bedrock.",
+      "summary": "Apr 27 restructure ended Azure exclusivity, scrapped the AGI trigger clause, cleared the path for OpenAI's $50B Amazon deal. The next day, GPT-5.5, Codex, and Bedrock Managed Agents shipped on AWS, putting OpenAI alongside Anthropic, Meta, and Mistral on Bedrock.",
       "whyItMatters": "Ends the cloud monogamy that defined the LLM era. Deleting the AGI trigger also removes the last governance brake between OpenAI and pure commercial scale.",
-      "whyForUs": "Bedrock is now multi-vendor — anyone running on AWS can swap GPT-5.5 / Claude / Mistral with one config change. Vendor-lock escape is way easier than 12 months ago.",
+      "whyForUs": "Bedrock is now multi-vendor. Anyone running on AWS can swap GPT-5.5 / Claude / Mistral with one config change. Escaping vendor lock-in is far easier than 12 months ago.",
       "sources": [
         {
           "name": "Microsoft",
@@ -224,7 +224,7 @@
       "date": "2026-04-24",
       "title": "DeepSeek V4 preview drops with 1M context",
       "subtitle": "China closes the frontier gap, again",
-      "summary": "DeepSeek open-sourced V4-Pro (1.6T total / 49B active params) and V4-Flash, both MoE with 1M-token context. Claims to beat every open model on math/code and trail only Gemini 3.1 Pro on world knowledge — at a fraction of the price.",
+      "summary": "DeepSeek open-sourced V4-Pro (1.6T total / 49B active params) and V4-Flash, both MoE with 1M-token context. Claims to beat every open model on math/code and trail only Gemini 3.1 Pro on world knowledge, at a fraction of the price.",
       "whyItMatters": "Open-weight frontier keeps tightening the price gap with closed labs. A 1M-token MoE rivaling Gemini at a fraction of the cost reshapes who can afford to ship reasoning-heavy products.",
       "whyForUs": "If you've been paying Sonnet prices on a side project, V4-Pro is worth a swap test before your next demo. Self-hostable scope opens up for anyone with rented GPU time.",
       "sources": [
@@ -251,9 +251,9 @@
       "date": "2026-04-23",
       "title": "OpenAI ships GPT-5.5 \"Spud\"",
       "subtitle": "Agentic super-app push goes mainstream",
-      "summary": "Released Apr 23, sharper and more token-efficient, built to run multi-step tool-using workflows end-to-end across ChatGPT and Codex. The model OpenAI is betting will turn ChatGPT from chatbot into 'do my work' agent — in the API one day later for builders.",
-      "whyItMatters": "Marks the shift from 'AI assistant' to 'AI worker' — agents that complete real multi-step jobs (research, code, ops) without supervision. The inflection point most builders have been waiting for.",
-      "whyForUs": "Anyone shipping a side project in Copenhagen should retest agentic flows that didn't work six months ago — they likely work now end-to-end. Worth a Show & Tell session.",
+      "summary": "Released Apr 23, sharper and more token-efficient, built to run multi-step tool-using workflows end-to-end across ChatGPT and Codex. OpenAI is betting it turns ChatGPT from chatbot into a 'do my work' agent. In the API one day later for builders.",
+      "whyItMatters": "Marks the shift from 'AI assistant' to 'AI worker'. Agents now complete real multi-step jobs (research, code, ops) without supervision. The inflection point most builders have been waiting for.",
+      "whyForUs": "Anyone shipping a side project in Copenhagen should retest agentic flows that failed six months ago. They likely work now end-to-end. Worth a Show & Tell session.",
       "sources": [
         {
           "name": "OpenAI",
@@ -305,8 +305,8 @@
       "date": "2026-04-14",
       "title": "Novo Nordisk × OpenAI partnership",
       "subtitle": "Denmark's biggest company turns to OpenAI for drug discovery",
-      "summary": "Announced Apr 14 in Bagsværd. Novo Nordisk partners with OpenAI on AI for drug discovery — Denmark's biggest company turning to OpenAI for next-gen pharmaceutical R&D.",
-      "whyItMatters": "Denmark's largest company partners with OpenAI for drug discovery — anchoring AI-pharma as a strategic Danish industry.",
+      "summary": "Announced Apr 14 in Bagsværd. Novo Nordisk partners with OpenAI on AI for drug discovery. Denmark's biggest company is turning to OpenAI for next-gen pharmaceutical R&D.",
+      "whyItMatters": "Denmark's largest company partners with OpenAI for drug discovery, anchoring AI-pharma as a strategic Danish industry.",
       "whyForUs": "Novo is in Bagsværd, 30 min away. If you have a bio or pharma background, AI-pharma roles in Denmark are about to multiply. Worth tracking.",
       "sources": [
         {

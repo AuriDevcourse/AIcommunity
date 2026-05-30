@@ -39,6 +39,52 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden; /* guard against accidental horizontal scroll on mobile */
+}
+
+/* Very dim, warm yellow/beige glimmer behind everything. Sits above the solid
+   white background but below all content, so it only tints the page gutters. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 48% at 12% -2%,  hsl(46 85% 66% / 0.14), transparent 70%),
+    radial-gradient(50% 44% at 92% 10%,  hsl(40 80% 62% / 0.10), transparent 70%),
+    radial-gradient(60% 52% at 50% 104%, hsl(48 75% 70% / 0.10), transparent 75%);
+  animation: glimmer 14s ease-in-out infinite;
+}
+
+@keyframes glimmer {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+
+html { scroll-behavior: smooth; }
+
+/* Snappier taps on mobile (removes the 300ms delay) and comfortable tap behavior. */
+button, a, select, input[type="button"], [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Keyboard focus ring. Uses box-shadow (not outline) so Tailwind's
+   `focus:outline-none` doesn't suppress it. Only shows for keyboard users. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 3.5px color-mix(in oklab, var(--foreground) 55%, transparent);
+}
+
+::selection { background: color-mix(in oklab, var(--foreground) 14%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .squircle {
@@ -58,6 +104,16 @@ body {
     background-color: var(--background);
     border: 1px solid var(--border);
     border-radius: 1rem;
+    box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04), 0 1px 3px rgba(16, 16, 16, 0.02);
+  }
+  .card-interactive {
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card-interactive:hover {
+    box-shadow: 0 8px 24px rgba(16, 16, 16, 0.08);
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
   }
   .card-pad { padding: 1rem; }
   @media (min-width: 640px) {
@@ -88,4 +144,58 @@ body {
   .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 8%, white); }
   .pill-acc  { color: var(--foreground); border-color: var(--foreground); background: var(--background); }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .skeleton {
+    background: linear-gradient(90deg, var(--accent) 25%, color-mix(in oklab, var(--accent) 55%, white) 37%, var(--accent) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: 0.5rem;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.tab-enter { animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Premium card: a static warm yellow→white gradient + a soft gradient border.
+   Used for the hero "Next session" card. The border is a masked ::before ring so
+   it follows the rounded corners. No animation — fixed look. */
+.premium-card {
+  position: relative;
+  border-radius: 1rem;
+  background: linear-gradient(135deg,
+    hsl(46 92% 90%) 0%,
+    hsl(45 82% 95%) 32%,
+    var(--background) 58%);
+  box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04), 0 12px 32px rgba(120, 90, 20, 0.06);
+}
+.premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    hsl(45 90% 68% / 0.8) 0%,
+    hsl(40 30% 86% / 0.25) 48%,
+    hsl(38 60% 82% / 0.4) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Lighter warm card — a subtle cousin of premium-card for secondary surfaces, so
+   the yellow carries across the app without competing with the hero. */
+.warm-card {
+  border-radius: 1rem;
+  background: linear-gradient(135deg, hsl(46 88% 96%) 0%, var(--background) 48%);
+  border: 1px solid color-mix(in oklab, hsl(44 85% 58%) 20%, var(--border));
+  box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04);
 }

@@ -6,29 +6,28 @@ import MembersGallery from './components/MembersGallery.jsx';
 import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
 import Polls from './components/Polls.jsx';
-import PostMaker from './components/PostMaker.jsx';
+import Tools from './components/Tools.jsx';
 import Suggestions from './components/Suggestions.jsx';
+import LatestDiscussion from './components/LatestDiscussion.jsx';
+import Discussions from './components/Discussions.jsx';
+import Learn from './components/Learn.jsx';
+import AuthControls from './components/AuthControls.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
-import { Calendar, Users, CircleCheck } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, BarChart3, Wrench, Images, MessagesSquare, GraduationCap } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 
 const TABS = [
-  { key: 'cockpit',  label: 'Cockpit' },
-  { key: 'news',     label: 'News' },
-  { key: 'polls',    label: 'Polls' },
-  { key: 'post',     label: 'Post' },
-  { key: 'members',  label: 'Members' },
-  { key: 'sessions', label: 'Sessions' },
+  { key: 'cockpit',     label: 'Cockpit',  icon: LayoutDashboard },
+  { key: 'learn',       label: 'Learn',    icon: GraduationCap },
+  { key: 'discussions', label: 'Forum',    icon: MessagesSquare },
+  { key: 'news',        label: 'News',     icon: Newspaper },
+  { key: 'polls',       label: 'Polls',    icon: BarChart3 },
+  { key: 'tools',       label: 'Tools',    icon: Wrench },
+  { key: 'members',     label: 'Members',  icon: Users },
+  { key: 'sessions',    label: 'Sessions', icon: Images },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
-
-const TOOLS_TESTED = [
-  { title: 'Cursor', desc: 'AI-first code editor — used across multiple side-project demos.' },
-  { title: 'Claude Code', desc: 'Anthropic CLI agent — used for multi-step coding sessions and CLAUDE.md-driven projects.' },
-  { title: 'Windsurf', desc: 'AI IDE — TechBBQ-paid daily driver, tested side-by-side with Cursor.' },
-  { title: 'v0 by Vercel', desc: 'Prompt-to-UI generator — tested for landing-page and component scaffolding.' },
-];
 
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
@@ -46,118 +45,134 @@ export default function App() {
 
   useEffect(() => {
     const current = window.location.hash.slice(1);
+    // Don't rewrite the hash while it carries an auth callback (e.g. an
+    // implicit-flow #access_token=...), or we'd wipe it before Supabase reads it.
+    if (/access_token=|provider_token=|[?&]?error=/.test(current)) return;
     if (current !== tab) {
       window.history.replaceState(null, '', `#${tab}`);
     }
   }, [tab]);
+
+  // Jump to the Forum tab, optionally deep-linking to a specific topic (the
+  // Discussions component reads this on mount and expands it).
+  const openForum = (topicId) => {
+    if (topicId) { try { sessionStorage.setItem('forum_open_topic', topicId); } catch { /* ignore */ } }
+    setTab('discussions');
+  };
+
   const todayIso = TODAY.toISOString().slice(0, 10);
   const upcomingFromToday = data.schedule.upcoming.filter((s) => s.date >= todayIso);
   const next = upcomingFromToday[0];
   const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
-  const lastNumber = data.sessions.length ? data.sessions[data.sessions.length - 1].number : 0;
-  const todayLabel = TODAY.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
     <div className="min-h-full flex flex-col">
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
-          <div className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
-            <span className="text-sm font-semibold tracking-tight text-foreground">AI Workshop</span>
+          <div className="flex items-center gap-2 sm:gap-7 min-w-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
+              <span className="text-sm font-semibold tracking-tight text-foreground">AI Workshop</span>
+            </div>
+            {/* Desktop / tablet: top menu. Mobile uses the fixed bottom bar below. */}
+            <nav className="hidden sm:flex items-center gap-0.5">
+              {TABS.map((t) => {
+                const active = tab === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    aria-current={active ? 'page' : undefined}
+                    className={`relative px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                      active ? 'text-foreground' : 'text-muted hover:text-foreground'
+                    }`}
+                  >
+                    {t.label}
+                    {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-foreground" aria-hidden />}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
-          <nav className="flex items-center gap-1 sm:gap-1.5">
-            {TABS.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-colors ${
-                  tab === t.key
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </nav>
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* Mobile: show the active section name for context next to the brand. */}
+            <span className="sm:hidden text-xs font-medium text-muted">
+              {TABS.find((t) => t.key === tab)?.label}
+            </span>
+            {import.meta.env.VITE_FEEDBACK_ENABLED === 'true' && <FeedbackButton />}
+            <AuthControls />
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
+      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 pb-28 sm:pb-10 flex-1">
         <section className="mb-8 sm:mb-10">
-          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
-            <Calendar size={12} strokeWidth={2} />
-            <span>{todayLabel}</span>
-          </div>
-          <h1 className="mt-3 text-3xl sm:text-5xl font-semibold tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight">
             Build with AI. Show what you learned.
           </h1>
-          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
-            <Stat icon={Calendar} value={data.sessions.length} label="sessions" hint={`last #${lastNumber}`} />
-            <Stat icon={Users} value={data.members.length} label="members" />
-          </div>
           <div className="mt-6 rounded-2xl border border-border overflow-hidden">
             <img src="/brand/hero.png" alt="" loading="lazy" className="w-full h-28 sm:h-44 object-cover" />
           </div>
         </section>
 
-        {tab === 'cockpit' && (
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12">
-              <NextSession session={next} />
+        <div key={tab} className="tab-enter">
+          {tab === 'cockpit' && (
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12">
+                <NextSession session={next} />
+              </div>
+              <div className="col-span-12">
+                <ScheduleAhead schedule={futureSchedule} />
+              </div>
+              <div className="col-span-12 md:col-span-6">
+                <LatestDiscussion onOpenForum={openForum} />
+              </div>
+              <div className="col-span-12 md:col-span-6">
+                <Suggestions />
+              </div>
             </div>
-            <div className="col-span-12">
-              <ScheduleAhead schedule={futureSchedule} />
-            </div>
-            <div className="col-span-12 md:col-span-6">
-              <Suggestions />
-            </div>
-            <div className="col-span-12 md:col-span-6">
-              <StatusList icon={CircleCheck} label="Tools tested already" items={TOOLS_TESTED} />
-            </div>
-          </div>
-        )}
+          )}
 
-        {tab === 'news' && <News />}
-        {tab === 'polls' && <Polls />}
-        {tab === 'post' && <PostMaker sessions={data.sessions} />}
-        {tab === 'members' && <MembersGallery members={data.members} />}
-        {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
+          {tab === 'learn' && <Learn />}
+          {tab === 'discussions' && <Discussions />}
+          {tab === 'news' && <News />}
+          {tab === 'polls' && <Polls />}
+          {tab === 'tools' && <Tools sessions={data.sessions} />}
+          {tab === 'members' && <MembersGallery members={data.members} />}
+          {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
+        </div>
       </main>
 
-      {import.meta.env.VITE_FEEDBACK_ENABLED === 'true' && <FeedbackButton />}
+      {/* Mobile bottom tab bar: app-like nav with large tap targets. */}
+      <nav
+        className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/90 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+        aria-label="Primary"
+      >
+        {/* Fills the width when there's room; scrolls horizontally when tabs outgrow it. */}
+        <div className="flex overflow-x-auto no-scrollbar">
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            const active = tab === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                aria-current={active ? 'page' : undefined}
+                className={`relative flex flex-1 min-w-[64px] flex-col items-center justify-center gap-1 min-h-[60px] px-1 py-2 transition-colors ${
+                  active ? 'text-foreground' : 'text-muted'
+                }`}
+              >
+                {active && <span className="absolute top-0 h-0.5 w-6 rounded-full bg-foreground" aria-hidden />}
+                <Icon size={19} strokeWidth={active ? 2.4 : 2} />
+                <span className="text-[10px] font-medium leading-none">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
       {import.meta.env.DEV && <Agentation />}
     </div>
   );
 }
 
-function StatusList({ icon: Icon, label, items }) {
-  if (!items?.length) return null;
-  return (
-    <section className="h-full rounded-2xl border border-border bg-pill p-5 sm:p-6">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
-        <Icon size={12} strokeWidth={2} />
-        <span>{label}</span>
-      </div>
-      <ul className="mt-4 space-y-3">
-        {items.map((item) => (
-          <li key={item.title} className="rounded-xl border border-border bg-background p-4">
-            <div className="text-sm font-semibold tracking-tight">{item.title}</div>
-            <p className="mt-1 text-xs text-muted leading-relaxed">{item.desc}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function Stat({ icon: Icon, value, label, hint }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Icon size={16} strokeWidth={2} className="text-muted" />
-      <span className="text-foreground font-semibold num">{value}</span>
-      <span className="text-sm text-muted">{label}</span>
-      {hint && <span className="text-xs text-muted opacity-70 num">· {hint}</span>}
-    </div>
-  );
-}

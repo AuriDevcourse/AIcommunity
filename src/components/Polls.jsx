@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BarChart3, Plus, X, Check, RefreshCw, Users } from 'lucide-react';
-
-const NAME_KEY = 'aiworkshop_voter_name';
+import { useMemberName } from '../lib/auth.jsx';
+import { SignInGate } from './AuthControls.jsx';
 const ci = (s) => String(s || '').trim().toLowerCase();
 
 // Which option ids the current name has already voted for, read from server state.
@@ -14,7 +14,7 @@ const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x))
 
 export default function Polls() {
   const [polls, setPolls] = useState(null);
-  const [name, setName] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem(NAME_KEY) || '' : ''));
+  const { authMode, name, setName } = useMemberName();
   const [drafts, setDrafts] = useState({}); // pollId -> optionId[] (in-progress, unsaved)
   const [busy, setBusy] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -38,11 +38,6 @@ export default function Polls() {
     const id = setInterval(() => { if (!document.hidden) load(); }, 5000);
     return () => clearInterval(id);
   }, [load]);
-
-  function setName_(v) {
-    setName(v);
-    localStorage.setItem(NAME_KEY, v);
-  }
 
   // Selected = unsaved draft if the user touched it, else their saved server vote.
   const selectedFor = (poll) => drafts[poll.id] ?? myVote(poll, name);
@@ -78,7 +73,7 @@ export default function Polls() {
         setErr(j.error || 'Could not save your vote.');
       }
     } catch {
-      setErr('Voting is unavailable — the poll backend may not be configured yet.');
+      setErr('Voting is unavailable. The poll backend may not be configured yet.');
     } finally {
       setBusy(null);
     }
@@ -96,22 +91,22 @@ export default function Polls() {
       if (!j.ok) setErr(j.error || 'Action failed.'); else setErr('');
       await load();
     } catch {
-      setErr('The poll backend is unreachable — it may not be configured yet.');
+      setErr('The poll backend is unreachable. It may not be configured yet.');
     } finally {
       setBusy(null);
     }
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-end justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-1.5 h-section">
             <BarChart3 size={11} strokeWidth={2.2} />
             <span>Polls</span>
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight mt-1">Vote &amp; gut-checks</h2>
-          <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote per name — you can change it anytime.</p>
+          <h2 className="text-3xl font-semibold tracking-tight mt-1">Vote &amp; gut-checks</h2>
+          <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote per name, change it anytime.</p>
         </div>
         <button
           onClick={() => load()}
@@ -123,21 +118,29 @@ export default function Polls() {
         </button>
       </div>
 
-      <div className="card card-pad mb-5 flex items-center gap-3">
-        <Users size={16} strokeWidth={2} className="text-muted flex-shrink-0" />
-        <input
-          value={name}
-          onChange={(e) => setName_(e.target.value)}
-          placeholder="Your name (required to vote)"
-          maxLength={48}
-          className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
-        />
-        {name.trim() && <span className="pill pill-ok flex-shrink-0"><Check size={11} strokeWidth={2.5} />{name.trim()}</span>}
-      </div>
+      {authMode ? (
+        !name.trim() && (
+          <div className="card card-pad mb-5">
+            <SignInGate label="Sign in to vote and create polls" />
+          </div>
+        )
+      ) : (
+        <div className="card card-pad mb-5 flex items-center gap-3">
+          <Users size={16} strokeWidth={2} className="text-muted flex-shrink-0" />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name (required to vote)"
+            maxLength={48}
+            className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+          />
+          {name.trim() && <span className="pill pill-ok flex-shrink-0"><Check size={11} strokeWidth={2.5} />{name.trim()}</span>}
+        </div>
+      )}
 
       {!configured && (
         <div className="card card-pad mb-5 text-sm text-warn" role="alert">
-          Polls aren't connected to a store yet. Add an Upstash Redis database and redeploy (see docs/polls-setup.md). Voting is disabled until then.
+          Polls have no store yet. Add an Upstash Redis database and redeploy (see docs/polls-setup.md). Voting stays off until then.
         </div>
       )}
 
@@ -145,7 +148,18 @@ export default function Polls() {
         <div className="card card-pad mb-5 text-sm text-err border-err/30" role="alert">{err}</div>
       )}
 
-      {polls === null && <div className="text-sm text-muted">Loading…</div>}
+      {polls === null && (
+        <div className="space-y-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="card card-pad space-y-3">
+              <div className="skeleton h-4 w-1/2" />
+              <div className="skeleton h-10 w-full" />
+              <div className="skeleton h-10 w-full" />
+              <div className="skeleton h-10 w-2/3" />
+            </div>
+          ))}
+        </div>
+      )}
       {polls?.length === 0 && (
         <div className="card card-pad text-sm text-muted">No polls yet. Create the first one below.</div>
       )}
@@ -160,7 +174,7 @@ export default function Polls() {
             <div key={poll.id} className={`card card-pad ${poll.closed ? 'opacity-80' : ''}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-base font-semibold tracking-tight">{poll.question}</div>
+                  <div className="text-base font-semibold tracking-tight break-words">{poll.question}</div>
                   <div className="flex items-center gap-2 mt-1.5 text-muted">
                     <span className="pill pill-mute">{poll.multi ? 'Pick any' : 'Pick one'}</span>
                     <span className="text-xs num">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
@@ -202,9 +216,12 @@ export default function Polls() {
                       </span>
                       {voters.length > 0 && (
                         <span className="relative mt-1.5 flex flex-wrap gap-1 pl-[26px]">
-                          {voters.map((v, i) => (
+                          {voters.slice(0, 8).map((v, i) => (
                             <span key={i} className="text-[10px] text-muted bg-background/70 rounded px-1.5 py-0.5 border border-border">{v}</span>
                           ))}
+                          {voters.length > 8 && (
+                            <span className="text-[10px] text-muted px-1.5 py-0.5">+{voters.length - 8} more</span>
+                          )}
                         </span>
                       )}
                     </button>
@@ -230,13 +247,16 @@ export default function Polls() {
         })}
       </div>
 
-      <CreatePoll
-        open={showCreate}
-        setOpen={setShowCreate}
-        busy={busy === 'create'}
-        creatorName={name}
-        onCreate={async (payload) => { await act({ action: 'create', ...payload }); setShowCreate(false); }}
-      />
+      {/* Creating a poll needs an identity (logged in, or a typed name in no-auth mode). */}
+      {name.trim() && (
+        <CreatePoll
+          open={showCreate}
+          setOpen={setShowCreate}
+          busy={busy === 'create'}
+          creatorName={name}
+          onCreate={async (payload) => { await act({ action: 'create', ...payload }); setShowCreate(false); }}
+        />
+      )}
     </div>
   );
 }
@@ -276,7 +296,7 @@ function CreatePoll({ open, setOpen, onCreate, busy, creatorName }) {
         ref={firstRef}
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
-        placeholder="Question — e.g. Which topic should we do next?"
+        placeholder="Question, e.g. Which topic should we do next?"
         maxLength={200}
         className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
       />

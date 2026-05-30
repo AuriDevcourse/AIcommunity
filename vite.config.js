@@ -7,6 +7,9 @@ import { handleAttendees } from './api/_gcal.js';
 import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
 import { handleSuggestions } from './api/_suggestions.js';
+import { handleThreads } from './api/_threads.js';
+import { handleTopics } from './api/_topics.js';
+import { handleImageUpload } from './api/_imgbb.js';
 
 const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
 
@@ -51,6 +54,36 @@ function pollsPlugin() {
         try {
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handleSuggestions({ method: req.method, body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/threads', async (req, res) => {
+        try {
+          const url = new URL(req.url, 'http://localhost');
+          const query = Object.fromEntries(url.searchParams);
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handleThreads({ method: req.method, body, query });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/topics', async (req, res) => {
+        try {
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handleTopics({ method: req.method, body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/upload-image', async (req, res) => {
+        try {
+          if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          const body = await readJsonBody(req);
+          const { status, json } = await handleImageUpload({ body });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -139,6 +172,13 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
   return {
     plugins: [react(), feedbackPlugin(), pollsPlugin()],
-    server: { port: 5280, open: true, strictPort: true },
+    server: {
+      port: 5280,
+      open: true,
+      strictPort: true,
+      // Local API stores live under data/. Don't trigger a full page reload when
+      // a poll/suggestion/thread write touches them (prod uses Upstash, not files).
+      watch: { ignored: ['**/data/*-store.json', '**/data/feedback.md'] },
+    },
   };
 });

@@ -7,3 +7,6 @@ data/feedback.md
 .vercel
 
 data/suggestions-store.json
+
+# Local dev API stores (prod uses Upstash)
+data/*-store.json
