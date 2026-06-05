@@ -13,7 +13,7 @@ function myVote(poll, name) {
 }
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
 
-export default function Polls() {
+export default function Polls({ embedded = false }) {
   const [polls, setPolls] = useState(null);
   const { authMode, name, setName } = useMemberName();
   const [drafts, setDrafts] = useState({}); // pollId -> optionId[] (in-progress, unsaved)
@@ -99,25 +99,27 @@ export default function Polls() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-end justify-between gap-3 mb-5">
-        <div>
-          <div className="flex items-center gap-1.5 h-section">
-            <BarChart3 size={11} strokeWidth={2.2} />
-            <span>Polls</span>
+    <div className={embedded ? '' : 'max-w-3xl mx-auto'}>
+      {!embedded && (
+        <div className="flex items-end justify-between gap-3 mb-5">
+          <div>
+            <div className="flex items-center gap-1.5 h-section">
+              <BarChart3 size={11} strokeWidth={2.2} />
+              <span>Polls</span>
+            </div>
+            <h2 className="text-3xl font-semibold tracking-tight mt-1">Vote &amp; gut-checks</h2>
+            <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote per name, change it anytime.</p>
           </div>
-          <h2 className="text-3xl font-semibold tracking-tight mt-1">Vote &amp; gut-checks</h2>
-          <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote per name, change it anytime.</p>
+          <button
+            onClick={() => load()}
+            className="text-muted hover:text-foreground transition-colors p-2"
+            title="Refresh"
+            aria-label="Refresh polls"
+          >
+            <RefreshCw size={16} />
+          </button>
         </div>
-        <button
-          onClick={() => load()}
-          className="text-muted hover:text-foreground transition-colors p-2"
-          title="Refresh"
-          aria-label="Refresh polls"
-        >
-          <RefreshCw size={16} />
-        </button>
-      </div>
+      )}
 
       {authMode ? (
         !name.trim() && (

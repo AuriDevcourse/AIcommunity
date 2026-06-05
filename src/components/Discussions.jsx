@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { MessagesSquare, Plus, ChevronDown, Trash2, Lightbulb, Sparkles } from 'lucide-react';
+import { MessagesSquare, Plus, ChevronDown, Trash2, Lightbulb, Sparkles, BarChart3 } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 import SessionThread from './SessionThread.jsx';
+import Polls from './Polls.jsx';
 
 const ci = (s) => String(s || '').trim().toLowerCase();
 
@@ -12,6 +13,7 @@ const ci = (s) => String(s || '').trim().toLowerCase();
 // for what to build next get voted on and discussed.
 const IDEAS_CHANNEL = 'ideas';
 const IDEAS_TITLE = 'Ideas — what should we build next?';
+const POLLS_KEY = '__polls'; // sentinel for the pinned Polls card's expand state
 
 function timeAgo(iso) {
   const then = new Date(iso).getTime();
@@ -87,7 +89,7 @@ export default function Discussions() {
         <span>Discussions</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Community forum</h2>
-      <p className="text-sm text-muted mt-1">Start a topic, ask anything, share what you're building. Every post takes replies and upvotes.</p>
+      <p className="text-sm text-muted mt-1">Vote on ideas and polls below, or start a topic to ask anything and share what you're building. Every post takes replies and upvotes.</p>
 
       {!configured && (
         <div className="card card-pad mt-5 text-sm text-warn">Discussions need a store. Add Upstash Redis and redeploy (same store as Polls).</div>
@@ -156,6 +158,36 @@ export default function Discussions() {
                     postLabel="Suggest idea"
                     emptyLabel="No ideas yet. Suggest the first one."
                   />
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Pinned: Polls (structured votes from organisers) */}
+        {(() => {
+          const isOpen = open === POLLS_KEY;
+          return (
+            <div className={`card overflow-hidden ${isOpen ? '' : 'card-interactive'}`}>
+              <button
+                onClick={() => setOpen(isOpen ? null : POLLS_KEY)}
+                aria-expanded={isOpen}
+                className="w-full flex items-center justify-between gap-3 text-left p-4 transition-colors"
+              >
+                <div className="min-w-0 flex items-center gap-3">
+                  <span className="grid place-items-center w-9 h-9 rounded-lg bg-accent text-foreground flex-shrink-0">
+                    <BarChart3 size={17} strokeWidth={2.2} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold tracking-tight truncate">Polls</div>
+                    <div className="text-[11px] text-muted mt-0.5">Quick votes and gut-checks · one vote per person</div>
+                  </div>
+                </div>
+                <ChevronDown size={16} className={`flex-shrink-0 text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isOpen && (
+                <div className="border-t border-border p-4">
+                  <Polls embedded />
                 </div>
               )}
             </div>

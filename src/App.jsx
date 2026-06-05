@@ -5,9 +5,9 @@ import ScheduleAhead from './components/ScheduleAhead.jsx';
 import MembersGallery from './components/MembersGallery.jsx';
 import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
-import Polls from './components/Polls.jsx';
 import Tools from './components/Tools.jsx';
 import Suggestions from './components/Suggestions.jsx';
+// Polls now live inside the Forum (pinned card), not as a top-level tab.
 import LatestDiscussion from './components/LatestDiscussion.jsx';
 import Discussions from './components/Discussions.jsx';
 import Learn from './components/Learn.jsx';
@@ -15,24 +15,25 @@ import AuthControls from './components/AuthControls.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, BarChart3, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 
 const TABS = [
-  { key: 'cockpit',     label: 'Cockpit',  icon: LayoutDashboard },
-  { key: 'learn',       label: 'Learn',    icon: GraduationCap },
+  { key: 'home',        label: 'Home',     icon: LayoutDashboard },
   { key: 'discussions', label: 'Forum',    icon: MessagesSquare },
+  { key: 'learn',       label: 'Learn',    icon: GraduationCap },
   { key: 'news',        label: 'News',     icon: Newspaper },
-  { key: 'polls',       label: 'Polls',    icon: BarChart3 },
-  { key: 'tools',       label: 'Tools',    icon: Wrench },
   { key: 'members',     label: 'Members',  icon: Users },
   { key: 'sessions',    label: 'Sessions', icon: Images },
+  { key: 'tools',       label: 'Tools',    icon: Wrench },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
 
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
-  return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'cockpit';
+  if (h === 'polls') return 'discussions'; // polls moved into the Forum
+  if (h === 'cockpit') return 'home';      // renamed
+  return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'home';
 }
 
 export default function App() {
@@ -128,7 +129,7 @@ export default function App() {
       <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
         {isLegal ? (
           <div key={tab} className="tab-enter">
-            <LegalPage slug={tab} onBack={() => goTo('cockpit')} />
+            <LegalPage slug={tab} onBack={() => goTo('home')} />
           </div>
         ) : (
         <>
@@ -142,7 +143,7 @@ export default function App() {
         </section>
 
         <div key={tab} className="tab-enter">
-          {tab === 'cockpit' && (
+          {tab === 'home' && (
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-12">
                 <NextSession session={next} />
@@ -162,7 +163,6 @@ export default function App() {
           {tab === 'learn' && <Learn />}
           {tab === 'discussions' && <Discussions />}
           {tab === 'news' && <News />}
-          {tab === 'polls' && <Polls />}
           {tab === 'tools' && <Tools sessions={data.sessions} />}
           {tab === 'members' && <MembersGallery members={data.members} />}
           {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
@@ -170,6 +170,7 @@ export default function App() {
         </>
         )}
       </main>
+      {/* polls render removed — now a pinned card in the Forum */}
 
       <Footer onNavigate={goTo} />
 
