@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PenLine, Sparkles, Copy, Check, RefreshCw, Linkedin, Instagram, Globe, ThumbsUp, MessageSquare, Repeat2, Send, Shuffle } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
+import { authedFetch } from '../lib/supabase.js';
 
 const LI_BLUE = '#0a66c2';
 
@@ -166,7 +167,7 @@ export default function PostMaker({ sessions = [] }) {
       const notes = mode === 'guided'
         ? buildBrief(fields, selectedSession, extra)
         : [sessionLine(selectedSession), freeText.trim()].filter(Boolean).join('\n\n');
-      const r = await fetch('/api/generate-post', {
+      const r = await authedFetch('/api/generate-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes, format }),

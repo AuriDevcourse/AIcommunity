@@ -4,12 +4,16 @@
 //   DELETE → remove an uploaded photo (?url=...)
 //   PATCH  → move an uploaded photo to another session ({ url, toDate })
 import { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured } from './_photos.js';
+import { guardMutation } from './_guard.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       return res.status(200).json(await listPhotos());
     }
+    // Upload / move / delete are gated: signed-in + rate-limited.
+    const blocked = await guardMutation(req, { bucket: 'photos', limit: 40 });
+    if (blocked) return res.status(blocked.status).json(blocked.json);
     if (!blobConfigured()) {
       return res.status(200).json({ ok: false, configured: false, error: 'uploads not configured' });
     }
@@ -29,6 +33,7 @@ export default async function handler(req, res) {
     }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {
-    return res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/photos error:', e);
+    return res.status(500).json({ ok: false, error: 'Server error.' });
   }
 }

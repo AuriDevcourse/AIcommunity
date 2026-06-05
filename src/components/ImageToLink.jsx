@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Loader2, Copy, Check, ExternalLink } from 'lucide-react';
+import { authedFetch } from '../lib/supabase.js';
 
 const MAX_BYTES = 3 * 1024 * 1024;
 
@@ -27,7 +28,7 @@ export default function ImageToLink() {
     setErr(''); setBusy(true); setUrl('');
     try {
       const image = await fileToBase64(file);
-      const r = await fetch('/api/upload-image', {
+      const r = await authedFetch('/api/upload-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image, name: file.name }),

@@ -14,6 +14,15 @@ import { handleThreads } from './api/_threads.js';
 import { handleTopics } from './api/_topics.js';
 import { handleSessionMeta } from './api/_session-meta.js';
 import { handleImageUpload } from './api/_imgbb.js';
+import { guardMutation } from './api/_guard.js';
+
+// Gate mutating requests (auth + rate limit). Returns true if it already responded.
+async function gate(req, res, bucket, limit) {
+  if (req.method === 'GET') return false;
+  const blocked = await guardMutation(req, { bucket, limit });
+  if (blocked) { res.status(blocked.status).json(blocked.json); return true; }
+  return false;
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '3003', 10);
@@ -58,10 +67,12 @@ app.post('/api/feedback', (req, res) => {
 
 app.all('/api/polls', async (req, res) => {
   try {
+    if (await gate(req, res, 'polls', 60)) return;
     const { status, json } = await handlePolls({ method: req.method, body: req.body });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/polls error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
@@ -73,59 +84,71 @@ app.get('/api/attendees', async (req, res) => {
 
 app.all('/api/threads', async (req, res) => {
   try {
+    if (await gate(req, res, 'threads', 60)) return;
     const { status, json } = await handleThreads({ method: req.method, body: req.body, query: req.query });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/threads error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
 app.all('/api/topics', async (req, res) => {
   try {
+    if (await gate(req, res, 'topics', 30)) return;
     const { status, json } = await handleTopics({ method: req.method, body: req.body });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/topics error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
 app.all('/api/session-meta', async (req, res) => {
   try {
+    if (await gate(req, res, 'session-meta', 60)) return;
     const { status, json } = await handleSessionMeta({ method: req.method, body: req.body });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/session-meta error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
 app.post('/api/upload-image', async (req, res) => {
   try {
+    if (await gate(req, res, 'upload-image', 30)) return;
     const { status, json } = await handleImageUpload({ body: req.body });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/upload-image error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
 app.post('/api/generate-post', async (req, res) => {
   try {
+    if (await gate(req, res, 'generate-post', 10)) return;
     const { status, json } = await handleGeneratePost({ body: req.body });
     res.status(status).json(json);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/generate-post error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 
 app.all('/api/photos', async (req, res) => {
   try {
     if (req.method === 'GET') return res.status(200).json(await listPhotos());
+    if (await gate(req, res, 'photos', 40)) return;
     if (!blobConfigured()) return res.status(200).json({ ok: false, configured: false, error: 'uploads not configured' });
     if (req.method === 'POST') { const r = await uploadPhoto(req.body); return res.status(200).json({ ok: true, ...r }); }
     if (req.method === 'DELETE') { await deletePhoto(req.query?.url || ''); return res.status(200).json({ ok: true }); }
     if (req.method === 'PATCH') { const r = await movePhoto(req.body?.url, req.body?.toDate); return res.status(200).json({ ok: true, ...r }); }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    console.error('/api/photos error:', e);
+    res.status(500).json({ ok: false, error: 'Server error.' });
   }
 });
 

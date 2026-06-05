@@ -37,6 +37,7 @@ function pollsPlugin() {
         { handleTopics },
         { handleImageUpload },
         { handleSessionMeta },
+        { guardMutation },
       ] = await Promise.all([
         import('./api/_polls-core.js'),
         import('./api/_gcal.js'),
@@ -46,9 +47,18 @@ function pollsPlugin() {
         import('./api/_topics.js'),
         import('./api/_imgbb.js'),
         import('./api/_session-meta.js'),
+        import('./api/_guard.js'),
       ]);
+      // Gate mutating requests (auth + rate limit) before running the handler.
+      const gate = async (req, res, bucket, limit) => {
+        if (req.method === 'GET') return false;
+        const blocked = await guardMutation(req, { bucket, limit });
+        if (blocked) { sendJson(res, blocked.status, blocked.json); return true; }
+        return false;
+      };
       server.middlewares.use('/api/polls', async (req, res) => {
         try {
+          if (await gate(req, res, 'polls', 60)) return;
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handlePolls({ method: req.method, body });
           sendJson(res, status, json);
@@ -68,6 +78,7 @@ function pollsPlugin() {
       });
       server.middlewares.use('/api/threads', async (req, res) => {
         try {
+          if (await gate(req, res, 'threads', 60)) return;
           const url = new URL(req.url, 'http://localhost');
           const query = Object.fromEntries(url.searchParams);
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
@@ -79,6 +90,7 @@ function pollsPlugin() {
       });
       server.middlewares.use('/api/topics', async (req, res) => {
         try {
+          if (await gate(req, res, 'topics', 30)) return;
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handleTopics({ method: req.method, body });
           sendJson(res, status, json);
@@ -88,6 +100,7 @@ function pollsPlugin() {
       });
       server.middlewares.use('/api/session-meta', async (req, res) => {
         try {
+          if (await gate(req, res, 'session-meta', 60)) return;
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handleSessionMeta({ method: req.method, body });
           sendJson(res, status, json);
@@ -98,6 +111,7 @@ function pollsPlugin() {
       server.middlewares.use('/api/upload-image', async (req, res) => {
         try {
           if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          if (await gate(req, res, 'upload-image', 30)) return;
           const body = await readJsonBody(req);
           const { status, json } = await handleImageUpload({ body });
           sendJson(res, status, json);
@@ -108,6 +122,7 @@ function pollsPlugin() {
       server.middlewares.use('/api/generate-post', async (req, res) => {
         try {
           if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          if (await gate(req, res, 'generate-post', 10)) return;
           const body = await readJsonBody(req);
           const { status, json } = await handleGeneratePost({ body });
           sendJson(res, status, json);
@@ -118,6 +133,7 @@ function pollsPlugin() {
       server.middlewares.use('/api/photos', async (req, res) => {
         try {
           if (req.method === 'GET') return sendJson(res, 200, await listPhotos());
+          if (await gate(req, res, 'photos', 40)) return;
           if (!blobConfigured()) return sendJson(res, 200, { ok: false, configured: false, error: 'uploads not configured' });
           if (req.method === 'POST') {
             const body = await readJsonBody(req);

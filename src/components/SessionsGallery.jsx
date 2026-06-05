@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2 } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
+import { authedFetch } from '../lib/supabase.js';
 import PhotoUploader from './PhotoUploader.jsx';
 
 export default function SessionsGallery({ sessions }) {
@@ -37,7 +38,7 @@ export default function SessionsGallery({ sessions }) {
       return next;
     });
     try {
-      await fetch('/api/session-meta', {
+      await authedFetch('/api/session-meta', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date, ...patch }),
       });
@@ -79,7 +80,7 @@ export default function SessionsGallery({ sessions }) {
   async function deletePhotos(date, urls) {
     const list = urls.filter((u) => u.startsWith('http')); // only runtime uploads are deletable
     for (const url of list) {
-      try { await fetch(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' }); } catch { /* reload reflects reality */ }
+      try { await authedFetch(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' }); } catch { /* reload reflects reality */ }
     }
     await loadUploads();
   }

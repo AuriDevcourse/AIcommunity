@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Trash2, ImagePlus, Check, ArrowRight } from 'lucide-react';
+import { authedFetch, accessToken } from '../lib/supabase.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -29,10 +30,12 @@ function downscale(file, maxDim = 1600, quality = 0.82) {
 // POST the downscaled image to our endpoint via XHR so we get real upload progress.
 function uploadViaXHR({ date, name, file, onProgress }) {
   return new Promise((resolve, reject) => {
-    downscale(file).then(({ data, contentType }) => {
+    downscale(file).then(async ({ data, contentType }) => {
+      const token = await accessToken();
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/api/photos');
       xhr.setRequestHeader('Content-Type', 'application/json');
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100)); };
       xhr.onload = () => {
         try {
@@ -118,7 +121,7 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
   // Delete a photo you just uploaded this session (undo a mistake).
   async function removeUploaded(url) {
     if (!confirm('Remove this photo?')) return;
-    await fetch(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' });
+    await authedFetch(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' });
     setQueue((q) => q.filter((x) => x.url !== url));
     onChanged?.();
   }
@@ -313,7 +316,7 @@ function MovePhotos({ dates, configured, onChanged }) {
     setProgress({ done: 0, total: urls.length });
     for (let i = 0; i < urls.length; i++) {
       try {
-        await fetch('/api/photos', {
+        await authedFetch('/api/photos', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: urls[i], toDate: target }),

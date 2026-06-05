@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BarChart3, Plus, X, Check, RefreshCw, Users } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
+import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 const ci = (s) => String(s || '').trim().toLowerCase();
 
@@ -59,7 +60,7 @@ export default function Polls() {
     if (optionIds.length === 0) return;
     setBusy(poll.id);
     try {
-      const r = await fetch('/api/polls', {
+      const r = await authedFetch('/api/polls', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'vote', pollId: poll.id, name: name.trim(), optionIds }),
@@ -82,7 +83,7 @@ export default function Polls() {
   async function act(body) {
     setBusy(body.pollId || 'create');
     try {
-      const r = await fetch('/api/polls', {
+      const r = await authedFetch('/api/polls', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

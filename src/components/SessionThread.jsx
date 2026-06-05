@@ -12,6 +12,7 @@ function fileToBase64(file) {
   });
 }
 import { useMemberName } from '../lib/auth.jsx';
+import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 
 const MAX = 1000;
@@ -87,7 +88,7 @@ export default function SessionThread({
   }, [load]);
 
   async function post(body) {
-    const r = await fetch('/api/threads', {
+    const r = await authedFetch('/api/threads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key: ch, name: name.trim(), ...body }),
@@ -106,7 +107,7 @@ export default function SessionThread({
       for (const f of files.slice(0, room)) {
         if (f.size > MAX_IMG_BYTES) { setUploadErr(`${f.name} is too large (max 3MB).`); continue; }
         const image = await fileToBase64(f);
-        const r = await fetch('/api/upload-image', {
+        const r = await authedFetch('/api/upload-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image, name: f.name }),

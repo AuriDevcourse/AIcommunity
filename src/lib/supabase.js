@@ -19,3 +19,23 @@ export const supabase = authEnabled
       },
     })
   : null;
+
+// Current Supabase access token (or '' in typed-name / unauthenticated mode).
+export async function accessToken() {
+  if (!authEnabled) return '';
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data?.session?.access_token || '';
+  } catch {
+    return '';
+  }
+}
+
+// fetch() that attaches the signed-in user's bearer token, so mutating API routes
+// can verify the caller server-side. Use for every POST/PATCH/DELETE to /api/*.
+export async function authedFetch(input, options = {}) {
+  const token = await accessToken();
+  const headers = { ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(input, { ...options, headers });
+}

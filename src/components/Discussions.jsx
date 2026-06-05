@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MessagesSquare, Plus, ChevronDown, Trash2, Lightbulb, Sparkles } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
+import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 import SessionThread from './SessionThread.jsx';
 
@@ -55,7 +56,7 @@ export default function Discussions() {
     if (!named || title.trim().length < 3 || busy) return;
     setBusy(true);
     try {
-      const r = await fetch('/api/topics', {
+      const r = await authedFetch('/api/topics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'create', title: title.trim(), name: name.trim() }),
@@ -71,7 +72,7 @@ export default function Discussions() {
   async function remove(id) {
     setTopics((t) => (t || []).filter((x) => x.id !== id)); // optimistic
     if (open === id) setOpen(null);
-    await fetch('/api/topics', {
+    await authedFetch('/api/topics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'delete', id, name: name.trim() }),
