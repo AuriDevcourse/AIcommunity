@@ -76,6 +76,14 @@ button, a, select, input[type="button"], [role="button"] {
   box-shadow: 0 0 0 2px var(--background), 0 0 0 3.5px color-mix(in oklab, var(--foreground) 55%, transparent);
 }
 
+/* Text fields show focus via their wrapping label's rounded ring, so skip the
+   rectangular box-shadow ring on the input itself. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  box-shadow: none;
+}
+
 ::selection { background: color-mix(in oklab, var(--foreground) 14%, transparent); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -143,6 +151,29 @@ button, a, select, input[type="button"], [role="button"] {
   .pill-warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 35%, transparent); background: color-mix(in oklab, var(--warn) 8%, white); }
   .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 8%, white); }
   .pill-acc  { color: var(--foreground); border-color: var(--foreground); background: var(--background); }
+  /* Small gold gradient badge for the top-voted suggestion. */
+  .pill-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: hsl(35 78% 30%);
+    background: linear-gradient(135deg, hsl(46 92% 82%), hsl(40 90% 91%));
+    border: 1px solid hsl(44 85% 58% / 0.5);
+  }
+  /* The top suggestion's row gets a faint warm wash + gold edge to match. */
+  .top-idea-card {
+    background: linear-gradient(135deg, hsl(46 88% 95%) 0%, var(--background) 55%);
+    border-color: color-mix(in oklab, hsl(44 85% 58%) 38%, var(--border));
+  }
+  /* Gold square chip behind the Ideas board's leading icon. */
+  .ideas-chip {
+    background: linear-gradient(135deg, hsl(46 92% 82%), hsl(40 90% 91%));
+    color: hsl(35 78% 30%);
+  }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .skeleton {
     background: linear-gradient(90deg, var(--accent) 25%, color-mix(in oklab, var(--accent) 55%, white) 37%, var(--accent) 63%);

@@ -2,7 +2,8 @@
 //   GET    → list uploaded session photos grouped by date
 //   POST   → Vercel Blob client-upload token handshake
 //   DELETE → remove an uploaded photo (?url=...)
-import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './_photos.js';
+//   PATCH  → move an uploaded photo to another session ({ url, toDate })
+import { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured } from './_photos.js';
 
 export default async function handler(req, res) {
   try {
@@ -20,6 +21,11 @@ export default async function handler(req, res) {
     if (req.method === 'DELETE') {
       await deletePhoto(req.query?.url || '');
       return res.status(200).json({ ok: true });
+    }
+    if (req.method === 'PATCH') {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+      const r = await movePhoto(body.url, body.toDate);
+      return res.status(200).json({ ok: true, ...r });
     }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {

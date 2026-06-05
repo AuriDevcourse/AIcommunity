@@ -6,7 +6,7 @@
 // Uploads come in as base64 JSON (the browser downscales first, so payloads are
 // small and well under the function body limit), and we write them with put().
 // Needs BLOB_READ_WRITE_TOKEN (auto-injected on Vercel; .env.local for dev).
-import { list, del, put } from '@vercel/blob';
+import { list, del, put, copy } from '@vercel/blob';
 
 const PREFIX = 'sessions/';
 const deslug = (s) => s.replace(/[-_]+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -52,4 +52,21 @@ export async function uploadPhoto({ date, name, filename, contentType, data }) {
 export async function deletePhoto(url) {
   if (!url) throw new Error('url required');
   await del(url);
+}
+
+// Move an uploaded photo to a different session date: copy to the new
+// sessions/<toDate>/ path (keeping the same filename so the uploader tag and
+// random suffix survive), then delete the original. Blob has no native rename.
+export async function movePhoto(url, toDate) {
+  if (!blobConfigured()) throw new Error('uploads not configured');
+  if (!url) throw new Error('url required');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(toDate || '')) throw new Error('valid target date required');
+  const path = new URL(url).pathname.replace(/^\/+/, '').split('/'); // sessions/<date>/<file...>
+  const file = path.slice(2).join('/');
+  if (path[0] !== 'sessions' || !file) throw new Error('not a session photo');
+  if (path[1] === toDate) return { url }; // already there
+  const toPathname = `${PREFIX}${toDate}/${file}`;
+  const { url: newUrl } = await copy(url, toPathname, { access: 'public', addRandomSuffix: false });
+  await del(url);
+  return { url: newUrl };
 }

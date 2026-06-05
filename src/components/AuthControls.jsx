@@ -196,13 +196,13 @@ export function AuthModal() {
 
 const Field = forwardRef(function Field({ icon: Icon, value, onChange, ...props }, ref) {
   return (
-    <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 focus-within:border-foreground">
+    <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 outline-none transition-colors focus-within:border-foreground/60 focus-within:ring-2 focus-within:ring-foreground/10">
       <Icon size={15} strokeWidth={2} className="text-muted flex-shrink-0" />
       <input
         ref={ref}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex-1 bg-transparent py-2 text-sm focus:outline-none"
+        className="flex-1 bg-transparent py-2 text-sm outline-none focus:outline-none focus-visible:outline-none"
         {...props}
       />
     </label>

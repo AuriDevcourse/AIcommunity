@@ -49,6 +49,10 @@ export default function SessionThread({
   title = 'Session discussion',
   subtitle = "Questions, what you'll demo, and links to share for this session.",
   bare = false,
+  sortBy = 'time', // 'time' (oldest first) or 'score' (most-upvoted first, for Ideas)
+  composerPlaceholder,
+  postLabel = 'Post message',
+  emptyLabel = 'No messages yet. Start the conversation.',
 }) {
   const ch = channel || date;
   const [comments, setComments] = useState(null);
@@ -152,7 +156,11 @@ export default function SessionThread({
   }
 
   const list = comments || [];
-  const roots = list.filter((c) => !c.parentId).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+  const roots = list.filter((c) => !c.parentId).sort((a, b) => (
+    sortBy === 'score'
+      ? (b.score - a.score) || (b.createdAt || '').localeCompare(a.createdAt || '')
+      : (a.createdAt || '').localeCompare(b.createdAt || '')
+  ));
   const repliesByParent = {};
   for (const c of list.filter((x) => x.parentId)) (repliesByParent[c.parentId] = repliesByParent[c.parentId] || []).push(c);
   for (const k of Object.keys(repliesByParent)) repliesByParent[k].sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
@@ -183,7 +191,7 @@ export default function SessionThread({
           </li>
         ))}
         {comments !== null && roots.length === 0 && (
-          <li className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted">No messages yet. Start the conversation.</li>
+          <li className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted">{emptyLabel}</li>
         )}
         {roots.map((c) => (
           <li key={c.id}>
@@ -242,7 +250,7 @@ export default function SessionThread({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitTop(); } }}
-                placeholder={named ? 'Write a message…' : 'Add your name above first…'}
+                placeholder={named ? (composerPlaceholder || 'Write a message…') : 'Add your name above first…'}
                 rows={2}
                 maxLength={MAX}
                 disabled={!named}
@@ -284,7 +292,7 @@ export default function SessionThread({
                 disabled={!named || (!text.trim() && attachments.length === 0) || busy || uploading}
                 className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-foreground text-background py-2.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.01]"
               >
-                <Send size={14} strokeWidth={2.2} /> {busy ? 'Posting…' : 'Post message'}
+                <Send size={14} strokeWidth={2.2} /> {busy ? 'Posting…' : postLabel}
               </button>
             </div>
             {named && <p className="mt-1.5 text-[11px] text-muted hidden sm:block">Tip: ⌘ / Ctrl + Enter to post. Images & GIFs up to 3MB.</p>}

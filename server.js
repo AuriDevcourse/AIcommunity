@@ -8,11 +8,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handlePolls } from './api/_polls-core.js';
 import { handleAttendees } from './api/_gcal.js';
-import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
+import { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured } from './api/_photos.js';
 import { handleGeneratePost } from './api/_postmaker.js';
-import { handleSuggestions } from './api/_suggestions.js';
 import { handleThreads } from './api/_threads.js';
 import { handleTopics } from './api/_topics.js';
+import { handleSessionMeta } from './api/_session-meta.js';
 import { handleImageUpload } from './api/_imgbb.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,14 +70,6 @@ app.get('/api/attendees', async (req, res) => {
   res.status(status).json(json);
 });
 
-app.all('/api/suggestions', async (req, res) => {
-  try {
-    const { status, json } = await handleSuggestions({ method: req.method, body: req.body });
-    res.status(status).json(json);
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
-});
 
 app.all('/api/threads', async (req, res) => {
   try {
@@ -91,6 +83,15 @@ app.all('/api/threads', async (req, res) => {
 app.all('/api/topics', async (req, res) => {
   try {
     const { status, json } = await handleTopics({ method: req.method, body: req.body });
+    res.status(status).json(json);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.all('/api/session-meta', async (req, res) => {
+  try {
+    const { status, json } = await handleSessionMeta({ method: req.method, body: req.body });
     res.status(status).json(json);
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -121,6 +122,7 @@ app.all('/api/photos', async (req, res) => {
     if (!blobConfigured()) return res.status(200).json({ ok: false, configured: false, error: 'uploads not configured' });
     if (req.method === 'POST') { const r = await uploadPhoto(req.body); return res.status(200).json({ ok: true, ...r }); }
     if (req.method === 'DELETE') { await deletePhoto(req.query?.url || ''); return res.status(200).json({ ok: true }); }
+    if (req.method === 'PATCH') { const r = await movePhoto(req.body?.url, req.body?.toDate); return res.status(200).json({ ok: true, ...r }); }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });

@@ -2,14 +2,10 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { handlePolls } from './api/_polls-core.js';
-import { handleAttendees } from './api/_gcal.js';
-import { listPhotos, uploadPhoto, deletePhoto, blobConfigured } from './api/_photos.js';
-import { handleGeneratePost } from './api/_postmaker.js';
-import { handleSuggestions } from './api/_suggestions.js';
-import { handleThreads } from './api/_threads.js';
-import { handleTopics } from './api/_topics.js';
-import { handleImageUpload } from './api/_imgbb.js';
+// NB: the API handlers read process.env at module-eval time (KV/Upstash creds).
+// They're imported dynamically inside configureServer — which runs *after* the
+// loadEnv() below populates process.env — so the dev middleware sees the same
+// Upstash store as production instead of falling back to the local file store.
 
 const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
 
@@ -30,7 +26,27 @@ function sendJson(res, status, json) {
 function pollsPlugin() {
   return {
     name: 'polls-api',
-    configureServer(server) {
+    async configureServer(server) {
+      // Loaded here (post-loadEnv) so the modules' top-level env reads succeed.
+      const [
+        { handlePolls },
+        { handleAttendees },
+        { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured },
+        { handleGeneratePost },
+        { handleThreads },
+        { handleTopics },
+        { handleImageUpload },
+        { handleSessionMeta },
+      ] = await Promise.all([
+        import('./api/_polls-core.js'),
+        import('./api/_gcal.js'),
+        import('./api/_photos.js'),
+        import('./api/_postmaker.js'),
+        import('./api/_threads.js'),
+        import('./api/_topics.js'),
+        import('./api/_imgbb.js'),
+        import('./api/_session-meta.js'),
+      ]);
       server.middlewares.use('/api/polls', async (req, res) => {
         try {
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
@@ -45,15 +61,6 @@ function pollsPlugin() {
           const url = new URL(req.url, 'http://localhost');
           const query = Object.fromEntries(url.searchParams);
           const { status, json } = await handleAttendees({ query });
-          sendJson(res, status, json);
-        } catch (e) {
-          sendJson(res, 500, { ok: false, error: e.message });
-        }
-      });
-      server.middlewares.use('/api/suggestions', async (req, res) => {
-        try {
-          const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleSuggestions({ method: req.method, body });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -74,6 +81,15 @@ function pollsPlugin() {
         try {
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handleTopics({ method: req.method, body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/session-meta', async (req, res) => {
+        try {
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handleSessionMeta({ method: req.method, body });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -112,6 +128,11 @@ function pollsPlugin() {
             const url = new URL(req.url, 'http://localhost');
             await deletePhoto(url.searchParams.get('url') || '');
             return sendJson(res, 200, { ok: true });
+          }
+          if (req.method === 'PATCH') {
+            const body = await readJsonBody(req);
+            const r = await movePhoto(body.url, body.toDate);
+            return sendJson(res, 200, { ok: true, ...r });
           }
           return sendJson(res, 405, { ok: false, error: 'method not allowed' });
         } catch (e) {

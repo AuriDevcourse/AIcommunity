@@ -140,7 +140,7 @@ export default function App() {
                 <LatestDiscussion onOpenForum={openForum} />
               </div>
               <div className="col-span-12 md:col-span-6">
-                <Suggestions />
+                <Suggestions onOpenForum={openForum} />
               </div>
             </div>
           )}
