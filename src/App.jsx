@@ -13,6 +13,7 @@ import Discussions from './components/Discussions.jsx';
 import Learn from './components/Learn.jsx';
 import AuthControls from './components/AuthControls.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
+import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
 import { Users, LayoutDashboard, Newspaper, BarChart3, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
@@ -31,7 +32,7 @@ const TAB_KEYS = TABS.map((t) => t.key);
 
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
-  return TAB_KEYS.includes(h) ? h : 'cockpit';
+  return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'cockpit';
 }
 
 export default function App() {
@@ -67,6 +68,13 @@ export default function App() {
     if (topicId) { try { sessionStorage.setItem('forum_open_topic', topicId); } catch { /* ignore */ } }
     setTab('discussions');
   };
+
+  // Navigate to a tab or legal page and jump to the top (used by the footer + back).
+  const goTo = (key) => {
+    setTab(key);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
+  };
+  const isLegal = LEGAL_KEYS.includes(tab);
 
   const todayIso = TODAY.toISOString().slice(0, 10);
   const upcomingFromToday = data.schedule.upcoming.filter((s) => s.date >= todayIso);
@@ -118,6 +126,12 @@ export default function App() {
       </header>
 
       <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
+        {isLegal ? (
+          <div key={tab} className="tab-enter">
+            <LegalPage slug={tab} onBack={() => goTo('cockpit')} />
+          </div>
+        ) : (
+        <>
         <section className="mb-8 sm:mb-10">
           <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight">
             Build with AI. Show what you learned.
@@ -153,7 +167,11 @@ export default function App() {
           {tab === 'members' && <MembersGallery members={data.members} />}
           {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
         </div>
+        </>
+        )}
       </main>
+
+      <Footer onNavigate={goTo} />
 
       {/* Mobile menu (hamburger). Desktop uses the top menu. */}
       {menuOpen && (
