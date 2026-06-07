@@ -32,7 +32,7 @@ function pollsPlugin() {
         { handlePolls },
         { handleAttendees },
         { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured },
-        { handleGeneratePost },
+        { handleGeneratePost, streamPostToRes, postmakerConfigured },
         { handleThreads },
         { handleTopics },
         { handleImageUpload },
@@ -124,6 +124,11 @@ function pollsPlugin() {
           if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
           if (await gate(req, res, 'generate-post', 10)) return;
           const body = await readJsonBody(req);
+          if (body.stream) {
+            if (!postmakerConfigured()) return sendJson(res, 200, { ok: false, configured: false });
+            if (!String(body.notes || '').trim()) return sendJson(res, 400, { ok: false, error: 'notes required' });
+            return streamPostToRes(res, body);
+          }
           const { status, json } = await handleGeneratePost({ body });
           sendJson(res, status, json);
         } catch (e) {

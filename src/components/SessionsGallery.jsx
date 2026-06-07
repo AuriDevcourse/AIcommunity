@@ -177,7 +177,7 @@ function SessionTile({ session, name, cover, onEdit, onOpen }) {
   const date = fmtDate(session.date);
 
   return (
-    <article className="group flex flex-col">
+    <article className="group relative flex flex-col">
       <button
         type="button"
         onClick={() => onOpen(0)}
@@ -199,15 +199,18 @@ function SessionTile({ session, name, cover, onEdit, onOpen }) {
         )}
       </button>
 
-      <div className="mt-4 flex items-center gap-1.5">
+      {/* Edit overlays the cover's top-right. Sibling (not nested) so it doesn't
+          conflict with the cover button; lifts on hover/focus. */}
+      <button
+        onClick={onEdit}
+        className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-white transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+        aria-label={`Edit ${name}`}
+      >
+        <Pencil size={12} strokeWidth={2.4} /> Edit
+      </button>
+
+      <div className="mt-4">
         <span className="text-base font-semibold leading-snug tracking-tight truncate">{name}</span>
-        <button
-          onClick={onEdit}
-          className="ml-auto inline-flex items-center gap-1 flex-shrink-0 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted hover:text-foreground hover:border-foreground/40 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
-          aria-label={`Edit ${name}`}
-        >
-          <Pencil size={12} /> Edit
-        </button>
       </div>
     </article>
   );

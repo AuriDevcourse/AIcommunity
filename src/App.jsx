@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Component, lazy, Suspense, useEffect, useState } from 'react';
 import data from './data.json';
 // Home-tab (default view) components stay eager so the landing paint isn't gated
 // on a second chunk. The other tabs are code-split below — their JS only downloads
@@ -145,6 +145,7 @@ export default function App() {
           </div>
         </section>
 
+        <TabErrorBoundary key={`eb-${tab}`}>
         <Suspense fallback={<TabFallback />}>
           <div key={tab} className="tab-enter">
             {tab === 'home' && (
@@ -172,6 +173,7 @@ export default function App() {
             {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
           </div>
         </Suspense>
+        </TabErrorBoundary>
         </>
         )}
       </main>
@@ -220,6 +222,37 @@ export default function App() {
       {import.meta.env.DEV && <Agentation />}
     </div>
   );
+}
+
+// Catches failures from the code-split tab imports. The common one is a stale
+// chunk: after a new deploy (or a dev-server restart), a page loaded earlier
+// references hashed chunk files that no longer exist, so the dynamic import 404s.
+// We auto-reload ONCE to pick up the new asset map, then fall back to a manual
+// retry (guarded so it can never loop).
+class TabErrorBoundary extends Component {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(err) {
+    const stale = /dynamically imported module|module script failed|failed to fetch|chunkloaderror/i.test(String(err?.message || err));
+    if (stale && !sessionStorage.getItem('chunkReloaded')) {
+      sessionStorage.setItem('chunkReloaded', '1');
+      window.location.reload();
+    }
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="card card-pad text-center text-sm text-muted">
+        <p>Couldn’t load this section. The app may have just updated.</p>
+        <button
+          onClick={() => { sessionStorage.removeItem('chunkReloaded'); window.location.reload(); }}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-4 py-2 text-sm font-semibold transition-transform hover:scale-[1.02]"
+        >
+          Reload
+        </button>
+      </div>
+    );
+  }
 }
 
 // Shown for the brief moment a code-split tab's chunk is downloading.

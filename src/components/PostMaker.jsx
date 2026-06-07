@@ -1,9 +1,13 @@
-import { useState } from 'react';
-import { PenLine, Sparkles, Copy, Check, RefreshCw, Linkedin, Instagram, Globe, ThumbsUp, MessageSquare, Repeat2, Send, Shuffle } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { PenLine, Sparkles, Copy, Check, Linkedin, Instagram, Globe, ThumbsUp, MessageSquare, Repeat2, Send, Shuffle, Square, Heart, MessageCircle, Bookmark, MoreHorizontal, ChevronDown, Images } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 
 const LI_BLUE = '#0a66c2';
+// Where each platform hides the rest behind "…more" (approx, matches real apps).
+const FOLD = { linkedin: 210, instagram: 125 };
+const igHandle = (name) => String(name || 'you').toLowerCase().replace(/[^a-z]+/g, '.').replace(/^\.|\.$/g, '');
+const countWords = (t) => t.trim().split(/\s+/).filter(Boolean).length;
 
 // Random placeholder identity for the preview (so it is not always Auri).
 const NAMES = ['Mia Larsen', 'Tomas Berg', 'Aisha Khan', 'Lukas Novak', 'Sofia Rossi', 'Daniel Park', 'Nina Holm', 'Omar Haddad', 'Elena Costa', 'Jonas Vik', 'Priya Nair', 'Felix Brandt'];
@@ -95,7 +99,28 @@ function Collage({ photos }) {
   );
 }
 
-function LinkedInPreview({ author, text, photos }) {
+// Blinking caret shown at the tail of the text while it streams in.
+function Caret() {
+  return <span className="inline-block w-[2px] h-[1em] -mb-[0.15em] ml-px bg-current opacity-70 animate-pulse" aria-hidden />;
+}
+
+// Renders post text with the platform's "…more" fold. Tapping "more" expands it.
+function FoldedText({ text, limit, prefix, streaming }) {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => { setExpanded(false); }, [text]);
+  const folded = !streaming && !expanded && text.length > limit;
+  const shown = folded ? text.slice(0, limit).replace(/\s+\S*$/, '') : text;
+  return (
+    <span>
+      {prefix}
+      {renderPostText(shown)}
+      {folded && <>… <button onClick={() => setExpanded(true)} className="text-[#8e8e8e] hover:text-[#262626] font-normal">more</button></>}
+      {streaming && <Caret />}
+    </span>
+  );
+}
+
+function LinkedInPreview({ author, text, photos, streaming }) {
   return (
     <div className="rounded-xl border border-border bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#1f1f1f]">
       <div className="p-4">
@@ -110,7 +135,8 @@ function LinkedInPreview({ author, text, photos }) {
           </div>
         </div>
         <div className="mt-3 text-sm whitespace-pre-wrap leading-relaxed break-words">
-          {text ? renderPostText(text) : <span className="text-[#999]">Your generated post will appear here as it would on LinkedIn.</span>}
+          {text ? <FoldedText text={text} limit={FOLD.linkedin} streaming={streaming} />
+            : <span className="text-[#999]">Your generated post will appear here as it would on LinkedIn.</span>}
         </div>
       </div>
       <Collage photos={photos} />
@@ -121,6 +147,139 @@ function LinkedInPreview({ author, text, photos }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Square photo grid for the Instagram preview (fills its aspect-square frame).
+function SquareCollage({ photos }) {
+  const shown = photos.slice(0, 4);
+  const img = 'w-full h-full object-cover';
+  if (shown.length === 1) return <img src={shown[0]} alt="" className={img} />;
+  if (shown.length === 3) return (
+    <div className="grid grid-cols-2 grid-rows-2 gap-0.5 w-full h-full">
+      <img src={shown[0]} alt="" className={`${img} row-span-2`} />
+      <img src={shown[1]} alt="" className={img} />
+      <img src={shown[2]} alt="" className={img} />
+    </div>
+  );
+  return <div className={`grid gap-0.5 w-full h-full ${shown.length === 2 ? 'grid-cols-2' : 'grid-cols-2 grid-rows-2'}`}>{shown.map((p, i) => <img key={i} src={p} alt="" className={img} />)}</div>;
+}
+
+function InstagramPreview({ author, text, photos, streaming }) {
+  const handle = igHandle(author.name);
+  return (
+    <div className="rounded-xl border border-border bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#262626]">
+      <div className="flex items-center gap-2 p-3">
+        <img src={author.avatar} alt="" className="w-8 h-8 rounded-full object-cover bg-accent outline outline-1 outline-[#eee]" />
+        <span className="text-sm font-semibold leading-tight truncate flex-1">{handle}</span>
+        <MoreHorizontal size={18} />
+      </div>
+      <div className="aspect-square w-full overflow-hidden bg-[#fafafa]">
+        {photos?.length ? <SquareCollage photos={photos} />
+          : <div className="w-full h-full grid place-items-center text-[#bbb] text-xs">Pick a session with photos</div>}
+      </div>
+      <div className="flex items-center gap-4 px-3 pt-3">
+        <Heart size={24} strokeWidth={1.8} />
+        <MessageCircle size={24} strokeWidth={1.8} />
+        <Send size={22} strokeWidth={1.8} />
+        <Bookmark size={22} strokeWidth={1.8} className="ml-auto" />
+      </div>
+      <div className="px-3 pt-2 text-sm font-semibold">128 likes</div>
+      <div className="px-3 pb-3 pt-1 text-sm leading-relaxed whitespace-pre-wrap break-words">
+        {text ? <FoldedText text={text} limit={FOLD.instagram} streaming={streaming} prefix={<span className="font-semibold mr-1">{handle}</span>} />
+          : <span className="text-[#999]">Your caption will appear here as it would on Instagram.</span>}
+      </div>
+    </div>
+  );
+}
+
+// Custom session picker (replaces the native <select> so it matches the UI):
+// cover thumbnail + photo-count badge, keyboard + screen-reader accessible
+// (combobox/listbox pattern).
+function SessionSelect({ sessions, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(-1);
+  const wrapRef = useRef(null);
+  const btnRef = useRef(null);
+  const selected = sessions.find((s) => s.date === value) || null;
+  const optLabel = (s) => `${s.number != null ? `#${s.number} · ` : ''}${fmtDate(s.date)}`;
+
+  useEffect(() => {
+    if (!open) return;
+    setHi(Math.max(0, sessions.findIndex((s) => s.date === value)));
+    const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const choose = (s) => { onChange(s.date); setOpen(false); btnRef.current?.focus(); };
+
+  const onKey = (e) => {
+    if (!open) {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true); }
+      return;
+    }
+    if (e.key === 'Escape') { setOpen(false); btnRef.current?.focus(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(sessions.length - 1, h + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => Math.max(0, h - 1)); }
+    else if (e.key === 'Home') { e.preventDefault(); setHi(0); }
+    else if (e.key === 'End') { e.preventDefault(); setHi(sessions.length - 1); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (sessions[hi]) choose(sessions[hi]); }
+  };
+
+  const Thumb = ({ s, size }) => (s.photos?.[0]
+    ? <img src={s.photos[0]} alt="" className={`${size} rounded object-cover flex-shrink-0`} />
+    : <span className={`${size} rounded bg-accent flex-shrink-0 grid place-items-center text-muted`}><Images size={12} /></span>);
+
+  return (
+    <div ref={wrapRef} className="relative flex-1 min-w-0">
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={onKey}
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-activedescendant={open && hi >= 0 ? `sess-opt-${hi}` : undefined}
+        className="w-full flex items-center gap-2 bg-background border border-border rounded-md px-2.5 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors"
+      >
+        {selected ? (
+          <>
+            <Thumb s={selected} size="w-6 h-6" />
+            <span className="truncate">{optLabel(selected)}</span>
+            {selected.photos?.length ? <span className="pill pill-mute flex-shrink-0">{selected.photos.length}</span> : null}
+          </>
+        ) : (
+          <span className="text-muted truncate">Pick one for photos + pre-fill…</span>
+        )}
+        <ChevronDown size={16} className={`ml-auto flex-shrink-0 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <ul role="listbox" className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-md border border-border bg-background shadow-[0_12px_30px_rgba(0,0,0,0.14)] py-1">
+          {sessions.map((s, i) => {
+            const isSel = s.date === value;
+            return (
+              <li
+                key={s.date}
+                id={`sess-opt-${i}`}
+                role="option"
+                aria-selected={isSel}
+                onMouseEnter={() => setHi(i)}
+                onClick={() => choose(s)}
+                className={`flex items-center gap-2.5 px-2.5 py-1.5 cursor-pointer ${i === hi ? 'bg-accent' : ''}`}
+              >
+                <Thumb s={s} size="w-7 h-7" />
+                <span className={`min-w-0 flex-1 truncate text-sm ${isSel ? 'font-semibold' : ''}`}>{optLabel(s)}</span>
+                {s.photos?.length ? <span className="pill pill-mute flex-shrink-0">{s.photos.length}</span> : null}
+                {isSel && <Check size={14} strokeWidth={2.5} className="flex-shrink-0 text-foreground" />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -138,9 +297,14 @@ export default function PostMaker({ sessions = [] }) {
   const [output, setOutput] = useState('');
   const [selectedSession, setSelectedSession] = useState(null);
   const [author, setAuthor] = useState(randomAuthor);
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState('idle'); // idle | loading | streaming | error | notconfigured
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const abortRef = useRef(null);
+  const busy = status === 'loading' || status === 'streaming';
+
+  // Cancel any in-flight generation if the user leaves (stops spend too).
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const setField = (k, v) => setFields((f) => ({ ...f, [k]: v }));
 
@@ -159,10 +323,18 @@ export default function PostMaker({ sessions = [] }) {
 
   const hasContent = mode === 'guided' ? (fields.topic.trim() || extra.trim()) : freeText.trim();
 
+  function stop() {
+    abortRef.current?.abort();
+  }
+
   async function generate() {
-    if (!hasContent || status === 'loading') return;
+    if (!hasContent || busy) return;
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
     setStatus('loading');
     setError('');
+    setOutput('');
     try {
       const notes = mode === 'guided'
         ? buildBrief(fields, selectedSession, extra)
@@ -170,14 +342,44 @@ export default function PostMaker({ sessions = [] }) {
       const r = await authedFetch('/api/generate-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes, format }),
+        body: JSON.stringify({ notes, format, stream: true }),
+        signal: ac.signal,
       });
-      const j = await r.json();
-      if (j.configured === false) { setStatus('notconfigured'); return; }
-      if (!j.ok) { setStatus('error'); setError(j.error || 'Generation failed.'); return; }
-      setOutput(j.text);
+
+      // Non-stream JSON reply = an early error/guard (401, 429, notconfigured…).
+      const ct = r.headers.get('content-type') || '';
+      if (!ct.includes('text/event-stream')) {
+        const j = await r.json().catch(() => ({}));
+        if (j.configured === false) { setStatus('notconfigured'); return; }
+        setStatus('error');
+        setError(j.error || (r.status === 429 ? 'Slow down — too many requests.' : r.status === 401 ? 'Sign in to generate posts.' : 'Generation failed.'));
+        return;
+      }
+
+      // Read the SSE stream and paint tokens as they arrive.
+      const reader = r.body.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+      let acc = '';
+      setStatus('streaming');
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const events = buf.split('\n\n');
+        buf = events.pop();
+        for (const ev of events) {
+          const line = ev.split('\n').find((l) => l.startsWith('data:'));
+          if (!line) continue;
+          let evt; try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
+          if (evt.delta) { acc += evt.delta; setOutput(acc); }
+          else if (evt.done) { setOutput(evt.text); } // house-style-cleaned final
+          else if (evt.error) { setStatus('error'); setError(evt.error); return; }
+        }
+      }
       setStatus('idle');
     } catch (e) {
+      if (e.name === 'AbortError') { setStatus('idle'); return; } // user stopped / navigated away
       setStatus('error');
       setError(e.message || 'Generation failed.');
     }
@@ -210,21 +412,10 @@ export default function PostMaker({ sessions = [] }) {
         {/* Left: guided form */}
         <div className="card card-pad space-y-4">
           {withContent.length > 0 && (
-            <label className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-3 text-sm">
               <span className="text-muted flex-shrink-0">Session</span>
-              <select
-                onChange={(e) => prefill(e.target.value)}
-                defaultValue=""
-                className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground"
-              >
-                <option value="" disabled>Pick one for photos + pre-fill…</option>
-                {withContent.map((s) => (
-                  <option key={s.date} value={s.date}>
-                    {s.number != null ? `#${s.number} · ` : ''}{fmtDate(s.date)}{s.photos?.length ? ` · ${s.photos.length} photos` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <SessionSelect sessions={withContent} value={selectedSession?.date || ''} onChange={prefill} />
+            </div>
           )}
 
           <div className="flex gap-2">
@@ -302,14 +493,24 @@ export default function PostMaker({ sessions = [] }) {
                 </button>
               ))}
             </div>
-            <button
-              onClick={generate}
-              disabled={!hasContent || status === 'loading'}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
-            >
-              <Sparkles size={14} strokeWidth={2.2} />
-              {status === 'loading' ? 'Writing…' : output ? 'Regenerate' : 'Generate'}
-            </button>
+            <div className="flex items-center gap-2">
+              {busy && (
+                <button
+                  onClick={stop}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-pill px-3 py-2 text-sm font-medium text-foreground hover:bg-foreground hover:text-background transition-colors"
+                >
+                  <Square size={12} strokeWidth={2.5} className="fill-current" /> Stop
+                </button>
+              )}
+              <button
+                onClick={generate}
+                disabled={!hasContent || busy}
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+              >
+                <Sparkles size={14} strokeWidth={2.2} />
+                {busy ? 'Writing…' : output ? 'Regenerate' : 'Generate'}
+              </button>
+            </div>
           </div>
 
           {status === 'error' && <div className="text-sm text-err">{error}</div>}
@@ -335,8 +536,18 @@ export default function PostMaker({ sessions = [] }) {
               <Shuffle size={12} /> Shuffle person
             </button>
           </div>
-          <LinkedInPreview author={author} text={output} photos={previewPhotos} />
-          {previewPhotos.length === 0 && <p className="text-xs text-muted mt-2">Pick a session with photos to see them in the collage.</p>}
+          {format === 'instagram'
+            ? <InstagramPreview author={author} text={output} photos={previewPhotos} streaming={status === 'streaming'} />
+            : <LinkedInPreview author={author} text={output} photos={previewPhotos} streaming={status === 'streaming'} />}
+
+          {output ? (
+            <div className="mt-2 flex items-center justify-between text-xs text-muted">
+              <span className="num">{output.length} characters · {countWords(output)} words</span>
+              <span>{output.length > FOLD[format] ? `Folds after ~${FOLD[format]} chars` : 'Fits above the fold'}</span>
+            </div>
+          ) : (
+            previewPhotos.length === 0 && <p className="text-xs text-muted mt-2">Pick a session with photos to see them in the {format === 'instagram' ? 'post' : 'collage'}.</p>
+          )}
         </div>
       </div>
     </div>

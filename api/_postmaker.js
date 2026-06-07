@@ -152,6 +152,93 @@ async function callOpenRouter(system, notes) {
   return j.choices?.[0]?.message?.content || '';
 }
 
+// ── Streaming ───────────────────────────────────────────────────────────────
+// Parse an SSE fetch Response and yield text deltas. `pick` extracts the text
+// piece from each provider's JSON event shape.
+async function* sseDeltas(response, pick) {
+  const reader = response.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop(); // keep the partial last line
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith('data:')) continue;
+      const data = t.slice(5).trim();
+      if (data === '[DONE]') return;
+      try { const piece = pick(JSON.parse(data)); if (piece) yield piece; } catch { /* skip keep-alives / partials */ }
+    }
+  }
+}
+
+async function* streamOpenRouter(system, notes) {
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'X-Title': 'AI Workshop Post Maker',
+    },
+    body: JSON.stringify({
+      model: MODEL, stream: true, max_tokens: 700, temperature: 0.7,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: notes }],
+    }),
+  });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error?.message || `OpenRouter ${r.status}`); }
+  yield* sseDeltas(r, (o) => o.choices?.[0]?.delta?.content || '');
+}
+
+async function* streamGemini(system, notes) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: notes }] }],
+      generationConfig: { temperature: 0.8, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } },
+    }),
+  });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error?.message || `Gemini ${r.status}`); }
+  yield* sseDeltas(r, (o) => o.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '');
+}
+
+async function* streamPost({ notes, format }) {
+  const system = buildSystemPrompt(format === 'instagram' ? 'instagram' : 'linkedin');
+  if (process.env.GEMINI_API_KEY) yield* streamGemini(system, notes);
+  else yield* streamOpenRouter(system, notes);
+}
+
+// Stream a post as SSE to a Node response. Each event is { delta } during
+// generation, then a final { done, text } carrying the house-style-cleaned full
+// text (em dashes etc. only fixable once we have the whole string), or { error }.
+// The caller validates config + notes first (we can't send a JSON error once the
+// SSE stream has started).
+export async function streamPostToRes(res, body) {
+  const notes = String(body?.notes || '').trim();
+  const format = body?.format === 'instagram' ? 'instagram' : 'linkedin';
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // don't let nginx/proxies buffer the stream
+  let full = '';
+  try {
+    for await (const piece of streamPost({ notes, format })) {
+      full += piece;
+      res.write(`data: ${JSON.stringify({ delta: piece })}\n\n`);
+    }
+    res.write(`data: ${JSON.stringify({ done: true, text: postProcess(full) })}\n\n`);
+  } catch (e) {
+    res.write(`data: ${JSON.stringify({ error: e.message || 'Generation failed.' })}\n\n`);
+  }
+  res.end();
+}
+
 export async function handleGeneratePost({ body }) {
   if (!postmakerConfigured()) return { status: 200, json: { ok: false, configured: false } };
   const notes = String(body?.notes || '').trim();
