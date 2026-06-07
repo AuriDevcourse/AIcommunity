@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T13:22:06.749Z",
+  "generatedAt": "2026-06-07T14:34:45.881Z",
   "sessions": [
     {
       "number": 1,
@@ -235,72 +235,6 @@
       ]
     },
     {
-      "number": 6,
-      "date": "2025-09-28",
-      "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Mari"
-      ],
-      "demos": [
-        {
-          "presenter": "Mari",
-          "topic": "Honkai Star Rail Character Generator"
-        }
-      ],
-      "actions": [],
-      "summary": "Short meeting with just two members.",
-      "photos": []
-    },
-    {
-      "number": 7,
-      "date": "2025-10-12",
-      "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Aiza",
-        "Eividas"
-      ],
-      "demos": [],
-      "actions": [],
-      "summary": "Build-together brainstorm session designing an AI-powered dating app concept.",
-      "photos": []
-    },
-    {
-      "number": 8,
-      "date": "2026-01-25",
-      "location": "Sany's place (2nd floor)",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Dovydas"
-      ],
-      "demos": [],
-      "actions": [
-        {
-          "done": false,
-          "text": "Sany: Prepare programming basics presentation",
-          "sessionNumber": 8,
-          "sessionDate": "2026-01-25"
-        }
-      ],
-      "summary": "Reunion session after a break. Discussed AI coding, watched a video about why people struggle with AI coding and how to improve.",
-      "photos": []
-    },
-    {
-      "number": 9,
-      "date": "2026-02-08",
-      "location": "Matrikel1 (gate code: #1623*)",
-      "attendees": [],
-      "demos": [],
-      "actions": [],
-      "summary": "",
-      "photos": []
-    },
-    {
       "number": 5,
       "date": "2026-03-08",
       "location": "Matrikel1",
@@ -318,7 +252,7 @@
       ]
     },
     {
-      "number": 10,
+      "number": 6,
       "date": "2026-05-03",
       "location": "TBD",
       "attendees": [
@@ -341,6 +275,56 @@
         "/sessions/2026-05-03/03052026_10.jpeg",
         "/sessions/2026-05-03/03052026_11.jpeg"
       ]
+    },
+    {
+      "number": 7,
+      "date": "2026-05-31",
+      "location": "Matrikel1",
+      "attendees": [
+        "Auri",
+        "Yogi",
+        "Eividas",
+        "Justas",
+        "Sany",
+        "Frederik",
+        "Ignas"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Live-built a small currency-converter web app with Claude Code (Google sign-in, deployed to Vercel), plus a tour of the community dashboard and AI-generated project mockups"
+        },
+        {
+          "presenter": "Yogi",
+          "topic": "Business operations dashboard built with Claude, pulling live data in through several connected APIs"
+        },
+        {
+          "presenter": "Eividas",
+          "topic": "Running image-generation models (Flux / FLUX.2 klein) locally on a home GPU via Pinokio and ComfyUI"
+        }
+      ],
+      "actions": [
+        {
+          "done": false,
+          "text": "Try Pinokio + ComfyUI to run image models locally",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        },
+        {
+          "done": false,
+          "text": "Compare LM Studio vs Ollama for managing local models",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        },
+        {
+          "done": false,
+          "text": "Add the tools discussed here to the dashboard Tools list",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        }
+      ],
+      "summary": "A hands-on session about how each of us actually builds with AI day to day. Most of the time went to two themes: running models locally versus paying for cloud models, and showing real working setups. We compared local-model runners and hardware limits, walked through live project builds, and shared workflow tips for keeping AI projects organised and reasonably secure.\r\n\r\nThe recurring takeaway: local models are appealing (free, private) but need a strong GPU and still trail the paid cloud models on quality, so the practical answer is usually a mix, pick the cheapest tool that is good enough for the task.",
+      "photos": []
     }
   ],
   "members": [
@@ -628,10 +612,24 @@
     },
     {
       "done": false,
-      "text": "Sany: Prepare programming basics presentation",
-      "sessionNumber": 8,
-      "sessionDate": "2026-01-25",
-      "source": "#8"
+      "text": "Try Pinokio + ComfyUI to run image models locally",
+      "sessionNumber": 7,
+      "sessionDate": "2026-05-31",
+      "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Compare LM Studio vs Ollama for managing local models",
+      "sessionNumber": 7,
+      "sessionDate": "2026-05-31",
+      "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Add the tools discussed here to the dashboard Tools list",
+      "sessionNumber": 7,
+      "sessionDate": "2026-05-31",
+      "source": "#7"
     }
   ]
 }
