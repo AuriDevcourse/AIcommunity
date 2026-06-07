@@ -1,17 +1,20 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import data from './data.json';
+// Home-tab (default view) components stay eager so the landing paint isn't gated
+// on a second chunk. The other tabs are code-split below — their JS only downloads
+// when the user opens that tab, shrinking the initial bundle.
 import NextSession from './components/NextSession.jsx';
 import ScheduleAhead from './components/ScheduleAhead.jsx';
-import MembersGallery from './components/MembersGallery.jsx';
-import SessionsGallery from './components/SessionsGallery.jsx';
-import News from './components/News.jsx';
-import Tools from './components/Tools.jsx';
 import Suggestions from './components/Suggestions.jsx';
-// Polls now live inside the Forum (pinned card), not as a top-level tab.
 import LatestDiscussion from './components/LatestDiscussion.jsx';
-import Discussions from './components/Discussions.jsx';
-import Learn from './components/Learn.jsx';
 import AuthControls from './components/AuthControls.jsx';
+
+const MembersGallery = lazy(() => import('./components/MembersGallery.jsx'));
+const SessionsGallery = lazy(() => import('./components/SessionsGallery.jsx'));
+const News = lazy(() => import('./components/News.jsx'));
+const Tools = lazy(() => import('./components/Tools.jsx'));
+const Discussions = lazy(() => import('./components/Discussions.jsx'));
+const Learn = lazy(() => import('./components/Learn.jsx'));
 import FeedbackButton from './components/FeedbackButton.jsx';
 import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
@@ -138,35 +141,37 @@ export default function App() {
             Build with AI. Show what you learned.
           </h1>
           <div className="mt-6 rounded-2xl border border-border overflow-hidden">
-            <img src="/brand/hero.png" alt="" loading="lazy" className="w-full h-28 sm:h-44 object-cover" />
+            <img src="/brand/hero.webp" alt="" width="1600" height="176" fetchpriority="high" decoding="async" className="w-full h-28 sm:h-44 object-cover" />
           </div>
         </section>
 
-        <div key={tab} className="tab-enter">
-          {tab === 'home' && (
-            <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12">
-                <NextSession session={next} />
+        <Suspense fallback={<TabFallback />}>
+          <div key={tab} className="tab-enter">
+            {tab === 'home' && (
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                  <NextSession session={next} />
+                </div>
+                <div className="col-span-12">
+                  <ScheduleAhead schedule={futureSchedule} />
+                </div>
+                <div className="col-span-12 md:col-span-6">
+                  <LatestDiscussion onOpenForum={openForum} />
+                </div>
+                <div className="col-span-12 md:col-span-6">
+                  <Suggestions onOpenForum={openForum} />
+                </div>
               </div>
-              <div className="col-span-12">
-                <ScheduleAhead schedule={futureSchedule} />
-              </div>
-              <div className="col-span-12 md:col-span-6">
-                <LatestDiscussion onOpenForum={openForum} />
-              </div>
-              <div className="col-span-12 md:col-span-6">
-                <Suggestions onOpenForum={openForum} />
-              </div>
-            </div>
-          )}
+            )}
 
-          {tab === 'learn' && <Learn />}
-          {tab === 'discussions' && <Discussions />}
-          {tab === 'news' && <News />}
-          {tab === 'tools' && <Tools sessions={data.sessions} />}
-          {tab === 'members' && <MembersGallery members={data.members} />}
-          {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
-        </div>
+            {tab === 'learn' && <Learn />}
+            {tab === 'discussions' && <Discussions />}
+            {tab === 'news' && <News />}
+            {tab === 'tools' && <Tools sessions={data.sessions} />}
+            {tab === 'members' && <MembersGallery members={data.members} />}
+            {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
+          </div>
+        </Suspense>
         </>
         )}
       </main>
@@ -213,6 +218,19 @@ export default function App() {
       )}
 
       {import.meta.env.DEV && <Agentation />}
+    </div>
+  );
+}
+
+// Shown for the brief moment a code-split tab's chunk is downloading.
+function TabFallback() {
+  return (
+    <div className="space-y-4" aria-busy="true" aria-label="Loading">
+      <div className="skeleton h-7 w-48" />
+      <div className="skeleton h-4 w-72" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+        {Array.from({ length: 6 }).map((_, i) => <div key={i} className="skeleton h-40 w-full rounded-2xl" />)}
+      </div>
     </div>
   );
 }

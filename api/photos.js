@@ -9,6 +9,9 @@ import { guardMutation } from './_guard.js';
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      // Edge-cache the listing: served instantly on repeat loads, revalidated in
+      // the background. Uploads are rare, so 60s of staleness is fine.
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).json(await listPhotos());
     }
     // Upload / move / delete are gated: signed-in + rate-limited.

@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     }
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const { status, json } = await handleTopics({ method: req.method, body });
+    if (req.method === 'GET' && status === 200) res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=120');
     res.status(status).json(json);
   } catch (e) {
     console.error('/api/topics error:', e);

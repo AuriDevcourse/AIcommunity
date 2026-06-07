@@ -14,6 +14,7 @@ export default async function handler(req, res) {
       ? (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {}))
       : {};
     const { status, json } = await handleSessionMeta({ method: req.method, body });
+    if (req.method === 'GET' && status === 200) res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(status).json(json);
   } catch (e) {
     console.error('/api/session-meta error:', e);
