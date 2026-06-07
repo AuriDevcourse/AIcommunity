@@ -9,6 +9,14 @@ export default function SessionsGallery({ sessions }) {
   const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
   const [showUpload, setShowUpload] = useState(false);
 
+  // Sessions come from two sources: photos baked into the build (instant) and
+  // runtime Blob uploads via /api/photos (async). Hold the grid behind skeletons
+  // until both that fetch AND the session-meta fetch settle, so late-arriving
+  // sessions (whose photos live only in Blob) don't pop in / shift the layout.
+  const [photosLoaded, setPhotosLoaded] = useState(false);
+  const [metaLoaded, setMetaLoaded] = useState(false);
+  const loading = !photosLoaded || !metaLoaded;
+
   const loadUploads = useCallback(async () => {
     try {
       const r = await fetch('/api/photos');
@@ -16,6 +24,8 @@ export default function SessionsGallery({ sessions }) {
       setUploads(j.byDate || {});
     } catch {
       setUploads({});
+    } finally {
+      setPhotosLoaded(true);
     }
   }, []);
   useEffect(() => { loadUploads(); }, [loadUploads]);
@@ -25,7 +35,7 @@ export default function SessionsGallery({ sessions }) {
   // (first photo = featured cover).
   const [meta, setMeta] = useState({});
   useEffect(() => {
-    fetch('/api/session-meta').then((r) => r.json()).then((j) => setMeta(j.names || {})).catch(() => {});
+    fetch('/api/session-meta').then((r) => r.json()).then((j) => setMeta(j.names || {})).catch(() => {}).finally(() => setMetaLoaded(true));
   }, []);
   const metaFor = (date) => { const m = meta[date]; return typeof m === 'string' ? { name: m } : (m || {}); };
 
@@ -92,9 +102,11 @@ export default function SessionsGallery({ sessions }) {
           <div className="h-section">Archive</div>
           <div className="mt-2 text-3xl font-semibold tracking-tight">Sessions</div>
           <p className="mt-2 text-sm text-muted">
-            {sorted.length === 0
-              ? 'No photos yet. Add some with the button.'
-              : `${sorted.length} sessions with photos.`}
+            {loading
+              ? 'Loading sessions…'
+              : sorted.length === 0
+                ? 'No photos yet. Add some with the button.'
+                : `${sorted.length} sessions with photos.`}
           </p>
         </div>
         <button
@@ -114,7 +126,15 @@ export default function SessionsGallery({ sessions }) {
         />
       )}
 
-      {sorted.length > 0 && (
+      {loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12" aria-hidden="true">
+          {Array.from({ length: Math.max(sessions.length, 4) }).map((_, i) => (
+            <SessionTileSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
+      {!loading && sorted.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
           {sorted.map((session, i) => (
             <SessionTile
@@ -190,6 +210,17 @@ function SessionTile({ session, name, cover, onEdit, onOpen }) {
         </button>
       </div>
     </article>
+  );
+}
+
+// Placeholder tile shown while photos/meta load — matches SessionTile's footprint
+// (4:5 cover + name row) so revealing the real grid causes no layout shift.
+function SessionTileSkeleton() {
+  return (
+    <div className="flex flex-col">
+      <div className="skeleton aspect-[4/5] w-full rounded-2xl" />
+      <div className="skeleton h-4 w-2/3 mt-4" />
+    </div>
   );
 }
 
