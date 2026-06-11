@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Trash2, ImagePlus, Check, ArrowRight } from 'lucide-react';
 import { authedFetch, accessToken } from '../lib/supabase.js';
+import { TODAY } from '../lib/dates.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -50,7 +51,9 @@ function uploadViaXHR({ date, name, file, onProgress }) {
   });
 }
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+// Use the app-wide TODAY (noon-UTC) so date math matches the rest of the app and
+// never drifts from a stray local-midnight new Date().
+const todayIso = () => TODAY.toISOString().slice(0, 10);
 
 // Sessions run every 2 weeks. Roll the cadence forward from the most recent
 // recorded session to the latest session date that's already happened (on/before
@@ -132,8 +135,8 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
   const overall = queue.length ? Math.round(queue.reduce((s, q) => s + (q.status === 'done' ? 100 : q.pct || 0), 0) / queue.length) : 0;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="card w-full max-w-lg p-6 shadow-[0_30px_60px_rgba(0,0,0,0.18)] max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-panel max-w-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1.5 h-section"><ImagePlus size={12} strokeWidth={2.2} /><span>Add photos</span></div>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
@@ -166,7 +169,7 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name (tagged on each photo)"
             maxLength={48}
-            className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground"
+            className="input"
           />
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-3">
@@ -190,10 +193,10 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
                 value={date}
                 max={todayIso()}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground"
+                className="input"
               />
             ) : (
-              <select value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground">
+              <select value={date} onChange={(e) => setDate(e.target.value)} className="input">
                 {dates.map((d) => <option key={d} value={d}>{fmtDate(d)}</option>)}
                 {!dates.includes(date) && <option value={date}>{fmtDate(date)}</option>}
               </select>
@@ -339,7 +342,7 @@ function MovePhotos({ dates, configured, onChanged }) {
         <select
           value={source}
           onChange={(e) => setSource(e.target.value)}
-          className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground"
+          className="input"
         >
           {dates.map((d) => <option key={d} value={d}>{fmtDate(d)}</option>)}
         </select>
@@ -396,10 +399,10 @@ function MovePhotos({ dates, configured, onChanged }) {
                 value={target}
                 max={todayIso()}
                 onChange={(e) => setTarget(e.target.value)}
-                className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground"
+                className="input"
               />
             ) : (
-              <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground">
+              <select value={target} onChange={(e) => setTarget(e.target.value)} className="input">
                 {dates.map((d) => <option key={d} value={d}>{fmtDate(d)}</option>)}
                 {!dates.includes(target) && <option value={target}>{fmtDate(target)}</option>}
               </select>

@@ -192,7 +192,7 @@ export default function SessionThread({
           </li>
         ))}
         {comments !== null && roots.length === 0 && (
-          <li className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted">{emptyLabel}</li>
+          <li className="empty-state">{emptyLabel}</li>
         )}
         {roots.map((c) => (
           <li key={c.id}>

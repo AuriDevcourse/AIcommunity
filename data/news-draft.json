@@ -1,0 +1,151 @@
+{
+  "generatedAt": "2026-06-11T21:38:08.022Z",
+  "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app.",
+  "windowLabel": "",
+  "items": [
+    {
+      "id": "anthropic-claude-fable-guardrails",
+      "n": 1,
+      "category": "global",
+      "date": "2026-06-11",
+      "title": "Anthropic apologizes for overly restrictive Claude Fable 5 guardrails",
+      "subtitle": "The new model refused to answer basic biology, chemistry, and cybersecurity queries",
+      "summary": "Anthropic launched Claude Fable 5, its first Mythos-class AI model, but faced immediate backlash for stealthily throttling it with hidden guardrails. The system refused to answer basic high school-level biology questions and blocked legitimate cybersecurity research tasks. Anthropic apologized and promised to make the restrictions more transparent and less aggressive.",
+      "whyItMatters": "Even the most powerful frontier models can become useless for developers if safety guardrails are applied too broadly and without transparency.",
+      "whyForUs": "If you are building tools in biotech, education, or security, be aware that Claude Fable might block your prompts until Anthropic refines these filters.",
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/948280/anthropic-claude-fable-invisible-distillation-guardrail"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "diffusiongemma-local-ai-speedup",
+      "n": 2,
+      "category": "global",
+      "date": "2026-06-10",
+      "title": "Google DeepMind releases DiffusionGemma for 4x faster local text generation",
+      "subtitle": "New open-weights model applies diffusion techniques to speed up local LLM execution",
+      "summary": "Google DeepMind has released DiffusionGemma, an open-weights model that leverages diffusion processes to generate text outputs up to four times faster than traditional autoregressive models. While diffusion is typically used in image generation, this release demonstrates its viability for high-speed local text generation on consumer hardware.",
+      "whyItMatters": "This represents a structural shift in how we can run fast, low-latency models locally without relying on massive cloud APIs.",
+      "whyForUs": "For Copenhagen builders shipping offline-first or privacy-centric desktop apps, this model offers a massive speed boost on local hardware.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/google/2026/06/googles-latest-diffusiongemma-open-ai-model-comes-with-a-4x-speed-boost/"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "niteshift-seed-funding-model-lockin",
+      "n": 3,
+      "category": "global",
+      "date": "2026-06-10",
+      "title": "Datadog veterans launch Niteshift to fight AI model lock-in",
+      "subtitle": "The AI coding agent startup raises 7 million dollars to give developers model autonomy",
+      "summary": "Niteshift, founded by former Datadog engineers, has raised a 7 million dollar seed round to build an AI coding agent. Unlike tools tied to specific LLM providers, Niteshift is designed to let companies retain control over their codebase and easily swap out underlying model backends.",
+      "whyItMatters": "As the model landscape shifts rapidly, developers are increasingly looking for agent frameworks that do not lock them into a single ecosystem.",
+      "whyForUs": "This highlights the growing demand for model-agnostic agent architectures when building developer tools.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/06/10/datadog-veterans-launch-ai-coding-startup-niteshift-on-a-bet-against-big-ai-lock-in/"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "german-court-ruling-google-ai-search",
+      "n": 4,
+      "category": "eu-policy",
+      "date": "2026-06-10",
+      "title": "German court rules against Google AI search over necessity",
+      "subtitle": "A legal blow in Germany could impact how AI search summaries are served in Europe",
+      "summary": "A German court ruled against Google's AI Overview feature, stating that users do not inherently need AI to search the internet. This ruling could force search engines to alter how they present AI-generated summaries and links, especially when dealing with publisher content in the European Union.",
+      "whyItMatters": "This legal precedent poses a direct threat to the current product design of AI-powered search engines operating in Europe.",
+      "whyForUs": "If your startup relies on scraping, summarizing, or driving traffic via AI search, European legal battles like this will heavily impact your distribution.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/tech-policy/2026/06/nobody-needs-ai-to-search-the-internet-court-says-in-ruling-against-google/"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "gemma-4-twelve-billion-laptop-model",
+      "n": 5,
+      "category": "global",
+      "date": "2026-06-03",
+      "title": "Google releases Gemma 4 12B optimized for 16GB RAM laptops",
+      "subtitle": "New open model uses advanced token prediction to run efficiently on local machines",
+      "summary": "Google has launched Gemma 4 12B, an open-weights model specifically optimized to run on standard laptops with 16GB of RAM. The model utilizes a novel encoding scheme and token prediction architecture to deliver high-quality performance without requiring high-end server GPUs.",
+      "whyItMatters": "It lowers the barrier to entry for developers who want to build, test, and run capable LLMs entirely on their local development machines.",
+      "whyForUs": "You can now run a highly capable 12B model directly on your MacBook Pro during local development without draining your battery or relying on OpenAI credits.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/google/2026/06/googles-new-gemma-4-open-ai-model-is-sized-for-your-laptop/"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "huggingface-cli-optimized-for-agents",
+      "n": 6,
+      "category": "global",
+      "date": "2026-06-04",
+      "title": "Hugging Face redesigns its CLI to be optimized for AI agents",
+      "subtitle": "The command-line tool is now structured to let autonomous agents navigate the Hub",
+      "summary": "Hugging Face has updated its CLI tool to make it easier for AI agents to interact with the Hugging Face Hub. The redesign focuses on structured outputs, predictable command execution, and simplified authentication, allowing autonomous coding agents to search, download, and upload models programmatically.",
+      "whyItMatters": "As we move from human-in-the-loop to fully autonomous developer agents, our toolchains must evolve to be machine-readable.",
+      "whyForUs": "If you are building autonomous coding or DevOps agents, this updated CLI makes it much easier for your agents to fetch and manage models programmatically.",
+      "sources": [
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/hf-cli-for-agents"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "cohere-north-mini-code-model",
+      "n": 7,
+      "category": "global",
+      "date": "2026-06-09",
+      "title": "Cohere launches North Mini Code for developer workflows",
+      "subtitle": "A highly efficient, specialized model designed specifically for code generation",
+      "summary": "Cohere has introduced North Mini Code, its first model dedicated entirely to developer tasks. The model is optimized for speed, low latency, and high accuracy in code generation, autocomplete, and translation, making it suitable for integration directly into IDEs and CI/CD pipelines.",
+      "whyItMatters": "Smaller, task-specific models are proving to be more cost-effective and faster than massive general-purpose models for coding tasks.",
+      "whyForUs": "This is a great candidate if you are building custom internal developer tools or automated code review pipelines and need low-latency completions.",
+      "sources": [
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/CohereLabs/introducing-north-mini-code"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "mcp-tools-reachy-mini-robotics",
+      "n": 8,
+      "category": "global",
+      "date": "2026-06-03",
+      "title": "Hugging Face integrates Model Context Protocol with Reachy Mini",
+      "subtitle": "Using Anthropic's open protocol to connect physical hardware to AI agents",
+      "summary": "Hugging Face demonstrated how to use the Model Context Protocol (MCP) to expose physical hardware controls as tools for AI agents. By integrating MCP with the Reachy Mini robot, developers can write standard agentic workflows that seamlessly control physical robotic movements and read sensor data.",
+      "whyItMatters": "MCP is proving to be a highly versatile standard for connecting LLM agents not just to software APIs, but to physical hardware.",
+      "whyForUs": "For Copenhagen builders working on IoT, robotics, or hardware integrations, MCP provides a clean, standardized way to hook your physical devices up to LLMs.",
+      "sources": [
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/adding-mcp-tools-to-reachy-mini"
+        }
+      ],
+      "image": null
+    }
+  ]
+}

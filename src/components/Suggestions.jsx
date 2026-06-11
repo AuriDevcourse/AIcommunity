@@ -43,7 +43,7 @@ export default function Suggestions({ onOpenForum }) {
       <ul className="mt-4 space-y-2">
         {ideas === null && Array.from({ length: 3 }).map((_, i) => (
           <li key={i} className="flex items-start gap-3 rounded-xl border border-border bg-background p-3">
-            <div className="skeleton w-7 h-7 flex-shrink-0" />
+            <div className="skeleton w-7 h-7 rounded-lg flex-shrink-0" />
             <div className="flex-1 space-y-2 py-0.5">
               <div className="skeleton h-3 w-20" />
               <div className="skeleton h-3.5 w-full" />

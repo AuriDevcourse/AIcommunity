@@ -80,11 +80,11 @@ export default function FeedbackButton() {
 
       {open && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-foreground/30 backdrop-blur-sm p-4"
+          className="modal-overlay z-[100]"
           onClick={() => setOpen(false)}
         >
           <div
-            className="card w-full max-w-lg p-6 my-auto max-h-[90dvh] overflow-y-auto shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
+            className="modal-panel max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-baseline justify-between mb-4">

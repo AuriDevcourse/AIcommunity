@@ -67,6 +67,19 @@ async function withinLimit(id, bucket, limit, windowSec) {
   }
 }
 
+// Resolve the verified Supabase user for a request, for routes that need the
+// caller's identity (name/avatar/id) derived from the session — never the body.
+// Returns one of:
+//   { configured: false }  → Supabase isn't set up (auth unavailable)
+//   { blocked: {status,json} } → no/invalid token; send this response
+//   { user }               → the verified Supabase user object
+export async function requireUser(req) {
+  if (!authConfigured()) return { configured: false };
+  const user = await verifyToken(bearer(req));
+  if (!user) return { blocked: { status: 401, json: { ok: false, error: 'Please sign in to do that.' } } };
+  return { user };
+}
+
 // Guard a mutating request. Returns null when allowed, or { status, json } to send.
 export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec = 60 } = {}) {
   let id = null;

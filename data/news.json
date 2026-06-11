@@ -1,313 +1,161 @@
 {
-  "windowLabel": "Apr 24 – Jun 2, 2026",
+  "windowLabel": "May 28 – Jun 11, 2026",
   "themes": {
-    "global": "The frontier shifted from bigger flagships to agents that ship. Anthropic's Opus 4.8 lands with a $65B round, OpenAI pushes ChatGPT agent to everyone and retires Operator, Google makes Gemini 3.5 Flash the global default, Cursor's Composer 2.5 and 1X's NEO humanoid move agents into code and the physical world, and DeepSeek and Qwen keep open weights cheap.",
-    "eu-policy": "Europe resolved its rulebook and built out its own stack. The Digital Omnibus trilogue landed, pushing high-risk AI Act deadlines to 2027–28, Mistral relaunched as Vibe to take on the US labs, Nscale ($790M, Narvik) and profitable Helsinki cloud Verda (€100M) scaled Nordic compute, and the EIC's STEP Scale-Up put EU growth capital behind eight deep-tech scale-ups."
+    "global": "Open, local-first models took over the fortnight. Google's Gemma 4 12B is sized for a 16GB laptop and DiffusionGemma generates text 4x faster on consumer hardware. Agent tooling matured too: Hugging Face rebuilt its CLI for agents and wired the Model Context Protocol into the Reachy Mini robot, Cohere shipped a code-focused North Mini, and ex-Datadog engineers launched Niteshift betting against model lock-in. Anthropic also apologized for over-aggressive guardrails on its new Claude Fable model.",
+    "eu-policy": "Europe's AI-search reckoning continued. A German court ruled against Google's AI Overviews, finding that users do not need AI to search the web, a precedent that could reshape how AI summaries and publisher links are served across the EU."
   },
   "items": [
     {
-      "id": "mistral-vibe",
+      "id": "gemma-4-twelve-billion-laptop-model",
       "n": 1,
-      "category": "eu-policy",
-      "date": "2026-05-29",
-      "title": "Mistral relaunches Le Chat as 'Vibe' with a unified agent",
-      "subtitle": "Europe's flagship lab takes on OpenAI and Anthropic in the enterprise",
-      "summary": "Late May: Mistral renamed Le Chat to Vibe and shipped a unified agent with Work, Code, and Chat modes. Work mode maps out a multi-step plan, gets your sign-off, then executes across connectors (Google Workspace, Outlook, SharePoint, Slack, GitHub); Code mode launches remote coding agents and a VS Code extension that works across a whole project.",
-      "whyItMatters": "Europe's flagship lab is moving from models to a full enterprise agent platform, the layer where OpenAI and Anthropic actually make their money. A credible EU-resident 'agent that works across your tools' now exists.",
-      "whyForUs": "For anyone with EU data-residency constraints, Vibe is the first enterprise agent you can pitch to a Danish employer without a US-cloud caveat. Worth a session wiring Work mode into a real workflow.",
+      "category": "global",
+      "date": "2026-06-03",
+      "title": "Google releases Gemma 4 12B, sized for a 16GB laptop",
+      "subtitle": "An open model tuned to run capably on local machines, no server GPU needed",
+      "summary": "Google launched Gemma 4 12B, an open-weights model optimized to run on standard laptops with 16GB of RAM. A new encoding scheme and token-prediction architecture deliver strong quality without high-end server GPUs.",
+      "whyItMatters": "It lowers the barrier for developers who want to build, test, and run capable LLMs entirely on their local development machines.",
+      "whyForUs": "You can run a capable 12B model on your own laptop during local dev, no OpenAI credits or cloud round-trips required.",
       "sources": [
         {
-          "name": "Mistral",
-          "url": "https://mistral.ai/news/"
-        },
-        {
-          "name": "Releasebot",
-          "url": "https://releasebot.io/updates/mistral"
-        },
-        {
-          "name": "Startup Fortune",
-          "url": "https://startupfortune.com/mistral-is-trying-to-make-open-weight-ai-feel-enterprise-grade-again/"
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/google/2026/06/googles-new-gemma-4-open-ai-model-is-sized-for-your-laptop/"
         }
       ],
-      "image": "/news-images/mistral-vibe.jpg",
-      "imageSource": "Mistral"
+      "image": "/news-images/gemma-4-twelve-billion-laptop-model.jpg",
+      "imageSource": "Ars Technica"
     },
     {
-      "id": "anthropic-opus-48",
+      "id": "diffusiongemma-local-ai-speedup",
       "n": 2,
       "category": "global",
-      "date": "2026-05-28",
-      "title": "Anthropic ships Claude Opus 4.8 and closes a $65B round",
-      "subtitle": "Better agentic coding + honesty at the same price · dynamic workflows in Claude Code",
-      "summary": "May 28: Opus 4.8 lands less than two months after 4.7, at the same price. Agentic coding climbs 64.3% to 69.2%, multidisciplinary reasoning with tools 54.7% to 57.9%, computer use 82.8% to 83.4%. New: an effort control on claude.ai, a 'dynamic workflows' feature in Claude Code for very large-scale problems, and Fast mode (2.5x speed) now 3x cheaper than before. Same day, Anthropic closed $65B in fresh funding.",
-      "whyItMatters": "Anthropic's upgrade cadence has tightened to under two months, with the gains concentrated in agentic coding and self-reported honesty, the two things that matter most for agents you leave running. The $65B raise, not the rumored $900B headline, is the real capital behind it.",
-      "whyForUs": "Most of us run Claude Code. Worth a Show & Tell where someone drives dynamic workflows on a real side project, and a quick retest of any long-running agent that stalled on 4.7.",
+      "date": "2026-06-10",
+      "title": "DiffusionGemma generates text 4x faster on local hardware",
+      "subtitle": "Google DeepMind applies diffusion to text, not just images",
+      "summary": "Google DeepMind released DiffusionGemma, an open-weights model that uses diffusion to produce text up to four times faster than traditional autoregressive models. Diffusion is usually an image technique; this shows it working for high-speed local text generation on consumer hardware.",
+      "whyItMatters": "It points to a structural shift in how we can run fast, low-latency models locally instead of leaning on massive cloud APIs.",
+      "whyForUs": "For anyone shipping offline-first or privacy-centric desktop apps, this is a big speed boost on local hardware.",
       "sources": [
         {
-          "name": "Anthropic",
-          "url": "https://www.anthropic.com/news/claude-opus-4-8"
-        },
-        {
-          "name": "9to5Mac",
-          "url": "https://9to5mac.com/2026/05/28/anthropic-upgrades-claude-with-new-opus-4-8-model-heres-whats-new/"
-        },
-        {
-          "name": "SiliconANGLE",
-          "url": "https://siliconangle.com/2026/05/28/anthropic-launches-claude-opus-4-8-raises-65b-new-funding/"
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/google/2026/06/googles-latest-diffusiongemma-open-ai-model-comes-with-a-4x-speed-boost/"
         }
       ],
-      "image": "/news-images/anthropic-opus-48.jpg",
-      "imageSource": "Anthropic"
+      "image": "/news-images/diffusiongemma-local-ai-speedup.png",
+      "imageSource": "Ars Technica"
     },
     {
-      "id": "openai-chatgpt-agent",
+      "id": "huggingface-cli-optimized-for-agents",
       "n": 3,
       "category": "global",
-      "date": "2026-05-27",
-      "title": "ChatGPT agent rolls out to everyone, Operator retired",
-      "subtitle": "Agentic browsing + actions on Plus/Pro/Team and Enterprise/Edu · spreadsheets sidebar goes global",
-      "summary": "Late May: OpenAI made ChatGPT agent broadly available across Pro, Plus, Team, Enterprise and Edu. It runs multi-step online tasks end-to-end, switching between reasoning and action, researching across sites, files and connected sources (email, docs), and filling forms or editing spreadsheets. The standalone Operator experience is being folded in and deprecated. Separately, ChatGPT for Excel and Google Sheets shipped globally as an in-app sidebar.",
-      "whyItMatters": "Agentic 'do the task' capability is no longer a premium experiment, it's the default ChatGPT surface for hundreds of millions of users. Operator's absorption signals the standalone-agent era is collapsing into the main product.",
-      "whyForUs": "The workflows you've been scripting by hand (research, form-filling, spreadsheet ops) are now one prompt away for non-technical teammates. Good for a session on where a general agent beats a custom build, and where it doesn't.",
+      "date": "2026-06-04",
+      "title": "Hugging Face rebuilds its CLI for AI agents",
+      "subtitle": "Structured outputs and predictable commands so agents can drive the Hub",
+      "summary": "Hugging Face updated its CLI to make it easier for AI agents to work with the Hub. The redesign focuses on structured outputs, predictable command execution, and simplified auth, letting autonomous coding agents search, download, and upload models programmatically.",
+      "whyItMatters": "As we move from human-in-the-loop to autonomous agents, toolchains have to become machine-readable.",
+      "whyForUs": "If you are building autonomous coding or DevOps agents, this makes it much easier for them to fetch and manage models on their own.",
       "sources": [
         {
-          "name": "OpenAI",
-          "url": "https://openai.com/index/introducing-workspace-agents-in-chatgpt/"
-        },
-        {
-          "name": "OpenAI Help",
-          "url": "https://help.openai.com/en/articles/11794368-chatgpt-agent-release-notes"
-        },
-        {
-          "name": "The AI Hat",
-          "url": "https://theaihat.com/openai-just-dropped-chatgpt-agent-and-your-teams-about-to-get-their-time-back/"
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/hf-cli-for-agents"
         }
       ],
-      "image": "/news-images/openai-chatgpt-agent.jpg",
-      "imageSource": "The AI Hat"
+      "image": "/news-images/huggingface-cli-optimized-for-agents.png",
+      "imageSource": "Hugging Face"
     },
     {
-      "id": "1x-neo-production",
+      "id": "mcp-tools-reachy-mini-robotics",
       "n": 4,
       "category": "global",
-      "date": "2026-05-26",
-      "title": "1X starts full production of its NEO humanoid",
-      "subtitle": "Hayward, California facility · a home humanoid quieter than a fridge",
-      "summary": "May: 1X Technologies began full-scale production of NEO, its home humanoid robot, at a new Hayward, California facility, touting an operating noise level below a modern refrigerator. It's one of several May humanoid moves, alongside Genesis AI's GENE-26.5 manipulation model and London-based Humanoid scaling production with Bosch.",
-      "whyItMatters": "Humanoids are shifting from demo reels to production lines. Physical AI is starting to ship, and the bottleneck is moving from 'can it work' to 'can we manufacture it at scale.'",
-      "whyForUs": "Robotics feels far from a Copenhagen side project, but the manipulation and planning models behind these humanoids are the same agent stack we already use. Worth tracking as the embodied frontier of our tools.",
+      "date": "2026-06-03",
+      "title": "Model Context Protocol now drives a physical robot",
+      "subtitle": "Hugging Face exposes the Reachy Mini's hardware as MCP tools",
+      "summary": "Hugging Face showed how to use the Model Context Protocol (MCP) to expose physical hardware controls as tools for AI agents. Integrating MCP with the Reachy Mini robot lets developers write standard agentic workflows that control robotic movement and read sensor data.",
+      "whyItMatters": "MCP is proving to be a versatile standard for connecting LLM agents not just to software APIs but to physical hardware.",
+      "whyForUs": "If you tinker with IoT, robotics, or hardware, MCP gives you a clean, standardized way to hook physical devices up to LLMs.",
       "sources": [
         {
-          "name": "The Robot Report",
-          "url": "https://www.therobotreport.com/top-10-robotics-stories-of-may-2026/"
-        },
-        {
-          "name": "Mean.ceo",
-          "url": "https://blog.mean.ceo/ai-advancements-news-may-2026/"
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/adding-mcp-tools-to-reachy-mini"
         }
       ],
-      "image": "/news-images/1x-neo-production.jpg",
-      "imageSource": "The Robot Report"
+      "image": "/news-images/mcp-tools-reachy-mini-robotics.png",
+      "imageSource": "Hugging Face"
     },
     {
-      "id": "deepseek-v4-pricing",
+      "id": "cohere-north-mini-code-model",
       "n": 5,
       "category": "global",
-      "date": "2026-05-22",
-      "title": "DeepSeek makes V4-Pro pricing permanent at 75% off",
-      "subtitle": "$0.435 / $0.87 per 1M tokens · 1M-context MoE at commodity pricing",
-      "summary": "After April's V4 preview, DeepSeek locked in permanent pricing on May 22: a 75% discount at roughly $0.435 input / $0.87 output per 1M tokens. V4-Pro is a 1.6T-total / 49B-active MoE with a 1M-token context window, positioned just behind the closed frontier on knowledge and ahead of most open models on math and code.",
-      "whyItMatters": "A near-frontier, 1M-context MoE at commodity pricing keeps compressing the floor under closed-lab API costs. The gap between 'cheap' and 'frontier' is closing faster than most pricing pages have updated.",
-      "whyForUs": "If your side project's API bill is the thing keeping it in draft, this is the cheapest serious option this month. Run a swap test before the next demo.",
+      "date": "2026-06-09",
+      "title": "Cohere ships North Mini Code for developer workflows",
+      "subtitle": "A small, fast model aimed squarely at code, not general chat",
+      "summary": "Cohere introduced North Mini Code, its first model dedicated to developer tasks. It is tuned for speed, low latency, and accuracy in code generation, autocomplete, and translation, with IDE and CI/CD integration in mind.",
+      "whyItMatters": "Small, task-specific models keep proving more cost-effective and faster than general-purpose giants for coding.",
+      "whyForUs": "A solid candidate if you are building internal dev tools or automated code-review pipelines that need low-latency completions.",
       "sources": [
         {
-          "name": "Codersera",
-          "url": "https://codersera.com/blog/ai-models-released-may-2026-monthly-roundup/"
-        },
-        {
-          "name": "LLM-Stats",
-          "url": "https://llm-stats.com/llm-updates"
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/CohereLabs/introducing-north-mini-code"
         }
       ],
-      "image": "/news-images/deepseek-v4-pricing.jpg",
-      "imageSource": "Codersera"
+      "image": "/news-images/cohere-north-mini-code-model.png",
+      "imageSource": "Hugging Face"
     },
     {
-      "id": "qwen-37-max",
+      "id": "niteshift-seed-funding-model-lockin",
       "n": 6,
       "category": "global",
-      "date": "2026-05-20",
-      "title": "Alibaba opens Qwen 3.7-Max preview",
-      "subtitle": "Another open-weight contender enters the agentic-coding race",
-      "summary": "May 20: Alibaba put Qwen 3.7-Max into preview, the latest in a fast-iterating open-weight line aimed squarely at agentic and coding workloads. It lands the same week Google's Gemini 3.5 Flash went GA and Cursor shipped Composer 2.5, a crowded fortnight for coding agents.",
-      "whyItMatters": "The open-weight pack keeps the closed labs honest on both price and capability. With Qwen, DeepSeek V4, and Mistral Medium 3.5 all shipping inside a month, EU-resident self-hosting has real, current options.",
-      "whyForUs": "Anyone worried about EU data residency or rate limits now has three credible open-weight models to bench against each other. Good fuel for a side-by-side eval session.",
+      "date": "2026-06-10",
+      "title": "Datadog veterans launch Niteshift to fight model lock-in",
+      "subtitle": "A coding agent built so you can swap the model underneath",
+      "summary": "Niteshift, founded by former Datadog engineers, raised a 7 million dollar seed round for an AI coding agent. Unlike tools tied to one LLM provider, it is designed to keep your codebase and let you swap the underlying model backend.",
+      "whyItMatters": "As the model landscape churns, teams increasingly want agent frameworks that do not lock them into a single ecosystem.",
+      "whyForUs": "A reminder to favor model-agnostic agent architectures when you build your own developer tools.",
       "sources": [
         {
-          "name": "Codersera",
-          "url": "https://codersera.com/blog/ai-models-released-may-2026-monthly-roundup/"
-        },
-        {
-          "name": "Mager",
-          "url": "https://www.mager.co/blog/2026-05-31-ai-may-2026/"
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/06/10/datadog-veterans-launch-ai-coding-startup-niteshift-on-a-bet-against-big-ai-lock-in/"
         }
       ],
-      "image": "/news-images/qwen-37-max.jpg",
-      "imageSource": "Codersera"
+      "image": "/news-images/niteshift-seed-funding-model-lockin.jpg",
+      "imageSource": "TechCrunch"
     },
     {
-      "id": "gemini-35-flash-ga",
+      "id": "anthropic-claude-fable-guardrails",
       "n": 7,
       "category": "global",
-      "date": "2026-05-19",
-      "title": "Gemini 3.5 Flash goes GA as Google's default model",
-      "subtitle": "Frontier-class at Flash pricing · ~4x faster, now the default in Gemini app + Search",
-      "summary": "Following its I/O debut, Gemini 3.5 Flash reached general availability and became the default model across the Gemini app and AI mode in Search globally. Google says it beats the heavier Gemini 3.1 Pro on nearly all benchmarks while running about 4x faster than other frontier models, at half (sometimes a third) their price. The heavier Gemini 3.5 Pro stays internal until next month.",
-      "whyItMatters": "Google's bet is 'cheap and fast,' not 'biggest.' Frontier-class quality at Flash pricing, set as the global default, resets the cost baseline every other AI product is measured against.",
-      "whyForUs": "If you priced a side project on Sonnet or GPT-5.5, re-quote it on 3.5 Flash before your next demo. The cost delta is large, and it's now the default a billion people touch daily.",
+      "date": "2026-06-11",
+      "title": "Anthropic apologizes for over-restrictive Claude Fable guardrails",
+      "subtitle": "The new model refused basic biology, chemistry, and security queries",
+      "summary": "Anthropic launched Claude Fable but drew backlash for quietly throttling it with hidden guardrails that refused high-school-level biology questions and blocked legitimate cybersecurity research. Anthropic apologized and promised to make the restrictions more transparent and less aggressive.",
+      "whyItMatters": "Even a frontier model becomes useless for builders if safety filters are applied too broadly and without transparency.",
+      "whyForUs": "If you build in biotech, education, or security, expect some prompts to be blocked until Anthropic refines these filters.",
       "sources": [
         {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/05/19/google-ai-ultra-gemini-spark-omni.html"
-        },
-        {
-          "name": "Web Developer",
-          "url": "https://webdeveloper.com/news/google-io-2026-gemini-3-5-flash-antigravity-2/"
-        },
-        {
-          "name": "Gemini API",
-          "url": "https://ai.google.dev/gemini-api/docs/changelog"
+          "name": "The Verge",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/948280/anthropic-claude-fable-invisible-distillation-guardrail"
         }
       ],
-      "image": "/news-images/gemini-35-flash-ga.jpg",
-      "imageSource": "CNBC"
+      "image": "/news-images/anthropic-claude-fable-guardrails.jpg",
+      "imageSource": "The Verge"
     },
     {
-      "id": "cursor-composer-25",
+      "id": "german-court-ruling-google-ai-search",
       "n": 8,
-      "category": "global",
-      "date": "2026-05-18",
-      "title": "Cursor ships Composer 2.5, a cheaper long-session coding agent",
-      "subtitle": "3rd on the Coding Agent Index · roughly 10-60x cheaper than Opus 4.7 / GPT-5.5",
-      "summary": "May 18: Cursor released Composer 2.5, a Kimi K2.5-based agent tuned for long-running coding sessions. It scores 62 on the Coding Agent Index (up 14 points from Composer 2), third behind only Claude Opus 4.7 in Claude Code and GPT-5.5 in Codex, at roughly $0.44/task (Fast) and $0.07/task (Standard), about 10-60x cheaper than the frontier agents.",
-      "whyItMatters": "Near-frontier agentic coding at a tenth to a sixtieth of the cost. The capability gap at the top is narrowing while the price gap at the bottom is collapsing.",
-      "whyForUs": "If you live in Cursor or Windsurf, Composer 2.5 is worth making your default driver for routine work, saving the expensive frontier models for the hard parts. Good Show & Tell material.",
-      "sources": [
-        {
-          "name": "Cursor",
-          "url": "https://cursor.com/blog/composer-2-5"
-        },
-        {
-          "name": "Artificial Analysis",
-          "url": "https://artificialanalysis.ai/articles/cursor-composer-2-5-coding-agent-index"
-        },
-        {
-          "name": "DevOps.com",
-          "url": "https://devops.com/cursors-composer-2-5-brings-smarter-more-reliable-ai-coding-agents/"
-        }
-      ],
-      "image": "/news-images/cursor-composer-25.png",
-      "imageSource": "Cursor"
-    },
-    {
-      "id": "nscale-narvik",
-      "n": 9,
       "category": "eu-policy",
-      "date": "2026-05-11",
-      "title": "Nscale secures $790M for Narvik AI data center",
-      "subtitle": "Norway · backed by ABN AMRO, DNB, Eksfin, Nordea, SEB",
-      "summary": "May 11: Nscale announced an additional $790M (about €670M), committed by ABN AMRO, DNB, Eksfin, Nordea and SEB, to scale its AI data center in Narvik, Norway, the largest AI infrastructure project in the country. It builds on a $2B Series C in March and a $1.4B term loan in February, with the Narvik site leaning on cold climate and Nordic hydropower for cheap, clean compute.",
-      "whyItMatters": "Frontier compute is being built in the Nordics, not just rented from US hyperscalers. Cheap hydropower plus cold climate is becoming the region's structural edge in the AI infrastructure race.",
-      "whyForUs": "A serious AI compute buildout 90 minutes north is a draw for infra, MLOps, and data-center talent, and a signal that 'train and serve in the Nordics' is becoming a real option for local builders.",
+      "date": "2026-06-10",
+      "title": "German court rules against Google's AI search overviews",
+      "subtitle": "A precedent that could reshape AI summaries across the EU",
+      "summary": "A German court ruled against Google's AI Overview feature, holding that users do not inherently need AI to search the internet. The decision could force search engines to change how they present AI-generated summaries and publisher links in the EU.",
+      "whyItMatters": "It is a direct legal challenge to the current product design of AI-powered search in Europe.",
+      "whyForUs": "If your project relies on scraping, summarizing, or driving traffic via AI search, European rulings like this will shape your distribution.",
       "sources": [
         {
-          "name": "EU-Startups",
-          "url": "https://www.eu-startups.com/2026/05/nscale-extends-funding-momentum-with-e670-million-for-norway-ai-infrastructure-project/"
-        },
-        {
-          "name": "Nscale",
-          "url": "https://www.nscale.com/press-releases/nscale-secures-790-million-norway"
-        },
-        {
-          "name": "Construction Review",
-          "url": "https://constructionreviewonline.com/narvik-ai-data-center-in-norway-secures-790-million-financing/"
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/tech-policy/2026/06/nobody-needs-ai-to-search-the-internet-court-says-in-ruling-against-google/"
         }
       ],
-      "image": "/news-images/nscale-narvik.png",
-      "imageSource": "Nscale"
-    },
-    {
-      "id": "eu-ai-act-omnibus-deal",
-      "n": 10,
-      "category": "eu-policy",
-      "date": "2026-05-07",
-      "title": "EU AI Act 'Digital Omnibus' deal finally lands",
-      "subtitle": "High-risk deadlines pushed to Dec 2027 / Aug 2028 · watermarking by Dec 2026",
-      "summary": "In the early hours of May 7, Council and Parliament negotiators reached a provisional agreement on the Digital Omnibus, after the first trilogue collapsed on April 28. High-risk obligations move to 2 December 2027 (Annex III) and 2 August 2028 (Annex I), a new Article 5 prohibition bans AI-generated CSAM and non-consensual intimate imagery, and watermarking duties for systems already on the market kick in by 2 December 2026. SME exemptions now extend to small mid-cap companies. The text still needs formal endorsement.",
-      "whyItMatters": "The August 2026 cliff edge is gone. Builders get genuine breathing room on high-risk compliance, but watermarking and the new Article 5 prohibitions arrive sooner, so the rulebook got both looser and sharper at once.",
-      "whyForUs": "If your side project touches HR, biometrics, credit, or critical infra, you have until late 2027, not 90 days. But if you generate or transform media, start planning watermarking now: that deadline is December 2026.",
-      "sources": [
-        {
-          "name": "Bird & Bird",
-          "url": "https://www.twobirds.com/en/insights/2026/digital-omnibus-on-ai-provisional-agreement-reached-at-the-may-trilogue"
-        },
-        {
-          "name": "IAPP",
-          "url": "https://iapp.org/news/a/ai-act-omnibus-what-just-happened-and-what-comes-next"
-        },
-        {
-          "name": "Gibson Dunn",
-          "url": "https://www.gibsondunn.com/eu-ai-act-omnibus-agreement-postponed-high-risk-deadlines-and-other-key-changes/"
-        }
-      ],
-      "image": "/news-images/eu-ai-act-omnibus-deal.jpg",
-      "imageSource": "IAPP"
-    },
-    {
-      "id": "eic-step-scaleup",
-      "n": 11,
-      "category": "eu-policy",
-      "date": "2026-04-27",
-      "title": "EIC backs eight European deep-tech scale-ups under STEP",
-      "subtitle": "EU growth-stage capital aimed at strategic tech",
-      "summary": "Apr 27: the European Innovation Council named eight European startups set to receive scale-up funding under the new STEP Scale-Up scheme, channeling EU growth-stage capital into strategic deep tech (AI, semiconductors, clean and bio tech) to keep scaling companies anchored on the continent.",
-      "whyItMatters": "Europe's persistent gap is growth-stage capital, the round where startups historically flip to US investors. STEP Scale-Up is a direct public attempt to plug that hole.",
-      "whyForUs": "If your project reaches Series A/B territory in a strategic field, EU scale-up instruments now exist that didn't a year ago. Useful to know the non-dilutive and co-investment map before you raise.",
-      "sources": [
-        {
-          "name": "EIC",
-          "url": "https://eic.ec.europa.eu/news/eight-european-startups-set-receive-scale-funding-eic-under-step-scale-scheme-2026-04-27_en"
-        }
-      ],
-      "image": "/news-images/eic-step-scaleup.png",
-      "imageSource": "EIC"
-    },
-    {
-      "id": "verda-100m",
-      "n": 12,
-      "category": "eu-policy",
-      "date": "2026-04-24",
-      "title": "Helsinki's Verda raises €100M to challenge AWS and Azure",
-      "subtitle": "$117M for a clean, Nordic GPU cloud · already cash-flow positive",
-      "summary": "Apr 24: Helsinki-based Verda (formerly DataCrunch) raised €100M ($117M) in equity and debt, led by Lifeline Ventures with byFounders, Tesi, Varma and Nordic banks. The GPU cloud is already cash-flow positive, with revenue run-rate doubling to ~€51M in Q1, runs on 100% renewable Finnish power, and plans 100+ hires plus UK and US expansion this year.",
-      "whyItMatters": "A profitable, EU-resident GPU cloud on renewable power is rare: a European hyperscaler alternative that isn't burning cash to exist. Sovereign compute is becoming commercially viable, not just politically desirable.",
-      "whyForUs": "If you need GPUs for a side project and want EU data residency, Verda is a Nordic option without the AWS/Azure procurement friction. Worth a look next time you rent compute.",
-      "sources": [
-        {
-          "name": "EU-Startups",
-          "url": "https://www.eu-startups.com/2026/04/helsinki-based-ai-infrastructure-company-verda-raises-e100-million-plans-to-hire-100-people-by-year-end/"
-        },
-        {
-          "name": "ArcticStartup",
-          "url": "https://arcticstartup.com/verda-raises-117m/"
-        },
-        {
-          "name": "TFN",
-          "url": "https://techfundingnews.com/verda-117m-funding-profitable-ai-gpu-cloud-finland/"
-        }
-      ],
-      "image": "/news-images/verda-100m.png",
-      "imageSource": "TFN"
+      "image": "/news-images/german-court-ruling-google-ai-search.jpg",
+      "imageSource": "Ars Technica"
     }
   ]
 }

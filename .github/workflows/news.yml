@@ -1,0 +1,57 @@
+name: Draft news roundup
+
+# Weekly: pull public AI RSS feeds, let Gemini flash curate a draft roundup, fetch
+# cover images, then open a PR for Auri to review. Nothing is published until the
+# PR is merged AND the items are copied into data/news.json by hand — curation
+# stays human; only the gathering is automated.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1' # every Monday 07:00 UTC
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: news-draft
+  cancel-in-progress: true
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate news draft
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm run draft:news
+
+      - name: Fetch cover images for the draft
+        # Best-effort; failures here must not fail the run.
+        run: node scripts/fetch-news-images.js || true
+
+      - name: Open a review PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: news/auto-draft
+          title: 'News draft — review and curate'
+          commit-message: 'chore(news): refresh auto-draft roundup'
+          body: |
+            Auto-generated AI-news draft (`data/news-draft.json`).
+
+            Review the items, copy the good ones into `data/news.json`, then run
+            `npm run fetch:news` locally if image fetching needs a retry.
+            Nothing is live until you do that — this PR only updates the draft file.
+          add-paths: |
+            data/news-draft.json
+            public/news-images/**

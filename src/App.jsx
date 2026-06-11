@@ -15,6 +15,7 @@ const News = lazy(() => import('./components/News.jsx'));
 const Tools = lazy(() => import('./components/Tools.jsx'));
 const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
+const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
 import FeedbackButton from './components/FeedbackButton.jsx';
 import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
@@ -39,17 +40,30 @@ function readTabFromHash() {
   return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'home';
 }
 
+// Recap pages live at #recap/<date>. Returns the date or null.
+function readRecapDate() {
+  const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
+  const m = h.match(/^recap\/(\d{4}-\d{2}-\d{2})$/);
+  return m ? m[1] : null;
+}
+
 export default function App() {
   const [tab, setTab] = useState(readTabFromHash);
+  const [recapDate, setRecapDate] = useState(readRecapDate);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onHashChange = () => setTab(readTabFromHash());
+    const onHashChange = () => {
+      const rd = readRecapDate();
+      setRecapDate(rd);
+      if (!rd) setTab(readTabFromHash());
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   useEffect(() => {
+    if (recapDate) return; // the recap route owns the hash; don't overwrite it
     const current = window.location.hash.slice(1);
     // Don't rewrite the hash while it carries an auth callback (e.g. an
     // implicit-flow #access_token=...), or we'd wipe it before Supabase reads it.
@@ -57,7 +71,7 @@ export default function App() {
     if (current !== tab) {
       window.history.replaceState(null, '', `#${tab}`);
     }
-  }, [tab]);
+  }, [tab, recapDate]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -75,8 +89,13 @@ export default function App() {
 
   // Navigate to a tab or legal page and jump to the top (used by the footer + back).
   const goTo = (key) => {
+    if (typeof window !== 'undefined' && readRecapDate()) window.location.hash = key; // leave a recap route cleanly
     setTab(key);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
+  };
+  // Open a session's public recap page (hash route owns navigation).
+  const openRecap = (date) => {
+    if (typeof window !== 'undefined') { window.location.hash = `recap/${date}`; window.scrollTo({ top: 0 }); }
   };
   const isLegal = LEGAL_KEYS.includes(tab);
 
@@ -101,7 +120,7 @@ export default function App() {
                 return (
                   <button
                     key={t.key}
-                    onClick={() => setTab(t.key)}
+                    onClick={() => goTo(t.key)}
                     aria-current={active ? 'page' : undefined}
                     className={`relative px-2.5 py-1.5 text-sm font-medium transition-colors ${
                       active ? 'text-foreground' : 'text-muted hover:text-foreground'
@@ -134,6 +153,14 @@ export default function App() {
           <div key={tab} className="tab-enter">
             <LegalPage slug={tab} onBack={() => goTo('home')} />
           </div>
+        ) : recapDate ? (
+          <TabErrorBoundary key={`eb-recap-${recapDate}`}>
+            <Suspense fallback={<TabFallback />}>
+              <div key={`recap-${recapDate}`} className="tab-enter">
+                <SessionRecap date={recapDate} sessions={data.sessions} onBack={() => goTo('sessions')} />
+              </div>
+            </Suspense>
+          </TabErrorBoundary>
         ) : (
         <>
         <section className="mb-8 sm:mb-10">
@@ -170,7 +197,7 @@ export default function App() {
             {tab === 'news' && <News />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
             {tab === 'members' && <MembersGallery members={data.members} />}
-            {tab === 'sessions' && <SessionsGallery sessions={data.sessions} />}
+            {tab === 'sessions' && <SessionsGallery sessions={data.sessions} onOpenRecap={openRecap} />}
           </div>
         </Suspense>
         </TabErrorBoundary>
@@ -202,7 +229,7 @@ export default function App() {
                 return (
                   <button
                     key={t.key}
-                    onClick={() => { setTab(t.key); setMenuOpen(false); }}
+                    onClick={() => { goTo(t.key); setMenuOpen(false); }}
                     aria-current={active ? 'page' : undefined}
                     className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${
                       active ? 'bg-accent text-foreground' : 'text-muted hover:bg-accent hover:text-foreground'

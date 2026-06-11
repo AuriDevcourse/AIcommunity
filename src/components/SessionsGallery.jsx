@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2, Loader2, ArrowUpRight } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 import PhotoUploader from './PhotoUploader.jsx';
 
-export default function SessionsGallery({ sessions }) {
+export default function SessionsGallery({ sessions, onOpenRecap }) {
   const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
   const [showUpload, setShowUpload] = useState(false);
 
@@ -144,6 +144,7 @@ export default function SessionsGallery({ sessions }) {
               cover={session.photos[0]}
               onEdit={() => setEditDate(session.date)}
               onOpen={(photoIdx) => openAt(i, photoIdx)}
+              onRecap={onOpenRecap ? () => onOpenRecap(session.date) : null}
             />
           ))}
         </div>
@@ -173,7 +174,7 @@ export default function SessionsGallery({ sessions }) {
   );
 }
 
-function SessionTile({ session, name, cover, onEdit, onOpen }) {
+function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
   const date = fmtDate(session.date);
 
   return (
@@ -209,8 +210,17 @@ function SessionTile({ session, name, cover, onEdit, onOpen }) {
         <Pencil size={12} strokeWidth={2.4} /> Edit
       </button>
 
-      <div className="mt-4">
+      <div className="mt-4 flex items-center justify-between gap-2">
         <span className="text-base font-semibold leading-snug tracking-tight truncate">{name}</span>
+        {onRecap && (
+          <button
+            onClick={onRecap}
+            className="inline-flex items-center gap-1 text-xs font-medium text-muted hover:text-foreground transition-colors flex-shrink-0"
+            aria-label={`Open recap for ${name}`}
+          >
+            Recap <ArrowUpRight size={13} strokeWidth={2.2} />
+          </button>
+        )}
       </div>
     </article>
   );
@@ -288,8 +298,8 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="card w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto shadow-[0_30px_60px_rgba(0,0,0,0.18)]" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-panel max-w-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1.5 h-section"><Pencil size={12} strokeWidth={2.2} /><span>Edit session</span></div>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
@@ -398,7 +408,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
 
         {/* Sticky action bar for the multi-select delete */}
         {selected.size > 0 && (
-          <div className="sticky bottom-0 -mx-6 -mb-6 mt-4 px-6 py-3 border-t border-border bg-background/95 backdrop-blur flex items-center justify-between gap-3">
+          <div className="sticky bottom-0 -mx-5 sm:-mx-6 -mb-5 sm:-mb-6 mt-4 px-5 sm:px-6 py-3 border-t border-border bg-background/95 backdrop-blur flex items-center justify-between gap-3">
             <span className="text-xs text-muted">{selected.size} selected</span>
             <div className="flex items-center gap-2">
               <button onClick={() => setSelected(new Set())} className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted hover:text-foreground transition-colors">
@@ -519,7 +529,7 @@ function Lightbox({ sessions, state, onChange, onClose }) {
 
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="h-8 w-8 rounded-full border-2 border-white/30 border-t-white/90 animate-spin" />
+            <Loader2 size={32} className="animate-spin text-white/80" />
           </div>
         )}
         <img

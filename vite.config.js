@@ -37,7 +37,8 @@ function pollsPlugin() {
         { handleTopics },
         { handleImageUpload },
         { handleSessionMeta },
-        { guardMutation },
+        { handleRsvpGet, handleRsvpPost },
+        { guardMutation, requireUser },
       ] = await Promise.all([
         import('./api/_polls-core.js'),
         import('./api/_gcal.js'),
@@ -47,6 +48,7 @@ function pollsPlugin() {
         import('./api/_topics.js'),
         import('./api/_imgbb.js'),
         import('./api/_session-meta.js'),
+        import('./api/_rsvp.js'),
         import('./api/_guard.js'),
       ]);
       // Gate mutating requests (auth + rate limit) before running the handler.
@@ -93,6 +95,26 @@ function pollsPlugin() {
           if (await gate(req, res, 'topics', 30)) return;
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
           const { status, json } = await handleTopics({ method: req.method, body });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/rsvp', async (req, res) => {
+        try {
+          if (req.method === 'GET') {
+            const url = new URL(req.url, 'http://localhost');
+            const query = Object.fromEntries(url.searchParams);
+            const { status, json } = await handleRsvpGet({ query });
+            return sendJson(res, status, json);
+          }
+          if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          if (await gate(req, res, 'rsvp', 30)) return;
+          const u = await requireUser(req);
+          if (u.configured === false) return sendJson(res, 200, { ok: false, configured: false });
+          if (u.blocked) return sendJson(res, u.blocked.status, u.blocked.json);
+          const body = await readJsonBody(req);
+          const { status, json } = await handleRsvpPost({ body, user: u.user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-07T14:34:45.881Z",
+  "generatedAt": "2026-06-11T21:36:04.521Z",
   "sessions": [
     {
       "number": 1,
@@ -74,6 +74,7 @@
         }
       ],
       "summary": "First meeting to get to know each other as AI enthusiasts. We discussed the format, how we work, and future prospects.",
+      "tools": [],
       "photos": [
         "/sessions/2025-06-29/1.jpg",
         "/sessions/2025-06-29/2.jpg",
@@ -137,6 +138,7 @@
         }
       ],
       "summary": "",
+      "tools": [],
       "photos": [
         "/sessions/2025-07-12/1.jpg",
         "/sessions/2025-07-12/2.jpg",
@@ -176,6 +178,7 @@
       ],
       "actions": [],
       "summary": "",
+      "tools": [],
       "photos": [
         "/sessions/2025-07-27/IMG_4549.jpg",
         "/sessions/2025-07-27/IMG_4550.jpg",
@@ -218,6 +221,7 @@
       ],
       "actions": [],
       "summary": "",
+      "tools": [],
       "photos": [
         "/sessions/2025-09-14/IMG_5130.jpg",
         "/sessions/2025-09-14/IMG_5131.jpg",
@@ -244,6 +248,7 @@
       "demos": [],
       "actions": [],
       "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
+      "tools": [],
       "photos": [
         "/sessions/2026-03-08/1.jpg",
         "/sessions/2026-03-08/2.jpg",
@@ -262,6 +267,7 @@
       "demos": [],
       "actions": [],
       "summary": "",
+      "tools": [],
       "photos": [
         "/sessions/2026-05-03/03052026_01.jpeg",
         "/sessions/2026-05-03/03052026_02.jpeg",
@@ -324,6 +330,120 @@
         }
       ],
       "summary": "A hands-on session about how each of us actually builds with AI day to day. Most of the time went to two themes: running models locally versus paying for cloud models, and showing real working setups. We compared local-model runners and hardware limits, walked through live project builds, and shared workflow tips for keeping AI projects organised and reasonably secure.\r\n\r\nThe recurring takeaway: local models are appealing (free, private) but need a strong GPU and still trail the paid cloud models on quality, so the practical answer is usually a mix, pick the cheapest tool that is good enough for the task.",
+      "tools": [
+        {
+          "name": "Pinokio",
+          "note": "one-click \"app store\" that installs and runs local AI tools, pulls in missing dependencies automatically"
+        },
+        {
+          "name": "ComfyUI",
+          "note": "node-based UI for local image generation"
+        },
+        {
+          "name": "Ollama",
+          "note": "installs and serves LLMs locally"
+        },
+        {
+          "name": "LM Studio",
+          "note": "friendlier local-model runner; shows which models fit your machine"
+        },
+        {
+          "name": "Cline",
+          "note": "open-source coding agent that runs as a VS Code extension"
+        },
+        {
+          "name": "Continue",
+          "note": "VS Code extension for using local models (Copilot-style)"
+        },
+        {
+          "name": "GitHub Copilot",
+          "note": "inline code suggestions in VS Code"
+        },
+        {
+          "name": "Claude / Claude Code",
+          "note": "Anthropic's models and CLI; used to build projects end to end"
+        },
+        {
+          "name": "OpenClaw",
+          "note": "self-hosted personal AI assistant that runs on your own server"
+        },
+        {
+          "name": "Qwen",
+          "note": "open local LLM; usable but slow on modest hardware"
+        },
+        {
+          "name": "DeepSeek",
+          "note": "open reasoning model (older knowledge cutoff was a limitation)"
+        },
+        {
+          "name": "GPT-5 Mini",
+          "note": "cheap cloud model, a step up from local options"
+        },
+        {
+          "name": "Gemini",
+          "note": "Google's model; strong at image generation and keeping backgrounds consistent"
+        },
+        {
+          "name": "Flux / FLUX.2 [klein]",
+          "note": "open-weight image-generation models that run locally on a strong GPU"
+        },
+        {
+          "name": "Fooocus",
+          "note": "simplified image-generation UI (MidJourney-style)"
+        },
+        {
+          "name": "Hugging Face",
+          "note": "hosts open models and offers pay-as-you-go inference for testing"
+        },
+        {
+          "name": "Windsurf / Antigravity / Conductor",
+          "note": "IDE and agent front-ends for driving Claude"
+        },
+        {
+          "name": "Vercel",
+          "note": "hosting and deploys for web projects"
+        },
+        {
+          "name": "Railway",
+          "note": "hosting for servers and databases"
+        },
+        {
+          "name": "Supabase",
+          "note": "auth and Postgres database"
+        },
+        {
+          "name": "Base44",
+          "note": "AI app builder with brand/style presets"
+        },
+        {
+          "name": "Mobbin",
+          "note": "searchable library of UI screenshots for design reference"
+        },
+        {
+          "name": "Figma",
+          "note": "design-system reference"
+        },
+        {
+          "name": "Opus Clip",
+          "note": "turns long videos into short clips"
+        },
+        {
+          "name": "Fyxer",
+          "note": "AI email assistant that auto-drafts replies"
+        },
+        {
+          "name": "Pomelli (Google Labs)",
+          "note": "generates brand mockups and campaigns from a website"
+        },
+        {
+          "name": "Notion",
+          "note": "used for transcription and note capture"
+        },
+        {
+          "name": "Claude Code skills (stop-slop, ui-ux-pro-max)",
+          "note": "remove AI \"tells\" from text; guide UI/UX work"
+        }
+      ],
       "photos": []
     }
   ],

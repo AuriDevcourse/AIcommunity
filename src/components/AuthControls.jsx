@@ -134,8 +134,8 @@ export function AuthModal() {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-foreground/40 backdrop-blur-sm p-4" onClick={closeAuth}>
-      <div className="card w-full max-w-sm p-6 my-auto max-h-[90dvh] overflow-y-auto shadow-[0_30px_60px_rgba(0,0,0,0.18)]" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay z-[100]" onClick={closeAuth}>
+      <div className="modal-panel max-w-sm" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-lg font-semibold tracking-tight">{mode === 'signup' ? 'Create account' : 'Sign in'}</h2>
           <button onClick={closeAuth} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
@@ -278,8 +278,8 @@ function ProfileModal({ open, onClose }) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="card w-full max-w-md p-6 my-auto max-h-[90dvh] overflow-y-auto shadow-[0_30px_60px_rgba(0,0,0,0.18)]" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay z-[100]" onClick={onClose}>
+      <div className="modal-panel max-w-md" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold tracking-tight">Edit profile</h2>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
@@ -307,24 +307,24 @@ function ProfileModal({ open, onClose }) {
           value={avatar}
           onChange={(e) => setAvatar(e.target.value)}
           placeholder="…or paste an image URL"
-          className="mt-3 w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-foreground"
+          className="input mt-3"
         />
 
         <label className="block mt-4">
           <span className="text-[11px] font-medium text-muted">Display name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={48} className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-foreground" />
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={48} className="input mt-1" />
         </label>
 
         <label className="block mt-3">
           <span className="text-[11px] font-medium text-muted">About you</span>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={280} placeholder="What you're building, your interests…" className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2 text-sm resize-y focus:outline-none focus:border-foreground" />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={280} placeholder="What you're building, your interests…" className="input mt-1 resize-y" />
         </label>
 
         {error && <div className="mt-2 text-xs text-err">{error}</div>}
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-full border border-border bg-pill px-4 py-2 text-sm font-medium hover:bg-accent transition-colors">Cancel</button>
-          <button onClick={save} disabled={busy || !name.trim()} className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.02]">
+          <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+          <button onClick={save} disabled={busy || !name.trim()} className="btn btn-primary">
             {busy && <Loader2 size={14} className="animate-spin" />} Save
           </button>
         </div>

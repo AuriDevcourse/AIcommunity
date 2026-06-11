@@ -1,6 +1,7 @@
 import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
 import { Mic, MapPin, Ticket, CalendarClock, CalendarPlus, UserCheck } from 'lucide-react';
 import Attendees from './Attendees.jsx';
+import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
 
 const FORMATS = {
@@ -95,18 +96,22 @@ export default function NextSession({ session }) {
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
 
+      {/* In-dashboard RSVP is the primary call to action. */}
+      <Rsvp date={session.date} />
+
+      {/* Google Calendar accepts (secondary signal, shown when available). */}
       <Attendees date={session.date} />
 
       {lumaUrl && (
-        <div className="mt-6">
+        <div className="mt-5">
           <a
             href={lumaUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-transform hover:scale-[1.02]"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground transition-colors"
           >
             <Ticket size={14} strokeWidth={2.2} />
-            Register on Luma
+            Also on Luma
           </a>
         </div>
       )}

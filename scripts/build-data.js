@@ -87,8 +87,15 @@ function parseSessionFile(filename) {
   const aboutMatch = raw.match(/^## About This Session\s*\n+([^\n][^\n]*(?:\n[^\n#].*)*)/m);
   const summary = aboutMatch ? aboutMatch[1].trim() : '';
 
+  // Tools & products discussed: "- **Name** — note" bullets (the AI ideas of the
+  // session). Drives the recap "Tools discussed" list + the auto LinkedIn draft.
+  const toolsSection = raw.split(/^## Tools[^\n]*$/m)[1]?.split(/^## /m)[0] || '';
+  const tools = [...toolsSection.matchAll(/^-\s+\*\*(.+?)\*\*\s*(?:[—–-]\s*(.+))?$/gm)]
+    .map((mm) => ({ name: mm[1].trim(), note: (mm[2] || '').trim() }))
+    .filter((t) => t.name);
+
   const photos = listSessionPhotosForDate(date);
-  return { number, date, location, attendees, demos, actions, summary, photos };
+  return { number, date, location, attendees, demos, actions, summary, tools, photos };
 }
 
 function parseHub() {
@@ -130,6 +137,7 @@ for (const dateIso of listAllPhotoDates()) {
     demos: [],
     actions: [],
     summary: '',
+    tools: [],
     photos,
   });
 }

@@ -7,6 +7,7 @@
     "build:data": "node scripts/build-data.js",
     "optimize:images": "node scripts/optimize-images.mjs",
     "fetch:news": "node scripts/fetch-news-images.js",
+    "draft:news": "node scripts/draft-news.mjs",
     "seed:polls": "node scripts/seed-polls.js",
     "seed:forum": "node scripts/seed-forum.js",
     "google:auth": "node scripts/google-auth.js",
