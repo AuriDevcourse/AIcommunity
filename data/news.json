@@ -1,623 +1,333 @@
 {
-  "windowLabel": "Apr 19 – May 3, 2026",
+  "windowLabel": "May 4 – May 20, 2026",
   "themes": {
-    "global": "The model cartel cracked open — cloud monogamies ended, valuations went vertical, and four frontier labs shipped new flagships in nine days.",
-    "eu-policy": "Europe is consolidating — Cohere swallows Aleph Alpha, Helsing plants its flag in Stockholm, the EU AI Act simplification trilogue collapses, and Microsoft quietly takes over the Stargate sites OpenAI walked away from in the UK and Norway.",
-    "lt-community": "Surfaced by the Lithuanian tech podcast Kažka ten su kompais — stories the LT community is paying attention to that the English-speaking AI press hasn't picked up on yet."
+    "global": "Frontier labs pivoted from model release to deployment muscle — OpenAI and Anthropic both stood up enterprise rollout arms, Google countered at I/O with a real agent, and Karpathy quietly walked from OpenAI to Anthropic's pre-training team. The race is no longer 'who has the better model' but 'who can put it inside a Fortune 500 by Q3.'",
+    "eu-policy": "Brussels finally landed the AI Act Omnibus after April's collapse — high-risk obligations pushed to Dec 2027 / Aug 2028, with non-consensual deepfakes banned from Dec 2026. Nordic compute keeps anchoring Europe's sovereign-AI story: Nscale closed another €670M for Narvik and Mistral is pitching European banks an in-house alternative to Anthropic's Mythos."
   },
   "items": [
     {
-      "id": "gpt-5-5-spud",
+      "id": "openai-gpt-5-5-instant",
       "n": 1,
       "category": "global",
-      "date": "2026-04-23",
-      "title": "OpenAI ships GPT-5.5 \"Spud\"",
-      "subtitle": "Agentic super-app push goes mainstream",
-      "summary": "Released Apr 23, sharper and more token-efficient, built to run multi-step tool-using workflows end-to-end across ChatGPT and Codex. The model OpenAI is betting will turn ChatGPT from chatbot into 'do my work' agent — in the API one day later for builders.",
-      "whyItMatters": "Marks the shift from 'AI assistant' to 'AI worker' — agents that complete real multi-step jobs (research, code, ops) without supervision. The inflection point most builders have been waiting for.",
-      "whyForUs": "Anyone shipping a side project in Copenhagen should retest agentic flows that didn't work six months ago — they likely work now end-to-end. Worth a Show & Tell session.",
+      "date": "2026-05-05",
+      "title": "GPT-5.5 Instant becomes ChatGPT's default",
+      "subtitle": "Cross-conversation memory ships with it",
+      "summary": "OpenAI swapped ChatGPT's default model on May 5 — GPT-5.5 Instant replaces GPT-5.3 Instant on web and API (as chat-latest), with 52.5% fewer hallucinated claims on high-stakes prompts and personalization that pulls from past chats, uploaded files, and connected Gmail. A new 'memory sources' panel shows users which prior context shaped each answer.",
+      "whyItMatters": "Memory is the feature that turns a chatbot into an assistant that compounds over time — and OpenAI is making it the default experience, not a power-user toggle. The hallucination drop also resets the floor for what 'good enough for production' looks like.",
+      "whyForUs": "If your side project still treats ChatGPT as stateless, retest your prompts — the new default carries a lot more context than three months ago. Free / Go / Business / Enterprise tiers come 'in the coming weeks,' worth watching for your demo audience.",
       "sources": [
         {
           "name": "OpenAI",
-          "url": "https://openai.com/index/introducing-gpt-5-5/"
+          "url": "https://openai.com/index/gpt-5-5-instant/"
         },
         {
           "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/23/openai-chatgpt-gpt-5-5-ai-model-superapp/"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/23/openai-announces-latest-artificial-intelligence-model.html"
-        }
-      ],
-      "image": "/news-images/gpt-5-5-spud.jpg",
-      "imageSource": "TechCrunch"
-    },
-    {
-      "id": "deepseek-v4",
-      "n": 2,
-      "category": "global",
-      "date": "2026-04-24",
-      "title": "DeepSeek V4 preview drops with 1M context",
-      "subtitle": "China closes the frontier gap, again",
-      "summary": "DeepSeek open-sourced V4-Pro (1.6T total / 49B active params) and V4-Flash, both MoE with 1M-token context. Claims to beat every open model on math/code and trail only Gemini 3.1 Pro on world knowledge — at a fraction of the price.",
-      "whyItMatters": "Open-weight frontier keeps tightening the price gap with closed labs. A 1M-token MoE rivaling Gemini at a fraction of the cost reshapes who can afford to ship reasoning-heavy products.",
-      "whyForUs": "If you've been paying Sonnet prices on a side project, V4-Pro is worth a swap test before your next demo. Self-hostable scope opens up for anyone with rented GPU time.",
-      "sources": [
-        {
-          "name": "DeepSeek",
-          "url": "https://api-docs.deepseek.com/news/news260424"
-        },
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-24/deepseek-unveils-newest-flagship-a-year-after-ai-breakthrough"
-        },
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/24/deepseek-previews-new-ai-model-that-closes-the-gap-with-frontier-models/"
-        }
-      ],
-      "image": "/news-images/deepseek-v4.jpg",
-      "imageSource": "DeepSeek"
-    },
-    {
-      "id": "openai-microsoft-divorce",
-      "n": 3,
-      "category": "global",
-      "date": "2026-04-27",
-      "title": "OpenAI–Microsoft divorce",
-      "subtitle": "Azure exclusivity ends, AGI clause deleted, AWS gets GPT-5.5",
-      "summary": "Apr 27 restructure ended Azure exclusivity, scrapped the AGI trigger clause, cleared the path for OpenAI's $50B Amazon deal. Next day, GPT-5.5, Codex, and Bedrock Managed Agents shipped on AWS — putting OpenAI alongside Anthropic, Meta, Mistral on Bedrock.",
-      "whyItMatters": "Ends the cloud monogamy that defined the LLM era. Deleting the AGI trigger also removes the last governance brake between OpenAI and pure commercial scale.",
-      "whyForUs": "Bedrock is now multi-vendor — anyone running on AWS can swap GPT-5.5 / Claude / Mistral with one config change. Vendor-lock escape is way easier than 12 months ago.",
-      "sources": [
-        {
-          "name": "Microsoft",
-          "url": "https://blogs.microsoft.com/blog/2026/04/27/the-next-phase-of-the-microsoft-openai-partnership/"
-        },
-        {
-          "name": "OpenAI",
-          "url": "https://openai.com/index/openai-on-aws/"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/28/openai-brings-models-to-aws-after-ending-exclusivity-with-microsoft.html"
-        }
-      ],
-      "image": "/news-images/openai-microsoft-divorce.png",
-      "imageSource": "Microsoft"
-    },
-    {
-      "id": "anthropic-900b",
-      "n": 4,
-      "category": "global",
-      "date": "2026-04-29",
-      "title": "Anthropic eyes $900B raise",
-      "subtitle": "About to leapfrog OpenAI as world's most valuable AI startup",
-      "summary": "Bloomberg broke Apr 29 that Anthropic is fielding $40–50B offers at $900B+, more than double its February $380B mark and above OpenAI's $852B. May board meeting decisive.",
-      "whyItMatters": "If it closes, Anthropic leapfrogs OpenAI as the most valuable AI startup — and the AI top-of-market becomes a duopoly priced like nation-states.",
-      "whyForUs": "Valuation pressure flows down: expect Claude pricing to harden and tighter rate limits on lower tiers. Plan API spend with that in mind on anything you ship next.",
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-29/anthropic-considering-funding-offers-at-over-900-billion-value"
-        },
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/30/anthropic-potential-900b-valuation-round-could-happen-within-two-weeks/"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/29/anthropic-weighs-raising-funds-at-900b-valuation-topping-openai.html"
-        }
-      ],
-      "image": "/news-images/anthropic-900b.jpg",
-      "imageSource": "Bloomberg"
-    },
-    {
-      "id": "spacex-cursor",
-      "n": 5,
-      "category": "global",
-      "date": "2026-04-21",
-      "title": "SpaceX strikes $60B option to buy Cursor",
-      "subtitle": "Pre-empts a $2B funding round mid-close",
-      "summary": "SpaceX (which now owns xAI) pays $10B 'collaboration fee' plus right to acquire Cursor for $60B post-IPO. Cursor halted its in-progress $2B/$50B round (Andreessen, Nvidia, Thrive) to take it. Reshapes the AI coding market overnight.",
-      "whyItMatters": "AI coding tools just became strategic infrastructure for hyperscalers. Cursor's $60B price tag rewrites how every dev tool gets valued.",
-      "whyForUs": "Cursor's pricing and roadmap are now downstream of SpaceX. Anyone shipping with Cursor should keep a Windsurf / Claude Code fallback ready.",
-      "sources": [
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html"
-        },
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-21/spacex-says-has-agreement-to-acquire-cursor-for-60-billion"
-        },
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/22/how-spacex-preempted-a-2b-fundraise-with-a-60b-buyout-offer/"
-        }
-      ],
-      "image": "/news-images/spacex-cursor.jpg",
-      "imageSource": "CNBC"
-    },
-    {
-      "id": "pentagon-ai-anthropic",
-      "n": 6,
-      "category": "global",
-      "date": "2026-05-01",
-      "title": "Pentagon cuts deals with 8 AI vendors — locks Anthropic out",
-      "subtitle": "DoD signs Impact Level 6/7 with OpenAI, Google, Microsoft, AWS, Nvidia, SpaceX, Reflection, Oracle",
-      "summary": "Anthropic excluded after refusing 'all lawful purposes' including autonomous weapons; OpenAI's deal preserves three red lines (no autonomous weapons, no mass surveillance, no automated high-stakes decisions). Anthropic suing.",
-      "whyItMatters": "First time a frontier lab is locked out of US defence over safety policy — proves the 'red lines' are real revenue trade-offs, not marketing copy.",
-      "whyForUs": "If you build anything touching sensitive use cases, Anthropic's stance is now lived precedent for refusing certain features. Useful reference if you ever get pulled into a compliance conversation.",
-      "sources": [
-        {
-          "name": "CNN",
-          "url": "https://www.cnn.com/2026/05/01/tech/pentagon-ai-anthropic"
-        },
-        {
-          "name": "OpenAI",
-          "url": "https://openai.com/index/our-agreement-with-the-department-of-war/"
-        },
-        {
-          "name": "Defense News",
-          "url": "https://www.defensenews.com/news/pentagon-congress/2026/05/01/pentagon-freezes-out-anthropic-as-it-signs-deals-with-ai-rivals/"
-        }
-      ],
-      "image": "/news-images/pentagon-ai-anthropic.jpg",
-      "imageSource": "CNN"
-    },
-    {
-      "id": "bezos-prometheus",
-      "n": 7,
-      "category": "global",
-      "date": "2026-04-23",
-      "title": "Bezos's Project Prometheus closes $10B at $38B valuation",
-      "subtitle": "Physical-world AI gets serious money",
-      "summary": "Bezos's stealth physical-AI lab (co-led with ex-DeepMind's Vik Bajaj) closed $10B (JPMorgan, BlackRock among investors). Building world models that simulate physics — material fatigue, aerodynamics, manufacturing tolerances — instead of scraping internet text. Bezos's first formal exec role since leaving Amazon.",
-      "whyItMatters": "Physical-AI (world models for materials, manufacturing, robotics) is the next funding wave after LLMs. $10B at $38B says investors believe it.",
-      "whyForUs": "If your project leans hardware / manufacturing / robotics, this is the year to start prototyping. World-model APIs will likely land in 12–18 months.",
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-23/bezos-s-physical-ai-lab-has-closed-round-at-38-billion-value"
-        },
-        {
-          "name": "TNW",
-          "url": "https://thenextweb.com/news/bezos-project-prometheus-10-billion"
-        },
-        {
-          "name": "AI Magazine",
-          "url": "https://aimagazine.com/news/inside-jeff-bezos-project-prometheus-raising-us10bn-funding"
-        }
-      ],
-      "image": "/news-images/bezos-prometheus.jpg",
-      "imageSource": "Bloomberg"
-    },
-    {
-      "id": "ineffable-intelligence",
-      "n": 8,
-      "category": "global",
-      "date": "2026-04-27",
-      "title": "Ineffable Intelligence raises $1.1B seed",
-      "subtitle": "Europe's largest ever — no human data required",
-      "summary": "Ex-DeepMind RL lead David Silver (AlphaGo, AlphaZero, MuZero) emerged Apr 27 with $1.1B seed at $5.1B valuation, co-led by Sequoia and Lightspeed. A 'superlearner' that discovers knowledge purely through RL, no reliance on human-generated training data.",
-      "whyItMatters": "Largest seed in European history bets that the next leap comes from RL self-play, not more internet text. If it works, scaling laws change shape.",
-      "whyForUs": "Reinforcement learning is going to come back into demos. Worth a refresher session on RL basics before someone shows AlphaZero-for-X at meetup.",
-      "sources": [
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/27/deepminds-david-silver-just-raised-1-1b-to-build-an-ai-that-learns-without-human-data/"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/27/deepmind-ineffable-intelligence-record-seed-funding-nvidia-google.html"
-        },
-        {
-          "name": "Tech.eu",
-          "url": "https://tech.eu/2026/04/27/ineffable-intelligence-launches-with-record-breaking-11b-seed-round/"
-        }
-      ],
-      "image": "/news-images/ineffable-intelligence.jpg",
-      "imageSource": "TechCrunch"
-    },
-    {
-      "id": "mistral-medium-3-5",
-      "n": 9,
-      "category": "global",
-      "date": "2026-04-29",
-      "title": "Mistral Medium 3.5 lands open-weight",
-      "subtitle": "128B dense, 256k context, half the price of Sonnet",
-      "summary": "Apr 29: Mistral shipped Medium 3.5 as open weights (Modified MIT). 128B dense, 256k context, 77.6% on SWE-Bench Verified, self-hostable on four GPUs. API at $1.50/$7.50 per M tokens — roughly half Anthropic Sonnet's price. Magistral and Devstral 2 retired.",
-      "whyItMatters": "Open-weight 128B at half Sonnet's price with Modified MIT — production-grade self-hosting just got cheaper than most APIs at scale.",
-      "whyForUs": "Anyone hitting Anthropic rate limits or worrying about EU data residency now has a real EU-resident alternative. Worth a side-by-side eval session.",
-      "sources": [
-        {
-          "name": "Mistral",
-          "url": "https://docs.mistral.ai/models/model-cards/mistral-medium-3-5-26-04"
-        },
-        {
-          "name": "AI Business",
-          "url": "https://aibusiness.com/agentic-ai/mistral-s-model-vibe-long-running-code-in-the-cloud"
-        },
-        {
-          "name": "Towards AI",
-          "url": "https://pub.towardsai.net/i-tested-mistral-medium-3-5-on-18-tasks-the-128b-just-killed-magistral-and-devstral-647da623f41b"
-        }
-      ],
-      "image": "/news-images/mistral-medium-3-5.jpg",
-      "imageSource": "Mistral"
-    },
-    {
-      "id": "qwen-3-6-max",
-      "n": 10,
-      "category": "global",
-      "date": "2026-04-20",
-      "title": "Alibaba's Qwen3.6-Max-Preview claims #1 on six coding benchmarks",
-      "subtitle": "But ships closed-weight",
-      "summary": "Apr 20: 260K context. Tops SWE-bench Pro, Terminal-Bench 2.0, SkillsBench, SciCode, QwenClawBench, QwenWebBench. Strategy shift: for the first time in Qwen's history, the flagship is closed-weight, API-only via Alibaba Cloud — even as the smaller Qwen3.6-27B keeps shipping under Apache 2.0.",
-      "whyItMatters": "Alibaba breaking its open-weight tradition signals that even Chinese labs see closed-weight as the way to monetize the frontier. Open-source pressure on coding will mostly come from Mistral and DeepSeek now.",
-      "whyForUs": "If you're vibe-coding daily, Qwen Max is worth a head-to-head against Cursor's models. API-only via Alibaba Cloud — keep a credit card on file ready.",
-      "sources": [
-        {
-          "name": "Qwen",
-          "url": "https://qwen.ai/blog?id=qwen3.6-max-preview"
-        },
-        {
-          "name": "MarkTechPost",
-          "url": "https://www.marktechpost.com/2026/04/22/alibaba-qwen-team-releases-qwen3-6-27b-a-dense-open-weight-model-outperforming-397b-moe-on-agentic-coding-benchmarks/"
-        },
-        {
-          "name": "Decrypt",
-          "url": "https://decrypt.co/364948/alibaba-qwen-3-6-max-preview-most-powerful-model"
-        }
-      ],
-      "image": "/news-images/qwen-3-6-max.png",
-      "imageSource": "MarkTechPost"
-    },
-    {
-      "id": "cohere-aleph-alpha",
-      "n": 11,
-      "category": "eu-policy",
-      "date": "2026-04-24",
-      "title": "Cohere acquires Aleph Alpha at ~$20B valuation",
-      "subtitle": "€500M from Schwarz Group · 'transatlantic' sovereign-AI champion",
-      "summary": "Canadian Cohere absorbs Germany's once-flagship LLM lab; Schwarz Group (Lidl/Kaufland's parent) puts in ~€500–600M, combined entity runs on Schwarz's STACKIT sovereign cloud. Clearest signal yet that 'European sovereign AI' is consolidating into fewer, bigger platforms.",
-      "whyItMatters": "Europe's sovereign-AI consolidation is real: smaller national labs absorbed into transatlantic platforms running on European clouds. The 'one EU lab per country' era is over.",
-      "whyForUs": "If you sell to EU enterprises asking for sovereign hosting, Cohere-on-STACKIT is now the cleanest answer. Add it to your demo deck.",
-      "sources": [
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/24/cohere-aleph-alpha-germany-ai-europe-expansion.html"
-        },
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-24/cohere-to-buy-germany-s-aleph-alpha-wins-schwarz-investment"
-        },
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/04/24/cohere-acquires-merges-with-german-based-startup-to-create-a-transatlantic-ai-powerhouse/"
-        }
-      ],
-      "image": "/news-images/cohere-aleph-alpha.jpg",
-      "imageSource": "CNBC"
-    },
-    {
-      "id": "eu-ai-act-omnibus",
-      "n": 12,
-      "category": "eu-policy",
-      "date": "2026-04-28",
-      "title": "EU AI Act 'Omnibus' trilogue collapses",
-      "subtitle": "High-risk Aug 2026 deadline still legally binding",
-      "summary": "Parliament, Council and Commission failed to reach agreement on the simplification package; kicked to 13 May. Until something is signed, the original 2 August 2026 high-risk obligations apply — meaning EU builders shipping HR, biometric, credit-scoring or critical-infra AI cannot count on the rumoured deferral.",
-      "whyItMatters": "The simplification deferral most builders were counting on isn't happening on schedule. High-risk AI obligations remain legally binding from August 2026.",
-      "whyForUs": "If your side project touches HR, biometrics, credit, or critical infra, start documenting now — don't wait for clarity. The deadline is roughly 90 days out.",
-      "sources": [
-        {
-          "name": "IAPP",
-          "url": "https://iapp.org/news/a/eu-ai-act-reform-talks-stall-as-key-compliance-deadline-looms"
-        },
-        {
-          "name": "Modulos",
-          "url": "https://www.modulos.ai/blog/ai-act-omnibus-trilogue-failed/"
-        },
-        {
-          "name": "DLA Piper",
-          "url": "https://knowledge.dlapiper.com/dlapiperknowledge/globalemploymentlatestdevelopments/2026/The-Digital-AI-Omnibus-Proposed-deferral-of-high-risk-AI-obligations-under-the-AI-Act"
-        }
-      ],
-      "image": "/news-images/eu-ai-act-omnibus.jpg",
-      "imageSource": "IAPP"
-    },
-    {
-      "id": "helsing-stockholm",
-      "n": 13,
-      "category": "eu-policy",
-      "date": "2026-04-20",
-      "title": "Helsing opens Stockholm hub",
-      "subtitle": "Anchoring a Nordic defence-AI footprint",
-      "summary": "Europe's €12B defence-AI unicorn formally opened Stockholm with Swedish Defence Minister Pål Jonson and Ukraine's Oleksandr Kamyshin. Will run AI software dev for Sweden, the Baltic Sea region, and the Gripen/Eurofighter programs. For Copenhagen: a top-tier defence-AI buyer 30 minutes by plane.",
-      "whyItMatters": "Europe's defence-AI champion plants its Nordic flag, anchoring a regional buyer for AI talent and tooling outside the US/UK orbit.",
-      "whyForUs": "Stockholm is 30 min by plane. If you have a defence-relevant skill (sim, vision, autonomy, agents), Helsing is now the closest top-tier employer.",
-      "sources": [
-        {
-          "name": "Helsing",
-          "url": "https://helsing.ai/newsroom/helsing-opens-stockholm-presence-to-deepen-its-commitment-to-swedish-and-nordic-defence"
-        },
-        {
-          "name": "Defence Industry",
-          "url": "https://defence-industry.eu/helsing-opens-stockholm-hub-to-expand-swedish-and-nordic-defence-ties/"
-        },
-        {
-          "name": "Table.Briefings",
-          "url": "https://table.media/en/security/news-en/helsing-opens-swedish-branch"
-        }
-      ],
-      "image": "/news-images/helsing-stockholm.jpg",
-      "imageSource": "Defence Industry"
-    },
-    {
-      "id": "performativ-series-a",
-      "n": 14,
-      "category": "eu-policy",
-      "date": "2026-04-28",
-      "title": "🇩🇰 Performativ raises $14M Series A",
-      "subtitle": "Led by Deutsche Börse · AI-native wealth-management OS",
-      "summary": "Copenhagen-based Performativ closed €11.96M / $14M led by Deutsche Börse Group, with Rabo Investments, FinTech Collective and Denmark's sovereign fund EIFO participating. AI agents for portfolio management, reporting, compliance and trading. One of the cleanest 2026 examples of a Copenhagen AI startup landing institutional EU money.",
-      "whyItMatters": "A Copenhagen AI startup raising institutional EU money (Deutsche Börse, EIFO) is the proof point local builders need: yes, this scene can produce fundable AI-native companies.",
-      "whyForUs": "Performativ is in our backyard. Invite founders to a session — direct local case study for anyone considering the AI-native fintech path.",
-      "sources": [
-        {
-          "name": "Yahoo Finance",
-          "url": "https://finance.yahoo.com/markets/stocks/articles/performativ-raises-14m-series-led-122200023.html"
-        },
-        {
-          "name": "ArcticStartup",
-          "url": "https://arcticstartup.com/performativ-raises-14-million-series-a/"
-        },
-        {
-          "name": "FinTech Global",
-          "url": "https://fintech.global/2026/04/28/performativ-raises-14m-series-a-led-by-deutsche-borse/"
-        }
-      ],
-      "image": "/news-images/performativ-series-a.jpg",
-      "imageSource": "ArcticStartup"
-    },
-    {
-      "id": "stargate-norway",
-      "n": 15,
-      "category": "eu-policy",
-      "date": "2026-04-14",
-      "title": "Microsoft takes over Stargate Norway from OpenAI",
-      "subtitle": "OpenAI pauses Stargate UK, opens 500-seat London office instead",
-      "summary": "Apr 9 OpenAI paused UK Stargate (up to 31K GPUs) citing energy costs and regulation; Apr 13 signed 88,500 sq ft King's Cross office for 500+ staff; Apr 14 Microsoft contracted 30K Nvidia Vera Rubin GPUs from Nscale at the Narvik 230MW site originally earmarked as 'Stargate Norway.' OpenAI retreating from owning EU compute, Microsoft consolidating it.",
-      "whyItMatters": "OpenAI is retreating from owning EU compute; Microsoft is consolidating it. EU AI infra increasingly runs through one US hyperscaler.",
-      "whyForUs": "If you care about sovereignty or pricing leverage, this matters. Worth tracking who else can host frontier-class workloads inside EU jurisdiction.",
-      "sources": [
-        {
-          "name": "CNBC (UK)",
-          "url": "https://www.cnbc.com/2026/04/09/openai-halts-uk-stargate-project.html"
-        },
-        {
-          "name": "CNBC (London)",
-          "url": "https://www.cnbc.com/2026/04/13/openai-london-office-sam-altman-uk-stargate.html"
-        },
-        {
-          "name": "DCD (Narvik)",
-          "url": "https://www.datacenterdynamics.com/en/news/microsoft-contracts-30000-nvidia-rubin-gpus-from-nscale-at-data-center-in-narvik-norway/"
-        }
-      ],
-      "image": "/news-images/stargate-norway.jpg",
-      "imageSource": "CNBC (UK)"
-    },
-    {
-      "id": "stellantis-microsoft",
-      "n": 16,
-      "category": "eu-policy",
-      "date": "2026-04-16",
-      "title": "Stellantis × Microsoft sign 5-year, 100+ AI initiative deal",
-      "subtitle": "Cars, factories, global cyberdefence centre",
-      "summary": "100+ AI projects spanning predictive maintenance, in-car assistants (starting with Peugeot energy-coaching), product validation, connected-vehicle cyberdefence SOC, plus 20K M365 Copilot seats. EU's largest carmakers now treat AI as a 5-year platform bet — and hyperscaler partnerships, not in-house labs, are the default delivery model.",
-      "whyItMatters": "Largest non-tech European company treats AI as a 5-year platform bet, with hyperscalers as default delivery — not in-house labs. Sets the template for incumbents.",
-      "whyForUs": "If you consult or freelance for European corporates, the 'we'll build it ourselves' pitch is over. Sell integration on top of a hyperscaler stack instead.",
-      "sources": [
-        {
-          "name": "Stellantis",
-          "url": "https://www.stellantis.com/en/news/press-releases/2026/april/stellantis-accelerates-ai-led-strategy-and-digital-transformation-through-strategic-collaboration-with-microsoft-to-enhance-customer-experiences"
-        },
-        {
-          "name": "Microsoft Source",
-          "url": "https://news.microsoft.com/source/2026/04/16/stellantis-accelerates-ai-led-strategy-and-digital-transformation-through-strategic-collaboration-with-microsoft-to-enhance-customer-experiences/"
-        },
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-04-16/stellantis-inks-artificial-intelligence-deal-with-microsoft"
-        }
-      ],
-      "image": "/news-images/stellantis-microsoft.png",
-      "imageSource": "Stellantis"
-    },
-    {
-      "id": "mistral-workflows",
-      "n": 17,
-      "category": "eu-policy",
-      "date": "2026-04-29",
-      "title": "Mistral ships Workflows",
-      "subtitle": "Temporal-backed orchestration for enterprise AI",
-      "summary": "Public preview of a durable, observable orchestration layer for Studio and Le Chat — Python, human-in-the-loop checkpoints, full audit trails, on-prem/hybrid. Built on Temporal (same engine as Netflix and Stripe). ASML, La Banque Postale, CMA-CGM as launch customers. Mistral now positioning above the model layer into agent-orchestration territory — with EU-resident infra.",
-      "whyItMatters": "Mistral moves up the stack from model into orchestration — closer to what Anthropic is doing with skills + Agent SDK. Agent infra is the new battleground.",
-      "whyForUs": "If you're prototyping agentic workflows, Mistral Workflows is now an EU-resident alternative to OpenAI's Agents SDK. Worth a build-and-compare session.",
-      "sources": [
-        {
-          "name": "Mistral",
-          "url": "https://mistral.ai/news/workflows"
+          "url": "https://techcrunch.com/2026/05/05/openai-releases-gpt-5-5-instant-a-new-default-model-for-chatgpt/"
         },
         {
           "name": "VentureBeat",
-          "url": "https://venturebeat.com/technology/mistral-ai-launches-workflows-a-temporal-powered-orchestration-engine-already-running-millions-of-daily-executions"
-        },
-        {
-          "name": "InfoQ",
-          "url": "https://www.infoq.com/news/2026/04/mistral-ai-workflows/"
+          "url": "https://venturebeat.com/orchestration/gpt-5-5-instant-shows-you-what-it-remembered-just-not-all-of-it"
         }
       ],
-      "image": "/news-images/mistral-workflows.png",
-      "imageSource": "Mistral"
+      "image": "/news-images/openai-gpt-5-5-instant.jpg",
+      "imageSource": "TechCrunch"
     },
     {
-      "id": "eu-ai-continent",
-      "n": 18,
-      "category": "eu-policy",
-      "date": "2026-04-30",
-      "title": "EU Commission marks one year of AI Continent Action Plan",
-      "subtitle": "19 AI Factories live · 76 Gigafactory bids · €1B in calls open",
-      "summary": "19 AI Factories operational on EuroHPC machines, 13 regional 'AI Factory antennas,' 76 expressions of interest for the Gigafactories programme across 60 sites in 16 member states, ~€1B of Apply-AI funding calls already open across health, manufacturing, energy and defence. Direct relevance for Copenhagen: Danish SMEs and research can apply.",
-      "whyItMatters": "€1B in open EU funding calls already live for AI in health, manufacturing, energy, defence. Money is sitting waiting for European builders.",
-      "whyForUs": "Danish SMEs and researchers can apply directly. If you have an AI side project with a public-good angle, this is the easiest non-dilutive money in EU history.",
+      "id": "caisi-frontier-pre-deployment",
+      "n": 2,
+      "category": "global",
+      "date": "2026-05-05",
+      "title": "CAISI signs Google DeepMind, Microsoft, xAI to pre-deployment testing",
+      "subtitle": "All five US frontier labs now submit models to the government before release",
+      "summary": "NIST's Center for AI Standards and Innovation announced May 5 agreements with Google DeepMind, Microsoft and xAI, joining the prior OpenAI and Anthropic deals. CAISI has now done 40+ evaluations, often on unreleased models with safeguards reduced or removed — a quietly major shift in how US frontier launches get gated.",
+      "whyItMatters": "First time every major US frontier lab is contractually feeding the government pre-release models. Effectively bakes a quasi-public eval gate into the launch pipeline without any new legislation.",
+      "whyForUs": "If you ship on a US frontier API, your model already passed a federal red-team round before you got to touch it. Worth understanding what CAISI tests if you build in regulated verticals (health, hiring, finance) — that methodology will leak into EU expectations fast.",
       "sources": [
         {
-          "name": "EU Commission",
-          "url": "https://digital-strategy.ec.europa.eu/en/news/commission-marks-one-year-ai-continent-action-plan-two-new-reports-ai-adoption-and-policymaking"
+          "name": "HPCwire / NIST",
+          "url": "https://www.hpcwire.com/off-the-wire/nists-caisi-announces-new-frontier-ai-testing-agreements-with-google-deepmind-microsoft-xai/"
         },
         {
-          "name": "Interoperable Europe",
-          "url": "https://interoperable-europe.ec.europa.eu/interoperable-europe/news/new-eu-reports-mark-one-year-ai-continent-action-plan"
+          "name": "Axios",
+          "url": "https://www.axios.com/2026/05/05/us-frontier-ai-testing-white-house-pivots-safety"
         },
         {
-          "name": "Digital Watch",
-          "url": "https://dig.watch/updates/eu-ai-continent-action-plan-shows-progress-in-infrastructure-data-and-governance"
+          "name": "CNN",
+          "url": "https://www.cnn.com/2026/05/05/tech/microsoft-google-xai-government-test-ai-models"
         }
       ],
-      "image": "/news-images/eu-ai-continent.png",
-      "imageSource": "Interoperable Europe"
+      "image": "/news-images/caisi-frontier-pre-deployment.jpg",
+      "imageSource": "CNN"
     },
     {
-      "id": "mercedes-liquid-ai",
-      "n": 19,
+      "id": "eu-ai-act-omnibus-deal",
+      "n": 3,
       "category": "eu-policy",
-      "date": "2026-04-23",
-      "title": "Mercedes-Benz partners with Liquid AI",
-      "subtitle": "On-device, cloud-independent in-car AI in production H2 2026",
-      "summary": "Mercedes embedding Liquid Foundation Models directly into MBUX Virtual Assistant — speech, language, reasoning running locally in the vehicle, no cloud round-trip. Validates the small/edge-model thesis (and the 'European on-device sovereignty' pitch) at OEM scale.",
-      "whyItMatters": "First production-scale deployment of edge-only foundation models at OEM scale — validates that 'small + on-device' is a real path, not just a research thesis.",
-      "whyForUs": "If you're skeptical of cloud-bound AI for cost or privacy reasons, Liquid's tooling is now battle-tested. Worth a session on small-model + WebGPU/on-device inference.",
+      "date": "2026-05-07",
+      "title": "EU AI Act Omnibus deal lands",
+      "subtitle": "High-risk deadlines pushed to Dec 2027 / Aug 2028 · deepfake-CSAM ban from Dec 2026",
+      "summary": "After the April 28 trilogue collapse, Parliament, Council and Commission agreed in the small hours of May 7 on the simplification package. Stand-alone high-risk AI systems (Annex III) now apply from 2 December 2027, embedded ones (Annex I) from 2 August 2028. Two new prohibitions added: non-consensual intimate imagery and CSAM generation, in force from 2 December 2026. SMEs and small mid-caps get extended simplified documentation.",
+      "whyItMatters": "The deferral most EU builders were planning for is real — 18 extra months on high-risk obligations, and a clearer set of carve-outs for SMEs. But the deepfake/CSAM ban is unambiguous and lands fast.",
+      "whyForUs": "If you've been delaying a side project over August 2026 panic, you just got runway. If you're building anything with image or voice generation, the December 2026 prohibition is concrete — don't ship a 'face swap demo' without consent gates.",
       "sources": [
         {
-          "name": "Mercedes-Benz USA",
-          "url": "https://media.mbusa.com/releases/mercedes-benz-and-liquid-ai-partner-to-scale-embedded-in-car-intelligence-in-north-america"
+          "name": "EU Council",
+          "url": "https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/"
         },
         {
-          "name": "Liquid AI",
-          "url": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"
+          "name": "IAPP",
+          "url": "https://iapp.org/news/a/ai-act-omnibus-what-just-happened-and-what-comes-next"
         },
         {
-          "name": "Automotive World",
-          "url": "https://www.automotiveworld.com/news/mercedes-benz-taps-liquid-ai-for-on-device-in-car-ai/"
+          "name": "Inside Privacy (Covington)",
+          "url": "https://www.insideprivacy.com/artificial-intelligence/eu-ai-act-update-timeline-relief-targeted-simplification-and-new-prohibitions/"
         }
       ],
-      "image": "/news-images/mercedes-liquid-ai.png",
-      "imageSource": "Liquid AI"
+      "image": "/news-images/eu-ai-act-omnibus-deal.jpg",
+      "imageSource": "IAPP"
     },
     {
-      "id": "uk-kendall-ai",
-      "n": 20,
-      "category": "eu-policy",
-      "date": "2026-04-28",
-      "title": "🇬🇧 UK Tech Minister Liz Kendall on AI strategy",
-      "subtitle": "Export AI-safety playbook to 'middle-power' allies, lean into AI hardware",
-      "summary": "First major AI speech: more state support for British AI in areas of UK strength (notably AI hardware/silicon), tighter coordination with non-US/non-China 'middle powers' — including publishing AISI's red-teaming methodology so other national AI security institutes can adopt it. Positions UK AISI as de-facto eval standard-setter.",
-      "whyItMatters": "UK positioning AISI as the de-facto eval standard for non-US/non-China states. AI safety methodology becoming a soft-power export.",
-      "whyForUs": "If your project lands in 'high-risk' territory, AISI's red-teaming playbook will likely be the eval template you'll be measured against. Worth reading now.",
+      "id": "anthropic-44b-arr",
+      "n": 4,
+      "category": "global",
+      "date": "2026-05-11",
+      "title": "Anthropic discloses Q1 80x growth, ARR above $44B",
+      "subtitle": "Claude Code carrying the curve · $1T valuation talk in the air",
+      "summary": "Anthropic disclosed on May 11 that Q1 2026 revenue grew 80x year-over-year, with ARR exceeding $44B (up from ~$14B in February). Customers spending $1M+ annually doubled to 1,000+ in two months. Claude Code alone hit ~$2.5B ARR. Reporting since suggests the company is fielding a $30B raise targeting a near-$1T valuation.",
+      "whyItMatters": "The numbers are the strongest signal yet that frontier-AI revenue isn't a ceiling-bound consumer story — it's enterprise compounding. Anthropic now plausibly the most valuable AI company by year-end.",
+      "whyForUs": "Expect Claude pricing and rate-limit posture to keep tightening on lower tiers. If your side project leans on Sonnet, budget for 1.3–1.5x current costs by Q3 and have a Mistral or Qwen fallback wired up.",
       "sources": [
         {
-          "name": "Bird & Bird",
-          "url": "https://www.twobirds.com/en/insights/2026/uk/uk-ai-regulation-uk-government-announces-plans-to-set-standards-for-how-ai-is-deployed"
+          "name": "VentureBeat",
+          "url": "https://venturebeat.com/technology/anthropic-says-it-hit-a-30-billion-revenue-run-rate-after-crazy-80x-growth"
         },
         {
-          "name": "Infosecurity Mag",
-          "url": "https://www.infosecurity-magazine.com/news/uk-ai-safety-institute-rebrands/"
+          "name": "YourStory",
+          "url": "https://yourstory.com/2026/05/anthropic-30-billion-revenue-claude-ai-compute-strategy"
         },
         {
-          "name": "AISI",
-          "url": "https://www.aisi.gov.uk/"
+          "name": "Sacra",
+          "url": "https://sacra.com/c/anthropic/"
         }
       ],
-      "image": "/news-images/uk-kendall-ai.jpg",
-      "imageSource": "Infosecurity Mag"
+      "image": "/news-images/anthropic-44b-arr.webp",
+      "imageSource": "VentureBeat"
     },
     {
-      "id": "novo-openai",
-      "n": 21,
-      "category": "eu-policy",
-      "date": "2026-04-14",
-      "title": "🇩🇰 Novo Nordisk × OpenAI partnership",
-      "subtitle": "AI for drug discovery (just outside the window — flagship mention)",
-      "summary": "Announced Apr 14 in Bagsværd. Novo Nordisk partners with OpenAI on AI for drug discovery — Denmark's biggest company turning to OpenAI for next-gen pharmaceutical R&D. Worth flagging at the meetup as recent context.",
-      "whyItMatters": "Denmark's largest company partners with OpenAI for drug discovery — anchoring AI-pharma as a strategic Danish industry.",
-      "whyForUs": "Novo is in Bagsværd, 30 min away. If you have a bio or pharma background, AI-pharma roles in Denmark are about to multiply. Worth tracking.",
+      "id": "openai-deployco",
+      "n": 5,
+      "category": "global",
+      "date": "2026-05-11",
+      "title": "OpenAI spins up DeployCo with $4B and 19 partners",
+      "subtitle": "Acquires Tomoro for its 150 Forward Deployed Engineers",
+      "summary": "OpenAI launched the OpenAI Deployment Company on May 11 — a majority-owned Delaware LLC seeded with $4B+, led by TPG with Advent, Bain and Brookfield as co-leads, and 19 firms in total (investment, consulting, system integrators). Day-one staffing comes via the acquisition of UK consultancy Tomoro, bringing ~150 Forward Deployed Engineers and Deployment Specialists.",
+      "whyItMatters": "OpenAI is admitting the same thing Anthropic is — model quality alone doesn't close enterprise revenue. The bottleneck is people who can land the model inside someone else's SAP or Salesforce instance.",
+      "whyForUs": "If you do AI consulting or freelance in Copenhagen, the FDE template is now the playbook. The 'I'll embed for 6 months and ship your AI thing' role is going to be everywhere — worth pricing yourself accordingly.",
       "sources": [
         {
-          "name": "Novo Nordisk",
-          "url": "https://www.novonordisk.com/news-and-media/news-and-ir-materials/news-details.html?id=916532"
+          "name": "OpenAI",
+          "url": "https://openai.com/index/openai-launches-the-deployment-company/"
+        },
+        {
+          "name": "AI Magazine",
+          "url": "https://aimagazine.com/news/what-is-openais-deployment-company"
+        },
+        {
+          "name": "TechAfrica News",
+          "url": "https://techafricanews.com/2026/05/12/openai-unveils-new-deployment-company-backed-by-4-billion-investment/"
+        }
+      ],
+      "image": "/news-images/openai-deployco.png",
+      "imageSource": "TechAfrica News"
+    },
+    {
+      "id": "nscale-narvik-financing",
+      "n": 6,
+      "category": "eu-policy",
+      "date": "2026-05-11",
+      "title": "Nscale closes another €670M for Narvik AI campus",
+      "subtitle": "Nordic bank consortium funds 115MW expansion",
+      "summary": "Nscale announced an additional €670M ($790M) in financing on May 11, committed by ABN AMRO, DNB, Eksfin, Nordea and SEB — funding a 115MW expansion at the Narvik AI data centre. Builds on April's Microsoft deal for 30,000+ NVIDIA Vera Rubin GPUs at the same site, March's $2B Series C (led by Aker and 8090 Industries), and the OpenAI/Aker 'Stargate Norway' 100K-GPU gigafactory plan.",
+      "whyItMatters": "Nordic banks underwriting AI compute is new. It signals that 'AI data centres' have moved from venture-style bets to utility-grade infrastructure — and that the Nordics, not Frankfurt or Paris, are the EU's frontier compute hub.",
+      "whyForUs": "If you care about EU data residency, Narvik is now the closest top-tier inference and training capacity. Worth checking when picking a hosting region for anything Sonnet-class — proximity matters for latency-sensitive demos.",
+      "sources": [
+        {
+          "name": "Nscale",
+          "url": "https://www.nscale.com/press-releases/nscale-secures-790-million-norway"
+        },
+        {
+          "name": "EU-Startups",
+          "url": "https://www.eu-startups.com/2026/05/nscale-extends-funding-momentum-with-e670-million-for-norway-ai-infrastructure-project/"
+        },
+        {
+          "name": "DCD",
+          "url": "https://www.datacenterdynamics.com/en/news/nscale-secures-790m-in-financing-for-norway-data-center-project/"
+        }
+      ],
+      "image": "/news-images/nscale-narvik-financing.png",
+      "imageSource": "Nscale"
+    },
+    {
+      "id": "mistral-bank-cybersecurity",
+      "n": 7,
+      "category": "eu-policy",
+      "date": "2026-05-13",
+      "title": "Mistral pitches European banks a Mythos alternative",
+      "subtitle": "Cybersecurity model targeted at HSBC, BNP Paribas, others locked out of Anthropic",
+      "summary": "Bloomberg reported May 13 that Mistral is in talks with European banks about a sovereign cybersecurity model — counterpart to Anthropic's restricted Mythos, which can surface zero-days at scale but is only available to a US-led whitelist. CEO Arthur Mensch is pitching it as a domestic, lower-risk option, leveraging existing clients like HSBC and BNP Paribas. OpenAI has entered the same space with GPT-5.5-Cyber (BBVA an early customer).",
+      "whyItMatters": "Sovereign AI just turned from a slide-deck topic into an actual product category. Cyber capability is the wedge: if EU banks can't get Mythos, they'll pay Mistral or OpenAI for something Mythos-shaped.",
+      "whyForUs": "If you build security tooling in Copenhagen, the EU buyer side is now actively shopping. Mistral-on-prem as a sovereign answer is a real positioning to use in any pitch involving Danske, Jyske, or Nordea adjacencies.",
+      "sources": [
+        {
+          "name": "Bloomberg",
+          "url": "https://www.bloomberg.com/news/articles/2026-05-13/mistral-developing-new-ai-model-for-banks-lacking-mythos-access"
+        },
+        {
+          "name": "PYMNTS",
+          "url": "https://www.pymnts.com/artificial-intelligence-2/2026/mistral-plans-cybersecurity-tool-for-banks-cut-off-from-mythos/"
+        },
+        {
+          "name": "AML Intelligence",
+          "url": "https://www.amlintelligence.com/2026/05/news-mistral-developing-cybersecurity-ai-model-for-european-banks-lacking-mythos-access/"
+        }
+      ],
+      "image": "/news-images/mistral-bank-cybersecurity.jpg",
+      "imageSource": "Bloomberg"
+    },
+    {
+      "id": "anthropic-pwc-alliance",
+      "n": 8,
+      "category": "global",
+      "date": "2026-05-14",
+      "title": "Anthropic × PwC: largest professional-services Claude deployment to date",
+      "subtitle": "Claude Code and Cowork rolled out to PwC's global workforce · 30K US certifications",
+      "summary": "Announced May 14: PwC will roll out Claude Code and Cowork to hundreds of thousands of professionals globally, certify 30,000 US professionals on Claude, and stand up a joint Anthropic-PwC Center of Excellence. Single largest professional-services deployment of Claude so far.",
+      "whyItMatters": "When PwC standardizes on Claude, every Big-Four-adjacent client conversation in the EU follows. This is how 'Claude is the enterprise default' becomes a market reality for the next 18 months — through audit/consulting workflows, not direct sales.",
+      "whyForUs": "If you sell into corporates that touch PwC (most Danish enterprises do), assume Claude is the literacy floor for the people on the other side of the table by autumn. Worth offering a 'how to actually use Claude Code' session at the meetup.",
+      "sources": [
+        {
+          "name": "Anthropic / VentureBeat",
+          "url": "https://venturebeat.com/technology/anthropic-says-it-hit-a-30-billion-revenue-run-rate-after-crazy-80x-growth"
+        },
+        {
+          "name": "BuildFastWithAI Recap",
+          "url": "https://www.buildfastwithai.com/blogs/ai-news-today-may-18-2026"
+        },
+        {
+          "name": "TechRepublic",
+          "url": "https://www.techrepublic.com/article/openai-anthropic-ai-deployment-arms-race/"
+        }
+      ],
+      "image": "/news-images/anthropic-pwc-alliance.webp",
+      "imageSource": "Anthropic / VentureBeat"
+    },
+    {
+      "id": "karpathy-anthropic",
+      "n": 9,
+      "category": "global",
+      "date": "2026-05-19",
+      "title": "Andrej Karpathy joins Anthropic",
+      "subtitle": "Pre-training team, under Nick Joseph · Eureka Labs paused",
+      "summary": "Karpathy announced May 19 that he's joining Anthropic to work on pre-training under team lead Nick Joseph, pausing Eureka Labs (his education startup). It's his first frontier-lab role since leaving OpenAI for Tesla in 2017, then briefly returning to OpenAI in 2023.",
+      "whyItMatters": "Symbolically the biggest researcher migration of 2026 so far — and a vote that Anthropic's pre-training, not RLHF or product, is where the next gains come from. Reinforces the labor market gravity around Claude.",
+      "whyForUs": "Karpathy's old YouTube lectures are still the gold-standard intro to LLM internals — expect a wave of 'Karpathy joins Anthropic, what is pre-training actually?' conversations at meetups. Worth a refresher session for newer members.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/05/19/openai-co-founder-andrej-karpathy-joins-anthropics-pre-training-team/"
         },
         {
           "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/04/14/novo-nordisk-openai-ai-drug-discovery-healthcare-nvo.html"
+          "url": "https://www.cnbc.com/2026/05/19/anthropic-hires-openai-cofounder-andrej-karpathy-former-tesla-ai-lead.html"
+        },
+        {
+          "name": "Axios",
+          "url": "https://www.axios.com/2026/05/19/anthropic-openai-karpathy-andrej-claude"
         }
       ],
-      "image": "/news-images/novo-openai.jpg",
+      "image": "/news-images/karpathy-anthropic.jpg",
+      "imageSource": "TechCrunch"
+    },
+    {
+      "id": "google-io-2026",
+      "n": 10,
+      "category": "global",
+      "date": "2026-05-19",
+      "title": "Google I/O 2026: Gemini 3.5 Flash, Spark agent, Omni video",
+      "subtitle": "Flash outperforms 3.1 Pro on key benchmarks · Spark is a real agent, not a chatbot",
+      "summary": "At I/O on May 19–20 Google launched Gemini 3.5 Flash — agentic + coding model that beats Gemini 3.1 Pro on several benchmarks at Flash-tier latency and roughly a third of frontier pricing. Gemini Spark, a general-purpose AI agent that acts inside connected apps, opens in beta to AI Ultra subscribers and trusted testers. Gemini Omni handles cinematic video generation from text/images/clips.",
+      "whyItMatters": "Google has finally caught up on the 'agent that actually does things' axis — and is pricing it to undercut OpenAI and Anthropic. Flash at frontier-quality but Flash-pricing is the most disruptive lever in the May news cycle.",
+      "whyForUs": "If your project is hitting Sonnet or GPT-5.5 cost ceilings, Flash is worth a swap test before your next demo — especially for long-horizon agentic flows. Spark's API access via Workspace also opens a Copenhagen-friendly path for anyone already on Google.",
+      "sources": [
+        {
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/05/19/google-ai-ultra-gemini-spark-omni.html"
+        },
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/05/19/with-gemini-3-5-flash-google-bets-its-next-ai-wave-on-agents-not-chatbots/"
+        },
+        {
+          "name": "Google Blog",
+          "url": "https://blog.google/innovation-and-ai/technology/developers-tools/google-io-2026-collection/"
+        }
+      ],
+      "image": "/news-images/google-io-2026.jpg",
       "imageSource": "CNBC"
     },
     {
-      "id": "ai-voice-clone-copyright",
-      "n": 22,
-      "category": "lt-community",
-      "date": "2026-04-05",
-      "title": "AI company clones musician's voice — then copyright-strikes her own songs",
-      "subtitle": "Surfaced by group.lt · Murphy Campbell case",
-      "summary": "Folk musician Murphy Campbell discovered Timeless Sounds IR scraped her YouTube performances to train a voice/style clone, then filed copyright claims against her originals — redirecting her earnings to the company distributing the synthetic version. After she went public, the company withdrew claims and YouTube intervened.",
-      "whyItMatters": "First clean-cut case of an AI training pipeline weaponising copyright against the human whose data it stole. Sets a worst-case precedent every creator should be aware of.",
-      "whyForUs": "If you're shipping anything with voice or generative audio, the legal/ethical surface is wider than 'fair use' — the upload + claim flow on YouTube is a real attack vector. Worth a session on AI + creator rights.",
+      "id": "microsoft-agent-365",
+      "n": 11,
+      "category": "global",
+      "date": "2026-05-05",
+      "title": "Microsoft puts Agent 365 at the centre of M365",
+      "subtitle": "E7 suite GA · Copilot Cowork built on Claude · agents become a governed control plane",
+      "summary": "Microsoft 365 E7 went GA May 1 (formally framed in the May 5 Copilot announcement) bundling M365 E5, Entra Suite, Copilot, and the new Agent 365 control plane at $99/user/month. Wave 3 of Copilot moves from assistance to embedded agent actions; the flagship Copilot Cowork is built in partnership with Anthropic and powered by Claude. The 2026 Work Trend Index says 78% of knowledge workers now use AI agents at least weekly, up from 12% in 2024.",
+      "whyItMatters": "Agents now have a governance layer inside the most-deployed productivity suite on the planet — and Microsoft chose Claude, not OpenAI, for the flagship Cowork experience. The 'who owns the enterprise default' fight just took a sharp turn.",
+      "whyForUs": "If you build anything that lives next to Office files, assume your users will have an agent of their own by autumn. The interop surface to design around is Agent 365, not the chat window — worth a session on connectors and Copilot extensibility.",
       "sources": [
         {
-          "name": "Rude Vulture",
-          "url": "https://rudevulture.com/ai-company-clones-musicians-voice-then-copyright-strikes-her-own-songs"
+          "name": "Microsoft 365 Blog",
+          "url": "https://www.microsoft.com/en-us/microsoft-365/blog/2026/05/05/microsoft-365-copilot-human-agency-and-the-opportunity-for-every-organization/"
         },
         {
-          "name": "via group.lt",
-          "url": "https://group.lt/c/kazkassukompais"
+          "name": "Stoneridge Software",
+          "url": "https://stoneridgesoftware.com/microsoft-introduces-microsoft-365-e7-agent-365-and-claude-in-copilot/"
+        },
+        {
+          "name": "Trustmarque",
+          "url": "https://trustmarque.com/microsoft-365-e7-agent-365-whats-launching-1-may-and-what-it-means"
         }
       ],
-      "image": "/news-images/ai-voice-clone-copyright.jpg",
-      "imageSource": "Rude Vulture"
+      "image": "/news-images/microsoft-agent-365.jpg",
+      "imageSource": "Microsoft 365 Blog"
     },
     {
-      "id": "anthropic-mythos-verification",
-      "n": 23,
-      "category": "lt-community",
-      "date": "2026-04-13",
-      "title": "The Mythos verification crisis",
-      "subtitle": "Surfaced by group.lt · 'thousands of zero-days' collapses to 2 on independent reproduction",
-      "summary": "Davi Ottenheimer's deep read of Claude Mythos's 244-page system card argues the marquee 'thousands of zero-days' figure shrinks to two reproducible exploitable vulnerabilities. Independent researchers reproduce the same findings using cheaper open-source models. Frames Project Glasswing as a private gatekeeper system that captures regulation rather than restrains capability.",
-      "whyItMatters": "If the strongest 'AI cyber capability' claim from a frontier lab can't be reproduced, every other dangerous-capability claim invites the same audit. Independent verification is becoming the load-bearing question of AI governance.",
-      "whyForUs": "Read the original system card for any model you bet on — vendor benchmarks rarely survive third-party reproduction. Worth a session on how to actually audit AI claims.",
+      "id": "dell-deskside-agentic-ai",
+      "n": 12,
+      "category": "global",
+      "date": "2026-05-18",
+      "title": "Dell ships Deskside Agentic AI + PowerRack",
+      "subtitle": "On-prem agent compute lands at Dell Tech World",
+      "summary": "At Dell Technologies World (May 18), Dell launched Deskside Agentic AI — local-only agent workflows for workgroups that never leave the premises — and PowerRack for compute, a turnkey rack-scale platform for AI/HPC. NVIDIA OpenShell and AI-Q 2.0 ship in the same release. Jensen Huang on stage: demand for AI infrastructure is 'going parabolic.'",
+      "whyItMatters": "On-prem agentic AI just got a credible enterprise SKU. For regulated industries that won't put sensitive data in a hyperscaler, this is the first complete 'agent that runs in your closet' story from a tier-one OEM.",
+      "whyForUs": "If you advise EU corporates with strict data-residency rules (banking, health, public sector — most of Denmark), Deskside Agentic AI is now the answer to 'but our data can't leave the building.' Worth a hands-on session if anyone can score a demo unit.",
       "sources": [
         {
-          "name": "Flying Penguin",
-          "url": "https://www.flyingpenguin.com/the-boy-that-cried-mythos-verification-is-collapsing-trust-in-anthropic"
+          "name": "Dell Newsroom",
+          "url": "https://www.dell.com/en-us/dt/corporate/newsroom/announcements/detailpage.press-releases~usa~2026~05~dell-technologies-delivers-production-ready-agentic-ai-from-deskside-to-data-center.htm"
         },
         {
-          "name": "Cranky Sec",
-          "url": "https://crankysec.com/blog/smash"
+          "name": "IT Pro",
+          "url": "https://www.itpro.com/technology/artificial-intelligence/dell-unveils-deskside-agentic-ai-at-dell-technologies-world-2026"
         },
         {
-          "name": "via group.lt",
-          "url": "https://group.lt/c/kazkassukompais"
+          "name": "NVIDIA Blog",
+          "url": "https://blogs.nvidia.com/blog/dell-technologies-agent-enterprise-ai/"
         }
       ],
-      "image": "/news-images/anthropic-mythos-verification.png",
-      "imageSource": "Flying Penguin"
+      "image": "/news-images/dell-deskside-agentic-ai.png",
+      "imageSource": "Dell Newsroom"
     }
   ]
 }

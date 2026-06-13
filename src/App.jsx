@@ -5,6 +5,7 @@ import ScheduleAhead from './components/ScheduleAhead.jsx';
 import MembersGallery from './components/MembersGallery.jsx';
 import SessionsGallery from './components/SessionsGallery.jsx';
 import News from './components/News.jsx';
+import TopicPoll from './components/TopicPoll.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 import { Agentation } from 'agentation';
 import { Calendar, Users } from 'lucide-react';
@@ -89,6 +90,9 @@ export default function App() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12">
               <NextSession session={next} />
+            </div>
+            <div className="col-span-12">
+              <TopicPoll />
             </div>
             <div className="col-span-12">
               <ScheduleAhead schedule={futureSchedule} />
