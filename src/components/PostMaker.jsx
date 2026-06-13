@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { PenLine, Sparkles, Copy, Check, Linkedin, Instagram, Globe, ThumbsUp, MessageSquare, Repeat2, Send, Shuffle, Square, Heart, MessageCircle, Bookmark, MoreHorizontal, ChevronDown, Images } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
+import { useAuth } from '../lib/auth.jsx';
 
 const LI_BLUE = '#0a66c2';
 // Where each platform hides the rest behind "…more" (approx, matches real apps).
@@ -9,7 +10,8 @@ const FOLD = { linkedin: 210, instagram: 125 };
 const igHandle = (name) => String(name || 'you').toLowerCase().replace(/[^a-z]+/g, '.').replace(/^\.|\.$/g, '');
 const countWords = (t) => t.trim().split(/\s+/).filter(Boolean).length;
 
-// Random placeholder identity for the preview (so it is not always Auri).
+// Random placeholder identity for the preview — purely cosmetic, just to see how
+// the post looks in-feed. NOT who the post is written as (that's you, the writer).
 const NAMES = ['Mia Larsen', 'Tomas Berg', 'Aisha Khan', 'Lukas Novak', 'Sofia Rossi', 'Daniel Park', 'Nina Holm', 'Omar Haddad', 'Elena Costa', 'Jonas Vik', 'Priya Nair', 'Felix Brandt'];
 const TITLES = ['Indie hacker', 'Product designer', 'Full-stack developer', 'AI engineer', 'Startup founder', 'UX designer', 'Data scientist', 'Creative technologist', 'Frontend developer', 'Solo founder'];
 
@@ -18,6 +20,16 @@ function randomAuthor() {
   const title = TITLES[Math.floor(Math.random() * TITLES.length)];
   const img = 1 + Math.floor(Math.random() * 70);
   return { name, headline: `${title} · AI Workshop Copenhagen`, avatar: `https://i.pravatar.cc/96?img=${img}` };
+}
+
+// Fisher-Yates copy — used to reshuffle which photos lead the preview collage.
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 const FORMATS = [
@@ -41,16 +53,28 @@ function sessionLine(s) {
 const toolNames = (s) => (s?.tools || []).map((t) => t.name).filter(Boolean);
 const presenterNames = (s) => (s?.demos || []).map((d) => d.presenter).filter(Boolean);
 
+// Loose first-name match so the author ("Aurimas Baciauskas") is recognised as the
+// session presenter ("Auri") — handles nicknames / prefixes either direction.
+const firstTok = (n) => String(n || '').trim().toLowerCase().split(/\s+/)[0];
+const sameName = (a, b) => {
+  const x = firstTok(a), y = firstTok(b);
+  return !!x && !!y && (x === y || (x.length >= 3 && y.length >= 3 && (x.startsWith(y) || y.startsWith(x))));
+};
+
 // Brief built straight from a session's own data — no manual fields needed. The
-// session already holds what was explored, the tools, and who presented.
-function sessionBrief(s, extra) {
+// author's own demo is framed as "I" so the post never credits the writer in the
+// third person; everyone else is credited by name.
+function sessionBrief(s, extra, authorName) {
   const lines = [sessionLine(s)];
   if (s.summary) lines.push(`What we explored: ${s.summary}`);
   const tools = toolNames(s);
   if (tools.length) lines.push(`Tools and ideas discussed: ${tools.join(', ')}.`);
   if (s.demos?.length) {
-    lines.push('Presented by (credit them):');
-    for (const d of s.demos) lines.push(`- ${d.presenter}${d.topic ? `: ${d.topic}` : ''}`);
+    lines.push('Who presented (you are the author — credit the OTHERS by name, write your own demo as "I"):');
+    for (const d of s.demos) {
+      const who = sameName(d.presenter, authorName) ? 'I (the author — not third person)' : d.presenter;
+      lines.push(`- ${who}${d.topic ? `: ${d.topic}` : ''}`);
+    }
   }
   if (s.attendees?.length) lines.push(`People there: ${s.attendees.length}.`);
   if (extra.trim()) lines.push(`\nMy own angle to weave in: ${extra.trim()}`);
@@ -83,21 +107,23 @@ function Collage({ photos }) {
   const shown = photos.slice(0, 4);
   const extra = photos.length - shown.length;
   const img = 'w-full h-full object-cover';
-  if (shown.length === 1) return <img src={shown[0]} alt="" className="w-full max-h-[320px] object-cover" />;
-  if (shown.length === 2) return <div className="grid grid-cols-2 gap-0.5 h-60">{shown.map((p, i) => <img key={i} src={p} alt="" className={img} />)}</div>;
+  // key={url} on every image so a shuffle remounts them all together — the big
+  // featured one swaps with the rest instead of clinging to its previous picture.
+  if (shown.length === 1) return <img key={shown[0]} src={shown[0]} alt="" className="w-full max-h-[320px] object-cover" />;
+  if (shown.length === 2) return <div className="grid grid-cols-2 gap-0.5 h-60">{shown.map((p) => <img key={p} src={p} alt="" className={img} />)}</div>;
   if (shown.length === 3) return (
     <div className="grid grid-cols-2 grid-rows-2 gap-0.5 h-72">
-      <img src={shown[0]} alt="" className={`${img} row-span-2`} />
-      <img src={shown[1]} alt="" className={img} />
-      <img src={shown[2]} alt="" className={img} />
+      <img key={shown[0]} src={shown[0]} alt="" className={`${img} row-span-2`} />
+      <img key={shown[1]} src={shown[1]} alt="" className={img} />
+      <img key={shown[2]} src={shown[2]} alt="" className={img} />
     </div>
   );
   return (
     <div className="grid grid-cols-3 grid-rows-3 gap-0.5 h-80">
-      <img src={shown[0]} alt="" className={`${img} col-span-2 row-span-3`} />
-      <img src={shown[1]} alt="" className={img} />
-      <img src={shown[2]} alt="" className={img} />
-      <div className="relative">
+      <img key={shown[0]} src={shown[0]} alt="" className={`${img} col-span-2 row-span-3`} />
+      <img key={shown[1]} src={shown[1]} alt="" className={img} />
+      <img key={shown[2]} src={shown[2]} alt="" className={img} />
+      <div key={shown[3]} className="relative">
         <img src={shown[3]} alt="" className={img} />
         {extra > 0 && <div className="absolute inset-0 bg-black/55 grid place-items-center text-white text-lg font-semibold">+{extra}</div>}
       </div>
@@ -110,10 +136,13 @@ function Caret() {
   return <span className="inline-block w-[2px] h-[1em] -mb-[0.15em] ml-px bg-current opacity-70 animate-pulse" aria-hidden />;
 }
 
-// Renders post text with the platform's "…more" fold. Tapping "more" expands it.
+// Renders post text. It streams in fully and STAYS open once written — no snapping
+// back to a fold. The "…more" / "…less" toggle is just there if you want to see the
+// in-feed look; it never auto-collapses after generating.
 function FoldedText({ text, limit, prefix, streaming }) {
-  const [expanded, setExpanded] = useState(false);
-  useEffect(() => { setExpanded(false); }, [text]);
+  const [expanded, setExpanded] = useState(true);
+  // Keep it open while/after streaming; only the user collapses it.
+  useEffect(() => { if (streaming) setExpanded(true); }, [streaming]);
   const folded = !streaming && !expanded && text.length > limit;
   const shown = folded ? text.slice(0, limit).replace(/\s+\S*$/, '') : text;
   return (
@@ -320,7 +349,11 @@ export default function PostMaker({ sessions = [] }) {
   const [format, setFormat] = useState('linkedin');
   const [output, setOutput] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-  const [author, setAuthor] = useState(randomAuthor);
+  const [author, setAuthor] = useState(randomAuthor); // preview-only placeholder
+
+  // The post is always written as YOU (the signed-in writer) — this drives the
+  // first-person voice in the text, separate from the cosmetic preview person.
+  const { name: myName } = useAuth();
   const [status, setStatus] = useState('idle'); // idle | loading | streaming | error | notconfigured
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -368,9 +401,13 @@ export default function PostMaker({ sessions = [] }) {
     setError('');
     setOutput('');
     try {
-      const notes = mode === 'free'
+      const body = mode === 'free'
         ? [sessionLine(selectedSession), freeText.trim()].filter(Boolean).join('\n\n')
-        : (selectedSession ? sessionBrief(selectedSession, extra) : buildBrief(fields, null, extra));
+        : (selectedSession ? sessionBrief(selectedSession, extra, myName) : buildBrief(fields, null, extra));
+      const voice = myName
+        ? `Write this in the FIRST PERSON as ${myName}, a member of the AI Workshop Copenhagen community. Use "I" and "we" — never refer to ${myName} in the third person (if ${myName} presented, say "I demoed…").`
+        : 'Write this in the FIRST PERSON (use "I" and "we") as someone who was there — never describe the writer in the third person.';
+      const notes = [voice, body].join('\n\n');
       const r = await authedFetch('/api/generate-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -423,7 +460,12 @@ export default function PostMaker({ sessions = [] }) {
     setTimeout(() => setCopied(false), 1500);
   }
 
-  const previewPhotos = selectedSession?.photos || [];
+  // Preview photos: natural (stable) order by default; "Shuffle photos" reorders
+  // just for the preview. Reset to natural order whenever the session changes.
+  const sessionPhotos = selectedSession?.photos || [];
+  const [photoOrder, setPhotoOrder] = useState(null);
+  useEffect(() => { setPhotoOrder(null); }, [selectedDate]);
+  const previewPhotos = photoOrder && photoOrder.length === sessionPhotos.length ? photoOrder : sessionPhotos;
 
   return (
     <div>
@@ -591,13 +633,24 @@ export default function PostMaker({ sessions = [] }) {
         <div className="lg:sticky lg:top-20">
           <div className="flex items-center justify-between mb-2">
             <div className="h-section">Preview</div>
-            <button
-              onClick={() => setAuthor(randomAuthor())}
-              className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
-              title="Shuffle the placeholder person"
-            >
-              <Shuffle size={12} /> Shuffle person
-            </button>
+            <div className="flex items-center gap-3">
+              {sessionPhotos.length > 1 && (
+                <button
+                  onClick={() => setPhotoOrder(shuffle(sessionPhotos))}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
+                  title="Shuffle which photos lead the collage (preview only)"
+                >
+                  <Images size={12} /> Shuffle photos
+                </button>
+              )}
+              <button
+                onClick={() => setAuthor(randomAuthor())}
+                className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
+                title="Shuffle the placeholder person (preview only)"
+              >
+                <Shuffle size={12} /> Shuffle person
+              </button>
+            </div>
           </div>
           {format === 'instagram'
             ? <InstagramPreview author={author} text={output} photos={previewPhotos} streaming={status === 'streaming'} />
