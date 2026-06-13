@@ -1,6 +1,5 @@
 import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
 import { Mic, MapPin, Ticket, CalendarClock, CalendarPlus, UserCheck } from 'lucide-react';
-import Attendees from './Attendees.jsx';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
 
@@ -96,11 +95,8 @@ export default function NextSession({ session }) {
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
 
-      {/* In-dashboard RSVP is the primary call to action. */}
+      {/* One RSVP control + unified "Coming" list (in-app RSVPs + calendar accepts). */}
       <Rsvp date={session.date} />
-
-      {/* Google Calendar accepts (secondary signal, shown when available). */}
-      <Attendees date={session.date} />
 
       {lumaUrl && (
         <div className="mt-5">

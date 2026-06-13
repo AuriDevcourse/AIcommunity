@@ -1,12 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Check, HelpCircle, CalendarCheck, LogIn } from 'lucide-react';
+import { Check, HelpCircle, CalendarCheck, LogIn, Users } from 'lucide-react';
 import { useAuth } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { getInitials } from '../lib/members-profile.js';
+import { resolveGuest } from '../lib/attendees.js';
 
 const ci = (s) => String(s || '').trim().toLowerCase();
+const firstNameOf = (s) => String(s || '').trim().split(/\s+/)[0];
 
-function RsvpAvatar({ person, tentative }) {
+// Stale-while-revalidate cache: keep the last known lists in localStorage so the
+// "Coming" list paints instantly on load (no empty flash), then we re-fetch and
+// only swap state in if something actually changed — so people aren't re-rendered
+// one by one, only the diff (someone left / someone new) lands.
+const RSVP_CK = (d) => `aiworkshop_rsvp_${d}`;
+const CAL_CK = (d) => `aiworkshop_attendees_${d}`;
+const readCache = (k) => { try { const c = localStorage.getItem(k); return c ? JSON.parse(c) : null; } catch { return null; } };
+const writeCache = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } };
+
+function PersonAvatar({ person, tentative }) {
   const [failed, setFailed] = useState(false);
   const showImg = person.avatar && !failed;
   return (
@@ -16,44 +27,86 @@ function RsvpAvatar({ person, tentative }) {
       ) : (
         <span className="w-6 h-6 rounded-full grid place-items-center bg-accent border border-border text-[9px] font-semibold num">{getInitials(person.name)}</span>
       )}
-      <span className="text-sm">{person.name.split(/\s+/)[0]}</span>
+      <span className="text-sm">{firstNameOf(person.name)}</span>
     </span>
   );
 }
 
-// In-dashboard RSVP for the next session. Signed-in members tap Going / Maybe;
-// the list of who's coming shows live. Distinct from the Google-Calendar accepts
-// (those render in <Attendees/>). Stays silent when Supabase/Upstash aren't set up.
+// Merge the two RSVP sources — in-app RSVPs (Going/Maybe) and Google Calendar
+// accepts (accepted/tentative) — into ONE deduped list. A person who both tapped
+// Going here AND accepted the invite shows once; "coming" beats "maybe". Keyed by
+// first name (the calendar often only exposes a first name), good enough for a
+// small meetup.
+function mergeAttendees(rsvp, cal) {
+  const map = new Map(); // ci(firstName) -> { name, avatar, status }
+  const add = (rawName, avatar, status) => {
+    const name = firstNameOf(rawName);
+    const key = ci(name);
+    if (!key) return;
+    const existing = map.get(key);
+    if (!existing) { map.set(key, { name, avatar: avatar || '', status }); return; }
+    if (status === 'coming') existing.status = 'coming'; // upgrade maybe -> coming
+    if (!existing.avatar && avatar) existing.avatar = avatar; // fill a missing photo
+  };
+  for (const p of rsvp?.going || []) add(p.name, p.avatar, 'coming');
+  for (const p of rsvp?.maybe || []) add(p.name, p.avatar, 'maybe');
+  for (const g of cal?.accepted || []) { const r = resolveGuest(g); add(r.label, r.photo, 'coming'); }
+  for (const g of cal?.tentative || []) { const r = resolveGuest(g); add(r.label, r.photo, 'maybe'); }
+  const all = [...map.values()];
+  return {
+    coming: all.filter((p) => p.status === 'coming'),
+    maybe: all.filter((p) => p.status === 'maybe'),
+  };
+}
+
+// One RSVP control + one unified "Coming" list for the next session. Signed-in
+// members tap Going / Maybe; the list combines those with the Google-Calendar
+// accepts so there is a single source of truth on screen.
 export default function Rsvp({ date }) {
   const { enabled, user, name, openAuth } = useAuth();
-  const [data, setData] = useState(null); // { going, maybe, counts, configured }
-  const [mine, setMine] = useState(null); // 'going' | 'maybe' | null
+  const [rsvp, setRsvp] = useState(() => (date ? readCache(RSVP_CK(date)) : null)); // { going, maybe, ... }
+  const [cal, setCal] = useState(() => (date ? readCache(CAL_CK(date)) : null));    // { accepted, tentative, ... }
+  const [mine, setMine] = useState(null);  // 'going' | 'maybe' | null
   const [busy, setBusy] = useState(false);
+
+  // Replace state only when the fetched payload differs from what we already show,
+  // so an unchanged poll causes no re-render (and no avatar reflow).
+  const reconcile = (setter, key, next) => {
+    if (!next) return; // network error → keep the cached list
+    setter((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
+      writeCache(key, next);
+      return next;
+    });
+  };
 
   const load = useCallback(async () => {
     if (!date) return;
-    try {
-      const r = await fetch(`/api/rsvp?date=${date}`);
-      const j = await r.json();
-      setData(j);
-    } catch {
-      setData({ configured: false });
-    }
+    // 1) paint cached lists immediately (covers a date change too)
+    const cr = readCache(RSVP_CK(date)); if (cr) setRsvp(cr);
+    const cc = readCache(CAL_CK(date)); if (cc) setCal(cc);
+    // 2) revalidate in the background, apply only the diff
+    const [r, a] = await Promise.all([
+      fetch(`/api/rsvp?date=${date}`).then((x) => x.json()).catch(() => null),
+      fetch(`/api/attendees?date=${date}`).then((x) => x.json()).catch(() => null),
+    ]);
+    reconcile(setRsvp, RSVP_CK(date), r);
+    reconcile(setCal, CAL_CK(date), a);
   }, [date]);
 
   useEffect(() => { load(); }, [load]);
 
-  // Derive "my" status from the list by matching my display name (no user IDs are
-  // exposed by the API, so name-match is how the client recognises itself).
+  // Derive "my" status by matching my display name against the in-app lists (the
+  // API exposes no user IDs, so name-match is how the client recognises itself).
   useEffect(() => {
-    if (!data || !user) { setMine(null); return; }
+    if (!rsvp || !user) { setMine(null); return; }
     const me = ci(name);
-    if ((data.going || []).some((p) => ci(p.name) === me)) setMine('going');
-    else if ((data.maybe || []).some((p) => ci(p.name) === me)) setMine('maybe');
+    if ((rsvp.going || []).some((p) => ci(p.name) === me)) setMine('going');
+    else if ((rsvp.maybe || []).some((p) => ci(p.name) === me)) setMine('maybe');
     else setMine(null);
-  }, [data, user, name]);
+  }, [rsvp, user, name]);
 
-  if (!enabled || !date || (data && data.configured === false)) return null;
+  if (!enabled || !date) return null;
 
   async function choose(status) {
     if (!user) { openAuth(); return; }
@@ -68,7 +121,7 @@ export default function Rsvp({ date }) {
         body: JSON.stringify({ date, status: next }),
       });
       const j = await r.json();
-      if (j.ok) setData((d) => ({ ...d, going: j.going, maybe: j.maybe, counts: j.counts }));
+      if (j.ok) setRsvp((d) => { const v = { ...d, going: j.going, maybe: j.maybe, counts: j.counts }; writeCache(RSVP_CK(date), v); return v; });
       else { setMine(mine); load(); } // revert on failure
     } catch {
       setMine(mine); load();
@@ -77,13 +130,12 @@ export default function Rsvp({ date }) {
     }
   }
 
-  const going = data?.going || [];
-  const maybe = data?.maybe || [];
-  const hasAny = going.length > 0 || maybe.length > 0;
+  const { coming, maybe } = mergeAttendees(rsvp, cal);
+  const hasAny = coming.length > 0 || maybe.length > 0;
 
   return (
     <div className="mt-6">
-      {/* Primary RSVP control */}
+      {/* RSVP control */}
       <div className="flex flex-wrap items-center gap-2">
         {user ? (
           <>
@@ -93,7 +145,7 @@ export default function Rsvp({ date }) {
               aria-pressed={mine === 'going'}
               className={`btn btn-sm ${mine === 'going' ? 'btn-primary' : 'btn-ghost'}`}
             >
-              <CalendarCheck size={14} strokeWidth={2.2} /> {mine === 'going' ? "You're going" : "I'm going"}
+              <CalendarCheck size={14} strokeWidth={2.2} /> {mine === 'going' ? "You're coming" : "I'm coming"}
             </button>
             <button
               onClick={() => choose('maybe')}
@@ -111,18 +163,18 @@ export default function Rsvp({ date }) {
         )}
       </div>
 
-      {/* Who's coming (in-app RSVPs) */}
+      {/* One unified "Coming" list (in-app RSVPs + calendar accepts, deduped) */}
       {hasAny && (
         <div className="mt-4">
           <div className="flex items-center gap-1.5 h-section">
-            <CalendarCheck size={11} strokeWidth={2.2} />
-            <span>Going</span>
-            <span className="pill pill-ok ml-1"><Check size={10} strokeWidth={2.8} />{going.length}</span>
+            <Users size={11} strokeWidth={2.2} />
+            <span>Coming</span>
+            <span className="pill pill-ok ml-1"><Check size={10} strokeWidth={2.8} />{coming.length}</span>
             {maybe.length > 0 && <span className="pill pill-warn"><HelpCircle size={10} strokeWidth={2.5} />{maybe.length} maybe</span>}
           </div>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2.5">
-            {going.map((p, i) => <RsvpAvatar key={`g-${p.name}-${i}`} person={p} />)}
-            {maybe.map((p, i) => <RsvpAvatar key={`m-${p.name}-${i}`} person={p} tentative />)}
+            {coming.map((p, i) => <PersonAvatar key={`c-${p.name}-${i}`} person={p} />)}
+            {maybe.map((p, i) => <PersonAvatar key={`m-${p.name}-${i}`} person={p} tentative />)}
           </div>
         </div>
       )}
