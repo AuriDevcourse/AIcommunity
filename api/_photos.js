@@ -31,7 +31,10 @@ export async function listPhotos() {
     const uploader = file.includes('__') ? deslug(file.split('__')[0]) : '';
     (byDate[date] ||= []).push({ url: b.url, pathname: b.pathname, uploader, uploadedAt: b.uploadedAt });
   }
-  for (const d of Object.keys(byDate)) byDate[d].sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt)));
+  // Newest first, with pathname as a stable tiebreaker so a batch uploaded at the
+  // same instant always returns in the SAME order (no shuffling cover photo).
+  for (const d of Object.keys(byDate)) byDate[d].sort((a, b) =>
+    String(b.uploadedAt).localeCompare(String(a.uploadedAt)) || String(a.pathname).localeCompare(String(b.pathname)));
   return { configured: true, byDate };
 }
 
