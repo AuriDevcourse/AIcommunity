@@ -70,6 +70,9 @@ function Privacy() {
         <LI><strong>Technical data</strong>: your IP address, used briefly to rate-limit and prevent abuse, plus basic server logs.</LI>
       </ul>
 
+      <H>Public session recaps</H>
+      <P>Each past session has a recap page with a shareable link (for example, to post on social media). These pages are <strong>public</strong>: anyone with the link can see them without signing in. A recap may show the session photos and the first names of people who attended. We publish only what an organiser has added for that session. If you would rather not appear on a public recap, email us and we will remove your name or any photo of you.</P>
+
       <H>Why we use it (legal basis)</H>
       <ul className="mt-2 space-y-1.5 list-disc pl-5">
         <LI>To run the community features you choose to use (performance of our community arrangement, and our legitimate interest in operating the dashboard).</LI>

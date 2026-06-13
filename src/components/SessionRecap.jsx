@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Link2, Check, Sparkles, Square, Copy, Loader2, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
 import { streamDraft } from '../lib/postdraft.js';
+import { useAuth, useMemberName } from '../lib/auth.jsx';
 
 // Public, shareable recap of a single past session: cover, who came, what was
 // demoed, the photo gallery, plus a one-tap LinkedIn draft. Reached via the hash
@@ -188,6 +189,12 @@ function DraftRecap({ date, session, title, photoCount }) {
   const [err, setErr] = useState('');
   const [copied, setCopied] = useState(false);
   const abortRef = useRef(null);
+  // Drafting hits an auth-gated endpoint. When sign-in is enabled but the visitor
+  // is logged out, the request 401s — so prompt them to sign in instead of showing
+  // a button that just errors. (In typed-name mode the endpoint isn't auth-gated.)
+  const { openAuth } = useAuth();
+  const { authMode, authed } = useMemberName();
+  const needsSignIn = authMode && !authed;
 
   useEffect(() => () => abortRef.current?.abort(), []); // cancel on unmount (stops spend)
 
@@ -221,7 +228,11 @@ function DraftRecap({ date, session, title, photoCount }) {
   return (
     <div className="mt-4">
       <div className="flex flex-wrap items-center gap-2">
-        {status === 'streaming' ? (
+        {needsSignIn ? (
+          <button onClick={openAuth} className="btn btn-sm btn-primary">
+            <Sparkles size={14} strokeWidth={2.2} /> Sign in to draft a LinkedIn post
+          </button>
+        ) : status === 'streaming' ? (
           <button onClick={stop} className="btn btn-sm btn-ghost"><Square size={13} strokeWidth={2.4} /> Stop</button>
         ) : (
           <button onClick={generate} className="btn btn-sm btn-primary">
