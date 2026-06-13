@@ -18,25 +18,33 @@ function NewsImage({ src, alt }) {
   );
 }
 
+// "europe" is the current category; "eu-policy" is the older label, still matched
+// so previously-curated items keep showing until the news is regenerated.
+const isEurope = (c) => c === 'europe' || c === 'eu-policy';
+
 const CATEGORIES = [
-  { key: 'all',          label: 'All',           count: news.items.length },
-  { key: 'global',       label: 'Global',        count: news.items.filter((i) => i.category === 'global').length },
-  { key: 'eu-policy',    label: 'EU / Denmark',  count: news.items.filter((i) => i.category === 'eu-policy').length },
+  { key: 'all',    label: 'All',    count: news.items.length },
+  { key: 'global', label: 'Global', count: news.items.filter((i) => i.category === 'global').length },
+  { key: 'europe', label: 'Europe', count: news.items.filter((i) => isEurope(i.category)).length },
 ];
 
 const CATEGORY_LABEL = {
   global: 'Global',
-  'eu-policy': 'EU / Denmark / Policy',
+  europe: 'Europe',
+  'eu-policy': 'Europe',
 };
 
 const CARD_BADGE = {
   global: 'Global',
-  'eu-policy': 'EU / DK',
+  europe: 'Europe',
+  'eu-policy': 'Europe',
 };
 
 export default function News() {
   const [filter, setFilter] = useState('all');
-  const items = filter === 'all' ? news.items : news.items.filter((i) => i.category === filter);
+  const items = filter === 'all'
+    ? news.items
+    : news.items.filter((i) => (filter === 'europe' ? isEurope(i.category) : i.category === filter));
 
   return (
     <div className="space-y-10">

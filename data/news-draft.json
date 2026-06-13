@@ -1,151 +1,223 @@
 {
-  "generatedAt": "2026-06-11T21:38:08.022Z",
+  "generatedAt": "2026-06-13T14:26:21.700Z",
   "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app.",
   "windowLabel": "",
   "items": [
     {
-      "id": "anthropic-claude-fable-guardrails",
-      "n": 1,
-      "category": "global",
-      "date": "2026-06-11",
-      "title": "Anthropic apologizes for overly restrictive Claude Fable 5 guardrails",
-      "subtitle": "The new model refused to answer basic biology, chemistry, and cybersecurity queries",
-      "summary": "Anthropic launched Claude Fable 5, its first Mythos-class AI model, but faced immediate backlash for stealthily throttling it with hidden guardrails. The system refused to answer basic high school-level biology questions and blocked legitimate cybersecurity research tasks. Anthropic apologized and promised to make the restrictions more transparent and less aggressive.",
-      "whyItMatters": "Even the most powerful frontier models can become useless for developers if safety guardrails are applied too broadly and without transparency.",
-      "whyForUs": "If you are building tools in biotech, education, or security, be aware that Claude Fable might block your prompts until Anthropic refines these filters.",
-      "sources": [
-        {
-          "name": "The Verge",
-          "url": "https://www.theverge.com/ai-artificial-intelligence/948280/anthropic-claude-fable-invisible-distillation-guardrail"
-        }
-      ],
-      "image": null
-    },
-    {
-      "id": "diffusiongemma-local-ai-speedup",
-      "n": 2,
+      "id": "google-deepmind-diffusiongemma-speed-boost",
       "category": "global",
       "date": "2026-06-10",
-      "title": "Google DeepMind releases DiffusionGemma for 4x faster local text generation",
-      "subtitle": "New open-weights model applies diffusion techniques to speed up local LLM execution",
-      "summary": "Google DeepMind has released DiffusionGemma, an open-weights model that leverages diffusion processes to generate text outputs up to four times faster than traditional autoregressive models. While diffusion is typically used in image generation, this release demonstrates its viability for high-speed local text generation on consumer hardware.",
-      "whyItMatters": "This represents a structural shift in how we can run fast, low-latency models locally without relying on massive cloud APIs.",
-      "whyForUs": "For Copenhagen builders shipping offline-first or privacy-centric desktop apps, this model offers a massive speed boost on local hardware.",
+      "title": "Google DeepMind releases DiffusionGemma for 4x faster local AI",
+      "subtitle": "A new open-weights architecture that applies diffusion techniques to text generation",
+      "summary": "Google DeepMind has launched DiffusionGemma, a novel open-weights model designed to accelerate local text generation. By utilizing diffusion processes typically reserved for image generation, the model achieves a fourfold speed increase compared to standard autoregressive models. This release aims to make heavy on-device LLM tasks significantly more responsive.",
+      "whyItMatters": "It introduces a paradigm shift in how we speed up local LLM inference without relying entirely on aggressive quantization or massive hardware upgrades.",
+      "whyForUs": "If you are shipping local-first or offline AI apps for Danish clients, this model offers a massive speedup on consumer-grade hardware.",
       "sources": [
         {
           "name": "Ars Technica",
           "url": "https://arstechnica.com/google/2026/06/googles-latest-diffusiongemma-open-ai-model-comes-with-a-4x-speed-boost/"
         }
       ],
-      "image": null
+      "image": null,
+      "n": 1
     },
     {
-      "id": "niteshift-seed-funding-model-lockin",
-      "n": 3,
-      "category": "global",
-      "date": "2026-06-10",
-      "title": "Datadog veterans launch Niteshift to fight AI model lock-in",
-      "subtitle": "The AI coding agent startup raises 7 million dollars to give developers model autonomy",
-      "summary": "Niteshift, founded by former Datadog engineers, has raised a 7 million dollar seed round to build an AI coding agent. Unlike tools tied to specific LLM providers, Niteshift is designed to let companies retain control over their codebase and easily swap out underlying model backends.",
-      "whyItMatters": "As the model landscape shifts rapidly, developers are increasingly looking for agent frameworks that do not lock them into a single ecosystem.",
-      "whyForUs": "This highlights the growing demand for model-agnostic agent architectures when building developer tools.",
-      "sources": [
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/06/10/datadog-veterans-launch-ai-coding-startup-niteshift-on-a-bet-against-big-ai-lock-in/"
-        }
-      ],
-      "image": null
-    },
-    {
-      "id": "german-court-ruling-google-ai-search",
-      "n": 4,
-      "category": "eu-policy",
-      "date": "2026-06-10",
-      "title": "German court rules against Google AI search over necessity",
-      "subtitle": "A legal blow in Germany could impact how AI search summaries are served in Europe",
-      "summary": "A German court ruled against Google's AI Overview feature, stating that users do not inherently need AI to search the internet. This ruling could force search engines to alter how they present AI-generated summaries and links, especially when dealing with publisher content in the European Union.",
-      "whyItMatters": "This legal precedent poses a direct threat to the current product design of AI-powered search engines operating in Europe.",
-      "whyForUs": "If your startup relies on scraping, summarizing, or driving traffic via AI search, European legal battles like this will heavily impact your distribution.",
-      "sources": [
-        {
-          "name": "Ars Technica",
-          "url": "https://arstechnica.com/tech-policy/2026/06/nobody-needs-ai-to-search-the-internet-court-says-in-ruling-against-google/"
-        }
-      ],
-      "image": null
-    },
-    {
-      "id": "gemma-4-twelve-billion-laptop-model",
-      "n": 5,
-      "category": "global",
-      "date": "2026-06-03",
-      "title": "Google releases Gemma 4 12B optimized for 16GB RAM laptops",
-      "subtitle": "New open model uses advanced token prediction to run efficiently on local machines",
-      "summary": "Google has launched Gemma 4 12B, an open-weights model specifically optimized to run on standard laptops with 16GB of RAM. The model utilizes a novel encoding scheme and token prediction architecture to deliver high-quality performance without requiring high-end server GPUs.",
-      "whyItMatters": "It lowers the barrier to entry for developers who want to build, test, and run capable LLMs entirely on their local development machines.",
-      "whyForUs": "You can now run a highly capable 12B model directly on your MacBook Pro during local development without draining your battery or relying on OpenAI credits.",
-      "sources": [
-        {
-          "name": "Ars Technica",
-          "url": "https://arstechnica.com/google/2026/06/googles-new-gemma-4-open-ai-model-is-sized-for-your-laptop/"
-        }
-      ],
-      "image": null
-    },
-    {
-      "id": "huggingface-cli-optimized-for-agents",
-      "n": 6,
-      "category": "global",
-      "date": "2026-06-04",
-      "title": "Hugging Face redesigns its CLI to be optimized for AI agents",
-      "subtitle": "The command-line tool is now structured to let autonomous agents navigate the Hub",
-      "summary": "Hugging Face has updated its CLI tool to make it easier for AI agents to interact with the Hugging Face Hub. The redesign focuses on structured outputs, predictable command execution, and simplified authentication, allowing autonomous coding agents to search, download, and upload models programmatically.",
-      "whyItMatters": "As we move from human-in-the-loop to fully autonomous developer agents, our toolchains must evolve to be machine-readable.",
-      "whyForUs": "If you are building autonomous coding or DevOps agents, this updated CLI makes it much easier for your agents to fetch and manage models programmatically.",
-      "sources": [
-        {
-          "name": "Hugging Face",
-          "url": "https://huggingface.co/blog/hf-cli-for-agents"
-        }
-      ],
-      "image": null
-    },
-    {
-      "id": "cohere-north-mini-code-model",
-      "n": 7,
+      "id": "cohere-north-mini-code-developer-model",
       "category": "global",
       "date": "2026-06-09",
-      "title": "Cohere launches North Mini Code for developer workflows",
-      "subtitle": "A highly efficient, specialized model designed specifically for code generation",
-      "summary": "Cohere has introduced North Mini Code, its first model dedicated entirely to developer tasks. The model is optimized for speed, low latency, and high accuracy in code generation, autocomplete, and translation, making it suitable for integration directly into IDEs and CI/CD pipelines.",
-      "whyItMatters": "Smaller, task-specific models are proving to be more cost-effective and faster than massive general-purpose models for coding tasks.",
-      "whyForUs": "This is a great candidate if you are building custom internal developer tools or automated code review pipelines and need low-latency completions.",
+      "title": "Cohere launches North Mini Code designed specifically for developers",
+      "subtitle": "A highly efficient, compact model optimized for code generation and agentic workflows",
+      "summary": "Cohere has introduced North Mini Code, its first model tailored exclusively for software engineers and coding assistants. The compact model is optimized to deliver fast, accurate code completions, debugging assistance, and tool-use capabilities. It is designed to run efficiently in resource-constrained environments while maintaining high accuracy.",
+      "whyItMatters": "Highly specialized small models are lowering the latency and cost of integrating intelligent coding features directly into IDEs and developer pipelines.",
+      "whyForUs": "You can integrate this model into your team's internal CLI tools and local agents for fast, low-latency code generation without paying premium API prices.",
       "sources": [
         {
           "name": "Hugging Face",
           "url": "https://huggingface.co/blog/CohereLabs/introducing-north-mini-code"
         }
       ],
-      "image": null
+      "image": null,
+      "n": 2
     },
     {
-      "id": "mcp-tools-reachy-mini-robotics",
-      "n": 8,
+      "id": "huggingface-cli-optimized-for-agents",
       "category": "global",
+      "date": "2026-06-04",
+      "title": "Hugging Face redesigns its CLI to be optimized for AI agents",
+      "subtitle": "New command-line interface updates allow autonomous agents to easily navigate the Hub",
+      "summary": "Hugging Face has updated its CLI tool to make it agent-friendly, enabling autonomous systems to search, download, and upload models programmatically. The redesign focuses on structured outputs, predictable error handling, and simplified authentication. This allows developers to build agents that can self-select and swap models based on task requirements.",
+      "whyItMatters": "As agentic workflows mature, tools must transition from human-centric interfaces to machine-readable APIs and CLIs.",
+      "whyForUs": "This makes it straightforward to build self-improving deployment pipelines where your AI agents can autonomously fetch and test new models from the Hub.",
+      "sources": [
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/hf-cli-for-agents"
+        }
+      ],
+      "image": null,
+      "n": 3
+    },
+    {
+      "id": "google-gemini-live-translate-voice",
+      "category": "global",
+      "date": "2026-06-09",
+      "title": "Google announces Gemini 3.5 Live Translate with voice preservation",
+      "subtitle": "Instant voice-to-voice translation that retains the speaker's tone, pitch, and pacing",
+      "summary": "Google has unveiled Gemini 3.5 Live Translate, a real-time voice translation system. The technology translates speech instantly while preserving the original speaker's unique vocal characteristics, including tone, pitch, and emotional pacing. To address safety and deepfake concerns, Google is embedding SynthID watermarks directly into the generated audio.",
+      "whyItMatters": "It represents a major step forward for natural, real-time human-to-computer and human-to-human communication across language barriers.",
+      "whyForUs": "This technology opens up new possibilities for building localized, highly natural voice agents for international markets without losing brand identity.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/ai/2026/06/google-announces-gemini-3-5-live-translate-for-instant-voice-to-voice-translation/"
+        }
+      ],
+      "image": null,
+      "n": 4
+    },
+    {
+      "id": "malicious-packages-target-ai-agents",
+      "category": "global",
+      "date": "2026-06-08",
+      "title": "Laced Microsoft ecosystem packages target autonomous AI agents",
+      "subtitle": "Security researchers discover self-replicating credential stealers triggered by agent execution",
+      "summary": "Security researchers have identified 73 malicious packages within the Microsoft ecosystem designed to exploit autonomous AI agents. These packages execute a self-replicating credential stealer the moment an AI agent opens or parses them. This marks the second time in recent weeks that registry packages have been weaponized to target automated workflows.",
+      "whyItMatters": "AI agents that autonomously read, write, and execute code represent a massive new attack surface for supply chain exploits.",
+      "whyForUs": "If you are building agents that fetch external packages or read untrusted code, you must run them in highly sandboxed environments to avoid credential theft.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/security/2026/06/for-the-2nd-time-in-weeks-microsoft-packages-laced-with-credential-stealer/"
+        }
+      ],
+      "image": null,
+      "n": 5
+    },
+    {
+      "id": "huggingface-migrating-github-ci-to-jobs",
+      "category": "global",
+      "date": "2026-06-09",
+      "title": "Hugging Face launches Jobs to migrate GitHub CI workloads",
+      "subtitle": "A new cloud execution service optimized for machine learning and GPU-accelerated pipelines",
+      "summary": "Hugging Face has introduced Hugging Face Jobs, a service designed to run continuous integration and machine learning pipelines. The platform allows developers to easily migrate their existing GitHub Actions and CI workflows to Hugging Face infrastructure. It offers native, seamless access to GPU resources and optimized environments for training, evaluation, and deployment.",
+      "whyItMatters": "It simplifies the developer experience by consolidating ML training, testing, and deployment inside a single ecosystem with native GPU support.",
+      "whyForUs": "This is a highly practical alternative to setting up expensive, self-hosted GPU runners on GitHub for your automated model testing.",
+      "sources": [
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/blog/github-ci-hf-jobs"
+        }
+      ],
+      "image": null,
+      "n": 6
+    },
+    {
+      "id": "mistral-rumored-raising-three-billion",
+      "category": "europe",
+      "date": "2026-06-12",
+      "title": "Mistral rumored to be raising 3 billion euros at a massive valuation",
+      "subtitle": "The French AI champion is reportedly targeting a 20 billion euro valuation",
+      "summary": "Paris-based AI startup Mistral is rumored to be in talks to raise 3 billion euros in a new funding round. If completed, the round would value the European OpenAI competitor at approximately 20 billion euros. This would nearly double its previous Series C valuation of 11.7 billion euros, cementing its status as Europe's premier AI powerhouse.",
+      "whyItMatters": "It shows that European investors and global markets still have an immense appetite for funding independent, localized frontier model developers.",
+      "whyForUs": "Mistral's continued growth ensures that European builders will have a strong, locally compliant alternative to US-based LLM providers.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/06/12/mistral-is-rumored-to-be-raising-e3b-at-e20-valuation/"
+        }
+      ],
+      "image": null,
+      "n": 7
+    },
+    {
+      "id": "germany-court-rules-against-google-ai-search",
+      "category": "europe",
+      "date": "2026-06-10",
+      "title": "German court rules against Google AI Overview in search landmark",
+      "subtitle": "The court declared that users do not need AI to search the internet, threatening AI search models",
+      "summary": "A German court has ruled against Google's AI Overview feature, stating that users do not inherently need AI assistance to search the internet. The legal challenge focused on how AI summaries bypass traditional publisher links, potentially violating fair competition and copyright laws. This ruling could set a major legal precedent across the European Union, threatening the business model of generative search engines.",
+      "whyItMatters": "It highlights the growing legal friction in Europe between traditional web publishers and tech giants training or deploying generative search tools.",
+      "whyForUs": "If you are building search-based AI agents, you must carefully design how you cite and link back to European sources to avoid regulatory and legal hurdles.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/tech-policy/2026/06/nobody-needs-ai-to-search-the-internet-court-says-in-ruling-against-google/"
+        }
+      ],
+      "image": null,
+      "n": 8
+    },
+    {
+      "id": "deezer-ai-music-identification-tool",
+      "category": "europe",
+      "date": "2026-06-11",
+      "title": "French streaming giant Deezer launches AI music detection tool",
+      "subtitle": "The tool scans playlists on Spotify, Apple Music, and others to flag AI-generated tracks",
+      "summary": "French music streaming platform Deezer has released a new tool capable of identifying AI-generated music across multiple streaming services. The tool scans public playlists on competing platforms like Spotify and Apple Music to detect synthetic tracks. Deezer aims to help the music industry track the proliferation of AI content and protect human artists' royalties.",
+      "whyItMatters": "This represents a concrete step by a major European tech player to enforce transparency and copyright protection in the creative industries.",
+      "whyForUs": "For builders in Copenhagen's creative tech scene, this highlights the growing demand for validation tools that distinguish human content from synthetic media.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/06/11/deezers-new-tool-can-identify-ai-music-from-spotify-apple-music-and-others/"
+        }
+      ],
+      "image": null,
+      "n": 9
+    },
+    {
+      "id": "ukraine-autonomous-drone-ai-test",
+      "category": "europe",
+      "date": "2026-06-12",
+      "title": "Ukraine tests fully autonomous AI drones in combat scenario",
+      "subtitle": "A one-time military test utilized AI modules to target and engage without human intervention",
+      "summary": "Ukraine has conducted a rare, one-time test utilizing fully autonomous drones equipped with AI targeting modules. Unlike typical remote-controlled drones, these units were programmed to identify and engage targets entirely on their own. This development highlights the rapid integration of edge-AI and computer vision software into modern defense systems.",
+      "whyItMatters": "It marks a significant and controversial transition from human-in-the-loop systems to fully autonomous AI decision-making in real-world environments.",
+      "whyForUs": "It underscores the critical, high-stakes nature of edge computer vision and real-time decision models being built on our continent.",
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/ai/2026/06/ukraines-one-time-test-used-fully-autonomous-drones-to-kill-russian-soldiers/"
+        }
+      ],
+      "image": null,
+      "n": 10
+    },
+    {
+      "id": "mcp-tools-added-to-reachy-mini-robot",
+      "category": "europe",
       "date": "2026-06-03",
-      "title": "Hugging Face integrates Model Context Protocol with Reachy Mini",
-      "subtitle": "Using Anthropic's open protocol to connect physical hardware to AI agents",
-      "summary": "Hugging Face demonstrated how to use the Model Context Protocol (MCP) to expose physical hardware controls as tools for AI agents. By integrating MCP with the Reachy Mini robot, developers can write standard agentic workflows that seamlessly control physical robotic movements and read sensor data.",
-      "whyItMatters": "MCP is proving to be a highly versatile standard for connecting LLM agents not just to software APIs, but to physical hardware.",
-      "whyForUs": "For Copenhagen builders working on IoT, robotics, or hardware integrations, MCP provides a clean, standardized way to hook your physical devices up to LLMs.",
+      "title": "French robotics firm Pollen Robotics adds MCP to Reachy Mini",
+      "subtitle": "Integrating Anthropic's Model Context Protocol to give physical robots standardized tool access",
+      "summary": "French robotics company Pollen Robotics has integrated the Model Context Protocol (MCP) into its Reachy Mini robot. By adopting this open standard, developers can now connect LLMs directly to the robot's physical hardware using unified API tools. This allows the robot to seamlessly translate digital prompts into real-world physical manipulations.",
+      "whyItMatters": "It demonstrates how open software standards like MCP are bridging the gap between digital AI models and physical hardware control.",
+      "whyForUs": "If you are interested in physical computing or IoT, this shows how to use standardized protocols to control hardware with LLMs.",
       "sources": [
         {
           "name": "Hugging Face",
           "url": "https://huggingface.co/blog/adding-mcp-tools-to-reachy-mini"
         }
       ],
-      "image": null
+      "image": null,
+      "n": 11
+    },
+    {
+      "id": "theker-raises-funding-for-reconfigurable-robots",
+      "category": "europe",
+      "date": "2026-06-12",
+      "title": "Spanish robotics startup Theker raises 85 million dollars",
+      "subtitle": "Funding will accelerate development of highly adaptable, reconfigurable factory robots",
+      "summary": "Spanish robotics startup Theker has secured $85 million in a new funding round. Unlike competitors building fixed humanoid forms, Theker designs modular, reconfigurable machines that can adapt to various factory tasks. The company plans to use the capital to scale its AI-driven hardware-software co-design platform across European manufacturing plants.",
+      "whyItMatters": "It highlights a growing European trend of focusing on modular, task-adaptable industrial automation over generalized humanoid form factors.",
+      "whyForUs": "This modular approach offers a practical blueprint for Danish builders looking to deploy AI-driven automation in regional manufacturing and logistics.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/06/11/theker-just-raised-85m-to-build-the-factory-robot-that-doesnt-specialize-in-anything/"
+        }
+      ],
+      "image": null,
+      "n": 12
     }
   ]
 }

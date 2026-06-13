@@ -31,7 +31,7 @@ const FEEDS = [
   { name: 'Hugging Face', url: 'https://huggingface.co/blog/feed.xml' },
 ];
 
-const DAYS = 16; // roughly one biweekly window
+const DAYS = 14; // rule: news must be from the past two weeks
 const UA = 'Mozilla/5.0 (compatible; AIWorkshopNewsBot/1.0; +https://a-icommunity.vercel.app)';
 
 const strip = (s) => String(s || '')
@@ -80,14 +80,14 @@ async function fetchFeed(feed) {
   }
 }
 
-const SYSTEM = `You curate an AI-news roundup for a small Copenhagen meetup of people who BUILD things with AI (a "shipping community", not researchers). From the candidate articles, pick the 8 most relevant and significant stories from the last two weeks. Favor: new models/tools builders can actually use, agent frameworks, notable product launches, and EU/Denmark AI policy. Avoid: pure funding gossip, thinkpieces, duplicates.
+const SYSTEM = `You curate an AI-news roundup for a small Copenhagen meetup of people who BUILD things with AI (a "shipping community", not researchers). From the candidate articles, pick EXACTLY 12 stories from the last two weeks: AT LEAST 6 "global" (worldwide / rest-of-world AI) and AT LEAST 6 "europe" (Europe-related AI/tech). Favor: new models/tools builders can actually use, agent frameworks, notable product launches, European AI companies/funding/events, and EU/Denmark AI policy. Avoid: pure funding gossip, thinkpieces, duplicates.
 
 Return STRICT JSON only (no markdown fences), shape:
 {
   "items": [
     {
       "id": "kebab-case-slug",
-      "category": "global" | "eu-policy",
+      "category": "global" | "europe",
       "date": "YYYY-MM-DD",
       "title": "rewritten, specific, <= 80 chars",
       "subtitle": "one-line angle, <= 110 chars",
@@ -99,7 +99,7 @@ Return STRICT JSON only (no markdown fences), shape:
     }
   ]
 }
-Rules: write your OWN summaries (never copy article text). Use "eu-policy" for anything EU/Denmark/regulation, else "global". Plain text, no emojis, never the em dash character.`;
+Rules: return exactly 12 items with at least 6 of each category. Write your OWN summaries (never copy article text). Use "europe" for any Europe-related AI/tech story (European companies, models, launches, funding, events, OR EU/Denmark policy/regulation), else "global". Plain text, no emojis, never the em dash character.`;
 
 async function curate(candidates) {
   const list = candidates.map((c, i) => `${i + 1}. [${c.source}] ${c.title} (${c.date})\n   ${c.desc}\n   ${c.url}`).join('\n');
@@ -148,10 +148,9 @@ async function main() {
   const picked = await curate(candidates);
 
   // Shape into the news.json item format, but keep it in the SEPARATE draft file.
-  const items = picked.map((it, i) => ({
+  const shaped = picked.map((it, i) => ({
     id: String(it.id || `story-${i + 1}`).slice(0, 60),
-    n: i + 1,
-    category: it.category === 'eu-policy' ? 'eu-policy' : 'global',
+    category: it.category === 'europe' || it.category === 'eu-policy' ? 'europe' : 'global',
     date: /^\d{4}-\d{2}-\d{2}$/.test(it.date) ? it.date : '',
     title: String(it.title || '').slice(0, 120),
     subtitle: String(it.subtitle || '').slice(0, 160),
@@ -161,6 +160,18 @@ async function main() {
     sources: [{ name: String(it.sourceName || 'Source'), url: String(it.sourceUrl || '') }],
     image: null,
   }));
+
+  // Rule: exactly 12 items, at least 6 global + at least 6 european. Take 6 of each,
+  // then top up to 12 from the leftovers if one bucket ran short (and warn — never
+  // silently ship an unbalanced/short roundup).
+  const globals = shaped.filter((x) => x.category === 'global');
+  const europes = shaped.filter((x) => x.category === 'europe');
+  if (globals.length < 6 || europes.length < 6) {
+    console.warn(`draft-news: only ${globals.length} global / ${europes.length} european candidates — rule wants >=6 of each (12 total). Widen feeds or the date window.`);
+  }
+  const picked12 = [...globals.slice(0, 6), ...europes.slice(0, 6)];
+  for (const x of shaped) { if (picked12.length >= 12) break; if (!picked12.includes(x)) picked12.push(x); }
+  const items = picked12.slice(0, 12).map((x, i) => ({ ...x, n: i + 1 }));
 
   const draft = {
     generatedAt: new Date().toISOString(),
