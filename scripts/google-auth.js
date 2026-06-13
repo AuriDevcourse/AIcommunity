@@ -82,5 +82,10 @@ const server = createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log('\nOpen this URL and sign in as the session organiser (baciauskas.aurimas@gmail.com):\n');
   console.log(authUrl + '\n');
-  if (process.platform === 'win32') spawn('cmd', ['/c', 'start', '', authUrl], { detached: true, stdio: 'ignore' });
+  // Windows: the URL must be double-quoted or cmd.exe treats its '&' separators as
+  // command chaining and drops every param after the first (response_type missing).
+  // The '""' is start's required (empty) window-title arg.
+  if (process.platform === 'win32') {
+    spawn('cmd', ['/c', 'start', '""', `"${authUrl}"`], { detached: true, stdio: 'ignore' });
+  }
 });
