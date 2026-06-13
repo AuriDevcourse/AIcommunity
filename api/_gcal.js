@@ -91,6 +91,57 @@ export async function getSessionAttendees({ date, calendarId, match }) {
   };
 }
 
+// Map a raw Google Calendar event to the app's session shape. By design the
+// calendar only drives date + title + venue; the richer fields (format, presenter,
+// host, Luma) stay blank — they're not encoded in a plain event.
+function toSession(e) {
+  const startRaw = e.start?.dateTime || e.start?.date || '';
+  const date = startRaw.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  // Strip a leading "AI Workshop" / "AI Workshop:" prefix so the title becomes the theme.
+  const theme = String(e.summary || '').replace(/^\s*ai\s*workshop\s*[:\-–—]?\s*/i, '').trim();
+  return {
+    date,
+    theme,
+    venue: String(e.location || '').trim(),
+    notes: String(e.description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+    format: 'tbd',
+    presenter: '',
+    number: null,
+    source: 'gcal',
+  };
+}
+
+// List upcoming AI Workshop events (from now forward), newest-day first deduped,
+// for the live schedule. Same auth as the attendee lookup.
+export async function listUpcomingSessions({ calendarId, match, max = 8, now } = {}) {
+  if (!gcalConfigured()) return { configured: false };
+  const cal = calendarId || process.env.GCAL_CALENDAR_ID || 'primary';
+  const matchStr = String(match ?? process.env.GCAL_EVENT_MATCH ?? 'AI Workshop').toLowerCase();
+
+  const token = await getAccessToken();
+  const params = new URLSearchParams({
+    timeMin: (now ? new Date(now) : new Date()).toISOString(),
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '50',
+  });
+  const r = await fetch(`${API}/calendars/${encodeURIComponent(cal)}/events?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(`events.list failed: ${j.error?.message || r.status}`);
+
+  const seen = new Set();
+  const upcoming = (j.items || [])
+    .filter((e) => e.status !== 'cancelled' && (e.summary || '').toLowerCase().includes(matchStr))
+    .map(toSession)
+    .filter(Boolean)
+    .filter((s) => (seen.has(s.date) ? false : (seen.add(s.date), true))) // one per day
+    .slice(0, max);
+  return { configured: true, upcoming };
+}
+
 export async function handleAttendees({ query }) {
   try {
     if (!gcalConfigured()) return { status: 200, json: { configured: false } };

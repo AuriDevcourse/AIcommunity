@@ -30,7 +30,7 @@ function pollsPlugin() {
       // Loaded here (post-loadEnv) so the modules' top-level env reads succeed.
       const [
         { handlePolls },
-        { handleAttendees },
+        { handleAttendees, listUpcomingSessions },
         { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured },
         { handleGeneratePost, streamPostToRes, postmakerConfigured },
         { handleThreads },
@@ -116,6 +116,15 @@ function pollsPlugin() {
           const body = await readJsonBody(req);
           const { status, json } = await handleRsvpPost({ body, user: u.user });
           sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      server.middlewares.use('/api/schedule', async (req, res) => {
+        try {
+          if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
+          const data = await listUpcomingSessions({});
+          sendJson(res, 200, data.configured === false ? { configured: false } : { ok: true, ...data });
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
         }

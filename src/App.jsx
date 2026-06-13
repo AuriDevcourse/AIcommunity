@@ -21,6 +21,7 @@ import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
 import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
+import { useSchedule } from './lib/schedule.js';
 
 const TABS = [
   { key: 'home',        label: 'Home',     icon: LayoutDashboard },
@@ -99,8 +100,11 @@ export default function App() {
   };
   const isLegal = LEGAL_KEYS.includes(tab);
 
+  // Upcoming sessions come live from Google Calendar when configured, else from
+  // the static build-time snapshot (see useSchedule).
+  const { upcoming: liveUpcoming } = useSchedule(data.schedule.upcoming);
   const todayIso = TODAY.toISOString().slice(0, 10);
-  const upcomingFromToday = data.schedule.upcoming.filter((s) => s.date >= todayIso);
+  const upcomingFromToday = liveUpcoming.filter((s) => s.date >= todayIso);
   const next = upcomingFromToday[0];
   const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
 
