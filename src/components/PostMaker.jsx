@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { PenLine, Sparkles, Copy, Check, Linkedin, Instagram, Globe, ThumbsUp, MessageSquare, Repeat2, Send, Shuffle, Square, Heart, MessageCircle, Bookmark, MoreHorizontal, ChevronDown, Images } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
@@ -38,16 +38,22 @@ function sessionLine(s) {
   return s ? `Meetup: AI Workshop${s.number != null ? ` #${s.number}` : ''}, ${fmtDate(s.date)}.` : '';
 }
 
-// A starting draft for "write it yourself" mode when a session is picked.
-function sessionToDraft(s) {
-  if (!s) return '';
+const toolNames = (s) => (s?.tools || []).map((t) => t.name).filter(Boolean);
+const presenterNames = (s) => (s?.demos || []).map((d) => d.presenter).filter(Boolean);
+
+// Brief built straight from a session's own data — no manual fields needed. The
+// session already holds what was explored, the tools, and who presented.
+function sessionBrief(s, extra) {
   const lines = [sessionLine(s)];
-  if (s.summary) lines.push(`\n${s.summary}`);
+  if (s.summary) lines.push(`What we explored: ${s.summary}`);
+  const tools = toolNames(s);
+  if (tools.length) lines.push(`Tools and ideas discussed: ${tools.join(', ')}.`);
   if (s.demos?.length) {
-    lines.push('\nDemos:');
+    lines.push('Presented by (credit them):');
     for (const d of s.demos) lines.push(`- ${d.presenter}${d.topic ? `: ${d.topic}` : ''}`);
   }
-  if (s.attendees?.length) lines.push(`\nWho came: ${s.attendees.join(', ')}.`);
+  if (s.attendees?.length) lines.push(`People there: ${s.attendees.length}.`);
+  if (extra.trim()) lines.push(`\nMy own angle to weave in: ${extra.trim()}`);
   return lines.join('\n');
 }
 
@@ -285,9 +291,27 @@ function SessionSelect({ sessions, value, onChange }) {
 }
 
 export default function PostMaker({ sessions = [] }) {
-  const withContent = [...sessions]
+  // Sessions only carry photos committed under /sessions/. Photos uploaded later
+  // (Vercel Blob) live behind /api/photos, like the recap uses — merge them in so
+  // the picker thumbnails + selected-session photos match what the recap shows.
+  const [uploadsByDate, setUploadsByDate] = useState({});
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/photos').then((r) => r.json()).then((j) => {
+      if (alive) setUploadsByDate(j?.byDate || {});
+    }).catch(() => { /* keep committed photos only */ });
+    return () => { alive = false; };
+  }, []);
+
+  const merged = useMemo(() => sessions.map((s) => {
+    const base = s.photos || [];
+    const uploaded = (uploadsByDate[s.date] || []).map((p) => p.url).filter((u) => !base.includes(u));
+    return uploaded.length ? { ...s, photos: [...base, ...uploaded] } : s;
+  }), [sessions, uploadsByDate]);
+
+  const withContent = useMemo(() => [...merged]
     .filter((s) => s.summary || s.demos?.length || s.attendees?.length || s.photos?.length)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => b.date.localeCompare(a.date)), [merged]);
 
   const [mode, setMode] = useState('guided'); // 'guided' | 'free'
   const [fields, setFields] = useState({ topic: '', tools: '', credit: '', standout: '', next: '' });
@@ -295,7 +319,7 @@ export default function PostMaker({ sessions = [] }) {
   const [freeText, setFreeText] = useState('');
   const [format, setFormat] = useState('linkedin');
   const [output, setOutput] = useState('');
-  const [selectedSession, setSelectedSession] = useState(null);
+  const [selectedDate, setSelectedDate] = useState('');
   const [author, setAuthor] = useState(randomAuthor);
   const [status, setStatus] = useState('idle'); // idle | loading | streaming | error | notconfigured
   const [error, setError] = useState('');
@@ -308,20 +332,28 @@ export default function PostMaker({ sessions = [] }) {
 
   const setField = (k, v) => setFields((f) => ({ ...f, [k]: v }));
 
-  function prefill(date) {
-    const s = withContent.find((x) => x.date === date) || null;
-    setSelectedSession(s);
-    if (!s) return;
-    // Fill both modes so switching keeps your content.
-    setFields((f) => ({
-      ...f,
-      topic: f.topic || s.summary || (s.demos || []).map((d) => d.topic).filter(Boolean).join(', '),
-      credit: f.credit || (s.demos || []).map((d) => d.presenter).filter(Boolean).join(', '),
-    }));
-    setFreeText((t) => t || sessionToDraft(s));
-  }
+  // Derive the selected session from the date so it always reflects the live
+  // (photo-merged) list, not a stale snapshot taken at click time.
+  const selectedSession = useMemo(
+    () => withContent.find((s) => s.date === selectedDate) || null,
+    [withContent, selectedDate],
+  );
 
-  const hasContent = mode === 'guided' ? (fields.topic.trim() || extra.trim()) : freeText.trim();
+  // Just record the choice. "From the Session" reads the session live; "Clean
+  // Sheet" stays blank (its whole point) — the session material lives in the other
+  // mode, so there's nothing to pre-fill here.
+  const prefill = (date) => setSelectedDate(date);
+
+  // Default to the latest session on load so you never land on the empty manual
+  // form — the newest session is almost always what you want to post about.
+  useEffect(() => {
+    if (!selectedDate && withContent.length) setSelectedDate(withContent[0].date);
+  }, [withContent, selectedDate]);
+
+  // With a session picked, its own data is the content — just press Generate.
+  const hasContent = mode === 'free'
+    ? freeText.trim()
+    : (selectedSession ? true : (fields.topic.trim() || extra.trim()));
 
   function stop() {
     abortRef.current?.abort();
@@ -336,9 +368,9 @@ export default function PostMaker({ sessions = [] }) {
     setError('');
     setOutput('');
     try {
-      const notes = mode === 'guided'
-        ? buildBrief(fields, selectedSession, extra)
-        : [sessionLine(selectedSession), freeText.trim()].filter(Boolean).join('\n\n');
+      const notes = mode === 'free'
+        ? [sessionLine(selectedSession), freeText.trim()].filter(Boolean).join('\n\n')
+        : (selectedSession ? sessionBrief(selectedSession, extra) : buildBrief(fields, null, extra));
       const r = await authedFetch('/api/generate-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -400,7 +432,7 @@ export default function PostMaker({ sessions = [] }) {
         <span>Post maker</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Turn a session into a post</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Answer a few prompts, pick a session for photos, watch the LinkedIn preview build.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Pick a session — it pulls what was explored, the tools, and who presented. Add your own angle if you like, then Generate. No session? Answer a few prompts instead.</p>
 
       {status === 'notconfigured' && (
         <div className="card card-pad mt-5 text-sm text-warn">
@@ -419,7 +451,7 @@ export default function PostMaker({ sessions = [] }) {
           )}
 
           <div className="flex gap-2">
-            {([['guided', 'Answer questions'], ['free', 'Write it yourself']]).map(([id, label]) => (
+            {([['guided', 'From the Session'], ['free', 'Clean Sheet']]).map(([id, label]) => (
               <button
                 key={id}
                 onClick={() => setMode(id)}
@@ -433,6 +465,36 @@ export default function PostMaker({ sessions = [] }) {
           </div>
 
           {mode === 'guided' ? (
+            selectedSession ? (
+              <>
+                {/* The session already holds the content — show it, then Generate. */}
+                <div className="rounded-md border border-border bg-pill/40 p-3 space-y-2.5">
+                  <span className="text-xs font-medium text-muted">From this session — what the post is written from</span>
+                  {selectedSession.summary && (
+                    <p className="text-sm text-foreground leading-relaxed line-clamp-4">{selectedSession.summary}</p>
+                  )}
+                  {presenterNames(selectedSession).length > 0 && (
+                    <p className="text-xs text-muted"><span className="font-medium text-foreground">Presented by:</span> {presenterNames(selectedSession).join(', ')}</p>
+                  )}
+                  {toolNames(selectedSession).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {toolNames(selectedSession).slice(0, 14).map((t) => <span key={t} className="pill pill-mute">{t}</span>)}
+                      {toolNames(selectedSession).length > 14 && <span className="pill pill-mute">+{toolNames(selectedSession).length - 14}</span>}
+                    </div>
+                  )}
+                </div>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted">Add your own angle (optional)</span>
+                  <textarea
+                    value={extra}
+                    onChange={(e) => setExtra(e.target.value)}
+                    rows={2}
+                    placeholder="A standout moment, a personal take, what's next time…"
+                    className="mt-1 w-full bg-background border border-border rounded-md p-2.5 text-sm text-foreground focus:outline-none focus:border-foreground resize-y"
+                  />
+                </label>
+              </>
+            ) : (
             <>
               {QUESTIONS.map((q) => (
                 <label key={q.key} className="block">
@@ -466,13 +528,14 @@ export default function PostMaker({ sessions = [] }) {
                 />
               </label>
             </>
+            )
           ) : (
             <label className="block">
               <span className="text-xs font-medium text-muted">Your draft or notes</span>
               <textarea
                 value={freeText}
                 onChange={(e) => setFreeText(e.target.value)}
-                rows={11}
+                rows={18}
                 placeholder="Write the post yourself, or dump rough notes and let it polish them into the community voice…"
                 className="mt-1 w-full bg-background border border-border rounded-md p-3 text-sm text-foreground focus:outline-none focus:border-foreground resize-y"
               />
