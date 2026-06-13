@@ -104,7 +104,7 @@ function toSession(e) {
     date,
     theme,
     venue: String(e.location || '').trim(),
-    notes: String(e.description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+    notes: '', // the calendar event description is the generic community blurb — skip it
     format: 'tbd',
     presenter: '',
     number: null,
