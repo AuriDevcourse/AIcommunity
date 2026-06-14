@@ -13,13 +13,14 @@ function myVote(poll, name) {
 }
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
 
-export default function Polls({ embedded = false }) {
+export default function Polls({ embedded = false, initialLimit = 0 }) {
   const [polls, setPolls] = useState(null);
   const { authMode, name, setName } = useMemberName();
   const [drafts, setDrafts] = useState({}); // pollId -> optionId[] (in-progress, unsaved)
   const [busy, setBusy] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [err, setErr] = useState('');
+  const [showAll, setShowAll] = useState(false); // with initialLimit, show first N then reveal the rest
 
   const [configured, setConfigured] = useState(true);
 
@@ -168,7 +169,7 @@ export default function Polls({ embedded = false }) {
       )}
 
       <div className="space-y-4">
-        {polls?.map((poll) => {
+        {(initialLimit > 0 && !showAll ? (polls || []).slice(0, initialLimit) : (polls || [])).map((poll) => {
           const selected = selectedFor(poll);
           const saved = myVote(poll, name);
           const dirty = !sameSet(selected, saved);
@@ -249,6 +250,15 @@ export default function Polls({ embedded = false }) {
           );
         })}
       </div>
+
+      {initialLimit > 0 && !showAll && (polls?.length || 0) > initialLimit && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="mt-4 w-full rounded-lg border border-border bg-pill py-2 text-xs font-semibold text-foreground hover:bg-accent transition-colors"
+        >
+          Show all polls · {polls.length - initialLimit} more
+        </button>
+      )}
 
       {/* Creating a poll needs an identity (logged in, or a typed name in no-auth mode). */}
       {name.trim() && (

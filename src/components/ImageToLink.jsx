@@ -1,33 +1,28 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Loader2, Copy, Check, ExternalLink } from 'lucide-react';
 import { authedFetch } from '../lib/supabase.js';
+import { compressImage, formatBytes } from '../lib/compressImage.js';
 
 const MAX_BYTES = 3 * 1024 * 1024;
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => resolve(String(fr.result).split(',')[1]);
-    fr.onerror = reject;
-    fr.readAsDataURL(file);
-  });
-}
-
 // Drop an image or GIF, get a hosted URL (via the same ImgBB proxy the forum uses).
+// Images are auto-compressed first so the hosted file stays light.
 export default function ImageToLink() {
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [copied, setCopied] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [saved, setSaved] = useState(null); // { before, after }
   const fileRef = useRef(null);
 
   async function upload(file) {
     if (!file || !file.type.startsWith('image/')) { setErr('Pick an image or GIF.'); return; }
-    if (file.size > MAX_BYTES) { setErr('Image too large (max 3MB).'); return; }
-    setErr(''); setBusy(true); setUrl('');
+    setErr(''); setBusy(true); setUrl(''); setSaved(null);
     try {
-      const image = await fileToBase64(file);
+      const { data: image, bytes, originalBytes, skipped } = await compressImage(file);
+      if (bytes > MAX_BYTES) { setErr('Image too large (max 3MB even after compression).'); setBusy(false); return; }
+      if (!skipped) setSaved({ before: originalBytes, after: bytes });
       const r = await authedFetch('/api/upload-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,8 +31,8 @@ export default function ImageToLink() {
       const j = await r.json();
       if (j.ok) setUrl(j.url);
       else setErr(j.error || 'Upload failed.');
-    } catch {
-      setErr('Upload failed.');
+    } catch (e) {
+      setErr(e.message || 'Upload failed.');
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -55,7 +50,7 @@ export default function ImageToLink() {
         <span>Image to link</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Image to link</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image or GIF and get a shareable URL. Handy for issues, posts, and demos.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image or GIF and get a shareable URL. Images are compressed automatically so the link stays light. Handy for issues, posts, and demos.</p>
 
       <div
         onClick={() => !busy && fileRef.current?.click()}
@@ -75,6 +70,12 @@ export default function ImageToLink() {
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
 
       {err && <p className="mt-2 text-xs text-err">{err}</p>}
+
+      {saved && saved.before > saved.after && (
+        <p className="mt-2 text-xs text-ok">
+          Compressed {formatBytes(saved.before)} → {formatBytes(saved.after)} ({Math.round((1 - saved.after / saved.before) * 100)}% smaller)
+        </p>
+      )}
 
       {url && (
         <div className="mt-5 card card-pad">

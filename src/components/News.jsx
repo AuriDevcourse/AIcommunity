@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Clock } from 'lucide-react';
 import news from '../../data/news.json';
 
 function NewsImage({ src, alt }) {
@@ -55,6 +55,15 @@ export default function News() {
             <div className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</div>
           </div>
           <div className="text-xs text-muted num">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
+        </div>
+
+        {/* Planned: auto-refresh this roundup on a schedule instead of by hand. */}
+        <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-pill px-4 py-3 text-sm">
+          <Clock size={15} strokeWidth={2} className="text-foreground mt-0.5 flex-shrink-0" />
+          <p className="text-muted">
+            <span className="font-medium text-foreground">Coming soon: this updates itself.</span>{' '}
+            We're setting up a job that gathers the relevant AI stories automatically every 1–2 weeks (cadence still to be decided), so the roundup stays fresh without manual updates.
+          </p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

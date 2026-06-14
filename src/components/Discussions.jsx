@@ -13,7 +13,6 @@ const ci = (s) => String(s || '').trim().toLowerCase();
 // for what to build next get voted on and discussed.
 const IDEAS_CHANNEL = 'ideas';
 const IDEAS_TITLE = 'Ideas — what should we build next?';
-const POLLS_KEY = '__polls'; // sentinel for the pinned Polls card's expand state
 
 function timeAgo(iso) {
   const then = new Date(iso).getTime();
@@ -83,7 +82,7 @@ export default function Discussions() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full">
       <div className="flex items-center gap-1.5 h-section">
         <MessagesSquare size={11} strokeWidth={2.2} />
         <span>Discussions</span>
@@ -122,77 +121,51 @@ export default function Discussions() {
 
       {/* Topics */}
       <div className="mt-5 space-y-3">
-        {/* Pinned: the Ideas board (vote + reply on what to build next) */}
-        {(() => {
-          const isOpen = open === IDEAS_CHANNEL;
-          return (
-            <div className={`card top-idea-card overflow-hidden ${isOpen ? '' : 'card-interactive'}`}>
-              <button
-                onClick={() => setOpen(isOpen ? null : IDEAS_CHANNEL)}
-                aria-expanded={isOpen}
-                className="w-full flex items-center justify-between gap-3 text-left p-4 transition-colors"
-              >
-                <div className="min-w-0 flex items-center gap-3">
-                  <span className="ideas-chip grid place-items-center w-9 h-9 rounded-lg flex-shrink-0">
-                    <Lightbulb size={17} strokeWidth={2.2} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold tracking-tight flex items-center gap-1.5">
-                      <span className="truncate">{IDEAS_TITLE}</span>
-                      <span className="pill-top flex-shrink-0"><Sparkles size={11} strokeWidth={2.4} /> pinned</span>
-                    </div>
-                    <div className="text-[11px] text-muted mt-0.5">Suggest an idea · vote · reply · sorted by votes</div>
-                  </div>
-                </div>
-                <ChevronDown size={16} className={`flex-shrink-0 text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isOpen && (
-                <div className="border-t border-border p-4">
-                  <SessionThread
-                    channel={IDEAS_CHANNEL}
-                    title="Ideas"
-                    subtitle=""
-                    bare
-                    sortBy="score"
-                    composerPlaceholder="What should we build or do next?"
-                    postLabel="Suggest idea"
-                    emptyLabel="No ideas yet. Suggest the first one."
-                  />
-                </div>
-              )}
+        {/* Pinned: the Ideas board (vote + reply on what to build next). Expanded by
+            default, showing the top 3 ideas with a "See more" for the rest. */}
+        <div className="card top-idea-card overflow-hidden">
+          <div className="flex items-center gap-3 p-4">
+            <span className="ideas-chip grid place-items-center w-9 h-9 rounded-lg flex-shrink-0">
+              <Lightbulb size={17} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold tracking-tight flex items-center gap-1.5">
+                <span className="truncate">{IDEAS_TITLE}</span>
+                <span className="pill-top flex-shrink-0"><Sparkles size={11} strokeWidth={2.4} /> pinned</span>
+              </div>
+              <div className="text-[11px] text-muted mt-0.5">Suggest an idea · vote · reply · sorted by votes</div>
             </div>
-          );
-        })()}
+          </div>
+          <div className="border-t border-border p-4">
+            <SessionThread
+              channel={IDEAS_CHANNEL}
+              title="Ideas"
+              subtitle=""
+              bare
+              sortBy="score"
+              initialLimit={3}
+              composerPlaceholder="What should we build or do next?"
+              postLabel="Suggest idea"
+              emptyLabel="No ideas yet. Suggest the first one."
+            />
+          </div>
+        </div>
 
-        {/* Pinned: Polls (structured votes from organisers) */}
-        {(() => {
-          const isOpen = open === POLLS_KEY;
-          return (
-            <div className={`card overflow-hidden ${isOpen ? '' : 'card-interactive'}`}>
-              <button
-                onClick={() => setOpen(isOpen ? null : POLLS_KEY)}
-                aria-expanded={isOpen}
-                className="w-full flex items-center justify-between gap-3 text-left p-4 transition-colors"
-              >
-                <div className="min-w-0 flex items-center gap-3">
-                  <span className="grid place-items-center w-9 h-9 rounded-lg bg-accent text-foreground flex-shrink-0">
-                    <BarChart3 size={17} strokeWidth={2.2} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold tracking-tight truncate">Polls</div>
-                    <div className="text-[11px] text-muted mt-0.5">Quick votes and gut-checks · one vote per person</div>
-                  </div>
-                </div>
-                <ChevronDown size={16} className={`flex-shrink-0 text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isOpen && (
-                <div className="border-t border-border p-4">
-                  <Polls embedded />
-                </div>
-              )}
+        {/* Pinned: Polls (structured votes from organisers). Expanded, top 3 shown. */}
+        <div className="card overflow-hidden">
+          <div className="flex items-center gap-3 p-4">
+            <span className="grid place-items-center w-9 h-9 rounded-lg bg-accent text-foreground flex-shrink-0">
+              <BarChart3 size={17} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold tracking-tight truncate">Polls</div>
+              <div className="text-[11px] text-muted mt-0.5">Quick votes and gut-checks · one vote per person</div>
             </div>
-          );
-        })()}
+          </div>
+          <div className="border-t border-border p-4">
+            <Polls embedded initialLimit={3} />
+          </div>
+        </div>
 
         {topics === null && Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="card p-4">

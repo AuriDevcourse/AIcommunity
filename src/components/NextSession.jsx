@@ -1,5 +1,5 @@
 import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
-import { Mic, MapPin, Ticket, CalendarClock, CalendarPlus, UserCheck } from 'lucide-react';
+import { Mic, MapPin, Ticket, CalendarClock, CalendarPlus, UserCheck, Video } from 'lucide-react';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
 
@@ -94,6 +94,15 @@ export default function NextSession({ session }) {
       {session.notes && (
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
+
+      {/* Standing reminder: sessions are recorded; everyone names themselves before speaking. */}
+      <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-pill px-3.5 py-3">
+        <Video size={15} strokeWidth={2} className="text-foreground mt-0.5 flex-shrink-0" />
+        <p className="text-sm leading-snug text-foreground">
+          <span className="font-medium">Sessions are recorded.</span>{' '}
+          <span className="text-muted">Before you speak, say your name (about 10 seconds), then carry on.</span>
+        </p>
+      </div>
 
       {/* One RSVP control + unified "Coming" list (in-app RSVPs + calendar accepts). */}
       <Rsvp date={session.date} />

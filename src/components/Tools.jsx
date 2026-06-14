@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Wrench, PenLine, Calculator, ImagePlus, Braces, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Wrench, PenLine, Calculator, ImagePlus, Braces, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostMaker from './PostMaker.jsx';
 import TokenEstimator from './TokenEstimator.jsx';
 import ImageToLink from './ImageToLink.jsx';
+import ImageCompressor from './ImageCompressor.jsx';
 import JsonFormatter from './JsonFormatter.jsx';
 
 const TOOLS = [
   { id: 'post', name: 'Post maker', desc: 'Turn a session into a LinkedIn or Instagram post.', icon: PenLine },
   { id: 'tokens', name: 'Token & cost estimator', desc: 'Estimate tokens and API cost for any prompt.', icon: Calculator },
+  { id: 'compress', name: 'Image compressor', desc: 'Drop an image, download a lighter version. Auto-applied on every upload too.', icon: Minimize2 },
   { id: 'image', name: 'Image to link', desc: 'Drop an image or GIF, get a shareable URL.', icon: ImagePlus },
   { id: 'json', name: 'JSON formatter', desc: 'Format, validate, and minify JSON in your browser.', icon: Braces },
 ];
@@ -26,6 +28,7 @@ export default function Tools({ sessions = [] }) {
         </button>
         {active === 'post' && <PostMaker sessions={sessions} />}
         {active === 'tokens' && <TokenEstimator />}
+        {active === 'compress' && <ImageCompressor />}
         {active === 'image' && <ImageToLink />}
         {active === 'json' && <JsonFormatter />}
       </div>

@@ -3,14 +3,7 @@ import { MessagesSquare, Send, Trash2, Pencil, Check, ChevronUp, ChevronDown, Re
 
 const MAX_IMG_BYTES = 3 * 1024 * 1024; // ~3MB, stays under serverless payload limits
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => resolve(String(fr.result).split(',')[1]);
-    fr.onerror = reject;
-    fr.readAsDataURL(file);
-  });
-}
+import { compressImage } from '../lib/compressImage.js';
 import { useMemberName } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
@@ -54,9 +47,11 @@ export default function SessionThread({
   composerPlaceholder,
   postLabel = 'Post message',
   emptyLabel = 'No messages yet. Start the conversation.',
+  initialLimit = 0, // 0 = show all; >0 shows that many roots, then a "See more" reveals +10
 }) {
   const ch = channel || date;
   const [comments, setComments] = useState(null);
+  const [visible, setVisible] = useState(initialLimit > 0 ? initialLimit : Infinity);
   const [configured, setConfigured] = useState(true);
   const { authMode, name, setName, isReady: named } = useMemberName();
   const [editingName, setEditingName] = useState(!name);
@@ -105,8 +100,10 @@ export default function SessionThread({
     setUploading(true);
     try {
       for (const f of files.slice(0, room)) {
-        if (f.size > MAX_IMG_BYTES) { setUploadErr(`${f.name} is too large (max 3MB).`); continue; }
-        const image = await fileToBase64(f);
+        // Compress before upload so big photos don't hit the server at full weight.
+        const { data: image } = await compressImage(f);
+        const sizeAfter = Math.round((image.length * 3) / 4);
+        if (sizeAfter > MAX_IMG_BYTES) { setUploadErr(`${f.name} is too large (max 3MB even after compression).`); continue; }
         const r = await authedFetch('/api/upload-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -162,6 +159,8 @@ export default function SessionThread({
       ? (b.score - a.score) || (b.createdAt || '').localeCompare(a.createdAt || '')
       : (a.createdAt || '').localeCompare(b.createdAt || '')
   ));
+  const shownRoots = roots.slice(0, visible);
+  const hiddenCount = roots.length - shownRoots.length;
   const repliesByParent = {};
   for (const c of list.filter((x) => x.parentId)) (repliesByParent[c.parentId] = repliesByParent[c.parentId] || []).push(c);
   for (const k of Object.keys(repliesByParent)) repliesByParent[k].sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
@@ -194,7 +193,7 @@ export default function SessionThread({
         {comments !== null && roots.length === 0 && (
           <li className="empty-state">{emptyLabel}</li>
         )}
-        {roots.map((c) => (
+        {shownRoots.map((c) => (
           <li key={c.id}>
             <Comment c={c} {...sharedProps} />
             {repliesByParent[c.id]?.length > 0 && (
@@ -207,6 +206,15 @@ export default function SessionThread({
           </li>
         ))}
       </ul>
+
+      {hiddenCount > 0 && (
+        <button
+          onClick={() => setVisible((v) => v + 10)}
+          className="mt-3 w-full rounded-lg border border-border bg-pill py-2 text-xs font-semibold text-foreground hover:bg-accent transition-colors"
+        >
+          See more · {hiddenCount} more
+        </button>
+      )}
 
       {/* New top-level message */}
       <div className="mt-4 rounded-xl border border-border bg-background p-3">

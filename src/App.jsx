@@ -7,6 +7,7 @@ import NextSession from './components/NextSession.jsx';
 import ScheduleAhead from './components/ScheduleAhead.jsx';
 import Suggestions from './components/Suggestions.jsx';
 import LatestDiscussion from './components/LatestDiscussion.jsx';
+import TopicsForTheDay from './components/TopicsForTheDay.jsx';
 import AuthControls from './components/AuthControls.jsx';
 
 const MembersGallery = lazy(() => import('./components/MembersGallery.jsx'));
@@ -16,6 +17,7 @@ const Tools = lazy(() => import('./components/Tools.jsx'));
 const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
 const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
+const TopicsPresentation = lazy(() => import('./components/TopicsPresentation.jsx'));
 import FeedbackButton from './components/FeedbackButton.jsx';
 import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
@@ -29,7 +31,7 @@ const TABS = [
   { key: 'learn',       label: 'Learn',    icon: GraduationCap },
   { key: 'news',        label: 'News',     icon: Newspaper },
   { key: 'members',     label: 'Members',  icon: Users },
-  { key: 'sessions',    label: 'Sessions', icon: Images },
+  { key: 'sessions',    label: 'Photos',   icon: Images },
   { key: 'tools',       label: 'Tools',    icon: Wrench },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
@@ -48,23 +50,31 @@ function readRecapDate() {
   return m ? m[1] : null;
 }
 
+// The topics slide deck lives at #present (opened in a new tab from the Forum).
+function readPresent() {
+  return (typeof window !== 'undefined' ? window.location.hash.slice(1) : '') === 'present';
+}
+
 export default function App() {
   const [tab, setTab] = useState(readTabFromHash);
   const [recapDate, setRecapDate] = useState(readRecapDate);
+  const [present, setPresent] = useState(readPresent);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onHashChange = () => {
       const rd = readRecapDate();
+      const pr = readPresent();
       setRecapDate(rd);
-      if (!rd) setTab(readTabFromHash());
+      setPresent(pr);
+      if (!rd && !pr) setTab(readTabFromHash());
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   useEffect(() => {
-    if (recapDate) return; // the recap route owns the hash; don't overwrite it
+    if (recapDate || present) return; // the recap / present routes own the hash; don't overwrite it
     const current = window.location.hash.slice(1);
     // Don't rewrite the hash while it carries an auth callback (e.g. an
     // implicit-flow #access_token=...), or we'd wipe it before Supabase reads it.
@@ -72,7 +82,7 @@ export default function App() {
     if (current !== tab) {
       window.history.replaceState(null, '', `#${tab}`);
     }
-  }, [tab, recapDate]);
+  }, [tab, recapDate, present]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -104,9 +114,26 @@ export default function App() {
   // the static build-time snapshot (see useSchedule).
   const { upcoming: liveUpcoming } = useSchedule(data.schedule.upcoming);
   const todayIso = TODAY.toISOString().slice(0, 10);
-  const upcomingFromToday = liveUpcoming.filter((s) => s.date >= todayIso);
+  // Google Calendar only carries date/theme/venue, so graft the per-session
+  // topics from the static schedule onto the live session by date.
+  const topicsByDate = Object.fromEntries(
+    (data.schedule.upcoming || []).filter((s) => s.topics?.length).map((s) => [s.date, s.topics])
+  );
+  const upcomingFromToday = liveUpcoming
+    .filter((s) => s.date >= todayIso)
+    .map((s) => (s.topics?.length ? s : { ...s, topics: topicsByDate[s.date] || [] }));
   const next = upcomingFromToday[0];
   const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
+
+  // #present renders the topics slide deck on its own (no header/nav), so it can
+  // drive a projector in a separate tab.
+  if (present) {
+    return (
+      <Suspense fallback={<TabFallback />}>
+        <TopicsPresentation session={next} onClose={() => { window.location.hash = 'discussions'; }} />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-full flex flex-col">
@@ -197,7 +224,16 @@ export default function App() {
             )}
 
             {tab === 'learn' && <Learn />}
-            {tab === 'discussions' && <Discussions />}
+            {tab === 'discussions' && (
+              <div className="grid grid-cols-12 gap-6 items-start">
+                <div className="col-span-12 lg:col-span-5 xl:col-span-4">
+                  <TopicsForTheDay session={next} />
+                </div>
+                <div className="col-span-12 lg:col-span-7 xl:col-span-8">
+                  <Discussions />
+                </div>
+              </div>
+            )}
             {tab === 'news' && <News />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
             {tab === 'members' && <MembersGallery members={data.members} />}
