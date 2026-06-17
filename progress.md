@@ -2,6 +2,45 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SESSION HANDOFF — 2026-06-16 (RESUME HERE)
+
+**Current state:** Session **#08 (2026-06-14)** transcribed, cleaned, and published to the
+Obsidian vault + built into `src/data.json`. It shows on the **local** dev server only.
+**NOT committed, NOT pushed** — live site unchanged. Changes sit **uncommitted on `main`**.
+
+**What was just done:**
+- Built the cross-repo recording → transcript → dashboard pipeline (see `docs/recording-pipeline.md`).
+- In the **transcribe** repo (`C:/Users/User/Desktop/SideProjects/transcribe`): added
+  `archive_transcript.py` (full transcript, profanity masked EN+LT → private vault
+  `AI Workshop/Transcripts/`), `name_from_intros.py` (name speakers from their self-intros,
+  PRIMARY over voiceprints), a hallucination guard in `cleanup_local.py`, EMPTIED the stale
+  hardcoded speaker map in `apply_corrections.py` (it leaked #07's "Frederik" onto #08), and
+  added glossary fixes (ChatGPT, eToro, CLAUDE.md). All wired into `run.py`.
+- Processed #08 from `Ai comm 2.m4a` (1h44m, 415 turns). Hand-fixed names + product names.
+  Published `Sessions/#08 SESSION 2026-06-14.md` + `Transcripts/#08 TRANSCRIPT 2026-06-14.md`.
+
+**Next steps (in order):**
+1. **Decide git:** move the uncommitted changes onto a branch (e.g. `feat/session-08`) — repo
+   AUTO-DEPLOYS from `main` on push, so don't commit straight to `main`. Then commit + (when
+   ready) merge/push to deploy #08 to the live site.
+2. Fill **Location** for #08 (currently `TBD` in `Sessions/#08 SESSION 2026-06-14.md`), re-run
+   `npm run build:data`.
+3. Replace the **Mikolos** image-generator placeholder with its real name (Auri to recall),
+   add to glossary, rebuild.
+
+**Uncommitted right now:** `M src/data.json`, `?? docs/recording-pipeline.md`. Last commit
+`8665946`, `main` level with `origin/main`.
+
+**Gotchas:**
+- This repo auto-deploys from `main` on push → branch first.
+- #08's small speakers stayed "Guest" (diarization over-split; couldn't pin Justas/Iret to
+  voice labels). For future sessions do a clean **intro round** (each person says "Hi, I'm X"
+  one at a time) so `name_from_intros.py` maps them automatically.
+- Dev server was running on `http://localhost:5280`. Ollama must be up for the pipeline.
+
+**Files:** `docs/recording-pipeline.md` (the full flow), `scripts/build-data.js` (reads vault
+`Sessions/` → `src/data.json`), and the transcribe repo's `run.py` + its `progress.md`.
+
 ## Latest session — 2026-06-14 (merged to `main`, deployed · commit `ca77400`)
 
 **Current state:** Built a "Topics for the day" system + a presentation deck for running the meetup, plus image compression and Forum tweaks. All merged to `main` and pushed (auto-deploys to Vercel). Build clean.

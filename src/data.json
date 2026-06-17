@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-14T09:47:44.785Z",
+  "generatedAt": "2026-06-17T13:54:49.589Z",
   "sessions": [
     {
       "number": 1,
@@ -74,6 +74,7 @@
         }
       ],
       "summary": "First meeting to get to know each other as AI enthusiasts. We discussed the format, how we work, and future prospects.",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2025-06-29/1.jpg",
@@ -138,6 +139,7 @@
         }
       ],
       "summary": "",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2025-07-12/1.jpg",
@@ -178,6 +180,7 @@
       ],
       "actions": [],
       "summary": "",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2025-07-27/IMG_4549.jpg",
@@ -221,6 +224,7 @@
       ],
       "actions": [],
       "summary": "",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2025-09-14/IMG_5130.jpg",
@@ -248,6 +252,7 @@
       "demos": [],
       "actions": [],
       "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2026-03-08/1.jpg",
@@ -267,6 +272,7 @@
       "demos": [],
       "actions": [],
       "summary": "",
+      "topics": [],
       "tools": [],
       "photos": [
         "/sessions/2026-05-03/03052026_01.jpeg",
@@ -329,7 +335,37 @@
           "sessionDate": "2026-05-31"
         }
       ],
-      "summary": "A hands-on session about how each of us actually builds with AI day to day. Most of the time went to two themes: running models locally versus paying for cloud models, and showing real working setups. We compared local-model runners and hardware limits, walked through live project builds, and shared workflow tips for keeping AI projects organised and reasonably secure.\r\n\r\nThe recurring takeaway: local models are appealing (free, private) but need a strong GPU and still trail the paid cloud models on quality, so the practical answer is usually a mix, pick the cheapest tool that is good enough for the task.",
+      "summary": "A hands-on session about how each of us actually builds with AI day to day. Most of the time went to two themes: running models locally versus paying for cloud models, and showing real working setups. We compared local-model runners and hardware limits, walked through live project builds, and shared workflow tips for keeping AI projects organised and reasonably secure.",
+      "topics": [
+        {
+          "title": "Local models vs paid cloud",
+          "summary": "The central debate of the session. Running models locally through Ollama or LM Studio is free and private, but the group agreed it needs serious hardware and still trails the paid cloud models on quality. Justas recommended LM Studio because it shows which models actually fit your machine. Eividas reached for a stronger cloud model (Sonnet via OpenClaw) when a task needed real power. The shared conclusion was a pragmatic mix, use the cheapest tool that is good enough for the job rather than forcing everything local or everything cloud."
+        },
+        {
+          "title": "Hardware and model size",
+          "summary": "A practical look at what it takes to run the bigger models. Frederik explained that a 32-billion-parameter model needs roughly 40 GB of memory at FP4/FP8 precision, which is why most laptops simply can't run the strong models locally. The group noted that different tasks lean on different hardware, image generation wants a capable GPU, while voice and transcription lean more on the CPU. Eividas summed up the trade-off: local models are free but slower and lower quality than the cloud options."
+        },
+        {
+          "title": "Running local AI tools",
+          "summary": "How people actually run things on their own machines. Eividas walked through generating images locally with Flux / FLUX.2 [klein] on a home GPU, installed and managed through Pinokio (a one-click installer that pulls in missing dependencies) and ComfyUI for the node-based image workflow. Ollama and LM Studio came up again as the friendlier ways to download and serve local LLMs."
+        },
+        {
+          "title": "Coding agents and IDE setups",
+          "summary": "The tools the group uses to write code with AI. Cline and Continue run as VS Code extensions, GitHub Copilot gives inline suggestions, and Claude Code was used to build whole projects end to end. Eividas advised sticking to Copilot or other verified plugins when wiring models into VS Code, rather than trusting unknown extensions."
+        },
+        {
+          "title": "Live project builds",
+          "summary": "The hands-on demos. Auri live-built a small currency-converter web app with Claude Code, added Supabase plus Google sign-in so users never manage a password, and deployed it to Vercel, then toured the community dashboard with its forum and idea-voting. Yogi showed a business operations dashboard built with Claude that pulls in live data through several connected APIs, and mentioned using Whisper to clone his voice and Claude to draft offers and estimates."
+        },
+        {
+          "title": "Workflow, security and staying organised",
+          "summary": "Tips for keeping AI projects tidy and safe. The group shared working in focused blocks with a Pomodoro timer, capturing notes and transcription in Notion, and double-checking every GitHub push so secrets don't leak by accident. Justas raised the trust question around granting Google auth access and pushing credentials to GitHub."
+        },
+        {
+          "title": "Funding and monetisation",
+          "summary": "A short thread on keeping a community project sustainable. Auri weighed relying on one large backer against taking many smaller donations, leaning toward smaller contributions to stay independent."
+        }
+      ],
       "tools": [
         {
           "name": "Pinokio",
@@ -442,6 +478,212 @@
         {
           "name": "Claude Code skills (stop-slop, ui-ux-pro-max)",
           "note": "remove AI \"tells\" from text; guide UI/UX work"
+        }
+      ],
+      "photos": []
+    },
+    {
+      "number": 8,
+      "date": "2026-06-14",
+      "location": "TBD",
+      "attendees": [
+        "Auri",
+        "Andrei",
+        "Sany",
+        "Eividas",
+        "Guest",
+        "Ignas"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Presentation tool he built for saving containers as PDFs"
+        },
+        {
+          "presenter": "Ignas",
+          "topic": "Efforts to integrate pictures into specific projects without overriding manual changes"
+        }
+      ],
+      "actions": [],
+      "summary": "The session covered various applications of AI tools across different domains such as image generation, business trading, creative projects, project management, design and development, cryptocurrency trading, and gaming. The group discussed specific tools like Mato elements, Adobe Illustrator's AI features, VAE, Blender, and others, focusing on their practical uses and potential benefits",
+      "topics": [
+        {
+          "title": "AI Tools for Image Generation",
+          "summary": "The discussion centered around various AI tools used in image generation. Auri highlighted the use of Mato elements, Adobe Illustrator's AI features, and VAE for specific sections of websites. Andrei mentioned the potential of AI in creating 3D models and generating SVG files from vector forms"
+        },
+        {
+          "title": "AI in Business and Trading",
+          "summary": "Participants explored the use of AI in business purposes such as trading platforms and data labeling services. Ignas shared his experience with AI tools like Claude for drawing tasks, emphasizing potential risks associated with small budget trades due to tax issues and increased scrutiny from accountants. He also recommended Koinly for simplifying crypto platform report exports"
+        },
+        {
+          "title": "AI in Creative Projects",
+          "summary": "The group discussed various creative applications of AI, including generating brand guides, creating 3D models with Blender and Fusion, and using AI to enhance presentations. Auri described a presentation tool he built for saving containers as PDFs, while Ignas discussed his efforts to integrate pictures into specific projects without overriding manual changes"
+        },
+        {
+          "title": "AI in Project Management",
+          "summary": "The conversation delved into project management tools with a focus on security and API limitations. Eividas suggested using 'AS' for the project name due to its ease of searchability, while Andrei highlighted the need for better UX design in presentations. The group also touched upon the use of CLAUDE.md for security workflows and design files"
+        },
+        {
+          "title": "AI in Design and Development",
+          "summary": "The discussion included various AI tools used in design and development, such as OpenClaw, Hermes, and Stingy. Andrei mentioned downloading models from Ollama via API URL and the potential of AI to create 3D models for technical purposes. Sany proposed using AI to generate photographs for better fitting visuals"
+        },
+        {
+          "title": "AI in Cryptocurrency Trading",
+          "summary": "The group debated the use of AI in cryptocurrency trading, with Ignas warning about the risks and potential losses associated with small budget trades. He recommended connecting history with trading platforms to avoid increased scrutiny from accountants but noted that accounting costs are high despite providing legal advice"
+        },
+        {
+          "title": "AI in Gaming",
+          "summary": "The discussion included AI applications in gaming, such as recreating GTA Six and using AI for data labeling. Ignas shared his experience with a platform called CrowdSomething where people can label data for free but get paid small amounts. Auri mentioned the use of AI to create brand guides by copying images from new websites"
+        }
+      ],
+      "tools": [
+        {
+          "name": "Blender",
+          "note": "Used for creating 3D models and animations"
+        },
+        {
+          "name": "Blender MCP",
+          "note": "mentioned by Sany as a tool for generating 3D models"
+        },
+        {
+          "name": "ChatGPT",
+          "note": "Mentioned as an example for creating your own AI system"
+        },
+        {
+          "name": "Claude",
+          "note": "Has extensions for both Fusion and Blender now, tested by drawing a dog in Blender"
+        },
+        {
+          "name": "CLAUDE.md",
+          "note": "Used for security workflows and design files"
+        },
+        {
+          "name": "Koinly",
+          "note": "Used to connect crypto platforms and export reports for accountants"
+        },
+        {
+          "name": "Cron",
+          "note": "Used to send jobs every hour"
+        },
+        {
+          "name": "CrowdSomething",
+          "note": "A platform where people can do data labeling for free but get paid a small amount of money"
+        },
+        {
+          "name": "Etsy",
+          "note": "Platform where items are listed and sold, with associated fees"
+        },
+        {
+          "name": "Fable mod for Minecraft",
+          "note": "Discussed as a game made with Fable"
+        },
+        {
+          "name": "Flux",
+          "note": "A text-to-image and text-to-AI tool"
+        },
+        {
+          "name": "Fusion",
+          "note": "Used alongside Blender, but more tricky to work with"
+        },
+        {
+          "name": "Gelato",
+          "note": "Used for producing posters with high-quality prints but expensive fees"
+        },
+        {
+          "name": "GitHub",
+          "note": "Downloaded bits of code from GitHub to work with Blender"
+        },
+        {
+          "name": "GTA Six recreation",
+          "note": "Someone tried to recreate GTA Six, and another version called GTAce might come out soon"
+        },
+        {
+          "name": "Hermes",
+          "note": "Discussed as an alternative to OpenClaw, noted to potentially use more tokens and require a decent model"
+        },
+        {
+          "name": "eToro",
+          "note": "Copy-trading platform where you follow and mirror other traders' trades; also came up around tax reporting (not yet verified by Andrei)"
+        },
+        {
+          "name": "Loophole Bros",
+          "note": "Recommended for accounting by Andrei"
+        },
+        {
+          "name": "Mikolos",
+          "note": "An image generator app"
+        },
+        {
+          "name": "Mythos models",
+          "note": "Discussed in context of enterprise use, limitations, and government shutdowns due to safety concerns"
+        },
+        {
+          "name": "Nano Banana",
+          "note": "Used for generating images, removing objects, scaling up or down, generating graphics and logos, and converting everything to SVGs"
+        },
+        {
+          "name": "New software",
+          "note": "Used for project management with some features needing improvement"
+        },
+        {
+          "name": "Ollama",
+          "note": "used to download models via API URL, mentioned by Auri"
+        },
+        {
+          "name": "OpenClaw",
+          "note": "Compared to Hermes, mentioned to be free but created by a single developer"
+        },
+        {
+          "name": "Opus",
+          "note": "Mentioned as a comparison for pricing and capabilities"
+        },
+        {
+          "name": "Presentation tool",
+          "note": "Allows for creating new containers and saving them as PDFs"
+        },
+        {
+          "name": "Pyrmus",
+          "note": "Noted for taking care of itself well, implying it might be used instead of OpenClaw due to its self-maintaining nature"
+        },
+        {
+          "name": "Recording software",
+          "note": "Records sessions locally on Auri's laptop"
+        },
+        {
+          "name": "Revolut",
+          "note": "Pushes users to verify their location due to reporting concerns"
+        },
+        {
+          "name": "Session management system",
+          "note": "Organizes information by session, useful for summarizing discussions"
+        },
+        {
+          "name": "Shopify",
+          "note": "Suggested as a potential platform to push listings after improving visibility"
+        },
+        {
+          "name": "Sketchfab",
+          "note": "mentioned as a source for 3D models, suggested by Ignas"
+        },
+        {
+          "name": "Stop-Slop AI",
+          "note": "GitHub library that helps ensure text is written more humanely, making it look more realistic"
+        },
+        {
+          "name": "Telegram",
+          "note": "Suggested for sending alarms about trade suggestions"
+        },
+        {
+          "name": "Tensor Honey",
+          "note": "part of Blender MCP, mentioned by Sany"
+        },
+        {
+          "name": "VAE",
+          "note": "Used for generating designs and animations based on a website"
+        },
+        {
+          "name": "WhatsApp",
+          "note": "Discussed pinning something in WhatsApp"
         }
       ],
       "photos": []

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Link2, Check, Sparkles, Square, Copy, Loader2, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench } from 'lucide-react';
+import { ArrowLeft, Link2, Check, Sparkles, Square, Copy, Loader2, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
 import { streamDraft } from '../lib/postdraft.js';
 import { useAuth, useMemberName } from '../lib/auth.jsx';
@@ -64,6 +64,24 @@ export default function SessionRecap({ date, sessions, onBack }) {
       {committed?.summary && (
         <section className="mt-8">
           <div className="text-base leading-relaxed text-foreground whitespace-pre-line">{committed.summary}</div>
+        </section>
+      )}
+
+      {/* Topics — what we talked about, split into themes */}
+      {committed?.topics?.length > 0 && (
+        <section className="mt-8">
+          <div className="flex items-center gap-1.5 h-section">
+            <MessagesSquare size={11} strokeWidth={2.2} /><span>What we talked about</span>
+            <span className="pill pill-mute num ml-1">{committed.topics.length}</span>
+          </div>
+          <div className="mt-3 space-y-2.5">
+            {committed.topics.map((t, i) => (
+              <div key={i} className="warm-card card-pad">
+                <div className="text-sm font-semibold leading-snug">{t.title}</div>
+                {t.summary && <div className="text-sm text-muted mt-1 leading-relaxed">{t.summary}</div>}
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -169,6 +187,10 @@ function buildNotes(session, title, photoCount) {
   lines.push(`It happened in Copenhagen on ${fmtDateLong(session?.date || '')}.`);
   if (session?.location) lines.push(`Format/location: ${session.location}.`);
   if (session?.summary) lines.push(`What it was about: ${session.summary}`);
+  if (session?.topics?.length) {
+    lines.push('Topics we discussed:');
+    for (const t of session.topics) lines.push(`- ${t.title}${t.summary ? `: ${t.summary}` : ''}`);
+  }
   if (session?.demos?.length) {
     lines.push('People demoed:');
     for (const d of session.demos) lines.push(`- ${d.presenter}: ${d.topic}`);

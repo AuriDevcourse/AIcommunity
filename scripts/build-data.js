@@ -5,12 +5,19 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const NOTES_DIR = process.env.AI_WORKSHOP_NOTES_DIR
-  || (process.platform === 'win32'
-    ? 'C:\\Users\\User\\Documents\\Obsidian Vault\\AI Workshop'
-    : '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop');
-const SESSIONS_DIR = join(NOTES_DIR, 'Sessions');
-const HUB_FILE = join(NOTES_DIR, 'AI Workshop.md');
+
+// Session notes now live IN THIS REPO (content/sessions) — the transcribe pipeline
+// writes them here directly, so Obsidian is NOT required to build or deploy.
+// Override with AI_WORKSHOP_SESSIONS_DIR if you ever keep them elsewhere.
+const SESSIONS_DIR = process.env.AI_WORKSHOP_SESSIONS_DIR || join(ROOT, 'content', 'sessions');
+
+// The member/hub doc stays OPTIONAL in the Obsidian vault (rarely edited). If it's
+// not present (e.g. a Vercel build, or no vault), members fall back to the committed
+// src/data.json snapshot below — so the dashboard never loses its member list.
+const VAULT_DIR = process.platform === 'win32'
+  ? 'C:\\Users\\User\\Documents\\Obsidian Vault\\AI Workshop'
+  : '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop';
+const HUB_FILE = process.env.AI_WORKSHOP_HUB_FILE || join(VAULT_DIR, 'AI Workshop.md');
 const SCHEDULE_FILE = join(ROOT, 'data', 'schedule.json');
 const BACKLOG_FILE = join(ROOT, 'data', 'backlog.json');
 const OUT_FILE = join(ROOT, 'src', 'data.json');
@@ -32,6 +39,14 @@ function listSessionPhotosForDate(dateIso) {
 function listAllPhotoDates() {
   if (!existsSync(SESSION_PHOTOS_DIR)) return [];
   return readdirSync(SESSION_PHOTOS_DIR).filter((f) => DATE_FOLDER.test(f));
+}
+
+// On Vercel, don't regenerate: ship the committed src/data.json that was built and
+// reviewed locally (the hub/members + any vault-sourced bits live on the local box).
+// This keeps deploys deterministic and avoids a partial rebuild dropping data.
+if (process.env.VERCEL && existsSync(OUT_FILE)) {
+  console.log('build-data: on Vercel — using committed src/data.json snapshot');
+  process.exit(0);
 }
 
 if (!existsSync(SESSIONS_DIR)) {
@@ -87,6 +102,14 @@ function parseSessionFile(filename) {
   const aboutMatch = raw.match(/^## About This Session\s*\n+([^\n][^\n]*(?:\n[^\n#].*)*)/m);
   const summary = aboutMatch ? aboutMatch[1].trim() : '';
 
+  // Topics: "### Title" blocks under "## Topics", each followed by a paragraph.
+  // The public-safe "what we talked about" breakdown.
+  const topicsSection = raw.split(/^## Topics\s*$/m)[1]?.split(/^## /m)[0] || '';
+  const topics = topicsSection.split(/^### /m).slice(1).map((block) => {
+    const lines = block.split('\n');
+    return { title: lines[0].trim(), summary: lines.slice(1).join('\n').trim() };
+  }).filter((t) => t.title);
+
   // Tools & products discussed: "- **Name** — note" bullets (the AI ideas of the
   // session). Drives the recap "Tools discussed" list + the auto LinkedIn draft.
   const toolsSection = raw.split(/^## Tools[^\n]*$/m)[1]?.split(/^## /m)[0] || '';
@@ -95,7 +118,7 @@ function parseSessionFile(filename) {
     .filter((t) => t.name);
 
   const photos = listSessionPhotosForDate(date);
-  return { number, date, location, attendees, demos, actions, summary, tools, photos };
+  return { number, date, location, attendees, demos, actions, summary, topics, tools, photos };
 }
 
 function parseHub() {
@@ -143,7 +166,12 @@ for (const dateIso of listAllPhotoDates()) {
 }
 sessions.sort((a, b) => a.date.localeCompare(b.date));
 
-const { members, hubActions } = parseHub();
+let { members, hubActions } = parseHub();
+// If the (optional) hub doc wasn't found, keep the members from the last committed
+// snapshot so a vault-less build (Vercel) doesn't drop the member list.
+if (!members.length && existsSync(OUT_FILE)) {
+  members = readJson(OUT_FILE)?.members || [];
+}
 const schedule = readJson(SCHEDULE_FILE) || { upcoming: [], gaps: [] };
 const backlog = readJson(BACKLOG_FILE) || [];
 

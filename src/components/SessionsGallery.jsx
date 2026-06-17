@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2, Loader2, ArrowUpRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2, Loader2, ArrowUpRight, MessagesSquare } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 import PhotoUploader from './PhotoUploader.jsx';
@@ -73,8 +73,9 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
     return [...known, ...rest];
   };
 
+  // Show EVERY session (with or without photos) so the recap + topics are always
+  // reachable. Photo-less sessions get a placeholder cover that opens the recap.
   const merged = [...byDate.values()]
-    .filter((s) => s.photos.length > 0)
     .map((s) => ({ ...s, photos: applyOrder(s.photos, metaFor(s.date).order) }));
   const sorted = merged.sort((a, b) => b.date.localeCompare(a.date));
   const sessionDates = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
@@ -105,8 +106,8 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
             {loading
               ? 'Loading sessions…'
               : sorted.length === 0
-                ? 'No photos yet. Add some with the button.'
-                : `${sorted.length} sessions with photos.`}
+                ? 'No sessions yet.'
+                : `${sorted.length} sessions.`}
           </p>
         </div>
         <button
@@ -176,24 +177,36 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
 
 function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
   const date = fmtDate(session.date);
+  const hasPhotos = session.photos.length > 0;
+  const topicCount = session.topics?.length || 0;
 
   return (
     <article className="group relative flex flex-col">
       <button
         type="button"
-        onClick={() => onOpen(0)}
+        // Photo'd sessions open the lightbox; photo-less ones jump straight to the recap.
+        onClick={() => (hasPhotos ? onOpen(0) : onRecap && onRecap())}
         className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
-        <img
-          src={cover}
-          alt=""
-          loading="lazy"
-          className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
-        />
+        {hasPhotos ? (
+          <img
+            src={cover}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted bg-accent">
+            <MessagesSquare size={26} strokeWidth={1.6} />
+            <span className="text-xs font-medium">
+              {topicCount > 0 ? `${topicCount} topics` : 'View recap'}
+            </span>
+          </div>
+        )}
         <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
           {date}
         </span>
-        {session.photos.length > 1 && (
+        {hasPhotos && session.photos.length > 1 && (
           <span className="absolute left-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
             {session.photos.length} photos
           </span>
