@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Link2, Check, Sparkles, Square, Copy, Loader2, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, Link2, Check, PenLine, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare, ExternalLink, Info, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
-import { streamDraft } from '../lib/postdraft.js';
-import { useAuth, useMemberName } from '../lib/auth.jsx';
 
 // Public, shareable recap of a single past session: cover, who came, what was
-// demoed, the photo gallery, plus a one-tap LinkedIn draft. Reached via the hash
-// route #recap/<date> (no auth needed to view).
+// demoed, the photo gallery. Reached via the hash route #recap/<date> (no auth to
+// view). Post creation is handed off to the Post maker tool, not drafted inline.
 export default function SessionRecap({ date, sessions, onBack }) {
   const committed = useMemo(() => (sessions || []).find((s) => s.date === date) || null, [sessions, date]);
   const [uploads, setUploads] = useState([]); // runtime Blob photos for this date
@@ -35,7 +34,24 @@ export default function SessionRecap({ date, sessions, onBack }) {
     return [...base, ...extra];
   }, [committed, uploads]);
 
-  const title = name || (committed?.number != null ? `Session #${committed.number}` : fmtDate(date));
+  // Same name chain as the Sessions gallery so the recap title matches the tile:
+  // a REAL custom rename (differs from "Session #N") → curated title → "Session #N".
+  // A junk override equal to "Session #N" is ignored so the title shows.
+  const fallback = committed?.number != null ? `Session #${committed.number}` : fmtDate(date);
+  const override = name?.trim();
+  const title = (override && override !== fallback) ? override : (committed?.title?.trim() || fallback);
+
+  // Cover = the featured (first) photo, baked into data.json so it's known on first
+  // paint. Fixed (not random) so the browser can cache it and it loads eagerly.
+  const cover = committed?.photos?.[0] || photos[0];
+
+  // Photo lightbox (in-page overlay) — null when closed, else the open photo index.
+  const [lightbox, setLightbox] = useState(null);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const PHOTO_PREVIEW = 6;
+
+  // Hide a placeholder "TBD" location so the recap header doesn't read "… · TBD".
+  const place = committed?.location && committed.location.trim().toUpperCase() !== 'TBD' ? committed.location.trim() : '';
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -50,13 +66,14 @@ export default function SessionRecap({ date, sessions, onBack }) {
           {committed?.number != null && <span className="pill pill-mute num">#{committed.number}</span>}
         </div>
         <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-2 text-sm text-muted">{fmtDateLong(date)} · Copenhagen{committed?.location ? ` · ${committed.location}` : ''}</p>
+        <p className="mt-2 text-sm text-muted">{fmtDateLong(date)} · Copenhagen{place ? ` · ${place}` : ''}</p>
+        <RecapActions date={date} />
       </header>
 
-      {/* Cover */}
-      {photos[0] && (
+      {/* Cover — the featured photo, loaded eagerly so it's there right away */}
+      {cover && (
         <div className="mt-6 rounded-2xl overflow-hidden border border-border bg-accent">
-          <img src={photos[0]} alt="" className="w-full max-h-[460px] object-cover" />
+          <img src={cover} alt="" loading="eager" fetchpriority="high" decoding="async" className="w-full max-h-[460px] object-cover" />
         </div>
       )}
 
@@ -76,9 +93,14 @@ export default function SessionRecap({ date, sessions, onBack }) {
           </div>
           <div className="mt-3 space-y-2.5">
             {committed.topics.map((t, i) => (
-              <div key={i} className="warm-card card-pad">
-                <div className="text-sm font-semibold leading-snug">{t.title}</div>
-                {t.summary && <div className="text-sm text-muted mt-1 leading-relaxed">{t.summary}</div>}
+              <div key={i} className="warm-card card-pad flex gap-3">
+                <div className="mt-0.5 shrink-0 grid place-items-center w-7 h-7 rounded-lg bg-accent text-foreground">
+                  <MessagesSquare size={14} strokeWidth={2} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold leading-snug">{t.title}</div>
+                  {t.summary && <div className="text-sm text-muted mt-1 leading-relaxed">{t.summary}</div>}
+                </div>
               </div>
             ))}
           </div>
@@ -91,9 +113,14 @@ export default function SessionRecap({ date, sessions, onBack }) {
           <div className="flex items-center gap-1.5 h-section"><Mic size={11} strokeWidth={2.2} /><span>What we demoed</span></div>
           <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {committed.demos.map((d, i) => (
-              <li key={i} className="warm-card card-pad">
-                <div className="text-sm font-semibold leading-snug">{d.topic}</div>
-                <div className="text-xs text-muted mt-0.5">by {d.presenter}</div>
+              <li key={i} className="warm-card card-pad flex gap-3">
+                <div className="mt-0.5 shrink-0 grid place-items-center w-7 h-7 rounded-lg bg-accent text-foreground">
+                  <Mic size={14} strokeWidth={2} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold leading-snug">{d.topic}</div>
+                  <div className="text-xs text-muted mt-0.5">by {d.presenter}</div>
+                </div>
               </li>
             ))}
           </ul>
@@ -120,11 +147,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
             <Wrench size={11} strokeWidth={2.2} /><span>Tools & ideas discussed</span>
             <span className="pill pill-mute num ml-1">{committed.tools.length}</span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {committed.tools.map((t) => (
-              <span key={t.name} className="pill" title={t.note || undefined}>{t.name}</span>
-            ))}
-          </div>
+          <ToolChips tools={committed.tools} />
         </section>
       )}
 
@@ -143,23 +166,129 @@ export default function SessionRecap({ date, sessions, onBack }) {
             <span>No photos for this session yet.</span>
           </div>
         ) : (
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {photos.map((url, i) => (
-              <a key={url} href={url} target="_blank" rel="noreferrer" aria-label={`Open photo ${i + 1} of ${photos.length} full size`} className="block aspect-square overflow-hidden rounded-xl border border-border bg-accent group">
-                <img src={url} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              </a>
-            ))}
-          </div>
+          <>
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {(showAllPhotos ? photos : photos.slice(0, PHOTO_PREVIEW)).map((url, i) => (
+                <button key={url} type="button" onClick={() => setLightbox(i)} aria-label={`Open photo ${i + 1} of ${photos.length}`} className="block aspect-square overflow-hidden rounded-xl border border-border bg-accent group">
+                  <img src={url} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                </button>
+              ))}
+            </div>
+            {photos.length > PHOTO_PREVIEW && !showAllPhotos && (
+              <button onClick={() => setShowAllPhotos(true)} className="btn btn-sm btn-ghost mt-3">
+                See more <ChevronDown size={14} strokeWidth={2.2} /> <span className="num text-muted">({photos.length - PHOTO_PREVIEW})</span>
+              </button>
+            )}
+          </>
         )}
       </section>
 
-      {/* Share + draft */}
-      <Share date={date} session={committed} title={title} photoCount={photos.length} />
+      {lightbox != null && (
+        <PhotoLightbox photos={photos} index={lightbox} onIndex={setLightbox} onClose={() => setLightbox(null)} />
+      )}
     </div>
   );
 }
 
-function Share({ date, session, title, photoCount }) {
+// In-page photo viewer: keyboard (Esc / arrows), prev/next, click-outside to close.
+function PhotoLightbox({ photos, index, onIndex, onClose }) {
+  const total = photos.length;
+  const next = useCallback(() => onIndex((index + 1) % total), [index, total, onIndex]);
+  const prev = useCallback(() => onIndex((index - 1 + total) % total), [index, total, onIndex]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowRight') next();
+      else if (e.key === 'ArrowLeft') prev();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [next, prev, onClose]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-foreground/90 backdrop-blur-sm"
+      onClick={onClose}
+      style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))', paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+    >
+      <div className="flex justify-end px-4 shrink-0">
+        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full bg-white/90 p-2 text-foreground hover:bg-white transition-colors" aria-label="Close">
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="relative flex-1 min-h-0 flex items-center justify-center px-4 sm:px-20">
+        {total > 1 && (
+          <>
+            <button onClick={(e) => { e.stopPropagation(); prev(); }} className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors" aria-label="Previous">
+              <ChevronLeft size={22} />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); next(); }} className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors" aria-label="Next">
+              <ChevronRight size={22} />
+            </button>
+          </>
+        )}
+        <img src={photos[index]} alt="" draggable={false} onClick={(e) => e.stopPropagation()} className="max-h-full max-w-full object-contain rounded-xl select-none" />
+      </div>
+
+      {total > 1 && (
+        <div className="shrink-0 text-center text-xs text-background/80 num pt-3" onClick={(e) => e.stopPropagation()}>
+          {index + 1} / {total}
+        </div>
+      )}
+    </div>,
+    document.body,
+  );
+}
+
+// Tools discussed. A tool with a website renders as a link (opens the site); one
+// without shows an info dot and reveals "what it does" inline when clicked (so the
+// note is reachable on touch, where hover tooltips don't exist).
+function ToolChips({ tools }) {
+  const [openIdx, setOpenIdx] = useState(null);
+  const open = openIdx != null ? tools[openIdx] : null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {tools.map((t, i) =>
+        t.url ? (
+          <a
+            key={i}
+            href={t.url}
+            target="_blank"
+            rel="noreferrer"
+            title={t.note || undefined}
+            className="pill inline-flex items-center gap-1 hover:bg-foreground hover:text-background transition-colors"
+          >
+            {t.name}
+            <ExternalLink size={11} strokeWidth={2.2} className="opacity-70" />
+          </a>
+        ) : (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setOpenIdx(openIdx === i ? null : i)}
+            title={t.note || undefined}
+            aria-expanded={openIdx === i}
+            className={`pill inline-flex items-center gap-1 ${openIdx === i ? 'bg-foreground text-background' : ''}`}
+          >
+            {t.name}
+            {t.note && <Info size={11} strokeWidth={2.2} className="opacity-60" />}
+          </button>
+        ),
+      )}
+      {open?.note && (
+        <div className="w-full mt-1 text-xs text-muted card card-pad">
+          <span className="font-medium text-foreground">{open.name}:</span> {open.note}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Hero actions for a recap: copy the link, and hand off to the Post maker tool
+// (Tools tab) with this session preselected — post writing happens there, not here.
+function RecapActions({ date }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== 'undefined' ? `${window.location.origin}/#recap/${date}` : '';
 
@@ -167,118 +296,21 @@ function Share({ date, session, title, photoCount }) {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
   }
 
-  return (
-    <section className="mt-10 pt-6 border-t border-border">
-      <div className="flex items-center gap-1.5 h-section"><Sparkles size={11} strokeWidth={2.2} /><span>Share this recap</span></div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button onClick={copyLink} className="btn btn-sm btn-ghost">
-          {copied ? <Check size={14} strokeWidth={2.4} className="text-ok" /> : <Link2 size={14} strokeWidth={2.2} />}
-          {copied ? 'Link copied' : 'Copy link'}
-        </button>
-      </div>
-      <DraftRecap date={date} session={session} title={title} photoCount={photoCount} />
-    </section>
-  );
-}
-
-function buildNotes(session, title, photoCount) {
-  const lines = [`Session: ${title}.`];
-  if (session?.number != null) lines.push(`This was AI Workshop meetup #${session.number}.`);
-  lines.push(`It happened in Copenhagen on ${fmtDateLong(session?.date || '')}.`);
-  if (session?.location) lines.push(`Format/location: ${session.location}.`);
-  if (session?.summary) lines.push(`What it was about: ${session.summary}`);
-  if (session?.topics?.length) {
-    lines.push('Topics we discussed:');
-    for (const t of session.topics) lines.push(`- ${t.title}${t.summary ? `: ${t.summary}` : ''}`);
-  }
-  if (session?.demos?.length) {
-    lines.push('People demoed:');
-    for (const d of session.demos) lines.push(`- ${d.presenter}: ${d.topic}`);
-  }
-  if (session?.tools?.length) {
-    // The AI ideas/tools talked about — the heart of a "what we discussed" post.
-    const names = session.tools.map((t) => t.name).slice(0, 18).join(', ');
-    lines.push(`AI tools and ideas discussed: ${names}.`);
-  }
-  if (session?.attendees?.length) lines.push(`People there: ${session.attendees.join(', ')}.`);
-  if (photoCount) lines.push(`We took ${photoCount} photos.`);
-  return lines.join('\n');
-}
-
-function DraftRecap({ date, session, title, photoCount }) {
-  const [text, setText] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | streaming | done | error | unconfigured
-  const [err, setErr] = useState('');
-  const [copied, setCopied] = useState(false);
-  const abortRef = useRef(null);
-  // Drafting hits an auth-gated endpoint. When sign-in is enabled but the visitor
-  // is logged out, the request 401s — so prompt them to sign in instead of showing
-  // a button that just errors. (In typed-name mode the endpoint isn't auth-gated.)
-  const { openAuth } = useAuth();
-  const { authMode, authed } = useMemberName();
-  const needsSignIn = authMode && !authed;
-
-  useEffect(() => () => abortRef.current?.abort(), []); // cancel on unmount (stops spend)
-
-  async function generate() {
-    setText(''); setErr(''); setStatus('streaming');
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    try {
-      const res = await streamDraft({
-        notes: buildNotes(session, title, photoCount),
-        format: 'linkedin',
-        signal: ctrl.signal,
-        onDelta: (piece) => setText((t) => t + piece),
-      });
-      if (res?.configured === false) { setStatus('unconfigured'); return; }
-      if (res?.text) setText(res.text);
-      setStatus('done');
-    } catch (e) {
-      if (e.name === 'AbortError') { setStatus(text ? 'done' : 'idle'); return; }
-      setErr(e.message || 'Could not generate a draft.'); setStatus('error');
-    } finally {
-      abortRef.current = null;
-    }
-  }
-
-  function stop() { abortRef.current?.abort(); }
-  async function copy() {
-    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
+  function createPost() {
+    // Handoff: the Post maker reads this on mount, preselects the session, clears it.
+    try { sessionStorage.setItem('postmaker.session', date); } catch { /* ignore */ }
+    if (typeof window !== 'undefined') window.location.hash = 'tools';
   }
 
   return (
-    <div className="mt-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {needsSignIn ? (
-          <button onClick={openAuth} className="btn btn-sm btn-primary">
-            <Sparkles size={14} strokeWidth={2.2} /> Sign in to draft a LinkedIn post
-          </button>
-        ) : status === 'streaming' ? (
-          <button onClick={stop} className="btn btn-sm btn-ghost"><Square size={13} strokeWidth={2.4} /> Stop</button>
-        ) : (
-          <button onClick={generate} className="btn btn-sm btn-primary">
-            <Sparkles size={14} strokeWidth={2.2} /> {text ? 'Regenerate draft' : 'Draft a LinkedIn post'}
-          </button>
-        )}
-        {text && status !== 'streaming' && (
-          <button onClick={copy} className="btn btn-sm btn-ghost">
-            {copied ? <Check size={14} strokeWidth={2.4} className="text-ok" /> : <Copy size={14} strokeWidth={2.2} />}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-        )}
-      </div>
-
-      {status === 'unconfigured' && <p className="mt-2 text-xs text-warn">Drafting needs an LLM key (GEMINI_API_KEY or OPENROUTER_API_KEY).</p>}
-      {status === 'error' && <p className="mt-2 text-xs text-err">{err}</p>}
-
-      {(text || status === 'streaming') && (
-        <div className="mt-3 card card-pad whitespace-pre-wrap text-sm leading-relaxed">
-          {text}
-          {status === 'streaming' && <span className="inline-block w-1.5 h-4 -mb-0.5 ml-0.5 bg-foreground/70 animate-pulse" aria-hidden />}
-          {status === 'streaming' && !text && <span className="inline-flex items-center gap-2 text-muted"><Loader2 size={14} className="animate-spin" /> Writing…</span>}
-        </div>
-      )}
+    <div className="mt-5 flex flex-wrap items-center gap-2">
+      <button onClick={copyLink} className="btn btn-sm btn-ghost">
+        {copied ? <Check size={14} strokeWidth={2.4} className="text-ok" /> : <Link2 size={14} strokeWidth={2.2} />}
+        {copied ? 'Link copied' : 'Copy link'}
+      </button>
+      <button onClick={createPost} className="btn btn-sm btn-primary">
+        <PenLine size={14} strokeWidth={2.2} /> Create a social media post
+      </button>
     </div>
   );
 }

@@ -61,6 +61,12 @@ export default function App() {
   const [present, setPresent] = useState(readPresent);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Recap is lazy-loaded, so re-pin to the top once its content actually mounts.
+  // Instant (not smooth) so it never animates from a mid-page scroll position.
+  useEffect(() => {
+    if (recapDate && typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [recapDate]);
+
   useEffect(() => {
     const onHashChange = () => {
       const rd = readRecapDate();
@@ -106,7 +112,7 @@ export default function App() {
   };
   // Open a session's public recap page (hash route owns navigation).
   const openRecap = (date) => {
-    if (typeof window !== 'undefined') { window.location.hash = `recap/${date}`; window.scrollTo({ top: 0 }); }
+    if (typeof window !== 'undefined') { window.location.hash = `recap/${date}`; window.scrollTo({ top: 0, behavior: 'instant' }); }
   };
   const isLegal = LEGAL_KEYS.includes(tab);
 

@@ -2,7 +2,72 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## SESSION HANDOFF — 2026-06-16 (RESUME HERE)
+## SESSION HANDOFF — 2026-06-19 (RESUME HERE)
+
+**Current state:** Sessions tab + recap polish from Agentation feedback, plus all 8 session
+titles set. Everything is **uncommitted on `main`** (local dev only, live site unchanged).
+Repo auto-deploys from `main` on push, so branch before committing.
+
+**What was just done:**
+- **All 8 sessions titled** via a `**Title:**` field in `content/sessions/*.md` (parsed by
+  `build-data.js` into `s.title`): #1 First meetup & format · #2 AI automations with Make.com ·
+  #3 AI in game design · #4 International guests · #5 Image-to-3D demos · #6 Ice cream session ·
+  #7 How we build with AI · #8 AI tools across business & creativity.
+- **Name-priority fix (the #7/#6 "no name" bug).** The session-meta KV store had stale
+  overrides pinning #6→"Session #6" and #7→"Session #7" (the old default, saved before titles).
+  A manual rename always beat the title. Couldn't clear via API (POST needs sign-in), so changed
+  the logic in BOTH SessionsGallery + SessionRecap: an override only wins if it DIFFERS from
+  "Session #N"; a junk override equal to the generic default is ignored so the title shows.
+- **Attendees parser bug fixed (`build-data.js get`):** empty `**Attendees:**` line swallowed the
+  next line via `\s*` → changed to `[^\S\n]*`. Was polluting #5/#6 attendees with an internal
+  note. Converted those two internal `>` notes to `<!-- HTML comments -->`. Also removed the wrong
+  "Guest" from #8 (now the real 5: Auri, Andrei, Sany, Eividas, Ignas).
+- **SessionsGallery.jsx:** title wraps to 2 lines (`line-clamp-2`); cover click ALWAYS opens the
+  recap (removed the old grid lightbox + dead imports); photoless tiles read "View recap".
+- **SessionRecap.jsx:** cover = FIXED featured photo (`committed.photos[0]`), `loading="eager"
+  fetchpriority="high"` so it shows instantly + caches (Auri disliked the randomizer's reload).
+  Recap title now matches the tile (same name chain). Hero actions: **Copy link** + **Create a
+  social media post** (the latter deep-links to the Post maker via a `sessionStorage`
+  `postmaker.session` handoff — Tools opens 'post', PostMaker preselects + clears it; no inline
+  drafting anymore). Location hides "TBD". Topic + demo cards got leading icons. Photos grid:
+  shows first 6 + a "See more (N)" button; clicking a photo opens an in-page `PhotoLightbox`
+  (Esc/arrows/click-outside), not a new tab. `ToolChips`: tools with a `[Name](url)` link render
+  as links (ExternalLink icon), others show an Info dot + click-to-reveal note.
+- **App.jsx:** recap opens at the TOP instantly (`scrollTo behavior:'instant'` + effect on
+  `recapDate`), fixing the mid-page smooth-scroll jump (`html{scroll-behavior:smooth}`).
+- **Tools.jsx / PostMaker.jsx:** read the `postmaker.session` handoff to open + preselect.
+
+**Next steps (in order):**
+1. **Tools curation (#08).** Auto-extracted list is noisy (~40 entries). WAITING ON AURI to ID 5
+   garbled names: **Mikolos, Pyrmus, CrowdSomething, Tensor Honey, "Mythos models"**. Then trim
+   to the real ~12-15, fix names, add website links (`- **[Name](https://url)** — note`).
+2. **Commit + deploy this batch:** branch (e.g. `feat/sessions-recap-polish`) off `main`, commit,
+   push (= deploy). Lots of good polish sitting local.
+3. **About Us page** (was the pre-pivot feature): rename Members tab → About Us (origin/where/when
+   + members grid, smaller photos). Interview started — WAITING ON AURI for: origin story, venue,
+   rhythm, who-it's-for, how-to-join, and the public-framing question (portfolio-accelerator vs
+   softer "builders learning by building").
+4. **"What's new" changelog** — header button + `data/updates.json`, badge on major updates only.
+5. **Merge Photos into one Sessions tab** (tab consolidation, 7 tabs → fewer).
+6. **News cron secret:** add `GEMINI_API_KEY` to GitHub Actions secrets or the weekly news draft
+   (`.github/workflows/news.yml`) fails silently.
+7. **#8 location** still blank (TBD hidden in UI but unknown).
+8. **Bigger, not started:** Member Projects directory (highest-leverage for the portfolio purpose);
+   server-side JWT enforcement on `api/*` before any public/wider launch (HIGH security gap).
+
+**Gotchas:**
+- Auto-deploys from `main` on push → branch first.
+- Session NAMES: live reads the session-meta KV (Upstash); titles here are baked into
+  `src/data.json` (the committed snapshot is what Vercel ships). KV override only wins now if it's
+  a REAL custom name (≠ "Session #N"). To truly clear a KV name you must be signed in (POST is
+  auth-gated) — or just rely on the new ignore-the-default logic.
+- `npm run build:data` must run after editing any `content/sessions/*.md` (dev does it on start).
+
+**Files:** `content/sessions/*.md` (notes w/ `**Title:**`), `scripts/build-data.js` (parser),
+`src/components/SessionsGallery.jsx`, `src/components/SessionRecap.jsx`, `src/components/Tools.jsx`,
+`src/components/PostMaker.jsx`, `src/App.jsx`.
+
+## SESSION HANDOFF — 2026-06-16
 
 **Current state:** Session **#08 (2026-06-14)** transcribed, cleaned, and published to the
 Obsidian vault + built into `src/data.json`. It shows on the **local** dev server only.

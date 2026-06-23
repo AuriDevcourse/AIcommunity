@@ -15,7 +15,10 @@ const TOOLS = [
 ];
 
 export default function Tools({ sessions = [] }) {
-  const [active, setActive] = useState(null);
+  // A recap can deep-link straight into the Post maker (sessionStorage handoff).
+  const [active, setActive] = useState(() => {
+    try { return sessionStorage.getItem('postmaker.session') ? 'post' : null; } catch { return null; }
+  });
 
   if (active) {
     return (

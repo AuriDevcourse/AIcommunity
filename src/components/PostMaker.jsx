@@ -363,6 +363,14 @@ export default function PostMaker({ sessions = [] }) {
   // Cancel any in-flight generation if the user leaves (stops spend too).
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  // Preselect a session when a recap deep-linked here ("Create a social media post").
+  useEffect(() => {
+    try {
+      const d = sessionStorage.getItem('postmaker.session');
+      if (d) { setSelectedDate(d); sessionStorage.removeItem('postmaker.session'); }
+    } catch { /* ignore */ }
+  }, []);
+
   const setField = (k, v) => setFields((f) => ({ ...f, [k]: v }));
 
   // Derive the selected session from the date so it always reflects the live

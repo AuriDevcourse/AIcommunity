@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2026-06-17T13:54:49.589Z",
+  "generatedAt": "2026-06-19T13:15:59.154Z",
   "sessions": [
     {
       "number": 1,
       "date": "2025-06-29",
+      "title": "First meetup & format",
       "location": "In-person",
       "attendees": [
         "Auri",
@@ -86,6 +87,7 @@
     {
       "number": 2,
       "date": "2025-07-12",
+      "title": "AI automations with Make.com",
       "location": "In-person",
       "attendees": [
         "Auri",
@@ -152,6 +154,7 @@
     {
       "number": 3,
       "date": "2025-07-27",
+      "title": "AI in game design",
       "location": "In-person",
       "attendees": [
         "Auri",
@@ -199,6 +202,7 @@
     {
       "number": 4,
       "date": "2025-09-14",
+      "title": "International guests",
       "location": "In-person + Online",
       "attendees": [
         "Auri",
@@ -245,10 +249,9 @@
     {
       "number": 5,
       "date": "2026-03-08",
+      "title": "Image-to-3D demos",
       "location": "Matrikel1",
-      "attendees": [
-        "> Logged later from photos (held during the Feb–Apr window). Numbered #05."
-      ],
+      "attendees": [],
       "demos": [],
       "actions": [],
       "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
@@ -264,11 +267,9 @@
     {
       "number": 6,
       "date": "2026-05-03",
+      "title": "Ice cream session",
       "location": "TBD",
-      "attendees": [
-        "> Numbering note: the Mar 8 session (#05) was held during the Feb–Apr window and logged later from photos",
-        "so May 3 is #10. Other sessions in that window were not held / not logged."
-      ],
+      "attendees": [],
       "demos": [],
       "actions": [],
       "summary": "",
@@ -291,6 +292,7 @@
     {
       "number": 7,
       "date": "2026-05-31",
+      "title": "How we build with AI",
       "location": "Matrikel1",
       "attendees": [
         "Auri",
@@ -369,115 +371,143 @@
       "tools": [
         {
           "name": "Pinokio",
-          "note": "one-click \"app store\" that installs and runs local AI tools, pulls in missing dependencies automatically"
+          "note": "one-click \"app store\" that installs and runs local AI tools, pulls in missing dependencies automatically",
+          "url": ""
         },
         {
           "name": "ComfyUI",
-          "note": "node-based UI for local image generation"
+          "note": "node-based UI for local image generation",
+          "url": ""
         },
         {
           "name": "Ollama",
-          "note": "installs and serves LLMs locally"
+          "note": "installs and serves LLMs locally",
+          "url": ""
         },
         {
           "name": "LM Studio",
-          "note": "friendlier local-model runner; shows which models fit your machine"
+          "note": "friendlier local-model runner; shows which models fit your machine",
+          "url": ""
         },
         {
           "name": "Cline",
-          "note": "open-source coding agent that runs as a VS Code extension"
+          "note": "open-source coding agent that runs as a VS Code extension",
+          "url": ""
         },
         {
           "name": "Continue",
-          "note": "VS Code extension for using local models (Copilot-style)"
+          "note": "VS Code extension for using local models (Copilot-style)",
+          "url": ""
         },
         {
           "name": "GitHub Copilot",
-          "note": "inline code suggestions in VS Code"
+          "note": "inline code suggestions in VS Code",
+          "url": ""
         },
         {
           "name": "Claude / Claude Code",
-          "note": "Anthropic's models and CLI; used to build projects end to end"
+          "note": "Anthropic's models and CLI; used to build projects end to end",
+          "url": ""
         },
         {
           "name": "OpenClaw",
-          "note": "self-hosted personal AI assistant that runs on your own server"
+          "note": "self-hosted personal AI assistant that runs on your own server",
+          "url": ""
         },
         {
           "name": "Qwen",
-          "note": "open local LLM; usable but slow on modest hardware"
+          "note": "open local LLM; usable but slow on modest hardware",
+          "url": ""
         },
         {
           "name": "DeepSeek",
-          "note": "open reasoning model (older knowledge cutoff was a limitation)"
+          "note": "open reasoning model (older knowledge cutoff was a limitation)",
+          "url": ""
         },
         {
           "name": "GPT-5 Mini",
-          "note": "cheap cloud model, a step up from local options"
+          "note": "cheap cloud model, a step up from local options",
+          "url": ""
         },
         {
           "name": "Gemini",
-          "note": "Google's model; strong at image generation and keeping backgrounds consistent"
+          "note": "Google's model; strong at image generation and keeping backgrounds consistent",
+          "url": ""
         },
         {
           "name": "Flux / FLUX.2 [klein]",
-          "note": "open-weight image-generation models that run locally on a strong GPU"
+          "note": "open-weight image-generation models that run locally on a strong GPU",
+          "url": ""
         },
         {
           "name": "Fooocus",
-          "note": "simplified image-generation UI (MidJourney-style)"
+          "note": "simplified image-generation UI (MidJourney-style)",
+          "url": ""
         },
         {
           "name": "Hugging Face",
-          "note": "hosts open models and offers pay-as-you-go inference for testing"
+          "note": "hosts open models and offers pay-as-you-go inference for testing",
+          "url": ""
         },
         {
           "name": "Windsurf / Antigravity / Conductor",
-          "note": "IDE and agent front-ends for driving Claude"
+          "note": "IDE and agent front-ends for driving Claude",
+          "url": ""
         },
         {
           "name": "Vercel",
-          "note": "hosting and deploys for web projects"
+          "note": "hosting and deploys for web projects",
+          "url": ""
         },
         {
           "name": "Railway",
-          "note": "hosting for servers and databases"
+          "note": "hosting for servers and databases",
+          "url": ""
         },
         {
           "name": "Supabase",
-          "note": "auth and Postgres database"
+          "note": "auth and Postgres database",
+          "url": ""
         },
         {
           "name": "Base44",
-          "note": "AI app builder with brand/style presets"
+          "note": "AI app builder with brand/style presets",
+          "url": ""
         },
         {
           "name": "Mobbin",
-          "note": "searchable library of UI screenshots for design reference"
+          "note": "searchable library of UI screenshots for design reference",
+          "url": ""
         },
         {
           "name": "Figma",
-          "note": "design-system reference"
+          "note": "design-system reference",
+          "url": ""
         },
         {
           "name": "Opus Clip",
-          "note": "turns long videos into short clips"
+          "note": "turns long videos into short clips",
+          "url": ""
         },
         {
           "name": "Fyxer",
-          "note": "AI email assistant that auto-drafts replies"
+          "note": "AI email assistant that auto-drafts replies",
+          "url": ""
         },
         {
           "name": "Pomelli (Google Labs)",
-          "note": "generates brand mockups and campaigns from a website"
+          "note": "generates brand mockups and campaigns from a website",
+          "url": ""
         },
         {
           "name": "Notion",
-          "note": "used for transcription and note capture"
+          "note": "used for transcription and note capture",
+          "url": ""
         },
         {
           "name": "Claude Code skills (stop-slop, ui-ux-pro-max)",
-          "note": "remove AI \"tells\" from text; guide UI/UX work"
+          "note": "remove AI \"tells\" from text; guide UI/UX work",
+          "url": ""
         }
       ],
       "photos": []
@@ -485,13 +515,13 @@
     {
       "number": 8,
       "date": "2026-06-14",
+      "title": "AI tools across business & creativity",
       "location": "TBD",
       "attendees": [
         "Auri",
         "Andrei",
         "Sany",
         "Eividas",
-        "Guest",
         "Ignas"
       ],
       "demos": [
@@ -539,151 +569,188 @@
       "tools": [
         {
           "name": "Blender",
-          "note": "Used for creating 3D models and animations"
+          "note": "Used for creating 3D models and animations",
+          "url": ""
         },
         {
           "name": "Blender MCP",
-          "note": "mentioned by Sany as a tool for generating 3D models"
+          "note": "mentioned by Sany as a tool for generating 3D models",
+          "url": ""
         },
         {
           "name": "ChatGPT",
-          "note": "Mentioned as an example for creating your own AI system"
+          "note": "Mentioned as an example for creating your own AI system",
+          "url": ""
         },
         {
           "name": "Claude",
-          "note": "Has extensions for both Fusion and Blender now, tested by drawing a dog in Blender"
+          "note": "Has extensions for both Fusion and Blender now, tested by drawing a dog in Blender",
+          "url": ""
         },
         {
           "name": "CLAUDE.md",
-          "note": "Used for security workflows and design files"
+          "note": "Used for security workflows and design files",
+          "url": ""
         },
         {
           "name": "Koinly",
-          "note": "Used to connect crypto platforms and export reports for accountants"
+          "note": "Used to connect crypto platforms and export reports for accountants",
+          "url": ""
         },
         {
           "name": "Cron",
-          "note": "Used to send jobs every hour"
+          "note": "Used to send jobs every hour",
+          "url": ""
         },
         {
           "name": "CrowdSomething",
-          "note": "A platform where people can do data labeling for free but get paid a small amount of money"
+          "note": "A platform where people can do data labeling for free but get paid a small amount of money",
+          "url": ""
         },
         {
           "name": "Etsy",
-          "note": "Platform where items are listed and sold, with associated fees"
+          "note": "Platform where items are listed and sold, with associated fees",
+          "url": ""
         },
         {
           "name": "Fable mod for Minecraft",
-          "note": "Discussed as a game made with Fable"
+          "note": "Discussed as a game made with Fable",
+          "url": ""
         },
         {
           "name": "Flux",
-          "note": "A text-to-image and text-to-AI tool"
+          "note": "A text-to-image and text-to-AI tool",
+          "url": ""
         },
         {
           "name": "Fusion",
-          "note": "Used alongside Blender, but more tricky to work with"
+          "note": "Used alongside Blender, but more tricky to work with",
+          "url": ""
         },
         {
           "name": "Gelato",
-          "note": "Used for producing posters with high-quality prints but expensive fees"
+          "note": "Used for producing posters with high-quality prints but expensive fees",
+          "url": ""
         },
         {
           "name": "GitHub",
-          "note": "Downloaded bits of code from GitHub to work with Blender"
+          "note": "Downloaded bits of code from GitHub to work with Blender",
+          "url": ""
         },
         {
           "name": "GTA Six recreation",
-          "note": "Someone tried to recreate GTA Six, and another version called GTAce might come out soon"
+          "note": "Someone tried to recreate GTA Six, and another version called GTAce might come out soon",
+          "url": ""
         },
         {
           "name": "Hermes",
-          "note": "Discussed as an alternative to OpenClaw, noted to potentially use more tokens and require a decent model"
+          "note": "Discussed as an alternative to OpenClaw, noted to potentially use more tokens and require a decent model",
+          "url": ""
         },
         {
           "name": "eToro",
-          "note": "Copy-trading platform where you follow and mirror other traders' trades; also came up around tax reporting (not yet verified by Andrei)"
+          "note": "Copy-trading platform where you follow and mirror other traders' trades; also came up around tax reporting (not yet verified by Andrei)",
+          "url": ""
         },
         {
           "name": "Loophole Bros",
-          "note": "Recommended for accounting by Andrei"
+          "note": "Recommended for accounting by Andrei",
+          "url": ""
         },
         {
           "name": "Mikolos",
-          "note": "An image generator app"
+          "note": "An image generator app",
+          "url": ""
         },
         {
           "name": "Mythos models",
-          "note": "Discussed in context of enterprise use, limitations, and government shutdowns due to safety concerns"
+          "note": "Discussed in context of enterprise use, limitations, and government shutdowns due to safety concerns",
+          "url": ""
         },
         {
           "name": "Nano Banana",
-          "note": "Used for generating images, removing objects, scaling up or down, generating graphics and logos, and converting everything to SVGs"
+          "note": "Used for generating images, removing objects, scaling up or down, generating graphics and logos, and converting everything to SVGs",
+          "url": ""
         },
         {
           "name": "New software",
-          "note": "Used for project management with some features needing improvement"
+          "note": "Used for project management with some features needing improvement",
+          "url": ""
         },
         {
           "name": "Ollama",
-          "note": "used to download models via API URL, mentioned by Auri"
+          "note": "used to download models via API URL, mentioned by Auri",
+          "url": ""
         },
         {
           "name": "OpenClaw",
-          "note": "Compared to Hermes, mentioned to be free but created by a single developer"
+          "note": "Compared to Hermes, mentioned to be free but created by a single developer",
+          "url": ""
         },
         {
           "name": "Opus",
-          "note": "Mentioned as a comparison for pricing and capabilities"
+          "note": "Mentioned as a comparison for pricing and capabilities",
+          "url": ""
         },
         {
           "name": "Presentation tool",
-          "note": "Allows for creating new containers and saving them as PDFs"
+          "note": "Allows for creating new containers and saving them as PDFs",
+          "url": ""
         },
         {
           "name": "Pyrmus",
-          "note": "Noted for taking care of itself well, implying it might be used instead of OpenClaw due to its self-maintaining nature"
+          "note": "Noted for taking care of itself well, implying it might be used instead of OpenClaw due to its self-maintaining nature",
+          "url": ""
         },
         {
           "name": "Recording software",
-          "note": "Records sessions locally on Auri's laptop"
+          "note": "Records sessions locally on Auri's laptop",
+          "url": ""
         },
         {
           "name": "Revolut",
-          "note": "Pushes users to verify their location due to reporting concerns"
+          "note": "Pushes users to verify their location due to reporting concerns",
+          "url": ""
         },
         {
           "name": "Session management system",
-          "note": "Organizes information by session, useful for summarizing discussions"
+          "note": "Organizes information by session, useful for summarizing discussions",
+          "url": ""
         },
         {
           "name": "Shopify",
-          "note": "Suggested as a potential platform to push listings after improving visibility"
+          "note": "Suggested as a potential platform to push listings after improving visibility",
+          "url": ""
         },
         {
           "name": "Sketchfab",
-          "note": "mentioned as a source for 3D models, suggested by Ignas"
+          "note": "mentioned as a source for 3D models, suggested by Ignas",
+          "url": ""
         },
         {
           "name": "Stop-Slop AI",
-          "note": "GitHub library that helps ensure text is written more humanely, making it look more realistic"
+          "note": "GitHub library that helps ensure text is written more humanely, making it look more realistic",
+          "url": ""
         },
         {
           "name": "Telegram",
-          "note": "Suggested for sending alarms about trade suggestions"
+          "note": "Suggested for sending alarms about trade suggestions",
+          "url": ""
         },
         {
           "name": "Tensor Honey",
-          "note": "part of Blender MCP, mentioned by Sany"
+          "note": "part of Blender MCP, mentioned by Sany",
+          "url": ""
         },
         {
           "name": "VAE",
-          "note": "Used for generating designs and animations based on a website"
+          "note": "Used for generating designs and animations based on a website",
+          "url": ""
         },
         {
           "name": "WhatsApp",
-          "note": "Discussed pinning something in WhatsApp"
+          "note": "Discussed pinning something in WhatsApp",
+          "url": ""
         }
       ],
       "photos": []

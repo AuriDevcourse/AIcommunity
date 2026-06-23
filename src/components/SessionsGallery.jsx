@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, X, ImagePlus, Pencil, Check, Star, Trash2, Loader2, ArrowUpRight, MessagesSquare } from 'lucide-react';
+import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 import PhotoUploader from './PhotoUploader.jsx';
@@ -54,7 +54,17 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
       });
     } catch { /* optimistic state already applied */ }
   }
-  const defaultName = (s) => (s.number != null ? `Session #${s.number}` : fmtDate(s.date));
+  const fallbackName = (s) => (s.number != null ? `Session #${s.number}` : fmtDate(s.date));
+  // Display name priority: a REAL custom rename (one that differs from the generic
+  // "Session #N") → the curated title (note's **Title:**) → "Session #N". Old junk
+  // overrides literally equal to "Session #N" are ignored so the title shows.
+  const displayName = (s) => {
+    const fb = fallbackName(s);
+    const override = metaFor(s.date).name?.trim();
+    if (override && override !== fb) return override;
+    return s.title?.trim() || fb;
+  };
+  const defaultName = displayName;
 
   // Merge committed photos (from build) with runtime Blob uploads, by date.
   const byDate = new Map();
@@ -80,9 +90,6 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
   const sorted = merged.sort((a, b) => b.date.localeCompare(a.date));
   const sessionDates = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
   const orderedByDate = new Map(merged.map((s) => [s.date, s]));
-
-  const [open, setOpen] = useState(null);
-  const openAt = (sessionIdx, photoIdx) => setOpen({ sessionIdx, photoIdx });
 
   // Session being edited — tracked by date so it reflects live photo changes.
   const [editDate, setEditDate] = useState(null);
@@ -137,33 +144,23 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
 
       {!loading && sorted.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-          {sorted.map((session, i) => (
+          {sorted.map((session) => (
             <SessionTile
               key={session.date}
               session={session}
-              name={metaFor(session.date).name || defaultName(session)}
+              name={displayName(session)}
               cover={session.photos[0]}
               onEdit={() => setEditDate(session.date)}
-              onOpen={(photoIdx) => openAt(i, photoIdx)}
               onRecap={onOpenRecap ? () => onOpenRecap(session.date) : null}
             />
           ))}
         </div>
       )}
 
-      {open && (
-        <Lightbox
-          sessions={sorted}
-          state={open}
-          onChange={setOpen}
-          onClose={() => setOpen(null)}
-        />
-      )}
-
       {editing && (
         <SessionEditor
           session={editing}
-          name={metaFor(editing.date).name || defaultName(editing)}
+          name={displayName(editing)}
           defaultName={defaultName(editing)}
           onRename={(val) => saveMeta(editing.date, { name: val })}
           onReorder={(urls) => saveMeta(editing.date, { order: urls })}
@@ -175,7 +172,7 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
   );
 }
 
-function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
+function SessionTile({ session, name, cover, onEdit, onRecap }) {
   const date = fmtDate(session.date);
   const hasPhotos = session.photos.length > 0;
   const topicCount = session.topics?.length || 0;
@@ -184,8 +181,9 @@ function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
     <article className="group relative flex flex-col">
       <button
         type="button"
-        // Photo'd sessions open the lightbox; photo-less ones jump straight to the recap.
-        onClick={() => (hasPhotos ? onOpen(0) : onRecap && onRecap())}
+        // The whole cover opens the session recap. The featured cover photo itself
+        // is changed via the Edit button (reorder / set featured).
+        onClick={() => onRecap?.()}
         className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
         {hasPhotos ? (
@@ -196,11 +194,12 @@ function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
             className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted bg-accent">
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-muted bg-accent">
             <MessagesSquare size={26} strokeWidth={1.6} />
-            <span className="text-xs font-medium">
-              {topicCount > 0 ? `${topicCount} topics` : 'View recap'}
-            </span>
+            <span className="text-xs font-semibold text-foreground">View recap</span>
+            {topicCount > 0 && (
+              <span className="text-[10px] font-medium num">{topicCount} topics</span>
+            )}
           </div>
         )}
         <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
@@ -223,8 +222,8 @@ function SessionTile({ session, name, cover, onEdit, onOpen, onRecap }) {
         <Pencil size={12} strokeWidth={2.4} /> Edit
       </button>
 
-      <div className="mt-4 flex items-center justify-between gap-2">
-        <span className="text-base font-semibold leading-snug tracking-tight truncate">{name}</span>
+      <div className="mt-4 flex items-start justify-between gap-2">
+        <span className="text-base font-semibold leading-snug tracking-tight line-clamp-2 min-w-0">{name}</span>
         {onRecap && (
           <button
             onClick={onRecap}
@@ -436,151 +435,6 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
               </button>
             </div>
           </div>
-        )}
-      </div>
-    </div>,
-    document.body
-  );
-}
-
-function Lightbox({ sessions, state, onChange, onClose }) {
-  const session = sessions[state.sessionIdx];
-  const photo = session.photos[state.photoIdx];
-  const total = session.photos.length;
-  const [loaded, setLoaded] = useState(false);
-
-  const next = useCallback(() => {
-    onChange((s) => s && {
-      ...s,
-      photoIdx: (s.photoIdx + 1) % sessions[s.sessionIdx].photos.length,
-    });
-  }, [onChange, sessions]);
-
-  const prev = useCallback(() => {
-    onChange((s) => s && {
-      ...s,
-      photoIdx: (s.photoIdx - 1 + sessions[s.sessionIdx].photos.length) % sessions[s.sessionIdx].photos.length,
-    });
-  }, [onChange, sessions]);
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [next, prev, onClose]);
-
-  useEffect(() => {
-    setLoaded(false);
-  }, [photo]);
-
-  // Preload the neighbouring photos so prev/next swap instantly.
-  useEffect(() => {
-    const photos = session.photos;
-    const ahead = photos[(state.photoIdx + 1) % photos.length];
-    const behind = photos[(state.photoIdx - 1 + photos.length) % photos.length];
-    [ahead, behind].forEach((src) => {
-      if (!src) return;
-      const img = new Image();
-      img.src = src;
-    });
-  }, [session, state.photoIdx]);
-
-  // Touch swipe (mobile): horizontal drag past a threshold flips the photo.
-  const touchX = useRef(null);
-  const onTouchStart = (e) => { touchX.current = e.changedTouches[0]?.clientX ?? null; };
-  const onTouchEnd = (e) => {
-    if (touchX.current == null || total < 2) { touchX.current = null; return; }
-    const dx = (e.changedTouches[0]?.clientX ?? touchX.current) - touchX.current;
-    if (Math.abs(dx) > 40) (dx < 0 ? next() : prev());
-    touchX.current = null;
-  };
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-50 flex flex-col bg-foreground/90 backdrop-blur-sm"
-      onClick={onClose}
-      style={{
-        paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
-      }}
-    >
-      {/* Top bar: close */}
-      <div className="flex justify-end px-4 shrink-0">
-        <button
-          onClick={(e) => { e.stopPropagation(); onClose(); }}
-          className="rounded-full bg-white/90 p-2 text-foreground hover:bg-white transition-colors"
-          aria-label="Close"
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      {/* Image area — fills the remaining height and always fits within it */}
-      <div className="relative flex-1 min-h-0 flex items-center justify-center px-4 sm:px-20">
-        {total > 1 && (
-          <>
-            <button
-              onClick={(e) => { e.stopPropagation(); prev(); }}
-              className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors"
-              aria-label="Previous"
-            >
-              <ChevronLeft size={22} />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); next(); }}
-              className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors"
-              aria-label="Next"
-            >
-              <ChevronRight size={22} />
-            </button>
-          </>
-        )}
-
-        {!loaded && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <Loader2 size={32} className="animate-spin text-white/80" />
-          </div>
-        )}
-        <img
-          key={photo}
-          src={photo}
-          alt=""
-          draggable={false}
-          onClick={(e) => e.stopPropagation()}
-          onLoad={() => setLoaded(true)}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-          className={`max-h-full max-w-full object-contain rounded-xl select-none transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        />
-      </div>
-
-      {/* Bottom bar: mobile nav + counter */}
-      <div className="shrink-0 flex items-center justify-center gap-4 px-4 pt-3" onClick={(e) => e.stopPropagation()}>
-        {total > 1 && (
-          <button
-            onClick={(e) => { e.stopPropagation(); prev(); }}
-            className="sm:hidden rounded-full bg-white/90 p-2 text-foreground active:bg-white transition-colors"
-            aria-label="Previous"
-          >
-            <ChevronLeft size={20} />
-          </button>
-        )}
-        <div className="text-xs text-background/80 num text-center">
-          {session.number != null && <>#{session.number} · </>}{fmtDate(session.date)}
-          {total > 1 && <> · {state.photoIdx + 1} / {total}</>}
-        </div>
-        {total > 1 && (
-          <button
-            onClick={(e) => { e.stopPropagation(); next(); }}
-            className="sm:hidden rounded-full bg-white/90 p-2 text-foreground active:bg-white transition-colors"
-            aria-label="Next"
-          >
-            <ChevronRight size={20} />
-          </button>
         )}
       </div>
     </div>,

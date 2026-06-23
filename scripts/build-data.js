@@ -69,10 +69,13 @@ function parseSessionFile(filename) {
   const raw = read(join(SESSIONS_DIR, filename));
 
   const get = (label) => {
-    const re = new RegExp(`\\*\\*${label}:\\*\\*\\s*([^\\n]*)`, 'i');
+    // [^\S\n]* = inline whitespace only (NOT newlines), so an empty field like
+    // "**Attendees:**\n\n> note" returns '' instead of swallowing the next line.
+    const re = new RegExp(`\\*\\*${label}:\\*\\*[^\\S\\n]*([^\\n]*)`, 'i');
     const hit = raw.match(re);
     return hit ? hit[1].trim() : '';
   };
+  const title = get('Title'); // optional human label ("what we talked about"); falls back to "Session #N" in the UI
   const location = get('Location');
   const attendees = (get('Attendees') || get('Attendees \\(in-person\\)') || '')
     .split(/,\s*/).map((s) => s.trim()).filter(Boolean);
@@ -114,11 +117,19 @@ function parseSessionFile(filename) {
   // session). Drives the recap "Tools discussed" list + the auto LinkedIn draft.
   const toolsSection = raw.split(/^## Tools[^\n]*$/m)[1]?.split(/^## /m)[0] || '';
   const tools = [...toolsSection.matchAll(/^-\s+\*\*(.+?)\*\*\s*(?:[—–-]\s*(.+))?$/gm)]
-    .map((mm) => ({ name: mm[1].trim(), note: (mm[2] || '').trim() }))
+    .map((mm) => {
+      // The name may be a markdown link "[Name](https://site)" → split out the URL
+      // so the recap can render it as a clickable chip. Plain names get no link.
+      let name = mm[1].trim();
+      let url = '';
+      const link = name.match(/^\[(.+?)\]\((https?:\/\/[^)]+)\)$/);
+      if (link) { name = link[1].trim(); url = link[2].trim(); }
+      return { name, note: (mm[2] || '').trim(), url };
+    })
     .filter((t) => t.name);
 
   const photos = listSessionPhotosForDate(date);
-  return { number, date, location, attendees, demos, actions, summary, topics, tools, photos };
+  return { number, date, title, location, attendees, demos, actions, summary, topics, tools, photos };
 }
 
 function parseHub() {
@@ -155,6 +166,7 @@ for (const dateIso of listAllPhotoDates()) {
   sessions.push({
     number: null,
     date: dateIso,
+    title: '',
     location: '',
     attendees: [],
     demos: [],
