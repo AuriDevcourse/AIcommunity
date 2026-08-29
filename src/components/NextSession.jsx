@@ -71,7 +71,7 @@ export default function NextSession({ session }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2.5 mt-5 text-sm">
+      <dl className="flex flex-col gap-2.5 mt-5 text-sm">
         <Field
           icon={Mic}
           label="Presenter"
@@ -89,7 +89,7 @@ export default function NextSession({ session }) {
           muted={!session.venue}
         />
         {session.roles?.host && <Field icon={UserCheck} label="Host" value={session.roles.host} />}
-      </div>
+      </dl>
 
       {session.notes && (
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
@@ -124,12 +124,18 @@ export default function NextSession({ session }) {
   );
 }
 
+// The label used to live only in a `title` attribute, so "Open slot" and "TBD"
+// rendered as bare values next to an unlabelled icon — ambiguous by sight, and
+// invisible to a screen reader, which reads the icon as nothing at all. Now a
+// real description list: the label is visible text and programmatically tied to
+// its value.
 function Field({ icon: Icon, label, value, muted }) {
   return (
-    <div className="flex items-start gap-2.5 min-w-0" title={label}>
-      <Icon size={14} strokeWidth={2} className="text-muted mt-0.5 flex-shrink-0" />
-      <div className="flex-1 min-w-0 flex items-center gap-2">
-        <span className={`truncate ${muted ? 'text-muted' : 'text-foreground'}`}>{value}</span>
+    <div className="flex items-start gap-2.5 min-w-0">
+      <Icon size={14} strokeWidth={2} className="text-muted mt-[3px] flex-shrink-0" aria-hidden="true" />
+      <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2">
+        <dt className="text-[11px] uppercase tracking-[0.13em] text-muted font-semibold">{label}</dt>
+        <dd className={`m-0 min-w-0 truncate ${muted ? 'text-muted' : 'text-foreground'}`}>{value}</dd>
       </div>
     </div>
   );

@@ -191,6 +191,10 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             src={cover}
             alt=""
             loading="lazy"
+            decoding="async"
+            /* 4:5 tile — the intrinsic ratio stops the grid reflowing per image. */
+            width={512}
+            height={640}
             className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
           />
         ) : (

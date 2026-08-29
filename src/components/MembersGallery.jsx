@@ -28,8 +28,12 @@ function GeneratedAvatar({ name, gender }) {
   return (
     <img
       src={avatarUrl(name, gender)}
-      alt={name}
+      alt=""
+      aria-hidden="true"
       loading="lazy"
+      decoding="async"
+      width={320}
+      height={320}
       onError={() => setFailed(true)}
       className="w-full h-full object-cover"
     />
@@ -86,7 +90,15 @@ function MemberCard({ member }) {
   const photoBlock = (
     <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-accent">
       {hasPhoto ? (
-        <img src={profile.photo} alt={displayName} loading="lazy" className="w-full h-full object-cover" />
+        <img
+          src={profile.photo}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width={320}
+          height={320}
+          className="w-full h-full object-cover"
+        />
       ) : (
         <GeneratedAvatar name={displayName} gender={profile.gender} />
       )}
@@ -106,7 +118,7 @@ function MemberCard({ member }) {
           target="_blank"
           rel="noreferrer"
           className="group block w-full transition-transform duration-200 ease-out hover:-translate-y-0.5"
-          title={`${displayName} on LinkedIn`}
+          aria-label={`${displayName} on LinkedIn (opens in a new tab)`}
         >
           {photoBlock}
         </a>

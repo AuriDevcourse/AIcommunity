@@ -12,6 +12,11 @@ function NewsImage({ src, alt }) {
       src={src}
       alt={alt}
       loading="lazy"
+      decoding="async"
+      /* Intrinsic ratio so the card reserves its box before the file lands,
+         instead of the grid reflowing as each image arrives. */
+      width={640}
+      height={360}
       onError={() => setFailed(true)}
       className="w-full h-full object-cover"
     />
@@ -80,13 +85,14 @@ export default function News() {
             <button
               key={c.key}
               onClick={() => setFilter(c.key)}
+              aria-pressed={filter === c.key}
               className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 filter === c.key
                   ? 'bg-foreground text-background border-foreground'
                   : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
               }`}
             >
-              {c.label} <span className="num opacity-70 ml-1">{c.count}</span>
+              {c.label} <span className="num ml-1">{c.count}</span>
             </button>
           ))}
         </div>
