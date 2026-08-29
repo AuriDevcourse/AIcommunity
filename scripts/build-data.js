@@ -92,7 +92,11 @@ function parseSessionFile(filename) {
   }
 
   // Action items
-  const actionRe = /^## Action Items[\s\S]*?(?=^## |\Z)/m;
+  // `\Z` is not a JavaScript anchor — it matches a literal "Z", so this block
+  // was being cut at the first capital Z in the text (a name like "Zoe" ate the
+  // rest of the list). `(?![\s\S])` is a real end-of-input assertion; plain `$`
+  // will not do, because under /m it matches at every line ending.
+  const actionRe = /^## Action Items[\s\S]*?(?=^## |(?![\s\S]))/m;
   const actionBlock = raw.match(actionRe)?.[0] || '';
   const actions = [...actionBlock.matchAll(/^- \[( |x)\]\s+(.+)$/gm)].map((mm) => ({
     done: mm[1] === 'x',
@@ -135,7 +139,10 @@ function parseSessionFile(filename) {
 function parseHub() {
   const raw = read(HUB_FILE);
   // Members table
-  const tableMatch = raw.match(/\| Name \| Status \|\n\|[-\s|]+\|\n([\s\S]*?)\n\n/);
+  // Terminating only on a blank line assumed content always follows the table.
+  // If the table is the last thing in the hub file, the match fails and members
+  // silently comes back empty — the same shape of bug as the `\Z` one above.
+  const tableMatch = raw.match(/\| Name \| Status \|\n\|[-\s|]+\|\n([\s\S]*?)(?:\n\n|(?![\s\S]))/);
   const members = [];
   if (tableMatch) {
     for (const line of tableMatch[1].split('\n')) {
@@ -144,7 +151,7 @@ function parseHub() {
     }
   }
   // Hub action items
-  const actionBlock = raw.match(/^## Action Items[\s\S]*?(?=^## |\Z)/m)?.[0] || '';
+  const actionBlock = raw.match(/^## Action Items[\s\S]*?(?=^## |(?![\s\S]))/m)?.[0] || '';
   const hubActions = [...actionBlock.matchAll(/^- \[( |x)\]\s+(.+)$/gm)].map((m) => ({
     done: m[1] === 'x',
     text: m[2].trim(),

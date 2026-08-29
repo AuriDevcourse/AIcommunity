@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T13:15:59.154Z",
+  "generatedAt": "2026-08-29T20:11:32.828Z",
   "sessions": [
     {
       "number": 1,
@@ -534,7 +534,14 @@
           "topic": "Efforts to integrate pictures into specific projects without overriding manual changes"
         }
       ],
-      "actions": [],
+      "actions": [
+        {
+          "done": false,
+          "text": "Attendees are encouraged to explore the tools discussed in the session, such as Blender for 3D modeling and AI tools like Claude for drawing tasks. They can also consider using platforms like Koinly for crypto trading reports and CrowdSomething for data labeling projects.",
+          "sessionNumber": 8,
+          "sessionDate": "2026-06-14"
+        }
+      ],
       "summary": "The session covered various applications of AI tools across different domains such as image generation, business trading, creative projects, project management, design and development, cryptocurrency trading, and gaming. The group discussed specific tools like Mato elements, Adobe Illustrator's AI features, VAE, Blender, and others, focusing on their practical uses and potential benefits",
       "topics": [
         {
@@ -1284,6 +1291,13 @@
       "sessionNumber": 7,
       "sessionDate": "2026-05-31",
       "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Attendees are encouraged to explore the tools discussed in the session, such as Blender for 3D modeling and AI tools like Claude for drawing tasks. They can also consider using platforms like Koinly for crypto trading reports and CrowdSomething for data labeling projects.",
+      "sessionNumber": 8,
+      "sessionDate": "2026-06-14",
+      "source": "#8"
     }
   ]
 }

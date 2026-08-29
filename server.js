@@ -42,7 +42,7 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
 app.get('/api/feedback', (_req, res) => {
   const md = existsSync(FEEDBACK_FILE) ? readFileSync(FEEDBACK_FILE, 'utf8') : '';
-  const entries = [...md.matchAll(/^## (.+?)\n\*\*(.+?)\*\* — (.+?)\n\n([\s\S]*?)(?=\n---|\n## |$)/gm)]
+  const entries = [...md.matchAll(/^## (.+?)\n\*\*(.+?)\*\* — (.+?)\n\n([\s\S]*?)(?=\n---|\n## |(?![\s\S]))/gm)]
     .map((m) => ({ timestamp: m[1], category: m[2], from: m[3], text: m[4].trim() }));
   res.json({ entries: entries.reverse() });
 });
