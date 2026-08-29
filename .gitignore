@@ -12,3 +12,10 @@ data/suggestions-store.json
 data/*-store.json
 
 .vercel
+
+# Syncing clients (iCloud/Dropbox) leave byte-identical "<name> 2.<ext>" copies
+# behind. 62 of them are sitting in src/ right now, and the same artifact
+# produced a `refs/remotes/origin/HEAD 2` that made every `git fetch` fail.
+# Never let one get committed.
+* 2.*
+* 3.*

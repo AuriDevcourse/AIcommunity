@@ -116,6 +116,15 @@ export default function App() {
   };
   const isLegal = LEGAL_KEYS.includes(tab);
 
+  // The tab is the page as far as history, bookmarks and screen readers care;
+  // every view previously reported the same title.
+  useEffect(() => {
+    const label = TABS.find((t) => t.key === tab)?.label;
+    const view = recapDate ? 'Session recap' : isLegal ? 'Legal' : label || 'Home';
+    document.title = `AI Workshop · ${view}`;
+  }, [tab, recapDate, isLegal]);
+
+
   // Upcoming sessions come live from Google Calendar when configured, else from
   // the static build-time snapshot (see useSchedule).
   const { upcoming: liveUpcoming } = useSchedule(data.schedule.upcoming);
@@ -143,6 +152,8 @@ export default function App() {
 
   return (
     <div className="min-h-full flex flex-col">
+      <a href="#main" className="skip-link">Skip to content</a>
+
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-7 min-w-0">
@@ -185,7 +196,11 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
+      <div aria-live="polite" className="sr-only">
+        {recapDate ? 'Session recap' : TABS.find((t) => t.key === tab)?.label || 'Home'} section
+      </div>
+
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
         {isLegal ? (
           <div key={tab} className="tab-enter">
             <LegalPage slug={tab} onBack={() => goTo('home')} />

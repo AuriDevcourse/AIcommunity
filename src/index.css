@@ -108,6 +108,34 @@ select:focus-visible {
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 @layer components {
+  /* Screen-reader-only text that still participates in the accessibility tree. */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Keyboard users land on the nav first and had no way past it. Visible only
+     once focused, so it costs sighted users nothing. */
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -3rem;
+    z-index: 60;
+    padding: 0.5rem 0.875rem;
+    border-radius: 9999px;
+    background: var(--foreground);
+    color: var(--background);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus { top: 0.75rem; }
+
   .card {
     background-color: var(--background);
     border: 1px solid var(--border);
