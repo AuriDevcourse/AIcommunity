@@ -4,7 +4,42 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## SESSION HANDOFF — 2026-08-29 (RESUME HERE)
 
-**Current state:** `main` untouched. One PR open, one branch parked. Nothing deployed.
+**Current state:** three commits pushed to `main` and deployed. One security
+finding left deliberately undecided (below). One branch parked.
+
+### Pushed to main
+1. `17a1255` — parser fixes (see below)
+2. `92c7324` — security headers, skip link, per-tab titles, `npm run smoke`
+3. `de01fb2` — a11y + CLS fixes on the session card, news, members, photos
+
+### Needs YOUR decision, not a patch: photo deletion is not ownership-checked
+`DELETE /api/photos?url=...` and `PATCH` (move) are gated by `guardMutation`, so
+the caller must be signed in and is rate-limited — but **nothing checks that the
+caller uploaded the photo**. Any signed-in member can delete or move any other
+member's session photo.
+
+The uploader IS recoverable: `api/_photos.js:31` parses it out of the blob
+pathname (`<slug(name)>__<filename>`).
+
+Not fixed here because it is a policy call, not a bug. Locking deletion to the
+uploader would stop you curating other people's uploads. The options:
+- uploader-only, with a `PHOTO_MODERATORS` env allowlist for you
+- leave it open (fine if the room is trusted) and just document it
+- soft-delete instead of hard-delete, so anything removed is recoverable
+
+Everything else in `api/` checks out: every mutating route calls
+`guardMutation`, and `_guard.js` verifies the Supabase JWT server-side rather
+than trusting anything in the body.
+
+### Also worth knowing
+- **62 `"<name> 2.jsx"` duplicates** are sitting untracked in `src/components/`,
+  byte-identical to their originals, imported by nothing. Same syncing artifact
+  that produced the corrupt git ref. `.gitignore` now blocks them from ever
+  being committed; deleting the local copies is safe.
+- **Local dev looks emptier than production.** Schedule comes from Google
+  Calendar and the forum/ideas from Upstash, so without those env vars Home
+  renders "No upcoming session scheduled" and empty forum cards. Don't judge
+  layout changes from a local screenshot.
 
 ### PR #3 — parser fixes (ready to review)
 `claude/parser-and-feedback-fixes` · https://github.com/AuriDevcourse/AIcommunity/pull/3
