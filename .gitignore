@@ -1,7 +1,14 @@
 node_modules
 dist
 .DS_Store
-data/feedback.md
 .env
 .env.local
 .vercel
+
+# Runtime state written by the API — never versioned. Tracking poll.json meant
+# `git reset --hard` in deploy.sh would overwrite live votes with the repo copy
+# on every deploy. Point DATA_DIR outside the checkout in production.
+data/feedback.md
+data/poll.json
+data/poll.json.corrupt-*
+data/*.tmp-*

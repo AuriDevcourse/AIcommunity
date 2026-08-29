@@ -1,333 +1,309 @@
 {
-  "windowLabel": "May 4 – May 20, 2026",
+  "windowLabel": "May 22 – Aug 27, 2026",
   "themes": {
-    "global": "Frontier labs pivoted from model release to deployment muscle — OpenAI and Anthropic both stood up enterprise rollout arms, Google countered at I/O with a real agent, and Karpathy quietly walked from OpenAI to Anthropic's pre-training team. The race is no longer 'who has the better model' but 'who can put it inside a Fortune 500 by Q3.'",
-    "eu-policy": "Brussels finally landed the AI Act Omnibus after April's collapse — high-risk obligations pushed to Dec 2027 / Aug 2028, with non-consensual deepfakes banned from Dec 2026. Nordic compute keeps anchoring Europe's sovereign-AI story: Nscale closed another €670M for Narvik and Mistral is pitching European banks an in-house alternative to Anthropic's Mythos."
+    "global": "The frontier stopped being the story and price did. OpenAI cut Luna 80% three weeks after shipping it, Chinese open-weight models peaked at 46% of US enterprise tokens, and Meta put a 30B agent model on a single consumer GPU under Apache 2.0. Meanwhile capability quietly jumped anyway — Astra closed ten decades-old maths problems for $2,000 of compute — and Google lost Jeff Dean and three of its founding AI names in one afternoon.",
+    "eu-policy": "August 2 was the day the AI Act started to bite: high-risk duties slipped to 2027/2028, but Article 50 transparency — chatbot disclosure, AI-content marking, deepfake labelling — and the Commission's GPAI enforcement powers went live on schedule. That turned data residency from a slide into a procurement checkbox, which is exactly the door Mistral walked through. Closer to home, Copenhagen put DKK 110M and a Deputy Prorector behind AI, and Denmark held its first national AI-safety conference."
   },
   "items": [
     {
-      "id": "openai-gpt-5-5-instant",
+      "id": "openai-astra-math-proofs",
       "n": 1,
       "category": "global",
-      "date": "2026-05-05",
-      "title": "GPT-5.5 Instant becomes ChatGPT's default",
-      "subtitle": "Cross-conversation memory ships with it",
-      "summary": "OpenAI swapped ChatGPT's default model on May 5 — GPT-5.5 Instant replaces GPT-5.3 Instant on web and API (as chat-latest), with 52.5% fewer hallucinated claims on high-stakes prompts and personalization that pulls from past chats, uploaded files, and connected Gmail. A new 'memory sources' panel shows users which prior context shaped each answer.",
-      "whyItMatters": "Memory is the feature that turns a chatbot into an assistant that compounds over time — and OpenAI is making it the default experience, not a power-user toggle. The hallucination drop also resets the floor for what 'good enough for production' looks like.",
-      "whyForUs": "If your side project still treats ChatGPT as stateless, retest your prompts — the new default carries a lot more context than three months ago. Free / Go / Business / Enterprise tiers come 'in the coming weeks,' worth watching for your demo audience.",
+      "date": "2026-08-01",
+      "title": "Astra closes ten open maths problems for $2,000",
+      "subtitle": "Lean 4 certificates, zero unproven steps",
+      "summary": "OpenAI introduced Astra — still unreleased — by publishing solutions to ten problems across high-dimensional geometry, coding theory, group theory, quantum complexity, lattice cryptography and extremal combinatorics, each open for a decade or more. One establishes the existence of non-sofic groups. The release is a 249-page manuscript collection with machine-checkable Lean 4 certificates and a 'sorry' count of zero, meaning no step was left unproven. Compute cost: roughly $2,000. Humans wrote the papers; OpenAI credits the model with the reasoning.",
+      "whyItMatters": "Formal verification is what separates this from the usual benchmark claim — a Lean certificate either compiles or it doesn't, so there is no grading dispute. It is not a first of its kind: DeepMind's AlphaProof produced Lean-checked proofs in 2024 and AlphaEvolve found new results on open problems. What stands out here is the age of the problems and the cost — decades-open questions, closed end-to-end for about $2,000.",
+      "whyForUs": "The transferable idea is the verifier, not the maths: pair a generative model with something that can mechanically check its output, and you can let it search much harder. That's a demo-sized pattern — try it with a type checker, a test suite, or a schema validator in the loop.",
       "sources": [
         {
-          "name": "OpenAI",
-          "url": "https://openai.com/index/gpt-5-5-instant/"
+          "name": "The Decoder",
+          "url": "https://the-decoder.com/openai-announces-its-next-major-model-astra-by-dropping-ten-previously-unsolved-math-solutions/"
         },
         {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/05/05/openai-releases-gpt-5-5-instant-a-new-default-model-for-chatgpt/"
+          "name": "SiliconANGLE",
+          "url": "https://siliconangle.com/2026/08/02/openais-astra-solves-10-long-open-math-problems-publishes-proofs/"
         },
         {
-          "name": "VentureBeat",
-          "url": "https://venturebeat.com/orchestration/gpt-5-5-instant-shows-you-what-it-remembered-just-not-all-of-it"
+          "name": "Forbes",
+          "url": "https://www.forbes.com/sites/jonmarkman/2026/08/03/openais-astra-solved-10-decades-old-math-problems-for-just-2000/"
         }
       ],
-      "image": "/news-images/openai-gpt-5-5-instant.jpg",
+      "image": "/news-images/openai-astra-math-proofs.jpg",
+      "imageSource": "The Decoder"
+    },
+    {
+      "id": "jeff-dean-discovery-loop",
+      "n": 2,
+      "category": "global",
+      "date": "2026-08-05",
+      "title": "Jeff Dean leaves Google after 27 years",
+      "subtitle": "Ghemawat, Vinyals and Le go with him",
+      "summary": "Google's chief scientist — employee number 30 — told the company he was leaving on August 5. Sanjay Ghemawat, DeepMind research VP Oriol Vinyals and Google Brain founding member Quoc Le walked out with him to start Discovery Loop. Notably, Alphabet is itself a founding investor and cloud partner, so this is less a clean break than it looks; a round was reported as still in discussions with Radical Ventures and Khosla, with Lightspeed, Kleiner Perkins and Doerr Capital participating. The pitch: the scientific method is a loop — hypothesise, run, evaluate — and loops can be automated and run faster than any human team. Between them the four have their names on MapReduce, Bigtable, Spanner, TensorFlow, seq2seq and AlphaStar.",
+      "whyItMatters": "This is not a normal executive departure. Much of the infrastructure the rest of the industry runs on was built by these four, and they left together for a thesis about automating research itself. That Alphabet funded them on the way out says it would rather hold a stake than lose the bet entirely.",
+      "whyForUs": "Watch what Discovery Loop open-sources. Anything aimed at automating the experiment loop tends to show up as tooling the rest of us can use within a year — and 'automate my own iteration loop' is a good frame for a side project.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/08/05/jeff-dean-and-other-top-ai-researchers-are-leaving-google-to-launch-their-own-startup/"
+        },
+        {
+          "name": "Bloomberg",
+          "url": "https://www.bloomberg.com/news/articles/2026-08-06/google-grapples-with-exit-of-ai-pioneer-and-most-google-person"
+        },
+        {
+          "name": "GeekWire",
+          "url": "https://www.geekwire.com/2026/the-startup-idea-that-convinced-a-uw-computer-science-legend-to-leave-google-after-27-years/"
+        }
+      ],
+      "image": "/news-images/jeff-dean-discovery-loop.jpg",
       "imageSource": "TechCrunch"
     },
     {
-      "id": "caisi-frontier-pre-deployment",
-      "n": 2,
+      "id": "meta-muse-glimmer",
+      "n": 3,
       "category": "global",
-      "date": "2026-05-05",
-      "title": "CAISI signs Google DeepMind, Microsoft, xAI to pre-deployment testing",
-      "subtitle": "All five US frontier labs now submit models to the government before release",
-      "summary": "NIST's Center for AI Standards and Innovation announced May 5 agreements with Google DeepMind, Microsoft and xAI, joining the prior OpenAI and Anthropic deals. CAISI has now done 40+ evaluations, often on unreleased models with safeguards reduced or removed — a quietly major shift in how US frontier launches get gated.",
-      "whyItMatters": "First time every major US frontier lab is contractually feeding the government pre-release models. Effectively bakes a quasi-public eval gate into the launch pipeline without any new legislation.",
-      "whyForUs": "If you ship on a US frontier API, your model already passed a federal red-team round before you got to touch it. Worth understanding what CAISI tests if you build in regulated verticals (health, hiring, finance) — that methodology will leak into EU expectations fast.",
+      "date": "2026-08-10",
+      "title": "Meta ships a 30B agent model that runs on one GPU",
+      "subtitle": "Muse Glimmer, Apache 2.0, open weights",
+      "summary": "Muse Glimmer is a 30-billion-parameter open-weight multimodal model under Apache 2.0, built to run agentic tasks locally on a Mac or PC with a single consumer graphics card rather than in a data centre. Zuckerberg paired it with a 6,500-word essay, 'The Future is for Everyone', arguing for more open-weight releases and a federal role in safety testing, plus a $1B fund for communities near Meta data centres. Meta also said it will open the weights of Muse Spark 1.2, its most capable model.",
+      "whyItMatters": "Apache 2.0 on a genuinely capable agent model is the permissive end of the spectrum — no usage ceiling, no acceptable-use rider. It puts real pressure on the assumption that agents have to be a hosted API call.",
+      "whyForUs": "This is the most directly demo-able thing in the roundup. If you already have Ollama or LM Studio from session #7, Glimmer is the obvious next thing to pull down — a local agent with no per-token cost and no data leaving the laptop. Someone please bring this to a Show & Tell.",
       "sources": [
         {
-          "name": "HPCwire / NIST",
-          "url": "https://www.hpcwire.com/off-the-wire/nists-caisi-announces-new-frontier-ai-testing-agreements-with-google-deepmind-microsoft-xai/"
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/08/10/meta-muse-glimmer-open-weight-ai.html"
         },
         {
-          "name": "Axios",
-          "url": "https://www.axios.com/2026/05/05/us-frontier-ai-testing-white-house-pivots-safety"
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/08/10/metas-new-glimmer-ai-model-offers-a-hint-at-zuckerbergs-personal-intelligence-vision/"
         },
         {
           "name": "CNN",
-          "url": "https://www.cnn.com/2026/05/05/tech/microsoft-google-xai-government-test-ai-models"
+          "url": "https://www.cnn.com/2026/08/10/tech/meta-glimmer-mark-zuckerberg-future-of-ai"
         }
       ],
-      "image": "/news-images/caisi-frontier-pre-deployment.jpg",
-      "imageSource": "CNN"
-    },
-    {
-      "id": "eu-ai-act-omnibus-deal",
-      "n": 3,
-      "category": "eu-policy",
-      "date": "2026-05-07",
-      "title": "EU AI Act Omnibus deal lands",
-      "subtitle": "High-risk deadlines pushed to Dec 2027 / Aug 2028 · deepfake-CSAM ban from Dec 2026",
-      "summary": "After the April 28 trilogue collapse, Parliament, Council and Commission agreed in the small hours of May 7 on the simplification package. Stand-alone high-risk AI systems (Annex III) now apply from 2 December 2027, embedded ones (Annex I) from 2 August 2028. Two new prohibitions added: non-consensual intimate imagery and CSAM generation, in force from 2 December 2026. SMEs and small mid-caps get extended simplified documentation.",
-      "whyItMatters": "The deferral most EU builders were planning for is real — 18 extra months on high-risk obligations, and a clearer set of carve-outs for SMEs. But the deepfake/CSAM ban is unambiguous and lands fast.",
-      "whyForUs": "If you've been delaying a side project over August 2026 panic, you just got runway. If you're building anything with image or voice generation, the December 2026 prohibition is concrete — don't ship a 'face swap demo' without consent gates.",
-      "sources": [
-        {
-          "name": "EU Council",
-          "url": "https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/"
-        },
-        {
-          "name": "IAPP",
-          "url": "https://iapp.org/news/a/ai-act-omnibus-what-just-happened-and-what-comes-next"
-        },
-        {
-          "name": "Inside Privacy (Covington)",
-          "url": "https://www.insideprivacy.com/artificial-intelligence/eu-ai-act-update-timeline-relief-targeted-simplification-and-new-prohibitions/"
-        }
-      ],
-      "image": "/news-images/eu-ai-act-omnibus-deal.jpg",
-      "imageSource": "IAPP"
-    },
-    {
-      "id": "anthropic-44b-arr",
-      "n": 4,
-      "category": "global",
-      "date": "2026-05-11",
-      "title": "Anthropic discloses Q1 80x growth, ARR above $44B",
-      "subtitle": "Claude Code carrying the curve · $1T valuation talk in the air",
-      "summary": "Anthropic disclosed on May 11 that Q1 2026 revenue grew 80x year-over-year, with ARR exceeding $44B (up from ~$14B in February). Customers spending $1M+ annually doubled to 1,000+ in two months. Claude Code alone hit ~$2.5B ARR. Reporting since suggests the company is fielding a $30B raise targeting a near-$1T valuation.",
-      "whyItMatters": "The numbers are the strongest signal yet that frontier-AI revenue isn't a ceiling-bound consumer story — it's enterprise compounding. Anthropic now plausibly the most valuable AI company by year-end.",
-      "whyForUs": "Expect Claude pricing and rate-limit posture to keep tightening on lower tiers. If your side project leans on Sonnet, budget for 1.3–1.5x current costs by Q3 and have a Mistral or Qwen fallback wired up.",
-      "sources": [
-        {
-          "name": "VentureBeat",
-          "url": "https://venturebeat.com/technology/anthropic-says-it-hit-a-30-billion-revenue-run-rate-after-crazy-80x-growth"
-        },
-        {
-          "name": "YourStory",
-          "url": "https://yourstory.com/2026/05/anthropic-30-billion-revenue-claude-ai-compute-strategy"
-        },
-        {
-          "name": "Sacra",
-          "url": "https://sacra.com/c/anthropic/"
-        }
-      ],
-      "image": "/news-images/anthropic-44b-arr.webp",
-      "imageSource": "VentureBeat"
-    },
-    {
-      "id": "openai-deployco",
-      "n": 5,
-      "category": "global",
-      "date": "2026-05-11",
-      "title": "OpenAI spins up DeployCo with $4B and 19 partners",
-      "subtitle": "Acquires Tomoro for its 150 Forward Deployed Engineers",
-      "summary": "OpenAI launched the OpenAI Deployment Company on May 11 — a majority-owned Delaware LLC seeded with $4B+, led by TPG with Advent, Bain and Brookfield as co-leads, and 19 firms in total (investment, consulting, system integrators). Day-one staffing comes via the acquisition of UK consultancy Tomoro, bringing ~150 Forward Deployed Engineers and Deployment Specialists.",
-      "whyItMatters": "OpenAI is admitting the same thing Anthropic is — model quality alone doesn't close enterprise revenue. The bottleneck is people who can land the model inside someone else's SAP or Salesforce instance.",
-      "whyForUs": "If you do AI consulting or freelance in Copenhagen, the FDE template is now the playbook. The 'I'll embed for 6 months and ship your AI thing' role is going to be everywhere — worth pricing yourself accordingly.",
-      "sources": [
-        {
-          "name": "OpenAI",
-          "url": "https://openai.com/index/openai-launches-the-deployment-company/"
-        },
-        {
-          "name": "AI Magazine",
-          "url": "https://aimagazine.com/news/what-is-openais-deployment-company"
-        },
-        {
-          "name": "TechAfrica News",
-          "url": "https://techafricanews.com/2026/05/12/openai-unveils-new-deployment-company-backed-by-4-billion-investment/"
-        }
-      ],
-      "image": "/news-images/openai-deployco.png",
-      "imageSource": "TechAfrica News"
-    },
-    {
-      "id": "nscale-narvik-financing",
-      "n": 6,
-      "category": "eu-policy",
-      "date": "2026-05-11",
-      "title": "Nscale closes another €670M for Narvik AI campus",
-      "subtitle": "Nordic bank consortium funds 115MW expansion",
-      "summary": "Nscale announced an additional €670M ($790M) in financing on May 11, committed by ABN AMRO, DNB, Eksfin, Nordea and SEB — funding a 115MW expansion at the Narvik AI data centre. Builds on April's Microsoft deal for 30,000+ NVIDIA Vera Rubin GPUs at the same site, March's $2B Series C (led by Aker and 8090 Industries), and the OpenAI/Aker 'Stargate Norway' 100K-GPU gigafactory plan.",
-      "whyItMatters": "Nordic banks underwriting AI compute is new. It signals that 'AI data centres' have moved from venture-style bets to utility-grade infrastructure — and that the Nordics, not Frankfurt or Paris, are the EU's frontier compute hub.",
-      "whyForUs": "If you care about EU data residency, Narvik is now the closest top-tier inference and training capacity. Worth checking when picking a hosting region for anything Sonnet-class — proximity matters for latency-sensitive demos.",
-      "sources": [
-        {
-          "name": "Nscale",
-          "url": "https://www.nscale.com/press-releases/nscale-secures-790-million-norway"
-        },
-        {
-          "name": "EU-Startups",
-          "url": "https://www.eu-startups.com/2026/05/nscale-extends-funding-momentum-with-e670-million-for-norway-ai-infrastructure-project/"
-        },
-        {
-          "name": "DCD",
-          "url": "https://www.datacenterdynamics.com/en/news/nscale-secures-790m-in-financing-for-norway-data-center-project/"
-        }
-      ],
-      "image": "/news-images/nscale-narvik-financing.png",
-      "imageSource": "Nscale"
-    },
-    {
-      "id": "mistral-bank-cybersecurity",
-      "n": 7,
-      "category": "eu-policy",
-      "date": "2026-05-13",
-      "title": "Mistral pitches European banks a Mythos alternative",
-      "subtitle": "Cybersecurity model targeted at HSBC, BNP Paribas, others locked out of Anthropic",
-      "summary": "Bloomberg reported May 13 that Mistral is in talks with European banks about a sovereign cybersecurity model — counterpart to Anthropic's restricted Mythos, which can surface zero-days at scale but is only available to a US-led whitelist. CEO Arthur Mensch is pitching it as a domestic, lower-risk option, leveraging existing clients like HSBC and BNP Paribas. OpenAI has entered the same space with GPT-5.5-Cyber (BBVA an early customer).",
-      "whyItMatters": "Sovereign AI just turned from a slide-deck topic into an actual product category. Cyber capability is the wedge: if EU banks can't get Mythos, they'll pay Mistral or OpenAI for something Mythos-shaped.",
-      "whyForUs": "If you build security tooling in Copenhagen, the EU buyer side is now actively shopping. Mistral-on-prem as a sovereign answer is a real positioning to use in any pitch involving Danske, Jyske, or Nordea adjacencies.",
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-05-13/mistral-developing-new-ai-model-for-banks-lacking-mythos-access"
-        },
-        {
-          "name": "PYMNTS",
-          "url": "https://www.pymnts.com/artificial-intelligence-2/2026/mistral-plans-cybersecurity-tool-for-banks-cut-off-from-mythos/"
-        },
-        {
-          "name": "AML Intelligence",
-          "url": "https://www.amlintelligence.com/2026/05/news-mistral-developing-cybersecurity-ai-model-for-european-banks-lacking-mythos-access/"
-        }
-      ],
-      "image": "/news-images/mistral-bank-cybersecurity.jpg",
-      "imageSource": "Bloomberg"
-    },
-    {
-      "id": "anthropic-pwc-alliance",
-      "n": 8,
-      "category": "global",
-      "date": "2026-05-14",
-      "title": "Anthropic × PwC: largest professional-services Claude deployment to date",
-      "subtitle": "Claude Code and Cowork rolled out to PwC's global workforce · 30K US certifications",
-      "summary": "Announced May 14: PwC will roll out Claude Code and Cowork to hundreds of thousands of professionals globally, certify 30,000 US professionals on Claude, and stand up a joint Anthropic-PwC Center of Excellence. Single largest professional-services deployment of Claude so far.",
-      "whyItMatters": "When PwC standardizes on Claude, every Big-Four-adjacent client conversation in the EU follows. This is how 'Claude is the enterprise default' becomes a market reality for the next 18 months — through audit/consulting workflows, not direct sales.",
-      "whyForUs": "If you sell into corporates that touch PwC (most Danish enterprises do), assume Claude is the literacy floor for the people on the other side of the table by autumn. Worth offering a 'how to actually use Claude Code' session at the meetup.",
-      "sources": [
-        {
-          "name": "Anthropic / VentureBeat",
-          "url": "https://venturebeat.com/technology/anthropic-says-it-hit-a-30-billion-revenue-run-rate-after-crazy-80x-growth"
-        },
-        {
-          "name": "BuildFastWithAI Recap",
-          "url": "https://www.buildfastwithai.com/blogs/ai-news-today-may-18-2026"
-        },
-        {
-          "name": "TechRepublic",
-          "url": "https://www.techrepublic.com/article/openai-anthropic-ai-deployment-arms-race/"
-        }
-      ],
-      "image": "/news-images/anthropic-pwc-alliance.webp",
-      "imageSource": "Anthropic / VentureBeat"
-    },
-    {
-      "id": "karpathy-anthropic",
-      "n": 9,
-      "category": "global",
-      "date": "2026-05-19",
-      "title": "Andrej Karpathy joins Anthropic",
-      "subtitle": "Pre-training team, under Nick Joseph · Eureka Labs paused",
-      "summary": "Karpathy announced May 19 that he's joining Anthropic to work on pre-training under team lead Nick Joseph, pausing Eureka Labs (his education startup). It's his first frontier-lab role since leaving OpenAI for Tesla in 2017, then briefly returning to OpenAI in 2023.",
-      "whyItMatters": "Symbolically the biggest researcher migration of 2026 so far — and a vote that Anthropic's pre-training, not RLHF or product, is where the next gains come from. Reinforces the labor market gravity around Claude.",
-      "whyForUs": "Karpathy's old YouTube lectures are still the gold-standard intro to LLM internals — expect a wave of 'Karpathy joins Anthropic, what is pre-training actually?' conversations at meetups. Worth a refresher session for newer members.",
-      "sources": [
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/05/19/openai-co-founder-andrej-karpathy-joins-anthropics-pre-training-team/"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/05/19/anthropic-hires-openai-cofounder-andrej-karpathy-former-tesla-ai-lead.html"
-        },
-        {
-          "name": "Axios",
-          "url": "https://www.axios.com/2026/05/19/anthropic-openai-karpathy-andrej-claude"
-        }
-      ],
-      "image": "/news-images/karpathy-anthropic.jpg",
-      "imageSource": "TechCrunch"
-    },
-    {
-      "id": "google-io-2026",
-      "n": 10,
-      "category": "global",
-      "date": "2026-05-19",
-      "title": "Google I/O 2026: Gemini 3.5 Flash, Spark agent, Omni video",
-      "subtitle": "Flash outperforms 3.1 Pro on key benchmarks · Spark is a real agent, not a chatbot",
-      "summary": "At I/O on May 19–20 Google launched Gemini 3.5 Flash — agentic + coding model that beats Gemini 3.1 Pro on several benchmarks at Flash-tier latency and roughly a third of frontier pricing. Gemini Spark, a general-purpose AI agent that acts inside connected apps, opens in beta to AI Ultra subscribers and trusted testers. Gemini Omni handles cinematic video generation from text/images/clips.",
-      "whyItMatters": "Google has finally caught up on the 'agent that actually does things' axis — and is pricing it to undercut OpenAI and Anthropic. Flash at frontier-quality but Flash-pricing is the most disruptive lever in the May news cycle.",
-      "whyForUs": "If your project is hitting Sonnet or GPT-5.5 cost ceilings, Flash is worth a swap test before your next demo — especially for long-horizon agentic flows. Spark's API access via Workspace also opens a Copenhagen-friendly path for anyone already on Google.",
-      "sources": [
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/05/19/google-ai-ultra-gemini-spark-omni.html"
-        },
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/05/19/with-gemini-3-5-flash-google-bets-its-next-ai-wave-on-agents-not-chatbots/"
-        },
-        {
-          "name": "Google Blog",
-          "url": "https://blog.google/innovation-and-ai/technology/developers-tools/google-io-2026-collection/"
-        }
-      ],
-      "image": "/news-images/google-io-2026.jpg",
+      "image": "/news-images/meta-muse-glimmer.jpg",
       "imageSource": "CNBC"
     },
     {
-      "id": "microsoft-agent-365",
-      "n": 11,
+      "id": "openai-luna-price-cut",
+      "n": 4,
       "category": "global",
-      "date": "2026-05-05",
-      "title": "Microsoft puts Agent 365 at the centre of M365",
-      "subtitle": "E7 suite GA · Copilot Cowork built on Claude · agents become a governed control plane",
-      "summary": "Microsoft 365 E7 went GA May 1 (formally framed in the May 5 Copilot announcement) bundling M365 E5, Entra Suite, Copilot, and the new Agent 365 control plane at $99/user/month. Wave 3 of Copilot moves from assistance to embedded agent actions; the flagship Copilot Cowork is built in partnership with Anthropic and powered by Claude. The 2026 Work Trend Index says 78% of knowledge workers now use AI agents at least weekly, up from 12% in 2024.",
-      "whyItMatters": "Agents now have a governance layer inside the most-deployed productivity suite on the planet — and Microsoft chose Claude, not OpenAI, for the flagship Cowork experience. The 'who owns the enterprise default' fight just took a sharp turn.",
-      "whyForUs": "If you build anything that lives next to Office files, assume your users will have an agent of their own by autumn. The interop surface to design around is Agent 365, not the chat window — worth a session on connectors and Copilot extensibility.",
+      "date": "2026-07-30",
+      "title": "OpenAI cuts GPT-5.6 Luna by 80%",
+      "subtitle": "Three weeks after launching it",
+      "summary": "Luna dropped from $1.00 to $0.20 per million input tokens and $6.00 to $1.20 output for short contexts — an 80% cut made three weeks after the GPT-5.6 family shipped on July 9. Terra fell 20% ($2.50 → $2.00 in, $15 → $12 out). Sol was left unchanged at $5/$30. Reporting tied the move to cost sensitivity among enterprise buyers rather than to any new model.",
+      "whyItMatters": "Cutting a flagship tier by 80% within a month of launch is not a promotion, it's a response to pricing pressure. The competitive axis has moved from capability to cost per token.",
+      "whyForUs": "Re-run your cost estimates. Anything you shelved earlier this year as too expensive to call per-request is now plausibly five times cheaper — batch jobs, per-row enrichment, and eval loops especially.",
       "sources": [
         {
-          "name": "Microsoft 365 Blog",
-          "url": "https://www.microsoft.com/en-us/microsoft-365/blog/2026/05/05/microsoft-365-copilot-human-agency-and-the-opportunity-for-every-organization/"
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html"
         },
         {
-          "name": "Stoneridge Software",
-          "url": "https://stoneridgesoftware.com/microsoft-introduces-microsoft-365-e7-agent-365-and-claude-in-copilot/"
+          "name": "VentureBeat",
+          "url": "https://venturebeat.com/technology/ai-price-wars-openai-cuts-gpt-5-6-luna-prices-by-80-as-model-competition-shifts-toward-cost"
         },
         {
-          "name": "Trustmarque",
-          "url": "https://trustmarque.com/microsoft-365-e7-agent-365-whats-launching-1-may-and-what-it-means"
+          "name": "Axios",
+          "url": "https://www.axios.com/2026/07/30/openai-cuts-prices-gpt-terra-luna5"
         }
       ],
-      "image": "/news-images/microsoft-agent-365.jpg",
-      "imageSource": "Microsoft 365 Blog"
+      "image": "/news-images/openai-luna-price-cut.jpg",
+      "imageSource": "CNBC"
     },
     {
-      "id": "dell-deskside-agentic-ai",
-      "n": 12,
+      "id": "chinese-open-weight-share",
+      "n": 5,
       "category": "global",
-      "date": "2026-05-18",
-      "title": "Dell ships Deskside Agentic AI + PowerRack",
-      "subtitle": "On-prem agent compute lands at Dell Tech World",
-      "summary": "At Dell Technologies World (May 18), Dell launched Deskside Agentic AI — local-only agent workflows for workgroups that never leave the premises — and PowerRack for compute, a turnkey rack-scale platform for AI/HPC. NVIDIA OpenShell and AI-Q 2.0 ship in the same release. Jensen Huang on stage: demand for AI infrastructure is 'going parabolic.'",
-      "whyItMatters": "On-prem agentic AI just got a credible enterprise SKU. For regulated industries that won't put sensitive data in a hyperscaler, this is the first complete 'agent that runs in your closet' story from a tier-one OEM.",
-      "whyForUs": "If you advise EU corporates with strict data-residency rules (banking, health, public sector — most of Denmark), Deskside Agentic AI is now the answer to 'but our data can't leave the building.' Worth a hands-on session if anyone can score a demo unit.",
+      "date": "2026-07-07",
+      "title": "Chinese models hit 46% of US enterprise tokens",
+      "subtitle": "Up from 11% a year earlier",
+      "summary": "A CNBC investigation using OpenRouter data put Chinese models at a weekly peak of 46% of tokens routed through the platform by mid-2026 — reporting framed this around US enterprise usage — against an 11% average over the prior twelve months and 4.5% in the first half of 2025. DeepSeek is the single largest vendor on the router at 17.6%, with Alibaba's Qwen on 13.9%. The driver is price — open Chinese models run roughly 60–90% cheaper than the leading US offerings — and stickiness, since teams that build around a model rarely migrate back.",
+      "whyItMatters": "Adoption is following cost, not leaderboards, and it's happening inside US enterprises rather than around them. That reframes the 'which lab is ahead' conversation as largely irrelevant to what actually gets deployed.",
+      "whyForUs": "Worth an honest look before defaulting to a US API. Also worth reading the licence and thinking about where inference physically runs — see the AI Act item below, because for EU deployments that is now a compliance question, not a preference.",
       "sources": [
         {
-          "name": "Dell Newsroom",
-          "url": "https://www.dell.com/en-us/dt/corporate/newsroom/announcements/detailpage.press-releases~usa~2026~05~dell-technologies-delivers-production-ready-agentic-ai-from-deskside-to-data-center.htm"
+          "name": "CNBC via Yahoo Finance",
+          "url": "https://finance.yahoo.com/technology/ai/articles/chinese-ai-models-now-capture-020440715.html"
         },
         {
-          "name": "IT Pro",
-          "url": "https://www.itpro.com/technology/artificial-intelligence/dell-unveils-deskside-agentic-ai-at-dell-technologies-world-2026"
+          "name": "Wing VC",
+          "url": "https://www.wing.vc/content/chinas-open-weight-takeover"
         },
         {
-          "name": "NVIDIA Blog",
-          "url": "https://blogs.nvidia.com/blog/dell-technologies-agent-enterprise-ai/"
+          "name": "OpenRouter",
+          "url": "https://openrouter.ai/blog/insights/the-open-weight-models-that-matter-june-2026/"
         }
       ],
-      "image": "/news-images/dell-deskside-agentic-ai.png",
-      "imageSource": "Dell Newsroom"
+      "image": "/news-images/chinese-open-weight-share.jpg",
+      "imageSource": "OpenRouter"
+    },
+    {
+      "id": "claude-in-chrome-ga",
+      "n": 6,
+      "category": "global",
+      "date": "2026-08-26",
+      "title": "Claude in Chrome goes generally available",
+      "subtitle": "Autonomous browser actions on every paid plan",
+      "summary": "Anthropic took its Chrome extension out of preview on August 26 for Pro, Max, Team and Enterprise — not the free tier. The headline change is that Claude can now act in the browser without approving every individual step (there is an opt-out), with a safety classifier validating each action and prompt-injection defences in place. It reads pages, clicks, types and fills forms across multi-step tasks. It is available in Claude Code; Cowork's own built-in browser is a related but separate, still-evolving surface.",
+      "whyItMatters": "Browser agents have been demoed for two years and shipped cautiously, because a model that can click things on your behalf is a real security surface. Moving from per-action approval to classifier-gated autonomy is the bet that the defences are now good enough.",
+      "whyForUs": "Concretely useful for the boring half of community admin — pulling RSVPs, filling forms, reconciling lists. Try it on something low-stakes first and watch what it actually clicks.",
+      "sources": [
+        {
+          "name": "Anthropic",
+          "url": "https://claude.com/blog/claude-in-chrome-generally-available"
+        },
+        {
+          "name": "GIGAZINE",
+          "url": "https://gigazine.net/gsc_news/en/20260827-claude-chrome-available/"
+        }
+      ],
+      "image": "/news-images/claude-in-chrome-ga.jpg",
+      "imageSource": "Anthropic"
+    },
+    {
+      "id": "gemini-3-6-flash",
+      "n": 7,
+      "category": "global",
+      "date": "2026-07-21",
+      "title": "Google ships three Gemini models, none of them Pro",
+      "subtitle": "Including one tuned for finding vulnerabilities",
+      "summary": "Gemini 3.6 Flash, 3.5 Flash-Lite and 3.5 Flash Cyber landed on July 21 — no 3.5 Pro. Flash improves token efficiency and agentic planning at a lower price than 3.5 Flash; Flash-Lite is the cheapest in class; Flash Cyber is fine-tuned for finding and fixing security vulnerabilities, but is restricted to governments and trusted partners under a pilot rather than generally available. Product lead Logan Kilpatrick said 3.5 Pro is in partner testing and that the team has begun its most ambitious pre-training run yet, for Gemini 4.",
+      "whyItMatters": "Three cheap, specialised models instead of one flagship is the same cost-pressure story from a different direction. A model fine-tuned for vulnerability discovery is also a notable first for a mainstream general-purpose family.",
+      "whyForUs": "Flash-Lite is the practical takeaway — a sensible default for high-volume, low-stakes calls. Flash Cyber is the one to watch rather than use: you can't get it yet, but a mainstream family shipping a vulnerability-hunting variant tells you where the tooling is going.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/07/21/google-releases-three-new-gemini-models-but-no-3-5-pro/"
+        },
+        {
+          "name": "Google AI changelog",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog"
+        }
+      ],
+      "image": "/news-images/gemini-3-6-flash.jpg",
+      "imageSource": "TechCrunch"
+    },
+    {
+      "id": "openai-confidential-s1",
+      "n": 8,
+      "category": "global",
+      "date": "2026-05-22",
+      "title": "OpenAI files confidentially for an IPO",
+      "subtitle": "$852B valuation, timing still open",
+      "summary": "OpenAI submitted a confidential draft S-1 to the SEC on May 22, with Goldman Sachs and Morgan Stanley leading (JPMorgan also reportedly involved), at an $852B valuation carried over from the round it closed on 31 March. It was not first in the queue: SpaceX had filed confidentially on 1 April, and Anthropic followed on 1 June at a reported $965B. By late June, Reuters reported OpenAI may wait until 2027; the company says it hasn't committed to a timeline because 'there are things we want to do that are likely easier as a private company,' and that the filing simply preserves the option. No public filing or final terms as of late August.",
+      "whyItMatters": "A confidential draft is optionality, not a date — but it forces the financials into a form regulators and eventually the public can read, which is the first time anyone outside will see what frontier-model economics actually look like.",
+      "whyForUs": "The interesting part for builders is the eventual disclosure: real inference margins, real compute costs. Until then, treat 'OpenAI is going public' headlines with the hedging the company itself is using.",
+      "sources": [
+        {
+          "name": "OpenAI",
+          "url": "https://openai.com/index/openai-submits-confidential-s-1/"
+        },
+        {
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/06/08/openai-confidentially-files-for-ipo-prepping-wall-street-for-ai-debut.html"
+        },
+        {
+          "name": "Fortune",
+          "url": "https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/"
+        }
+      ],
+      "image": "/news-images/openai-confidential-s1.jpg",
+      "imageSource": "CNBC"
+    },
+    {
+      "id": "eu-ai-act-august-2026",
+      "n": 9,
+      "category": "eu-policy",
+      "date": "2026-08-02",
+      "title": "The AI Act's transparency rules went live on August 2",
+      "subtitle": "High-risk duties slipped to 2027 and 2028",
+      "summary": "The Digital Omnibus pushed the high-risk regime — conformity assessment, registration, risk management, data governance, logging, human oversight — out to 2 December 2027 for Annex III systems and 2 August 2028 for product-embedded Annex I systems. Parliament approved the amendments on 16 June, the Council gave final approval on 29 June, and the text was published in the Official Journal on 24 July, entering into force on 27 July. What was not delayed: Article 50 transparency duties — chatbot disclosure, marking of AI-generated content, deepfake labelling — and the Commission's GPAI enforcement powers, all applicable from 2 August 2026. The single carve-out is machine-readable watermarking for systems already on the market, which has until 2 December 2026.",
+      "whyItMatters": "The deferral got the headlines and the part that actually applies to most people did not. Article 50 covers anyone shipping a chatbot or generating synthetic media in the EU — a far larger group than the high-risk category everyone was worrying about.",
+      "whyForUs": "If your side project has a chat interface or generates images, audio or video for EU users, disclosure and marking apply to you now — with two caveats worth knowing: Article 50(4) exempts evidently artistic, satirical or fictional work that is appropriately disclosed, and some duties land on whoever deploys the system rather than whoever built it. Good Lean Coffee topic — most of us are shipping exactly what Article 50 describes.",
+      "sources": [
+        {
+          "name": "Travers Smith",
+          "url": "https://www.traverssmith.com/knowledge/knowledge-container/eu-agrees-to-delay-key-ai-act-compliance-deadlines/"
+        },
+        {
+          "name": "DLA Piper",
+          "url": "https://knowledge.dlapiper.com/dlapiperknowledge/globalemploymentlatestdevelopments/2026/The-Digital-AI-Omnibus-Proposed-deferral-of-high-risk-AI-obligations-under-the-AI-Act"
+        },
+        {
+          "name": "Digital Applied",
+          "url": "https://www.digitalapplied.com/blog/eu-ai-act-august-2026-transparency-obligations-agency-checklist"
+        }
+      ],
+      "image": "/news-images/eu-ai-act-august-2026.jpg",
+      "imageSource": "DLA Piper"
+    },
+    {
+      "id": "mistral-sovereign-compute",
+      "n": 10,
+      "category": "eu-policy",
+      "date": "2026-08-11",
+      "title": "Mistral turns sovereignty into a product",
+      "subtitle": "Regional endpoints GA, 1 GW by 2030",
+      "summary": "Nine days after the AI Act's transparency rules landed, Mistral made Regional Endpoints generally available — customers pick whether inference runs in Europe or the US — added a Priority Tier with uptime SLAs, and started hosting third-party open models on the same infrastructure, beginning with Z.ai's GLM-5.2. It also launched a coalition selling 'European Compute Units' to fund up to 1 GW of European capacity by 2030, with Amadeus, ASML, Capgemini, Caisse des Dépôts and CMA CGM named. In July, Microsoft and Mistral expanded a multibillion-dollar deal to put NVIDIA Vera Rubin GPUs in European data centres.",
+      "whyItMatters": "Data residency stopped being a talking point the day enforcement started. Selling compute commitments as a subscription is an unusual financing model — it makes enterprise buyers underwrite the infrastructure they say they want.",
+      "whyForUs": "If you are building anything that touches personal data for an EU employer, 'where does inference run' is now a question you will be asked. Regional endpoints are a straightforward answer, and hosting an open Chinese model on European infrastructure is a neat sidestep of the tension in item 5.",
+      "sources": [
+        {
+          "name": "Mistral AI",
+          "url": "https://mistral.ai/news/regional-inference-open-models-new-compute/"
+        },
+        {
+          "name": "VentureBeat",
+          "url": "https://venturebeat.com/infrastructure/mistral-ai-wants-to-build-1-gigawatt-of-european-compute-by-2030-and-lock-in-customers-now"
+        },
+        {
+          "name": "Fortune",
+          "url": "https://fortune.com/2026/08/05/mistral-europe-ai-sovereignty-us-openai-anthropic-google-deepmind/"
+        }
+      ],
+      "image": "/news-images/mistral-sovereign-compute.jpg",
+      "imageSource": "Mistral AI"
+    },
+    {
+      "id": "ucph-ai-initiative",
+      "n": 11,
+      "category": "eu-policy",
+      "date": "2026-08-27",
+      "title": "Copenhagen University puts DKK 110M behind AI",
+      "subtitle": "And appoints a Deputy Prorector for it",
+      "summary": "UCPH announced a DKK 110 million initiative on 27 August, with Professor Morten Axel Pedersen becoming Deputy Prorector of AI from 1 September. The work splits into two missions: 'AI at UCPH', integrating AI across research, teaching and administration — explicitly including when it should *not* be used — and 'UCPH with AI', researching digital sovereignty, ethics and regulation, and building the competencies an AI-changed job market needs.",
+      "whyItMatters": "A university creating a pro-rector-level AI post is an institutional signal, not a pilot project. Denmark's largest university is treating this as a decade-long structural change rather than a tooling question.",
+      "whyForUs": "This is on our doorstep. UCPH will be hiring, funding and running events, and 'when should we *not* use AI' is a framing worth stealing for a session — it is a more interesting discussion than another tool demo.",
+      "sources": [
+        {
+          "name": "University of Copenhagen",
+          "url": "https://news.ku.dk/all_news/2026/08/a-new-deputy-prorector-and-dkk-110-million-are-to-prepare-the-university-for-a-new-reality"
+        }
+      ],
+      "image": "/news-images/ucph-ai-initiative.jpg",
+      "imageSource": "University of Copenhagen"
+    },
+    {
+      "id": "danish-ai-safety-conference",
+      "n": 12,
+      "category": "eu-policy",
+      "date": "2026-08-22",
+      "title": "Denmark holds its first AI safety conference",
+      "subtitle": "Next one is 27 February 2027, free",
+      "summary": "The inaugural Danish AI Safety Conference ran on Saturday 22 August in Brøndby, organised by Søren Elverlin — the first national conference in Denmark dedicated to catastrophic and existential risk from increasingly capable AI. Rasmus Herlo (UCPH) gave the keynote on AI systems and interventions, with Lukas Galke Poech (SDU) on mechanistic interpretability, Daniel Juhl on security engineering in AI control, and five lightning talks from attendees.",
+      "whyItMatters": "A national safety conference existing at all marks the point where the topic moved from online discourse to a room with a venue and a programme. That it filled a Saturday in August says something about the appetite.",
+      "whyForUs": "The next one is Saturday 27 February 2027, registration is free and capacity is limited. It also runs a lightning-talk slot for attendees — a low-stakes way for someone from this group to present outside our own room. Worth putting on the calendar now.",
+      "sources": [
+        {
+          "name": "Danish AI Safety Conference",
+          "url": "https://aisafetyconference.dk/"
+        }
+      ],
+      "image": "/news-images/danish-ai-safety-conference.jpg",
+      "imageSource": "Danish AI Safety Conference"
     }
   ]
 }

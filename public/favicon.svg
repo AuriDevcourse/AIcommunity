@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="AI Workshop">
+  <style>
+    .bg { fill: #141414 }
+    /* Lift the badge off a dark browser tab bar, which sits around #202124. */
+    @media (prefers-color-scheme: dark) { .bg { fill: #2f2f2f } }
+  </style>
+  <rect class="bg" width="32" height="32" rx="7"/>
+  <!--
+    An "A" drawn as strokes rather than a filled outline: a 4/32 stroke is a
+    solid 2px at a 16px favicon, where a thin filled counter would blur away.
+    Crossbar endpoints sit on the legs — the left leg crosses y=19.5 at x≈10.1
+    and the right at x≈21.9, so 10.6→21.4 lands inside both with round caps.
+  -->
+  <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 26 L16 7 L25 26"/>
+    <path d="M10.6 19.5 H21.4"/>
+  </g>
+</svg>

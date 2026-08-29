@@ -1,9 +1,19 @@
+// Anchored at LOCAL noon, not UTC noon. Using UTC date parts meant that between
+// midnight and 02:00 Copenhagen time (UTC+2) the dashboard still reported
+// yesterday's date. Noon keeps the value clear of DST edges either way.
 function todayAtNoon() {
   const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12, 0, 0));
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
 }
 
 export const TODAY = todayAtNoon();
+
+// Format from LOCAL parts. `toISOString()` converts to UTC first, which shifts
+// the date for anyone far enough east of Greenwich even with a noon anchor.
+export function toIso(d = TODAY) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 
 export function parseDate(s) {
   return new Date(`${s}T12:00:00`);

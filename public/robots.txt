@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Runtime API surface — nothing here is useful to a crawler and the poll
+# endpoints are write-capable.
+Disallow: /api/
+
+Sitemap: /sitemap.xml

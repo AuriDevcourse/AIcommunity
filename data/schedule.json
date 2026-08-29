@@ -1,7 +1,14 @@
 {
+  "cadence": {
+    "weekday": "Sunday",
+    "everyNWeeks": 2,
+    "startTime": "12:30",
+    "endTime": "14:30",
+    "timezone": "Europe/Copenhagen"
+  },
   "upcoming": [
     {
-      "date": "2026-05-03",
+      "date": "2026-09-06",
       "number": null,
       "theme": "",
       "format": "tbd",
@@ -16,21 +23,10 @@
         "demoCurator": "Auri",
         "recapWriter": ""
       },
-      "notes": "First session after the gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
+      "notes": "First session back after the summer gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
     },
     {
-      "date": "2026-05-17",
-      "number": null,
-      "theme": "",
-      "format": "tbd",
-      "presenter": "",
-      "venue": "Matrikel1",
-      "venueStatus": "confirmed",
-      "luma": "",
-      "notes": ""
-    },
-    {
-      "date": "2026-05-31",
+      "date": "2026-09-20",
       "number": null,
       "theme": "",
       "format": "tbd",
@@ -41,7 +37,7 @@
       "notes": ""
     },
     {
-      "date": "2026-06-14",
+      "date": "2026-10-04",
       "number": null,
       "theme": "",
       "format": "tbd",
@@ -52,7 +48,7 @@
       "notes": ""
     },
     {
-      "date": "2026-06-28",
+      "date": "2026-10-18",
       "number": null,
       "theme": "",
       "format": "tbd",
@@ -63,7 +59,40 @@
       "notes": ""
     },
     {
-      "date": "2026-07-12",
+      "date": "2026-11-01",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-11-15",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-11-29",
+      "number": null,
+      "theme": "",
+      "format": "tbd",
+      "presenter": "",
+      "venue": "",
+      "venueStatus": "open",
+      "luma": "",
+      "notes": ""
+    },
+    {
+      "date": "2026-12-13",
       "number": null,
       "theme": "",
       "format": "tbd",
@@ -76,9 +105,19 @@
   ],
   "gaps": [
     {
-      "from": "2026-02-22",
-      "to": "2026-04-19",
-      "reason": "Protocol paused — sessions in this window were not logged."
+      "from": "2025-09-15",
+      "to": "2026-03-07",
+      "reason": "Protocol paused between #4 and #5 — no sessions logged."
+    },
+    {
+      "from": "2026-03-09",
+      "to": "2026-05-02",
+      "reason": "Restart gap between #5 and #6."
+    },
+    {
+      "from": "2026-06-15",
+      "to": "2026-09-05",
+      "reason": "No sessions logged after #8 (2026-06-14) — summer gap."
     }
   ]
 }

@@ -1,14 +1,51 @@
 import { useEffect, useState } from 'react';
 import { Plus, Check, Loader2, ListPlus, X, BarChart3, Trash2 } from 'lucide-react';
+import { getJson, ApiUnavailableError } from '../lib/api.js';
+import { useModal } from '../lib/useModal.js';
 
 const NAME_KEY = 'aiworkshop:poll-name';
+// Server-minted identity. A typed name is a label, not a credential — this is
+// what actually proves "my vote" and "my poll" to the API.
+const TOKEN_KEY = 'aiworkshop:poll-token';
+
+function readToken() {
+  try { return window.localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
+}
+
+function saveToken(token) {
+  if (!token) return;
+  try { window.localStorage.setItem(TOKEN_KEY, token); } catch {}
+}
+
+// Identity travels in a header on every call, so it never lands in a URL or a
+// server log. Responses may mint a token, which we persist for next time.
+function authHeaders(extra) {
+  const token = readToken();
+  return { ...extra, ...(token ? { 'X-Voter-Token': token } : {}) };
+}
+
+async function postJson(url, method, payload) {
+  const r = await fetch(url, {
+    method,
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(payload),
+  });
+  const j = await r.json();
+  if (j?.token) saveToken(j.token);
+  if (j?.creatorToken) saveToken(j.creatorToken);
+  return j;
+}
 
 export default function TopicPoll() {
   const [state, setState] = useState(null);
   const [name, setName] = useState(() => (typeof window !== 'undefined' ? window.localStorage.getItem(NAME_KEY) || '' : ''));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [unavailable, setUnavailable] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
+  // Area 5.4 — by insertion order (how the room added them) or by score.
+  const [sortBy, setSortBy] = useState('order');
 
   useEffect(() => { load(); }, []);
 
@@ -20,14 +57,36 @@ export default function TopicPoll() {
   async function load() {
     setLoading(true);
     try {
-      const r = await fetch('/api/poll');
-      setState(await r.json());
+      setState(await getJson('/api/poll', { headers: authHeaders() }));
       setError('');
-    } catch {
-      setError('Could not load polls.');
+      setUnavailable(false);
+    } catch (err) {
+      if (err instanceof ApiUnavailableError) {
+        // Static deploy: not an error, just a deployment without a backend.
+        setUnavailable(true);
+        setError('');
+      } else {
+        setError('Could not load polls.');
+      }
     } finally {
       setLoading(false);
     }
+  }
+
+  if (unavailable) {
+    return (
+      <div className="card card-pad">
+        <div className="h-section flex items-center gap-1.5">
+          <BarChart3 size={11} strokeWidth={2.2} />
+          <span>Community polls</span>
+        </div>
+        <p className="mt-3 text-sm text-muted">
+          Polls need the Node server — this is a static deployment. Run{' '}
+          <span className="font-mono text-foreground">npm start</span> (or{' '}
+          <span className="font-mono text-foreground">npm run dev</span>) to vote.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -38,12 +97,15 @@ export default function TopicPoll() {
           <span>Community polls</span>
         </div>
         <div className="flex items-center gap-2">
+          <label className="sr-only" htmlFor="poll-name">Your display name for polls</label>
           <input
+            id="poll-name"
             value={name}
             onChange={(e) => persistName(e.target.value)}
             placeholder="Your name"
             maxLength={64}
-            className="bg-background border border-border rounded-md px-2.5 py-1 text-xs text-foreground w-28 sm:w-36 focus:outline-none focus:border-foreground"
+            autoComplete="name"
+            className="bg-background border border-border rounded-md px-2.5 py-1 text-xs text-foreground w-28 sm:w-36 focus:border-foreground"
           />
           <button
             onClick={() => setShowCreate(true)}
@@ -56,12 +118,32 @@ export default function TopicPoll() {
       </div>
 
       {error && (
-        <div className="mb-2 rounded-md border border-err/40 bg-err/10 text-err px-2.5 py-1.5 text-xs">{error}</div>
+        <div role="alert" className="mb-2 rounded-md border border-err/40 bg-err/10 text-err px-2.5 py-1.5 text-xs">{error}</div>
+      )}
+
+      {/* Area 5.6 — a vote changes numbers a screen reader would otherwise miss. */}
+      <div aria-live="polite" className="sr-only">{announcement}</div>
+
+      {/* Be honest about the identity model: the server keys votes on a token
+          stored in this browser, so "one vote per person" is really one per
+          browser profile. */}
+      {!loading && state?.polls?.length > 0 && (
+        <p className="text-[11px] text-muted mb-3">
+          One vote per browser — your name is just a label. Clearing site data starts a new identity.
+        </p>
       )}
 
       {loading ? (
-        <div className="text-xs text-muted flex items-center gap-2 py-2">
-          <Loader2 size={12} className="animate-spin" /> Loading…
+        /* Area 5.1 — a skeleton in the shape of the result reserves the space
+           and avoids the card collapsing then jumping when data lands. */
+        <div className="space-y-4 py-1" aria-busy="true" aria-label="Loading polls">
+          {[0, 1].map((i) => (
+            <div key={i} className="border border-border rounded-lg p-3 space-y-2">
+              <div className="skeleton h-4 w-2/3" />
+              <div className="skeleton h-7 w-full" />
+              <div className="skeleton h-7 w-full" />
+            </div>
+          ))}
         </div>
       ) : !state?.polls.length ? (
         <div className="text-xs text-muted py-2">
@@ -69,13 +151,34 @@ export default function TopicPoll() {
         </div>
       ) : (
         <div className="space-y-4">
+          {state.polls.length > 1 || state.polls.some((p) => p.options.length > 1) ? (
+            <div className="flex items-center gap-2 text-[11px] text-muted">
+              <span id="poll-sort-label">Sort options</span>
+              <div className="flex gap-1" role="group" aria-labelledby="poll-sort-label">
+                {[['order', 'As added'], ['votes', 'Most votes']].map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSortBy(key)}
+                    aria-pressed={sortBy === key}
+                    className={`rounded-full border px-2 py-0.5 transition-colors ${
+                      sortBy === key
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
+                    }`}
+                  >{label}</button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {state.polls.map((poll) => (
             <PollCard
               key={poll.id}
               poll={poll}
               name={name}
+              sortBy={sortBy}
               onChange={(next) => setState(next)}
               onError={setError}
+              onAnnounce={setAnnouncement}
             />
           ))}
         </div>
@@ -94,33 +197,62 @@ export default function TopicPoll() {
   );
 }
 
-function PollCard({ poll, name, onChange, onError }) {
+function PollCard({ poll, name, sortBy, onChange, onError, onAnnounce }) {
   const [busyOptionId, setBusyOptionId] = useState(null);
   const [adding, setAdding] = useState(false);
   const [newOption, setNewOption] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const normName = name.trim().toLowerCase();
-  const currentVoteId = poll.options.find((o) => o.voters?.some((v) => v.trim().toLowerCase() === normName))?.id;
+  // Area 5.2 — the tally is echoed locally the instant you click, then replaced
+  // by the server's copy. Rolled back if the request fails.
+  const [pending, setPending] = useState(null);
+
+  // Both flags come from the server, keyed on this browser's token — a typed
+  // name is a display label and must never grant permissions.
+  const currentVoteId = pending !== null ? pending : poll.myVote || null;
   const totalVotes = poll.options.reduce((s, o) => s + (o.votes || 0), 0);
-  const isCreator = normName && normName === poll.createdBy.trim().toLowerCase();
+  const isCreator = Boolean(poll.mine);
   const canAdd = poll.allowSuggestions || isCreator;
+
+  // Area 5.4 — a stable copy, sorted on demand; never mutate the prop array.
+  const orderedOptions =
+    sortBy === 'votes'
+      ? [...poll.options].sort((a, b) => (b.votes || 0) - (a.votes || 0))
+      : poll.options;
+
+  // Area 5.5 — roving movement inside the group, wrapping at both ends.
+  function onOptionKeyDown(e) {
+    if (!['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key)) return;
+    const nodes = [...e.currentTarget.querySelectorAll('[role="radio"]:not([disabled])')];
+    if (nodes.length === 0) return;
+    const i = nodes.indexOf(document.activeElement);
+    const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+    const nextIndex = i === -1 ? 0 : (i + (forward ? 1 : -1) + nodes.length) % nodes.length;
+    e.preventDefault();
+    nodes[nextIndex].focus();
+  }
 
   async function vote(optionId) {
     if (!name.trim()) { onError('Add your name above first.'); return; }
+    const previous = poll.myVote || null;
+    setPending(optionId);
     setBusyOptionId(optionId);
     onError('');
     try {
-      const r = await fetch(`/api/poll/${encodeURIComponent(poll.id)}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ optionId, name: name.trim() }),
-      });
-      const j = await r.json();
-      if (j.ok) onChange(j.state); else onError(j.error || 'Vote failed.');
-    } catch { onError('Vote failed.'); }
-    finally { setBusyOptionId(null); }
+      const j = await postJson(`/api/poll/${encodeURIComponent(poll.id)}/vote`, 'POST', { optionId, name: name.trim() });
+      if (j.ok) {
+        onChange(j.state);
+        const label = poll.options.find((o) => o.id === optionId)?.text;
+        onAnnounce?.(`Voted for ${label}.`);
+      } else {
+        setPending(previous);
+        onError(j.error || 'Vote failed.');
+      }
+    } catch {
+      setPending(previous);
+      onError(navigator.onLine === false ? 'You appear to be offline — the vote was not saved.' : 'Vote failed.');
+    } finally { setBusyOptionId(null); setPending(null); }
   }
 
   async function unvote(optionId) {
@@ -128,13 +260,9 @@ function PollCard({ poll, name, onChange, onError }) {
     setBusyOptionId(optionId);
     onError('');
     try {
-      const r = await fetch(`/api/poll/${encodeURIComponent(poll.id)}/vote`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
-      });
-      const j = await r.json();
-      if (j.ok) onChange(j.state); else onError(j.error || 'Could not clear vote.');
+      const j = await postJson(`/api/poll/${encodeURIComponent(poll.id)}/vote`, 'DELETE', { name: name.trim() });
+      if (j.ok) { onChange(j.state); onAnnounce?.('Vote cleared.'); }
+      else onError(j.error || 'Could not clear vote.');
     } catch { onError('Could not clear vote.'); }
     finally { setBusyOptionId(null); }
   }
@@ -144,12 +272,7 @@ function PollCard({ poll, name, onChange, onError }) {
     setDeleting(true);
     onError('');
     try {
-      const r = await fetch(`/api/poll/${encodeURIComponent(poll.id)}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
-      });
-      const j = await r.json();
+      const j = await postJson(`/api/poll/${encodeURIComponent(poll.id)}`, 'DELETE', { name: name.trim() });
       if (j.ok) onChange(j.state); else onError(j.error || 'Could not delete poll.');
     } catch { onError('Could not delete poll.'); }
     finally { setDeleting(false); setConfirmDelete(false); }
@@ -161,15 +284,13 @@ function PollCard({ poll, name, onChange, onError }) {
     setAdding(true);
     onError('');
     try {
-      const r = await fetch(`/api/poll/${encodeURIComponent(poll.id)}/option`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, name: name.trim() }),
-      });
-      const j = await r.json();
+      const j = await postJson(`/api/poll/${encodeURIComponent(poll.id)}/option`, 'POST', { text, name: name.trim() });
       if (j.ok) {
         onChange(j.state);
         setNewOption('');
+        // Area 5.9 — the API reports duplicates; silently succeeding looked broken.
+        onAnnounce?.(j.duplicate ? 'That option already existed — your suggestion was merged.' : `Added ${text}.`);
+        if (j.duplicate) onError('That option already existed, so it was merged with the existing one.');
       } else onError(j.error || 'Could not add option.');
     } catch { onError('Could not add option.'); }
     finally { setAdding(false); }
@@ -178,7 +299,7 @@ function PollCard({ poll, name, onChange, onError }) {
   return (
     <div className="border border-border rounded-lg p-3 bg-background">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-2">
-        <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground min-w-0">
+        <h3 id={`poll-q-${poll.id}`} className="text-sm sm:text-base font-semibold tracking-tight text-foreground min-w-0">
           {poll.question}
         </h3>
         <div className="flex items-center gap-2 text-[11px] text-muted whitespace-nowrap">
@@ -219,8 +340,10 @@ function PollCard({ poll, name, onChange, onError }) {
           No options yet{canAdd ? ' — add one below.' : '.'}
         </div>
       ) : (
-        <ul className="space-y-1">
-          {poll.options.map((o) => {
+        /* Area 5.5 — a vote list IS a radio group. Announcing it as one, with
+           arrow-key movement, matches what assistive tech already expects. */
+        <ul className="space-y-1" role="radiogroup" aria-labelledby={`poll-q-${poll.id}`} onKeyDown={onOptionKeyDown}>
+          {orderedOptions.map((o) => {
             const isMine = o.id === currentVoteId;
             const busy = busyOptionId === o.id;
             const pct = totalVotes > 0 ? Math.round((o.votes / totalVotes) * 100) : 0;
@@ -232,6 +355,9 @@ function PollCard({ poll, name, onChange, onError }) {
             return (
               <li key={o.id}>
                 <button
+                  role="radio"
+                  aria-checked={isMine}
+                  data-option-id={o.id}
                   onClick={() => !busy && (isMine ? unvote(o.id) : vote(o.id))}
                   disabled={busy || !name.trim()}
                   className={`relative w-full text-left rounded-md border overflow-hidden transition group disabled:cursor-not-allowed ${
@@ -285,7 +411,7 @@ function PollCard({ poll, name, onChange, onError }) {
             onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addOption(); }}
             placeholder={poll.allowSuggestions ? 'Suggest an option…' : 'Add another option (you only)…'}
             maxLength={200}
-            className="flex-1 bg-background border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground"
+            className="flex-1 bg-background border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground focus:border-foreground"
           />
           <button
             onClick={addOption}
@@ -302,6 +428,7 @@ function PollCard({ poll, name, onChange, onError }) {
 }
 
 function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
+  const dialogRef = useModal({ open: true, onClose });
   const [question, setQuestion] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [allowSuggestions, setAllowSuggestions] = useState(true);
@@ -313,17 +440,12 @@ function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
     setSubmitting(true);
     onError('');
     try {
-      const r = await fetch('/api/poll', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: question.trim(),
-          subtitle: subtitle.trim(),
-          allowSuggestions,
-          name: localName.trim(),
-        }),
+      const j = await postJson('/api/poll', 'POST', {
+        question: question.trim(),
+        subtitle: subtitle.trim(),
+        allowSuggestions,
+        name: localName.trim(),
       });
-      const j = await r.json();
       if (j.ok) {
         onNameChange(localName.trim());
         onCreated(j.state);
@@ -334,17 +456,22 @@ function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay-soft backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-poll-title"
+        tabIndex={-1}
         className="card w-full max-w-lg p-6 shadow-[0_30px_60px_rgba(0,0,0,0.18)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <div className="h-section">Create poll</div>
-            <h2 className="text-lg font-semibold mt-1 tracking-tight">Ask the room something</h2>
+            <h2 id="create-poll-title" className="text-lg font-semibold mt-1 tracking-tight">Ask the room something</h2>
           </div>
           <button onClick={onClose} className="text-muted hover:text-foreground transition-colors" aria-label="Close">
             <X size={20} />
@@ -359,7 +486,7 @@ function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g. What should we cover at the next session?"
               maxLength={200}
-              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:border-foreground"
               autoFocus
             />
           </div>
@@ -370,7 +497,7 @@ function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
               onChange={(e) => setSubtitle(e.target.value)}
               placeholder="Context, deadline, or anything to clarify"
               maxLength={400}
-              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:border-foreground"
             />
           </div>
           <div>
@@ -380,7 +507,7 @@ function CreatePollModal({ name, onClose, onCreated, onError, onNameChange }) {
               onChange={(e) => setLocalName(e.target.value)}
               placeholder="e.g. Auri"
               maxLength={64}
-              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:border-foreground"
             />
           </div>
           <label className="flex items-start gap-2 cursor-pointer select-none">

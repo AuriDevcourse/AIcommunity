@@ -1,19 +1,50 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light dark;
+
   --background: hsl(0 0% 100%);
   --foreground: hsl(0 0% 8%);
-  --muted: hsl(0 0% 45%);
+  --muted: hsl(0 0% 42%);
   --border: hsl(0 0% 90%);
   --accent: hsl(0 0% 96%);
   --pill: hsl(0 0% 100%);
+  /* Opaque scrim for badges laid over photos — was a hardcoded white. */
+  --scrim: hsl(0 0% 100% / 0.9);
+  --scrim-foreground: hsl(0 0% 8%);
+  /* Modal/lightbox dimmer. Deliberately theme-INVARIANT: keying it to
+     --foreground inverted it to a white flash in dark mode. */
+  --overlay: hsl(0 0% 0% / 0.72);
+  --overlay-soft: hsl(0 0% 0% / 0.42);
+  --overlay-foreground: hsl(0 0% 100% / 0.85);
 
-  --ok:   hsl(150 35% 38%);
-  --warn: hsl(35 75% 45%);
-  --err:  hsl(0 60% 48%);
+  --ok:   hsl(150 35% 34%);
+  --warn: hsl(35 85% 30%);
+  --err:  hsl(0 62% 45%);
+  /* Tinted fills for ok/warn/err surfaces. Defined per-theme because
+     color-mix against a literal white breaks on a dark background. */
+  --tint-base: hsl(0 0% 100%);
 
   --font-geist-sans: "Geist Variable", system-ui, -apple-system, sans-serif;
   --font-geist-mono: "Geist Mono Variable", ui-monospace, "SF Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: hsl(0 0% 7%);
+    --foreground: hsl(0 0% 96%);
+    --muted: hsl(0 0% 64%);
+    --border: hsl(0 0% 20%);
+    --accent: hsl(0 0% 12%);
+    --pill: hsl(0 0% 11%);
+    --scrim: hsl(0 0% 8% / 0.82);
+    --scrim-foreground: hsl(0 0% 96%);
+
+    --ok:   hsl(150 45% 62%);
+    --warn: hsl(38 85% 64%);
+    --err:  hsl(0 75% 70%);
+    --tint-base: hsl(0 0% 7%);
+  }
 }
 
 @theme inline {
@@ -26,6 +57,11 @@
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-err: var(--err);
+  --color-scrim: var(--scrim);
+  --color-scrim-foreground: var(--scrim-foreground);
+  --color-overlay: var(--overlay);
+  --color-overlay-soft: var(--overlay-soft);
+  --color-overlay-foreground: var(--overlay-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -41,19 +77,96 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-.squircle {
-  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><path d='M100,0 C150,0 200,50 200,100 C200,150 150,200 100,200 C50,200 0,150 0,100 C0,50 50,0 100,0 Z' fill='black'/></svg>");
-  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><path d='M100,0 C150,0 200,50 200,100 C200,150 150,200 100,200 C50,200 0,150 0,100 C0,50 50,0 100,0 Z' fill='black'/></svg>");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+/* A visible keyboard focus ring for everything. The inputs previously carried
+   Tailwind's `focus:outline-none` (specificity 0,2,0), which beat this rule
+   (0,1,0) and left them with only a 1px border-colour change — not a
+   perceivable focus indicator. That utility has been removed at every call
+   site rather than fought with !important. :focus-visible keeps the ring off
+   for mouse users. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* Area 1.8 — one global opt-out. Anything that animates is a courtesy, and a
+   vestibular-sensitive visitor should not have to fight each component for it. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grayscale-hover { filter: none !important; }
+}
+
+/* Area 1.10 — the cockpit is the thing people print or PDF before a session.
+   Drop the chrome, expand the cards, expose link targets. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card { border-color: #ccc; break-inside: avoid; page-break-inside: avoid; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 10px; color: #555; word-break: break-all; }
+  header { position: static !important; }
+}
 
 @layer components {
+  /* Screen-reader-only text that still participates in the a11y tree. */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Area 1.1 — visible only once focused, so keyboard users can jump the nav. */
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -3rem;
+    z-index: 60;
+    padding: 0.5rem 0.875rem;
+    border-radius: 9999px;
+    background: var(--foreground);
+    color: var(--background);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus { top: 0.75rem; }
+
+  /* Area 1.4 — tabs overflow below ~380px; scroll them instead of wrapping the
+     header onto two lines, and fade the edge so it reads as scrollable. */
+  .tabs-scroll {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+  @media (min-width: 640px) { .tabs-scroll { mask-image: none; } }
+
+  /* Area 2.7 — fluid rather than two fixed steps. */
+  .h-display { font-size: clamp(1.75rem, 1.1rem + 3.2vw, 3rem); line-height: 1.05; letter-spacing: -0.02em; }
+
+  /* Areas 5.1 / 6.7 — shared shimmer for skeletons and image placeholders. */
+  .skeleton {
+    background: linear-gradient(90deg, var(--accent) 25%, var(--pill) 37%, var(--accent) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 0.5rem;
+  }
+  @keyframes skeleton-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+  }
+
   .card {
     background-color: var(--background);
     border: 1px solid var(--border);
@@ -83,9 +196,17 @@ body {
     color: var(--foreground);
   }
   .pill-mute { color: var(--muted); }
-  .pill-ok   { color: var(--ok);   border-color: color-mix(in oklab, var(--ok) 35%, transparent); background: color-mix(in oklab, var(--ok) 8%, white); }
-  .pill-warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 35%, transparent); background: color-mix(in oklab, var(--warn) 8%, white); }
-  .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 8%, white); }
+  .pill-ok   { color: var(--ok);   border-color: color-mix(in oklab, var(--ok) 35%, transparent); background: color-mix(in oklab, var(--ok) 10%, var(--tint-base)); }
+  .pill-warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 35%, transparent); background: color-mix(in oklab, var(--warn) 10%, var(--tint-base)); }
+  .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 10%, var(--tint-base)); }
+  /* Badge sitting on top of a photo — legible in either theme. */
+  .scrim-badge {
+    background: var(--scrim);
+    color: var(--scrim-foreground);
+    backdrop-filter: blur(4px);
+  }
   .pill-acc  { color: var(--foreground); border-color: var(--foreground); background: var(--background); }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 }

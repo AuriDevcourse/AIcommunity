@@ -4,9 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="description"
+      content="AI Workshop — a Copenhagen meetup where people build with AI and show what they learned. Sessions, members, polls and an AI news roundup."
+    />
+    <!-- Area 10.3 — absolute URLs are required by WhatsApp/LinkedIn unfurlers.
+         VITE_SITE_URL is substituted at build time; with it unset the tags fall
+         back to relative paths, which most crawlers still resolve. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI Workshop · Copenhagen" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AI Workshop Copenhagen — build with AI, show what you learned." />
+    <meta property="og:title" content="AI Workshop · Copenhagen" />
+    <meta
+      property="og:description"
+      content="A Copenhagen meetup where people build with AI and show what they learned."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI Workshop · Copenhagen" />
+    <meta
+      name="twitter:description"
+      content="A Copenhagen meetup where people build with AI and show what they learned."
+    />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-cover.jpg" />
+    <link rel="apple-touch-icon" href="/og-cover.jpg" />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
     <title>AI Workshop · Cockpit</title>
   </head>
   <body>

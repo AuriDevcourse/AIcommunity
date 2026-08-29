@@ -11,6 +11,10 @@ concurrency:
   group: deploy-aiworkshop
   cancel-in-progress: false
 
+# This job never uses GITHUB_TOKEN (the server pulls the code itself), so drop
+# every permission rather than inheriting the repository default.
+permissions: {}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,9 +22,40 @@ jobs:
       - name: Trigger deploy on server
         env:
           DEPLOY_KEY: ${{ secrets.HETZNER_DEPLOY_KEY_AIWORKSHOP }}
+          # Pin the server's public key once (`ssh-keyscan -t ed25519 <host>` on a
+          # machine you trust) and store it as a repo secret. ssh-keyscan at run
+          # time made StrictHostKeyChecking=yes meaningless: it trusted whatever
+          # key answered on that run, so a MITM would simply be recorded as valid.
+          DEPLOY_HOST_KEY: ${{ secrets.HETZNER_HOST_KEY_AIWORKSHOP }}
+          # Deploy over an unprivileged account with a forced command in
+          # authorized_keys, not root. See deploy.sh for the sudoers line.
+          DEPLOY_USER: ${{ vars.HETZNER_DEPLOY_USER || 'deploy' }}
+          DEPLOY_HOST: 46.225.135.183
         run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_KEY:-}" ]; then
+            echo "::error::HETZNER_DEPLOY_KEY_AIWORKSHOP is not set"
+            exit 1
+          fi
+          if [ -z "${DEPLOY_HOST_KEY:-}" ]; then
+            echo "::error::HETZNER_HOST_KEY_AIWORKSHOP is not set — refusing to trust the host on first sight."
+            echo "::error::Run 'ssh-keyscan -t ed25519 ${DEPLOY_HOST}' from a trusted machine and save the line as that secret."
+            exit 1
+          fi
+
           install -m 700 -d ~/.ssh
           printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 46.225.135.183 >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 root@46.225.135.183 deploy
+          printf '%s\n' "$DEPLOY_HOST_KEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          ssh -o StrictHostKeyChecking=yes \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o IdentitiesOnly=yes \
+              -i ~/.ssh/id_ed25519 \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" deploy
+
+      - name: Scrub SSH state
+        if: always()
+        run: rm -rf ~/.ssh

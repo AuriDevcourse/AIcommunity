@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-20T19:36:31.314Z",
+  "generatedAt": "2026-08-29T20:03:41.112Z",
   "sessions": [
     {
       "number": 1,
@@ -73,7 +73,7 @@
           "sessionDate": "2025-06-29"
         }
       ],
-      "summary": "First meeting — getting to know each other as AI enthusiasts. Discussed the format, how we do things, and future prospects.",
+      "summary": "First meeting to get to know each other as AI enthusiasts. We discussed the format, how we work, and future prospects.",
       "photos": []
     },
     {
@@ -199,76 +199,23 @@
     },
     {
       "number": 5,
-      "date": "2025-09-28",
-      "location": "In-person",
+      "date": "2026-03-08",
+      "location": "Matrikel1",
       "attendees": [
-        "Auri",
-        "Mari"
+        "> Logged later from photos (held during the Feb–Apr window). Numbered #05."
       ],
-      "demos": [
-        {
-          "presenter": "Mari",
-          "topic": "Honkai Star Rail Character Generator"
-        }
-      ],
+      "demos": [],
       "actions": [],
-      "summary": "Short meeting with just two members.",
+      "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
       "photos": []
     },
     {
       "number": 6,
-      "date": "2025-10-12",
-      "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Aiza",
-        "Eividas"
-      ],
-      "demos": [],
-      "actions": [],
-      "summary": "Build-together / brainstorm session — designing an AI-powered dating app concept.",
-      "photos": []
-    },
-    {
-      "number": 7,
-      "date": "2026-01-25",
-      "location": "Sany's place (2nd floor)",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Dovydas"
-      ],
-      "demos": [],
-      "actions": [
-        {
-          "done": false,
-          "text": "Sany: Prepare programming basics presentation",
-          "sessionNumber": 7,
-          "sessionDate": "2026-01-25"
-        }
-      ],
-      "summary": "Reunion session after a break. Discussed AI coding, watched a video about why people struggle with AI coding and how to improve.",
-      "photos": []
-    },
-    {
-      "number": 8,
-      "date": "2026-02-08",
-      "location": "Matrikel1 (gate code: #1623*)",
-      "attendees": [],
-      "demos": [],
-      "actions": [],
-      "summary": "",
-      "photos": []
-    },
-    {
-      "number": 9,
       "date": "2026-05-03",
       "location": "TBD",
       "attendees": [
-        "> First session after the Feb–Apr gap (sessions #09–#13 in original numbering not held / not logged). Numbering reset to #09 for May 3."
+        "> Numbering note: the Mar 8 session (#05) was held during the Feb–Apr window and logged later from photos",
+        "so May 3 is #10. Other sessions in that window were not held / not logged."
       ],
       "demos": [],
       "actions": [],
@@ -286,6 +233,94 @@
         "/sessions/2026-05-03/03052026_10.jpeg",
         "/sessions/2026-05-03/03052026_11.jpeg"
       ]
+    },
+    {
+      "number": 7,
+      "date": "2026-05-31",
+      "location": "Matrikel1",
+      "attendees": [
+        "Auri",
+        "Yogi",
+        "Eividas",
+        "Justas",
+        "Sany",
+        "Frederik",
+        "Ignas"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Live-built a small currency-converter web app with Claude Code (Google sign-in, deployed to Vercel), plus a tour of the community dashboard and AI-generated project mockups"
+        },
+        {
+          "presenter": "Yogi",
+          "topic": "Business operations dashboard built with Claude, pulling live data in through several connected APIs"
+        },
+        {
+          "presenter": "Eividas",
+          "topic": "Running image-generation models (Flux / FLUX.2 klein) locally on a home GPU via Pinokio and ComfyUI"
+        }
+      ],
+      "actions": [
+        {
+          "done": false,
+          "text": "Try Pinokio + ComfyUI to run image models locally",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        },
+        {
+          "done": false,
+          "text": "Compare LM Studio vs Ollama for managing local models",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        },
+        {
+          "done": false,
+          "text": "Add the tools discussed here to the dashboard Tools list",
+          "sessionNumber": 7,
+          "sessionDate": "2026-05-31"
+        }
+      ],
+      "summary": "A hands-on session about how each of us actually builds with AI day to day. Most of the time went to two themes: running models locally versus paying for cloud models, and showing real working setups. We compared local-model runners and hardware limits, walked through live project builds, and shared workflow tips for keeping AI projects organised and reasonably secure.",
+      "photos": []
+    },
+    {
+      "number": 8,
+      "date": "2026-06-14",
+      "location": "TBD",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Andrei",
+        "Sany",
+        "Eividas",
+        "Justas",
+        "Iret"
+      ],
+      "demos": [
+        {
+          "presenter": "Auri",
+          "topic": "Voice recognition feature that recognizes voices in the first ten seconds of an introduction"
+        },
+        {
+          "presenter": "Ignas",
+          "topic": "Image generation using Blender and Fusion, with a focus on creating logos and product development stages"
+        },
+        {
+          "presenter": "Eividas",
+          "topic": "Automated system for transcribing sessions and discussing the Flux system as an image generator similar in quality to Flux ideogram"
+        }
+      ],
+      "actions": [
+        {
+          "done": false,
+          "text": "Attendees are encouraged to explore the use of VAE for specific sections of content extraction and analysis in their projects.",
+          "sessionNumber": 8,
+          "sessionDate": "2026-06-14"
+        }
+      ],
+      "summary": "The session covered various AI tools, techniques, and workflows discussed by attendees at a casual AI meetup. Topics included image generation, project management, security, and trading bots. Presenters walked through their experiences with different software and shared tips for improving productivity and workflow efficiency",
+      "photos": []
     }
   ],
   "members": [
@@ -367,9 +402,16 @@
     }
   ],
   "schedule": {
+    "cadence": {
+      "weekday": "Sunday",
+      "everyNWeeks": 2,
+      "startTime": "12:30",
+      "endTime": "14:30",
+      "timezone": "Europe/Copenhagen"
+    },
     "upcoming": [
       {
-        "date": "2026-05-03",
+        "date": "2026-09-06",
         "number": null,
         "theme": "",
         "format": "tbd",
@@ -384,21 +426,10 @@
           "demoCurator": "Auri",
           "recapWriter": ""
         },
-        "notes": "First session after the gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
+        "notes": "First session back after the summer gap. Pick format on Friday — Lean Coffee fallback if <2 demos."
       },
       {
-        "date": "2026-05-17",
-        "number": null,
-        "theme": "",
-        "format": "tbd",
-        "presenter": "",
-        "venue": "Matrikel1",
-        "venueStatus": "confirmed",
-        "luma": "",
-        "notes": ""
-      },
-      {
-        "date": "2026-05-31",
+        "date": "2026-09-20",
         "number": null,
         "theme": "",
         "format": "tbd",
@@ -409,7 +440,7 @@
         "notes": ""
       },
       {
-        "date": "2026-06-14",
+        "date": "2026-10-04",
         "number": null,
         "theme": "",
         "format": "tbd",
@@ -420,7 +451,7 @@
         "notes": ""
       },
       {
-        "date": "2026-06-28",
+        "date": "2026-10-18",
         "number": null,
         "theme": "",
         "format": "tbd",
@@ -431,7 +462,40 @@
         "notes": ""
       },
       {
-        "date": "2026-07-12",
+        "date": "2026-11-01",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-11-15",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-11-29",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "",
+        "venueStatus": "open",
+        "luma": "",
+        "notes": ""
+      },
+      {
+        "date": "2026-12-13",
         "number": null,
         "theme": "",
         "format": "tbd",
@@ -444,9 +508,19 @@
     ],
     "gaps": [
       {
-        "from": "2026-02-22",
-        "to": "2026-04-19",
-        "reason": "Protocol paused — sessions in this window were not logged."
+        "from": "2025-09-15",
+        "to": "2026-03-07",
+        "reason": "Protocol paused between #4 and #5 — no sessions logged."
+      },
+      {
+        "from": "2026-03-09",
+        "to": "2026-05-02",
+        "reason": "Restart gap between #5 and #6."
+      },
+      {
+        "from": "2026-06-15",
+        "to": "2026-09-05",
+        "reason": "No sessions logged after #8 (2026-06-14) — summer gap."
       }
     ]
   },
@@ -573,10 +647,31 @@
     },
     {
       "done": false,
-      "text": "Sany: Prepare programming basics presentation",
+      "text": "Try Pinokio + ComfyUI to run image models locally",
       "sessionNumber": 7,
-      "sessionDate": "2026-01-25",
+      "sessionDate": "2026-05-31",
       "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Compare LM Studio vs Ollama for managing local models",
+      "sessionNumber": 7,
+      "sessionDate": "2026-05-31",
+      "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Add the tools discussed here to the dashboard Tools list",
+      "sessionNumber": 7,
+      "sessionDate": "2026-05-31",
+      "source": "#7"
+    },
+    {
+      "done": false,
+      "text": "Attendees are encouraged to explore the use of VAE for specific sections of content extraction and analysis in their projects.",
+      "sessionNumber": 8,
+      "sessionDate": "2026-06-14",
+      "source": "#8"
     }
   ]
 }
