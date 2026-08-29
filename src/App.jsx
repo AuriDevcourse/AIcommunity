@@ -168,7 +168,7 @@ export default function App() {
                 goTo('home');
               }}
               aria-label="AI Workshop — go to Home"
-              className="flex items-center gap-2 flex-shrink-0 rounded-md text-foreground"
+              className="tap-target flex items-center gap-2 flex-shrink-0 rounded-md text-foreground"
             >
               <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
               <span className="text-sm font-semibold tracking-tight">AI Workshop</span>

@@ -86,7 +86,7 @@ export default function News() {
               key={c.key}
               onClick={() => setFilter(c.key)}
               aria-pressed={filter === c.key}
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`tap-target rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 filter === c.key
                   ? 'bg-foreground text-background border-foreground'
                   : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
@@ -166,7 +166,7 @@ function NewsCard({ item }) {
             <button
               onClick={() => setOpen((o) => !o)}
               aria-expanded={open}
-              className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-muted transition-colors"
+              className="tap-target inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-muted transition-colors"
             >
               {open ? 'Show less' : 'Read more'}
               <ChevronDown size={14} strokeWidth={2.2} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
@@ -174,9 +174,15 @@ function NewsCard({ item }) {
           ) : <span />}
           <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-xs min-w-0">
             {item.sources.map((s, i) => (
-              <span key={s.url} className="flex items-center gap-1">
-                <a href={s.url} target="_blank" rel="noreferrer" className="text-muted hover:text-foreground hover:underline underline-offset-2 truncate">
+              <span key={`${s.url}-${i}`} className="flex items-center gap-1">
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="tap-target text-muted hover:text-foreground hover:underline underline-offset-2 truncate"
+                >
                   {s.name}
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
                 {i < item.sources.length - 1 && <span className="text-border">·</span>}
               </span>

@@ -83,6 +83,81 @@ try {
     }
   });
 
+  // Mobile pass: the failure modes here are horizontal overflow (something with
+  // a fixed width escaping the viewport) and tap targets below the ~44px that
+  // fingers actually hit. Both are invisible on a desktop screenshot.
+  await cdp.send('Emulation.setDeviceMetricsOverride', {
+    width: 390, height: 844, deviceScaleFactor: 2, mobile: true,
+  });
+  // Device metrics alone do NOT make `(pointer: coarse)` match, so any CSS
+  // gated on it stays inactive and the measurement lies. Emulate touch and the
+  // pointer media features explicitly.
+  await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+  await cdp.send('Emulation.setEmulatedMedia', {
+    media: 'screen',
+    features: [
+      { name: 'pointer', value: 'coarse' },
+      { name: 'any-pointer', value: 'coarse' },
+      { name: 'hover', value: 'none' },
+    ],
+  });
+  for (const route of ROUTES) {
+    await cdp.send('Page.navigate', { url: `${BASE}/#${route}` });
+    await sleep(2200);
+    const { result } = await cdp.send('Runtime.evaluate', {
+      expression: `(() => {
+        const vw = document.documentElement.clientWidth;
+        const over = [...document.querySelectorAll('body *')]
+          .filter(el => {
+            const r = el.getBoundingClientRect();
+            if (r.width <= 0) return false;
+            const cs = getComputedStyle(el);
+            // A fixed/absolute element hanging off the edge does not widen the
+            // document, and the dev-only Agentation widget is not our markup.
+            if (cs.position === 'fixed' || cs.position === 'absolute') return false;
+            if (/styles-module__/.test(el.className || '')) return false;
+            return r.right > vw + 1 || r.left < -1;
+          })
+          .slice(0, 3)
+          .map(el => el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.split(' ').slice(0,2).join('.') : ''));
+        // Excludes the dev-only Agentation widget (not our markup) and inline
+        // links inside running text, which WCAG 2.5.8 explicitly exempts.
+        const small = [...document.querySelectorAll('a[href], button:not([disabled]), input, select')]
+          .filter(el => {
+            const r = el.getBoundingClientRect();
+            if (!(r.width > 0 && r.height > 0)) return false;
+            if (/styles-module__/.test(el.className || '')) return false;
+            if (el.closest('[data-agentation], .agentation')) return false;
+            const inlineInText = el.tagName === 'A'
+              && getComputedStyle(el).display.includes('inline')
+              && el.closest('p, li, dd, figcaption');
+            if (inlineInText) return false;
+            return r.height < 32 || r.width < 32;
+          }).length;
+        return { scrollW: document.documentElement.scrollWidth, vw, over, small };
+      })()`,
+      returnByValue: true,
+    });
+    const v = result.value || {};
+    // scrollWidth > clientWidth is the authoritative signal: it is literally
+    // "can the user scroll sideways". Per-element geometry produces constant
+    // false positives from fixed overlays and their children, so the element
+    // list is diagnostic output for a real failure, never the verdict itself.
+    const overflow = v.scrollW > v.vw + 1;
+    if (overflow) {
+      failures++;
+      console.log(`  \x1b[31m✗\x1b[0m mobile #${route.padEnd(12)} scrollW=${v.scrollW} vw=${v.vw}`);
+      (v.over || []).forEach((o) => console.log(`      overflows: ${o}`));
+    } else {
+      const note = v.small > 0 ? ` (${v.small} tap target${v.small === 1 ? '' : 's'} under 32px)` : '';
+      console.log(`  \x1b[32m✓\x1b[0m mobile #${route.padEnd(12)} no overflow${note}`);
+    }
+  }
+  await cdp.send('Emulation.clearDeviceMetricsOverride');
+  await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: false });
+  await cdp.send('Emulation.setEmulatedMedia', { media: 'screen', features: [] });
+  console.log('');
+
   for (const route of ROUTES) {
     problems = [];
     await cdp.send('Page.navigate', { url: 'about:blank' });

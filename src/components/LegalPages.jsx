@@ -180,7 +180,7 @@ export function Footer({ onNavigate }) {
             <button
               key={slug}
               onClick={() => onNavigate(slug)}
-              className="text-xs text-muted hover:text-foreground transition-colors"
+              className="tap-target text-xs text-muted hover:text-foreground transition-colors"
             >
               {label}
             </button>
