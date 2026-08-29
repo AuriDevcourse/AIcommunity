@@ -11,6 +11,32 @@ finding left deliberately undecided (below). One branch parked.
 1. `17a1255` — parser fixes (see below)
 2. `92c7324` — security headers, skip link, per-tab titles, `npm run smoke`
 3. `de01fb2` — a11y + CLS fixes on the session card, news, members, photos
+4. `14db26d` — news window moved to 15–29 Aug, logo links home, touch behaviour
+5. `a4f9c7f` — finger-sized tap targets + a mobile pass in the smoke test
+
+### New tooling worth knowing about
+- **`npm run smoke`** — loads all 7 routes in headless Chrome, fails on any
+  console error or uncaught exception, then re-runs at 390px with touch and
+  coarse-pointer emulation to check horizontal overflow and tap-target sizes.
+  Added because `vite build` passed cleanly on a temporal-dead-zone
+  ReferenceError that would have thrown on first render.
+- **`node scripts/capture.mjs <dir>`** — screenshots every route in both colour
+  schemes over the DevTools Protocol. The plain `--screenshot` CLI flag ignores
+  `--force-prefers-color-scheme` and cannot do full pages. It scrolls first,
+  because `captureBeyondViewport` does not trigger `loading="lazy"` images and
+  the tail of every long page was otherwise screenshotting blank.
+- **`node scripts/gen-news-placeholders.mjs`** — several news sources serve one
+  og:image across every article, so five cards showed the same picture and one
+  none. Generates a distinct typographic card per story instead.
+
+### Mobile decisions worth not undoing
+- Pinch-zoom is deliberately still enabled. `touch-action: manipulation` kills
+  double-tap zoom (the accidental one), and 16px form controls under 640px stop
+  iOS zooming on focus. Disabling pinch-zoom outright fails WCAG 1.4.4 and iOS
+  has ignored `user-scalable=no` since iOS 10 anyway.
+- Tailwind v4 already wraps its own `hover:` utilities in `@media (hover:hover)`.
+  Three hand-written `:hover` rules in index.css were not, so they latched on tap;
+  those are now guarded with `:active` press states for touch.
 
 ### Needs YOUR decision, not a patch: photo deletion is not ownership-checked
 `DELETE /api/photos?url=...` and `PATCH` (move) are gated by `guardMutation`, so
