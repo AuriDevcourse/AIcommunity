@@ -2,7 +2,62 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## SESSION HANDOFF — 2026-06-19 (RESUME HERE)
+## SESSION HANDOFF — 2026-08-29 (RESUME HERE)
+
+**Current state:** `main` untouched. One PR open, one branch parked. Nothing deployed.
+
+### PR #3 — parser fixes (ready to review)
+`claude/parser-and-feedback-fixes` · https://github.com/AuriDevcourse/AIcommunity/pull/3
+
+Three regexes used anchors JavaScript doesn't have, each failing silently:
+
+- **`\Z` is not a JS anchor** — in `build-data.js` it matched a literal "Z", so the Action
+  Items block was cut at the first capital Z in the text (a name like "Zoe" ate the rest of
+  the list, and the partial line was still captured, so items could be stored truncated
+  mid-word). Rebuilding against the real vault recovers one previously-invisible action item
+  (22 → 23), loses none.
+- **Members-table regex** terminated only on a blank line, so if the table is ever last in the
+  hub file, `members` silently becomes `[]` on an exit-0 build. Not triggered today; fixed
+  preventively — same shape of bug.
+- **`$` under the `/m` flag** in the feedback parser (`server.js` + `vite.config.js`) matches at
+  *every* line ending, so **every multi-line feedback entry was truncated to its first line**
+  on read-back. Verified end-to-end: a three-line entry now round-trips whole.
+
+All three now use `(?![\s\S])`, a real end-of-input assertion. Diff is 4 files.
+
+Two traps worth remembering, both hit during this work:
+- **`vite.config.js` is CRLF** in this repo (Windows desktop). A normal text edit rewrites all
+  514 lines. Patch it in binary mode.
+- **`npm run build` runs `optimize:images`**, which rewrites ~19 image files and the manifest.
+  Use `npm run build:data && npx vite build` when you want a source-only diff.
+
+### Branch parked, NOT merged: `claude/audit-and-ui-overhaul`
+A large audit + UI rework built against a **44-commit-stale checkout** before the drift was
+noticed. Most of it is superseded by what's on `main` now (code splitting, image optimization,
+skeletons, reduced-motion, the news rules, Google-Calendar schedule). Kept only so nothing is
+lost — treat it as a scrap heap, not a proposal. Anything worth keeping should be re-derived
+against current `main`.
+
+Possibly still worth cherry-picking from it, if you want them:
+- Security headers on `server.js` (CSP, nosniff, referrer, frame-ancestors, HSTS) + compression
+- `scripts/audit.mjs` — pre-deploy budget/meta/header/data-freshness check
+- `scripts/capture.mjs` — CDP screenshots of every tab in both themes (the `--screenshot` CLI
+  flag silently ignores `--force-prefers-color-scheme`; this drives DevTools Protocol instead)
+- A real 1200×630 `og:image` card, `robots.txt`, `sitemap.xml`
+
+### Fixed along the way
+- **Corrupt git ref** `.git/refs/remotes/origin/HEAD 2` (a byte-identical duplicate, the kind
+  iCloud/Dropbox leaves behind) was making **every `git fetch` fail**. That is almost certainly
+  why this checkout sat 44 commits behind without anyone noticing. Moved to
+  `/tmp/git-stray-HEAD-2.bak`. Worth checking the other repos on this machine for the same file.
+
+### Not done
+- The poll auth review. On the stale tree, poll ownership was verifiable by typing someone's
+  name; `main` has since restructured polls (`Polls.jsx`, `/api/polls`, KV/Upstash) so that
+  finding does **not** transfer. Someone should check whether the current implementation
+  authenticates writes.
+
+## SESSION HANDOFF — 2026-06-19
 
 **Current state:** Sessions tab + recap polish from Agentation feedback, plus all 8 session
 titles set. Everything is **uncommitted on `main`** (local dev only, live site unchanged).
