@@ -31,6 +31,17 @@
 }
 
 html { scrollbar-gutter: stable; }
+
+/* Removes the double-tap-to-zoom delay and gesture, which is the accidental
+   zoom on a phone. Pinch-zoom still works: turning that off fails WCAG 1.4.4,
+   and iOS has ignored user-scalable=no since iOS 10 regardless. */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+
+/* iOS zooms the viewport whenever a focused form control is under 16px. Every
+   input here is text-sm or smaller, so typing anywhere yanked the page. */
+@media (max-width: 640px) {
+  input, textarea, select { font-size: 16px; }
+}
 html, body, #root { height: 100%; }
 
 body {
@@ -146,11 +157,18 @@ select:focus-visible {
     cursor: pointer;
     transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   }
-  .card-interactive:hover {
-    box-shadow: 0 8px 24px rgba(16, 16, 16, 0.08);
-    transform: translateY(-1px);
-    border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
+  /* Guarded: on a touch screen a bare :hover latches on tap and stays stuck
+     until you tap something else. Tailwind v4 does this for its own hover:
+     utilities automatically; these hand-written rules need it explicitly. */
+  @media (hover: hover) and (pointer: fine) {
+    .card-interactive:hover {
+      box-shadow: 0 8px 24px rgba(16, 16, 16, 0.08);
+      transform: translateY(-1px);
+      border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
+    }
   }
+  /* Touch gets a press state instead — feedback that ends when the finger lifts. */
+  .card-interactive:active { transform: translateY(0) scale(0.995); }
   .card-pad { padding: 1rem; }
   @media (min-width: 640px) {
     .card-pad { padding: 1.25rem; }
@@ -284,7 +302,10 @@ select:focus-visible {
     transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn:not(:disabled):hover { transform: scale(1.02); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:not(:disabled):hover { transform: scale(1.02); }
+  }
+  .btn:not(:disabled):active { transform: scale(0.98); }
   .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
   .btn-primary { background: var(--foreground); color: var(--background); }
   .btn-ghost {
@@ -292,7 +313,10 @@ select:focus-visible {
     color: var(--foreground);
     border: 1px solid var(--border);
   }
-  .btn-ghost:not(:disabled):hover { background: var(--accent); transform: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-ghost:not(:disabled):hover { background: var(--accent); transform: none; }
+  }
+  .btn-ghost:not(:disabled):active { background: var(--accent); transform: none; }
 }
 
 @keyframes shimmer {

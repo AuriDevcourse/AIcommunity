@@ -150,6 +150,28 @@ try {
       }
     }
     if (!ready) console.warn(`  ${shot.name}: render check timed out, capturing anyway`);
+
+    // Scroll the whole page before capturing. captureBeyondViewport renders the
+    // full height but does NOT trigger loading="lazy" images below the fold, so
+    // without this the tail of every long page screenshots as blank boxes —
+    // which silently misrepresents the site in any before/after comparison.
+    await cdp.send('Runtime.evaluate', {
+      expression: `(async () => {
+        const step = window.innerHeight;
+        const end = document.body.scrollHeight;
+        for (let y = 0; y < end; y += step) {
+          window.scrollTo(0, y);
+          await new Promise(r => setTimeout(r, 120));
+        }
+        window.scrollTo(0, 0);
+        // Give decoding a moment, and force any straggler to load eagerly.
+        document.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = 'eager'; });
+        await Promise.all([...document.images].filter(i => !i.complete).map(i =>
+          new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 2500); })));
+        await new Promise(r => setTimeout(r, 250));
+      })()`,
+      awaitPromise: true,
+    });
     await sleep(400);
 
     const { data } = await cdp.send('Page.captureScreenshot', {

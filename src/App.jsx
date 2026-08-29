@@ -157,10 +157,22 @@ export default function App() {
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-7 min-w-0">
-            <div className="flex items-center gap-2 flex-shrink-0">
+            {/* The wordmark is the universal "take me home" affordance and this
+                one was an inert div. Anchor so middle-click and open-in-new-tab
+                behave, with the click intercepted for client-side routing. */}
+            <a
+              href="#home"
+              onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                e.preventDefault();
+                goTo('home');
+              }}
+              aria-label="AI Workshop — go to Home"
+              className="flex items-center gap-2 flex-shrink-0 rounded-md text-foreground"
+            >
               <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
-              <span className="text-sm font-semibold tracking-tight text-foreground">AI Workshop</span>
-            </div>
+              <span className="text-sm font-semibold tracking-tight">AI Workshop</span>
+            </a>
             {/* Desktop / tablet: top menu. Mobile uses the fixed bottom bar below. */}
             <nav className="hidden sm:flex items-center gap-0.5">
               {TABS.map((t) => {
@@ -275,10 +287,14 @@ export default function App() {
           <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden />
           <nav className="absolute top-0 inset-x-0 bg-background border-b border-border shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
             <div className="h-14 flex items-center justify-between px-4 border-b border-border">
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => { goTo('home'); setMenuOpen(false); }}
+                aria-label="AI Workshop — go to Home"
+                className="flex items-center gap-2 rounded-md text-foreground"
+              >
                 <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
                 <span className="text-sm font-semibold tracking-tight">AI Workshop</span>
-              </div>
+              </button>
               <button onClick={() => setMenuOpen(false)} className="grid place-items-center w-9 h-9 rounded-full text-muted hover:text-foreground hover:bg-accent transition-colors" aria-label="Close menu">
                 <X size={18} />
               </button>
