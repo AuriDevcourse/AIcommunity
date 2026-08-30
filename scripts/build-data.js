@@ -1,5 +1,6 @@
 // Parses AI Workshop markdown notes + planning JSON into src/data.json
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -25,15 +26,57 @@ const SESSION_PHOTOS_DIR = join(ROOT, 'public', 'sessions');
 
 const PHOTO_EXT = /\.(jpe?g|png|webp|gif)$/i;
 const DATE_FOLDER = /^\d{4}-\d{2}-\d{2}$/;
+// Syncing clients (iCloud/Dropbox) drop byte-identical "IMG_4549 2.jpg" copies
+// next to the originals. They are gitignored, so they never deploy — but this
+// script reads the filesystem, not the index, so without this filter it writes
+// them into data.json and production renders them as broken images. 28 of 77
+// photo references were phantoms before this.
+//
+// Matching on " <n>.<ext>" alone is too greedy: a real file called
+// "Screenshot 2025-09-19 110140.png" ends that way. A sync duplicate is only a
+// duplicate if the original it was copied from is sitting next to it, so test
+// for that too.
+const SYNC_SUFFIX = /^(.*) ([2-9])(\.[a-z0-9]+)$/i;
+
+function isSyncDuplicate(file, siblings) {
+  const m = file.match(SYNC_SUFFIX);
+  return Boolean(m) && siblings.has(m[1] + m[3]);
+}
+
+// A photo that exists on this laptop but is not tracked by git will not be in
+// the deployed bundle, so referencing it from data.json produces a broken image
+// in production and a working one in local dev — the worst kind of bug to spot.
+// Skip those and name them, so `git add` is the obvious next step.
+const untrackedRefs = [];
+let trackedPublic = null;
+function isTracked(publicRelPath) {
+  if (trackedPublic === null) {
+    try {
+      const out = execSync('git ls-files public/', { cwd: ROOT, maxBuffer: 1e8 }).toString();
+      trackedPublic = new Set(out.split('\n').filter(Boolean));
+    } catch {
+      trackedPublic = false; // no git available (some CI checkouts) — don't filter
+    }
+  }
+  if (trackedPublic === false) return true;
+  return trackedPublic.has(`public${publicRelPath}`);
+}
 
 function listSessionPhotosForDate(dateIso) {
   if (!dateIso) return [];
   const dir = join(SESSION_PHOTOS_DIR, dateIso);
   if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((f) => PHOTO_EXT.test(f))
+  const all = readdirSync(dir);
+  const siblings = new Set(all);
+  return all
+    .filter((f) => PHOTO_EXT.test(f) && !isSyncDuplicate(f, siblings))
     .sort()
-    .map((f) => `/sessions/${dateIso}/${f}`);
+    .map((f) => `/sessions/${dateIso}/${f}`)
+    .filter((rel) => {
+      if (isTracked(rel)) return true;
+      untrackedRefs.push(rel);
+      return false;
+    });
 }
 
 function listAllPhotoDates() {
@@ -210,3 +253,7 @@ const out = {
 
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2));
 console.log(`build-data: ${sessions.length} sessions, ${members.length} members, ${schedule.upcoming.length} upcoming, ${allActions.length} open actions → src/data.json`);
+if (untrackedRefs.length) {
+  console.warn(`build-data: WARNING — ${untrackedRefs.length} photo(s) exist locally but are not tracked by git, so they were left out (they would 404 in production):`);
+  for (const r of untrackedRefs) console.warn(`build-data:   git add "public${r}"`);
+}

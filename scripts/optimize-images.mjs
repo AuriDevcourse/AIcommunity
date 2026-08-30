@@ -28,13 +28,24 @@ const TARGETS = [
 const RASTER = /\.(jpe?g|png|webp)$/i;
 const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : {};
 
+// Syncing clients leave byte-identical "<name> 2.<ext>" copies next to the
+// originals. They are gitignored and never deploy, so optimising them burns
+// time and — worse — writes phantom entries into the manifest.
+const SYNC_SUFFIX = /^(.*) ([2-9])(\.[a-z0-9]+)$/i;
+const isSyncDuplicate = (name, siblings) => {
+  const m = name.match(SYNC_SUFFIX);
+  return Boolean(m) && siblings.has(m[1] + m[3]);
+};
+
 function walk(dir) {
   const out = [];
   if (!existsSync(dir)) return out;
-  for (const name of readdirSync(dir)) {
+  const names = readdirSync(dir);
+  const siblings = new Set(names);
+  for (const name of names) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (RASTER.test(name)) out.push(p);
+    else if (RASTER.test(name) && !isSyncDuplicate(name, siblings)) out.push(p);
   }
   return out;
 }
