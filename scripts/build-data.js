@@ -19,6 +19,7 @@ const VAULT_DIR = process.platform === 'win32'
   ? 'C:\\Users\\User\\Documents\\Obsidian Vault\\AI Workshop'
   : '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop';
 const HUB_FILE = process.env.AI_WORKSHOP_HUB_FILE || join(VAULT_DIR, 'AI Workshop.md');
+const MEMBERS_FILE = process.env.AI_WORKSHOP_MEMBERS_FILE || join(ROOT, 'content', 'members.md');
 const SCHEDULE_FILE = join(ROOT, 'data', 'schedule.json');
 const BACKLOG_FILE = join(ROOT, 'data', 'backlog.json');
 const OUT_FILE = join(ROOT, 'src', 'data.json');
@@ -179,6 +180,57 @@ function parseSessionFile(filename) {
   return { number, date, title, location, attendees, demos, actions, summary, topics, tools, photos };
 }
 
+// Members live in content/members.md, in the repo, so anyone can add a person
+// and a Vercel build sees the same list. The vault hub table stays only as a
+// fallback for a checkout that predates the move.
+//
+// Columns: Name | Status | Aliases. Aliases matter because session attendance is
+// written in first names, so without one a member's count reads zero.
+function parseMembersFile() {
+  const raw = read(MEMBERS_FILE);
+  if (!raw) return null;
+  const members = [];
+  for (const line of raw.split('\n')) {
+    const t = line.trim();
+    if (!t.startsWith('|') || !t.endsWith('|')) continue;
+    const cells = t.slice(1, -1).split('|').map((c) => c.trim());
+    if (cells.length < 2) continue;
+    const [name, status, aliases] = cells;
+    if (!name || !status) continue;
+    if (name === 'Name' || /^-+$/.test(name)) continue; // header and separator rows
+    members.push({
+      name,
+      status,
+      aliases: (aliases || '').split(',').map((a) => a.trim()).filter(Boolean),
+    });
+  }
+  return members.length ? members : null;
+}
+
+// How many recorded sessions each member attended. Attendance is written in first
+// names, so match the row's aliases and the tokens of its canonical name. A name
+// that matches nobody is a guest and is deliberately counted nowhere.
+function attendanceCounts(members, sessions) {
+  const norm = (x) => String(x || '').trim().toLowerCase();
+  const keyed = members.map((m) => ({
+    name: m.name,
+    keys: new Set([
+      norm(m.name),
+      ...norm(m.name).split(/\s+/),
+      ...(m.aliases || []).flatMap((a) => [norm(a), ...norm(a).split(/\s+/)]),
+    ].filter((k) => k.length >= 3)),
+  }));
+  const counts = Object.fromEntries(members.map((m) => [m.name, 0]));
+  for (const session of sessions) {
+    const seen = new Set();
+    for (const raw of session.attendees || []) {
+      const hit = keyed.find((m) => m.keys.has(norm(raw)));
+      if (hit && !seen.has(hit.name)) { counts[hit.name] += 1; seen.add(hit.name); }
+    }
+  }
+  return counts;
+}
+
 function parseHub() {
   const raw = read(HUB_FILE);
   // Members table
@@ -229,11 +281,18 @@ for (const dateIso of listAllPhotoDates()) {
 sessions.sort((a, b) => a.date.localeCompare(b.date));
 
 let { members, hubActions } = parseHub();
+// content/members.md wins when present. The vault table only ever existed on one
+// machine, and it carried two "Unknown #N" headcount placeholders that rendered
+// as blank member cards.
+const fromFile = parseMembersFile();
+if (fromFile) members = fromFile;
 // If the (optional) hub doc wasn't found, keep the members from the last committed
 // snapshot so a vault-less build (Vercel) doesn't drop the member list.
 if (!members.length && existsSync(OUT_FILE)) {
   members = readJson(OUT_FILE)?.members || [];
 }
+const attended = attendanceCounts(members, sessions);
+members = members.map((m) => ({ ...m, attended: attended[m.name] ?? 0 }));
 const schedule = readJson(SCHEDULE_FILE) || { upcoming: [], gaps: [] };
 const backlog = readJson(BACKLOG_FILE) || [];
 

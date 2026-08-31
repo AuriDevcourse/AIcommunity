@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T11:14:24.165Z",
+  "generatedAt": "2026-08-31T14:43:23.374Z",
   "sessions": [
     {
       "number": 1,
@@ -767,79 +767,141 @@
   "members": [
     {
       "name": "Aurimas Baciauskas",
-      "status": "Organizer"
-    },
-    {
-      "name": "Ignas Valavicius",
-      "status": "Active"
-    },
-    {
-      "name": "Dovydas Vinickis",
-      "status": "Active"
-    },
-    {
-      "name": "Maria Krupa",
-      "status": "Active"
-    },
-    {
-      "name": "Inigo Casillas",
-      "status": "Active"
-    },
-    {
-      "name": "Sany Ivanova",
-      "status": "Active"
-    },
-    {
-      "name": "Martin Windsor",
-      "status": "Active"
+      "status": "Organizer",
+      "aliases": [
+        "Auri"
+      ],
+      "attended": 6
     },
     {
       "name": "Aiza Watzlawek",
-      "status": "Active"
+      "status": "Active",
+      "aliases": [],
+      "attended": 2
+    },
+    {
+      "name": "Andrei Prusu",
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
     },
     {
       "name": "Cristina Bodnari",
-      "status": "Active"
-    },
-    {
-      "name": "Kernius Savickas",
-      "status": "Active"
-    },
-    {
-      "name": "Kristina Juozapaviciute",
-      "status": "Active"
-    },
-    {
-      "name": "Vasare Liutkeviciute",
-      "status": "Active"
-    },
-    {
-      "name": "Eividas Maciulis",
-      "status": "Active"
-    },
-    {
-      "name": "Tady Kapic",
-      "status": "Active"
-    },
-    {
-      "name": "Valentin",
-      "status": "Active"
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
     },
     {
       "name": "Dovile",
-      "status": "Active"
+      "status": "Active",
+      "aliases": [
+        "Dovile Perednyte"
+      ],
+      "attended": 1
+    },
+    {
+      "name": "Dovydas Vinickis",
+      "status": "Active",
+      "aliases": [],
+      "attended": 0
+    },
+    {
+      "name": "Eividas Maciulis",
+      "status": "Active",
+      "aliases": [],
+      "attended": 5
+    },
+    {
+      "name": "Ernestas Sažinas",
+      "status": "Active",
+      "aliases": [
+        "Ernestas"
+      ],
+      "attended": 0
+    },
+    {
+      "name": "Ignas Valavicius",
+      "status": "Active",
+      "aliases": [],
+      "attended": 6
+    },
+    {
+      "name": "Inigo Casillas",
+      "status": "Active",
+      "aliases": [
+        "Inigo"
+      ],
+      "attended": 0
     },
     {
       "name": "Justas Petrauskas",
-      "status": "Active"
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
     },
     {
-      "name": "Unknown #1",
-      "status": "Number only"
+      "name": "Kernius Savickas",
+      "status": "Active",
+      "aliases": [
+        "Kernius"
+      ],
+      "attended": 0
     },
     {
-      "name": "Unknown #2",
-      "status": "Number only"
+      "name": "Kristina Juozapaviciute",
+      "status": "Active",
+      "aliases": [
+        "Kristina"
+      ],
+      "attended": 0
+    },
+    {
+      "name": "Maria Krupa",
+      "status": "Active",
+      "aliases": [
+        "Maria"
+      ],
+      "attended": 0
+    },
+    {
+      "name": "Martin Windsor",
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
+    },
+    {
+      "name": "Pavel Kucera",
+      "status": "Active",
+      "aliases": [
+        "Pavel"
+      ],
+      "attended": 0
+    },
+    {
+      "name": "Sany Ivanova",
+      "status": "Active",
+      "aliases": [],
+      "attended": 5
+    },
+    {
+      "name": "Tady Kapic",
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
+    },
+    {
+      "name": "Valentin",
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
+    },
+    {
+      "name": "Vasare Liutkeviciute",
+      "status": "Active",
+      "aliases": [
+        "Vasare"
+      ],
+      "attended": 0
     }
   ],
   "schedule": {

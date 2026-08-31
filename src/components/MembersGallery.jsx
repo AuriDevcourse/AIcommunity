@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Search, X, ArrowDownWideNarrow } from 'lucide-react';
 import { getMemberProfile, getInitials, getDisplayName, mergeMembersWithProfiles } from '../lib/members-profile.js';
 
 // DiceBear avataaars: free, keyless, deterministic SVG avatars seeded by name.
@@ -49,33 +50,124 @@ function shuffle(arr) {
   return a;
 }
 
+const SORTS = [
+  ['featured', 'Featured'],
+  ['name', 'Name'],
+  ['sessions', 'Sessions'],
+];
+
 export default function MembersGallery({ members }) {
   const merged = mergeMembersWithProfiles(members);
-  // Reshuffle on every mount (each time the tab opens) so the sequence keeps
-  // changing. Members with photos still lead, but their order varies each visit.
-  const sorted = useMemo(() => {
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
+
+  // "Featured" keeps the old behaviour: people with a photo lead, shuffled so the
+  // order varies per visit. It is now ONE option rather than the only one, because
+  // a list that reorders itself on every mount is the opposite of a sort control,
+  // and there was no way to find a specific person in it.
+  const featured = useMemo(() => {
     const withPhoto = merged.filter((m) => getMemberProfile(m.name).photo);
     const without = merged.filter((m) => !getMemberProfile(m.name).photo);
     return [...shuffle(withPhoto), ...shuffle(without)];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    // Search the display name and any aliases, so "Auri" finds Aurimas and
+    // "Perednyte" finds Dovile.
+    const matches = (m) => {
+      if (!q) return true;
+      const hay = [m.name, getDisplayName(m), ...(m.aliases || [])].join(' ').toLowerCase();
+      return hay.includes(q);
+    };
+    const base = sortBy === 'featured'
+      ? featured
+      : [...merged].sort((a, b) => (sortBy === 'sessions'
+        ? (b.attended || 0) - (a.attended || 0) || getDisplayName(a).localeCompare(getDisplayName(b))
+        : getDisplayName(a).localeCompare(getDisplayName(b))));
+    return base.filter(matches);
+  }, [query, sortBy, featured, merged]);
+
+  const organisers = merged.filter((m) => m.status === 'Organizer').length;
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <div>
         <div className="h-section">Community</div>
         <div className="mt-2 text-3xl font-semibold tracking-tight">Members</div>
-        <p className="mt-2 text-sm text-muted">{merged.length} people building with AI in Copenhagen.</p>
+        <p className="mt-2 text-sm text-muted">
+          {merged.length} people building with AI in Copenhagen
+          {organisers > 0 && `, ${organisers} running it`}.
+        </p>
       </div>
 
-      {sorted.length === 0 ? (
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
+          <label htmlFor="member-search" className="sr-only">Search members by name</label>
+          <input
+            id="member-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search members"
+            className="w-full bg-background border border-border rounded-full pl-9 pr-9 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <ArrowDownWideNarrow size={13} className="text-muted" aria-hidden="true" />
+          <span id="member-sort-label" className="text-muted">Sort</span>
+          <div role="group" aria-labelledby="member-sort-label" className="inline-flex rounded-full border border-border overflow-hidden">
+            {SORTS.map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSortBy(key)}
+                aria-pressed={sortBy === key}
+                className={`px-2.5 py-1 font-medium transition-colors ${
+                  sortBy === key ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <p aria-live="polite" className="sr-only">
+        {query ? `${shown.length} of ${merged.length} members match ${query}.` : ''}
+      </p>
+
+      {merged.length === 0 ? (
         <div className="card card-pad text-sm text-muted">No members yet.</div>
+      ) : shown.length === 0 ? (
+        <div className="card card-pad text-sm text-muted">
+          Nobody matches “{query}”. <button type="button" onClick={() => setQuery('')} className="underline underline-offset-2">Clear the search</button>.
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
-          {sorted.map((m) => (
+          {shown.map((m) => (
             <MemberCard key={m.name} member={m} />
           ))}
         </div>
       )}
+
+      <p className="pt-2 text-xs text-muted">
+        Listed because you have come to a session. To be removed, or to change how your
+        name or photo appears, message Auri and it is done at the next build.
+      </p>
     </div>
   );
 }
@@ -126,6 +218,21 @@ function MemberCard({ member }) {
         photoBlock
       )}
       <div className="mt-3 text-sm font-semibold text-foreground leading-tight">{displayName}</div>
+      {/* Status and attendance were both in the data and shown nowhere. Only the
+          Organizer badge renders: tagging nineteen of twenty people "Active" is
+          noise, and the one distinction worth seeing is who runs the thing. */}
+      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+        {member.status === 'Organizer' && (
+          <span className="pill" style={{ background: 'var(--gold-chip-a)', color: 'var(--gold-chip-fg)', borderColor: 'transparent' }}>
+            Organiser
+          </span>
+        )}
+        {member.attended > 0 && (
+          <span className="text-[11px] text-muted">
+            {member.attended} {member.attended === 1 ? 'session' : 'sessions'}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
