@@ -16,7 +16,10 @@
     "build": "npm run optimize:images && npm run build:data && vite build",
     "preview": "vite preview",
     "start": "node server.js",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "theme:check": "node scripts/theme-check.mjs",
+    "identity:check": "node scripts/identity-check.mjs",
+    "lightbox:check": "node scripts/lightbox-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",

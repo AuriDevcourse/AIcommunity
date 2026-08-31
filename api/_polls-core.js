@@ -1,17 +1,20 @@
-// Shared polls logic — used by the Vercel serverless function (api/polls.js),
+// Shared polls logic, used by the Vercel serverless function (api/polls.js),
 // the Vite dev middleware (vite.config.js), and the self-host server (server.js).
 //
 // Storage: Upstash Redis if KV_REST_API_URL is present (production on Vercel),
 // otherwise a local JSON file (dev + self-host). Same logical operations either way.
 //
 // Vote model: votes for a poll live in a Redis hash keyed by the voter's
-// normalised name → one field per person, so simultaneous voters never clobber
-// each other, and re-voting with the same name overwrites (vote once per name).
+// verified Supabase user id → one field per person, so simultaneous voters never
+// clobber each other, and re-voting overwrites (one vote per member). The key is
+// the session's user id, never a name from the request body: a name can be
+// changed in the profile editor, and keying on it let anyone overwrite anyone.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { identityFor, normName as normIdentity } from './_identity.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LIST_KEY = 'aiworkshop:polls';
@@ -58,6 +61,9 @@ function upstashStore() {
     async putVote(pollId, key, value) {
       await cmd(['HSET', votesKey(pollId), key, JSON.stringify(value)]);
     },
+    async delVote(pollId, key) {
+      await cmd(['HDEL', votesKey(pollId), key]);
+    },
     async deletePoll(pollId) {
       const polls = (await this.listPolls()).filter((p) => p.id !== pollId);
       await this.savePolls(polls);
@@ -87,6 +93,10 @@ function fileStore() {
       db.votes[pollId] = db.votes[pollId] || {};
       db.votes[pollId][key] = value;
       save(db);
+    },
+    async delVote(pollId, key) {
+      const db = load();
+      if (db.votes[pollId]) { delete db.votes[pollId][key]; save(db); }
     },
     async deletePoll(pollId) {
       const db = load();
@@ -124,7 +134,7 @@ function withResults(poll, votes) {
 const storageReady = () => Boolean(KV_URL) || !process.env.VERCEL;
 
 // ---------------------------------------------------------------- main handler
-export async function handlePolls({ method, body, store = createStore() }) {
+export async function handlePolls({ method, body, user = null, store = createStore() }) {
   if (method === 'GET') {
     const polls = await store.listPolls();
     const withVotes = await Promise.all(
@@ -141,6 +151,7 @@ export async function handlePolls({ method, body, store = createStore() }) {
   }
 
   const action = body?.action;
+  const who = identityFor(user, body);
 
   if (action === 'create') {
     const question = String(body.question || '').trim().slice(0, 200);
@@ -156,7 +167,8 @@ export async function handlePolls({ method, body, store = createStore() }) {
       multi: Boolean(body.multi),
       options: options.slice(0, 12).map((label, i) => ({ id: `o${i + 1}`, label })),
       closed: false,
-      createdBy: String(body.createdBy || '').trim().slice(0, 64) || 'someone',
+      createdBy: who.name || 'someone',
+      userId: who.userId,
       createdAt: new Date().toISOString(),
     };
     const polls = await store.listPolls();
@@ -166,7 +178,7 @@ export async function handlePolls({ method, body, store = createStore() }) {
   }
 
   if (action === 'vote') {
-    const name = String(body.name || '').trim().slice(0, 48);
+    const name = who.name;
     if (!name) return { status: 400, json: { ok: false, error: 'name required' } };
     const polls = await store.listPolls();
     const poll = polls.find((p) => p.id === body.pollId);
@@ -176,11 +188,17 @@ export async function handlePolls({ method, body, store = createStore() }) {
     let optionIds = [...new Set((body.optionIds || []).filter((o) => valid.has(o)))];
     if (optionIds.length === 0) return { status: 400, json: { ok: false, error: 'pick at least one option' } };
     if (!poll.multi) optionIds = optionIds.slice(0, 1);
-    await store.putVote(poll.id, normName(name), { name, optionIds });
+    // Keyed on the verified caller so nobody can cast or overwrite another
+    // person's vote. Votes cast before this fix were keyed on the normalised
+    // name; drop that row when the same person votes again, or they would be
+    // counted twice.
+    await store.putVote(poll.id, who.key, { name, userId: who.userId, optionIds });
+    const legacyKey = normIdentity(name);
+    if (who.key !== legacyKey) await store.delVote(poll.id, legacyKey);
     return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
   }
 
-  // close + delete are intentionally NOT exposed via the API — manage polls
+  // close + delete are intentionally NOT exposed via the API, manage polls
   // (close/lock, delete) directly in the Upstash database. Set a poll's
   // "closed": true there and the UI will disable voting on it.
 

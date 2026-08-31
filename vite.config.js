@@ -1,13 +1,11 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 // NB: the API handlers read process.env at module-eval time (KV/Upstash creds).
-// They're imported dynamically inside configureServer — which runs *after* the
-// loadEnv() below populates process.env — so the dev middleware sees the same
+// They're imported dynamically inside configureServer, which runs *after* the
+// loadEnv() below populates process.env, so the dev middleware sees the same
 // Upstash store as production instead of falling back to the local file store.
 
-const FEEDBACK_FILE = join(process.cwd(), 'data', 'feedback.md');
 
 function readJsonBody(req) {
   return new Promise((resolve) => {
@@ -58,11 +56,25 @@ function pollsPlugin() {
         if (blocked) { sendJson(res, blocked.status, blocked.json); return true; }
         return false;
       };
+      // The verified caller for a mutating request, mirroring api/*.js. Returns
+      // { sent: true } when it has already answered the request, otherwise the
+      // user (null in typed-name mode, when Supabase is not configured).
+      const whoFor = async (req, res) => {
+        const u = await requireUser(req);
+        if (u.blocked) { sendJson(res, u.blocked.status, u.blocked.json); return { sent: true }; }
+        return { user: u.user || null };
+      };
       server.middlewares.use('/api/polls', async (req, res) => {
         try {
           if (await gate(req, res, 'polls', 60)) return;
+          let user = null;
+          if (req.method !== 'GET') {
+            const who = await whoFor(req, res);
+            if (who.sent) return;
+            user = who.user;
+          }
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handlePolls({ method: req.method, body });
+          const { status, json } = await handlePolls({ method: req.method, body, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -81,10 +93,16 @@ function pollsPlugin() {
       server.middlewares.use('/api/threads', async (req, res) => {
         try {
           if (await gate(req, res, 'threads', 60)) return;
+          let user = null;
+          if (req.method !== 'GET') {
+            const who = await whoFor(req, res);
+            if (who.sent) return;
+            user = who.user;
+          }
           const url = new URL(req.url, 'http://localhost');
           const query = Object.fromEntries(url.searchParams);
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleThreads({ method: req.method, body, query });
+          const { status, json } = await handleThreads({ method: req.method, body, query, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -93,8 +111,14 @@ function pollsPlugin() {
       server.middlewares.use('/api/topics', async (req, res) => {
         try {
           if (await gate(req, res, 'topics', 30)) return;
+          let user = null;
+          if (req.method !== 'GET') {
+            const who = await whoFor(req, res);
+            if (who.sent) return;
+            user = who.user;
+          }
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleTopics({ method: req.method, body });
+          const { status, json } = await handleTopics({ method: req.method, body, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -195,63 +219,25 @@ function pollsPlugin() {
   };
 }
 
-function feedbackPlugin() {
-  return {
-    name: 'feedback-api',
-    configureServer(server) {
-      server.middlewares.use('/api/feedback', (req, res) => {
-        if (req.method === 'GET') {
-          const md = existsSync(FEEDBACK_FILE) ? readFileSync(FEEDBACK_FILE, 'utf8') : '';
-          const entries = [...md.matchAll(/^## (.+?)\n\*\*(.+?)\*\* — (.+?)\n\n([\s\S]*?)(?=\n---|\n## |(?![\s\S]))/gm)]
-            .map((m) => ({ timestamp: m[1], category: m[2], from: m[3], text: m[4].trim() }));
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ entries: entries.reverse() }));
-          return;
-        }
-        if (req.method === 'POST') {
-          let body = '';
-          req.on('data', (chunk) => { body += chunk; });
-          req.on('end', () => {
-            try {
-              const { text, category = 'general', from = 'anon' } = JSON.parse(body);
-              if (!text || typeof text !== 'string' || text.trim().length === 0) {
-                res.statusCode = 400;
-                res.end(JSON.stringify({ ok: false, error: 'empty text' }));
-                return;
-              }
-              const ts = new Date().toISOString().replace('T', ' ').slice(0, 16);
-              const safeText = text.trim().replace(/\r/g, '');
-              const entry = `\n## ${ts}\n**${category}** — ${from || 'anon'}\n\n${safeText}\n\n---\n`;
-              appendFileSync(FEEDBACK_FILE, entry);
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ ok: true, timestamp: ts }));
-            } catch (e) {
-              res.statusCode = 500;
-              res.end(JSON.stringify({ ok: false, error: e.message }));
-            }
-          });
-          return;
-        }
-        res.statusCode = 405;
-        res.end();
-      });
-    },
-  };
-}
-
 export default defineConfig(({ mode }) => {
   // Load .env / .env.local (all keys, not just VITE_) into process.env so the
   // dev API middleware can read GCAL_* secrets the same way the server does.
   Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
   return {
-    plugins: [react(), feedbackPlugin(), pollsPlugin()],
+    plugins: [react(), pollsPlugin()],
     server: {
+      // Bind IPv4 loopback explicitly. Left to its default, Vite listened on
+      // [::1] only, so http://localhost worked but http://127.0.0.1 was refused
+      // outright, and scripts/{smoke,theme-check,capture}.mjs all default to
+      // 127.0.0.1, so they silently pointed at nothing and failed as if the app
+      // were broken. Both names resolve here now.
+      host: '127.0.0.1',
       port: 5280,
       open: true,
       strictPort: true,
       // Local API stores live under data/. Don't trigger a full page reload when
       // a poll/suggestion/thread write touches them (prod uses Upstash, not files).
-      watch: { ignored: ['**/data/*-store.json', '**/data/feedback.md'] },
+      watch: { ignored: ['**/data/*-store.json'] },
     },
   };
 });

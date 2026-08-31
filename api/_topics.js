@@ -1,18 +1,18 @@
 // Discussions forum: anyone (logged in) starts a topic; each topic's conversation
 // lives in the threads engine keyed by the topic id (api/_threads.js). This module
-// only manages the list of topics. Same storage approach as polls/suggestions —
+// only manages the list of topics. Same storage approach as polls/suggestions
 // Upstash in prod (shares the store), local JSON file in dev.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { identityFor, ownsRecord } from './_identity.js';
 import { purgeThread } from './_threads.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
 const LIST_KEY = 'aiworkshop:topics';
-const normName = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
 
 function upstashStore() {
   const cmd = async (command) => {
@@ -47,7 +47,7 @@ function fileStore() {
 const createStore = () => (KV_URL ? upstashStore() : fileStore());
 const storageReady = () => Boolean(KV_URL) || !process.env.VERCEL;
 
-export async function handleTopics({ method, body, store = createStore() }) {
+export async function handleTopics({ method, body, user = null, store = createStore() }) {
   if (method === 'GET') {
     const topics = await store.list();
     topics.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')); // newest first
@@ -58,26 +58,29 @@ export async function handleTopics({ method, body, store = createStore() }) {
   if (!storageReady()) return { status: 200, json: { ok: false, configured: false, error: 'Discussions need a Redis store. Connect Upstash and redeploy.' } };
 
   const action = body?.action;
+  const who = identityFor(user, body);
 
   if (action === 'create') {
     const title = String(body.title || '').trim().slice(0, 140);
-    const name = String(body.name || '').trim().slice(0, 48);
+    const name = who.name;
     if (!name) return { status: 400, json: { ok: false, error: 'name required' } };
     if (title.length < 3) return { status: 400, json: { ok: false, error: 'title too short' } };
     const topics = await store.list();
-    const topic = { id: randomUUID().slice(0, 12), title, createdBy: name, createdAt: new Date().toISOString() };
+    const topic = { id: randomUUID().slice(0, 12), title, createdBy: name, userId: who.userId, createdAt: new Date().toISOString() };
     topics.push(topic);
     await store.save(topics);
     return { status: 200, json: { ok: true, topic } };
   }
 
   if (action === 'delete') {
-    const name = String(body.name || '').trim().slice(0, 48);
     const id = String(body.id || '');
     const topics = await store.list();
     const target = topics.find((t) => t.id === id);
     if (!target) return { status: 404, json: { ok: false, error: 'topic not found' } };
-    if (normName(target.createdBy) !== normName(name)) return { status: 403, json: { ok: false, error: 'not your topic' } };
+    // Verified session, not the body. This delete cascades into purgeThread(),
+    // so trusting body.name let any signed-in member wipe someone else's topic
+    // along with every comment and vote under it.
+    if (!ownsRecord(target, user, 'createdBy')) return { status: 403, json: { ok: false, error: 'not your topic' } };
     await store.save(topics.filter((t) => t.id !== id));
     await purgeThread(id).catch(() => {}); // cascade: drop the topic's thread + votes
     return { status: 200, json: { ok: true } };

@@ -1,11 +1,12 @@
 // Session discussion threads: one async thread per session (keyed by session
 // date). Anyone with a name can post a comment or a one-level reply, upvote or
 // downvote, and delete their own comments. Same storage approach as
-// polls/suggestions — Upstash in prod (shares the store), local JSON file in dev.
+// polls/suggestions. Upstash in prod (shares the store), local JSON file in dev.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { identityFor, ownsRecord } from './_identity.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
@@ -13,7 +14,7 @@ const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST
 const threadKey = (date) => `aiworkshop:thread:${date}`;
 const votesKey = (date) => `aiworkshop:thrvotes:${date}`;
 const normName = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
-const voteField = (id, name) => `${id}|${normName(name)}`;
+const voteField = (id, key) => `${id}|${normName(key)}`;
 const MAX_PER_THREAD = 800;
 // A thread channel is either a session date (YYYY-MM-DD) or a topic id. Accept any
 // safe slug so the same engine powers session discussions and the Discussions forum.
@@ -74,7 +75,7 @@ function fileStore() {
 const createStore = () => (KV_URL ? upstashStore() : fileStore());
 const storageReady = () => Boolean(KV_URL) || !process.env.VERCEL;
 
-// Delete a whole thread (comments + votes) — used when its parent topic is removed.
+// Delete a whole thread (comments + votes), used when its parent topic is removed.
 export async function purgeThread(key, store = createStore()) {
   await store.purge(key);
 }
@@ -98,7 +99,7 @@ function enrich(comments, votes) {
   });
 }
 
-export async function handleThreads({ method, body, query, store = createStore() }) {
+export async function handleThreads({ method, body, user = null, query, store = createStore() }) {
   if (method === 'GET') {
     const date = query?.key || query?.date;
     if (!validKey(date)) return { status: 400, json: { ok: false, error: 'valid channel required' } };
@@ -111,12 +112,13 @@ export async function handleThreads({ method, body, query, store = createStore()
   if (!storageReady()) return { status: 200, json: { ok: false, configured: false, error: 'Discussion needs a Redis store. Connect Upstash and redeploy.' } };
 
   const action = body?.action;
+  const who = identityFor(user, body);
   const date = body?.key || body?.date;
   if (!validKey(date)) return { status: 400, json: { ok: false, error: 'valid channel required' } };
 
   if (action === 'post') {
     const text = String(body.text || '').trim().slice(0, 1000);
-    const name = String(body.name || '').trim().slice(0, 48);
+    const name = who.name;
     const images = Array.isArray(body.images)
       ? body.images.filter((u) => typeof u === 'string' && /^https?:\/\//i.test(u) && u.length <= 500).slice(0, 4)
       : [];
@@ -132,7 +134,7 @@ export async function handleThreads({ method, body, query, store = createStore()
       if (parent.parentId) parentId = parent.parentId; // flatten nested replies onto the root
     }
 
-    const comment = { id: randomUUID().slice(0, 12), name, text, images, createdAt: new Date().toISOString(), parentId };
+    const comment = { id: randomUUID().slice(0, 12), name, userId: who.userId, text, images, createdAt: new Date().toISOString(), parentId };
     comments.push(comment);
     if (comments.length > MAX_PER_THREAD) comments.splice(0, comments.length - MAX_PER_THREAD);
     await store.save(date, comments);
@@ -140,12 +142,14 @@ export async function handleThreads({ method, body, query, store = createStore()
   }
 
   if (action === 'delete') {
-    const name = String(body.name || '').trim().slice(0, 48);
     const id = String(body.id || '');
     const comments = await store.list(date);
     const target = comments.find((c) => c.id === id);
     if (!target) return { status: 404, json: { ok: false, error: 'comment not found' } };
-    if (normName(target.name) !== normName(name)) return { status: 403, json: { ok: false, error: 'not your comment' } };
+    // Ownership is checked against the VERIFIED session. Checking it against a
+    // name in the body let any signed-in member delete anyone's comment (and,
+    // for a top-level one, every reply under it).
+    if (!ownsRecord(target, user)) return { status: 403, json: { ok: false, error: 'not your comment' } };
 
     // Deleting a top-level comment also removes its replies.
     const removeIds = new Set([id, ...comments.filter((c) => c.parentId === id).map((c) => c.id)]);
@@ -160,17 +164,22 @@ export async function handleThreads({ method, body, query, store = createStore()
   }
 
   if (action === 'vote') {
-    const name = String(body.name || '').trim().slice(0, 48);
+    const name = who.name;
     if (!name) return { status: 400, json: { ok: false, error: 'name required' } };
     const dir = body.dir === 'up' ? 'up' : body.dir === 'down' ? 'down' : null;
     if (!dir) return { status: 400, json: { ok: false, error: 'bad direction' } };
     const id = String(body.id || '');
     const comments = await store.list(date);
     if (!comments.some((c) => c.id === id)) return { status: 404, json: { ok: false, error: 'comment not found' } };
-    const field = voteField(id, name);
+    // Keyed on the verified caller, so nobody can vote as someone else. Votes
+    // cast before this fix were keyed on the normalised name; clear that row
+    // when the same person votes again, or they would count twice.
+    const field = voteField(id, who.key);
+    const legacyField = voteField(id, name);
     const votes = await store.getVotes(date);
+    if (field !== legacyField && votes[legacyField]) await store.delVote(date, legacyField);
     if (votes[field]?.dir === dir) await store.delVote(date, field); // same arrow again undoes
-    else await store.setVote(date, field, { name, dir });
+    else await store.setVote(date, field, { name, userId: who.userId, dir });
     const fresh = enrich(comments, await store.getVotes(date)).find((c) => c.id === id);
     return { status: 200, json: { ok: true, comment: fresh } };
   }
