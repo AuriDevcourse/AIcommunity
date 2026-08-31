@@ -8,6 +8,7 @@
 
 import { spawn } from 'node:child_process';
 import { rmSync } from 'node:fs';
+import data from '../src/data.json' with { type: 'json' };
 
 const BASE = process.argv[2] || process.env.SMOKE_URL || 'http://127.0.0.1:5281';
 const CHROME = process.env.CHROME || (
@@ -112,7 +113,12 @@ try {
     ['Andrei Prusu', 'Pavel Kucera', 'Ernestas Sažinas'].every((n) => all.includes(n)),
     all.join(', '));
 
-  check('exactly one organiser badge', await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => s.textContent.trim() === 'Organiser').length`) === 1);
+  // Read the expectation from the data rather than hardcoding a number: the
+  // badge count is a product decision that changes (Auri removed his own).
+  const expectedOrganisers = data.members.filter((m) => m.status === 'Organizer').length;
+  const renderedOrganisers = await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => s.textContent.trim() === 'Organiser').length`);
+  check('organiser badges match the data', renderedOrganisers === expectedOrganisers,
+    `rendered ${renderedOrganisers}, data says ${expectedOrganisers}`);
   check('attendance counts render', await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => /^\\d+ sessions?$/.test(s.textContent.trim())).length`) > 0);
 
   // Search

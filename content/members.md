@@ -15,7 +15,9 @@ for you.
 - **Name** must match the key in `data/members-profile.json` for that person to get their
   photo and LinkedIn link. If someone has no entry there they still appear, with a
   generated avatar.
-- **Status** is `Organizer` or `Active`. It drives the badge on the Members tab.
+- **Status** is `Organizer` or `Active`. Only `Organizer` draws a badge, and nobody
+  currently carries it: Auri asked for his own to come off. The column stays because
+  the badge is worth having if the community ever needs to point at who runs it.
 - **Aliases** are the other names that person is recorded under in session notes,
   comma-separated. Session attendance is written in first names (`Auri`, `Sany`), so a
   member whose notes name does not match their row needs one here or their
@@ -29,7 +31,7 @@ anything the site renders.
 
 | Name | Status | Aliases |
 |---|---|---|
-| Aurimas Baciauskas | Organizer | Auri |
+| Aurimas Baciauskas | Active | Auri |
 | Aiza Watzlawek | Active | |
 | Andrei Prusu | Active | |
 | Cristina Bodnari | Active | |
