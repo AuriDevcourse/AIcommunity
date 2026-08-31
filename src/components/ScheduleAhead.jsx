@@ -20,10 +20,10 @@ const INITIAL = 4;
 // A venue is only worth colouring when it is NOT settled. "confirmed" is the
 // normal state and gets no treatment, or every row lights up and the signal dies.
 const VENUE_PILL = {
-  tentative: { cls: 'pill-warn', label: 'venue tentative' },
-  requested: { cls: 'pill-warn', label: 'venue requested' },
-  unconfirmed: { cls: 'pill-warn', label: 'venue unconfirmed' },
-  cancelled: { cls: 'pill-err', label: 'venue cancelled' },
+  tentative: { cls: 'pill-warn', label: 'location tentative' },
+  requested: { cls: 'pill-warn', label: 'location requested' },
+  unconfirmed: { cls: 'pill-warn', label: 'location unconfirmed' },
+  cancelled: { cls: 'pill-err', label: 'location cancelled' },
 };
 
 // A date range wants no weekday: "22 Feb to 19 Apr" reads as a span, where
@@ -170,7 +170,7 @@ function Row({ session: s, isNext, commonVenue, showHints }) {
 
   return (
     <div
-      className={`flex items-start justify-between gap-3 py-2 sm:py-2.5 ${
+      className={`flex items-center justify-between gap-3 py-2 sm:py-2.5 ${
         isNext ? 'sm:-mx-2 sm:px-2 rounded-lg bg-accent/60' : ''
       }`}
     >

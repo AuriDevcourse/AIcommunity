@@ -56,7 +56,7 @@ export default function NextSession({ session }) {
         />
         <Field
           icon={MapPin}
-          label="Venue"
+          label="Location"
           value={session.venue
             ? (venueMapUrl(session.venue)
               ? <a href={venueMapUrl(session.venue)} target="_blank" rel="noreferrer" className="underline underline-offset-2 decoration-border hover:decoration-foreground">{session.venue}</a>
