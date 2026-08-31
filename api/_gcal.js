@@ -51,11 +51,12 @@ async function findEvent(accessToken, date, calendarId, match) {
   if (!r.ok) throw new Error(`events.list failed: ${j.error?.message || r.status}`);
   const items = j.items || [];
   const matches = typeof match === 'function' ? match : titleMatcher(match);
-  const hit =
-    items.find((e) => matches(e.summary) && (e.attendees || []).length) ||
-    items.find((e) => (e.attendees || []).length) ||
-    null;
-  return hit;
+  // Title match only. There used to be a second fallback that accepted ANY event
+  // with attendees, so on a date where the session had none it happily returned
+  // a personal event from the same calendar and published its guest list. No
+  // match must mean no data: an empty Coming list is correct, a stranger's
+  // guest list is not.
+  return items.find((e) => matches(e.summary) && (e.attendees || []).length) || null;
 }
 
 const STATUS = { accepted: 'accepted', tentative: 'tentative', declined: 'declined', needsAction: 'needsAction' };
@@ -90,8 +91,11 @@ export async function getSessionAttendees({ date, calendarId, match }) {
   const guests = (event.attendees || [])
     .filter((a) => !a.resource) // drop meeting rooms / resources
     .map((a) => ({
+      // The address is deliberately NOT returned. This endpoint is public and
+      // unauthenticated, so anything here is published. The UI only ever renders
+      // a first name and a photo, and the local part is enough to match a guest
+      // to a member by name token.
       name: a.displayName || (a.email ? a.email.split('@')[0] : 'Guest'),
-      email: a.email || '',
       status: STATUS[a.responseStatus] || 'needsAction',
       organizer: Boolean(a.organizer),
     }));

@@ -2,6 +2,68 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## OPEN BUG, 2026-08-31, the Coming list shows an unrelated calendar event
+
+**Current state:** UNFIXED, and recorded here UNCOMMITTED on purpose. It should be
+committed together with the fix rather than as another docs-only commit.
+
+`findEvent()` in `api/_gcal.js` has two fallbacks:
+
+    items.find(e => matches(e.summary) && e.attendees.length)
+    || items.find(e => e.attendees.length)     // <- this one
+
+The second accepts **any** event in the window that has attendees. The AI Sundays session
+on 2026-09-06 has none, so `/api/attendees?date=2026-09-06` matched
+`"Placeholder: Atostogos | Neda"`, a personal holiday placeholder starting 2026-08-29, and
+returned its ten guests.
+
+Two consequences:
+1. **Functional:** the "Coming" list on the live next-session card shows guests of an
+   unrelated personal event. Anyone's event, whatever happens to be in the calendar.
+2. **Privacy, and it makes the entry above worse in kind:** the ten published addresses
+   belong to people with no connection to the community at all, not members who might
+   arguably have expected to appear. Four had declined, four never answered.
+
+Also note the matched event starts 2026-08-29 while the query asked for 2026-09-06, so the
+date window is looser than it looks. Worth checking `timeMin`/`timeMax` while in there.
+
+**Fix:** drop the second fallback, or require a title match. No match should return
+`{ found: false }` and the card should simply show no Coming list. Guessing at an event is
+worse than showing nothing. Do it in the same change as the email removal.
+
+### Member reconciliation, measured the same day
+The tab says "20 people" and that total is honest, but it is the wrong 20.
+
+| Source | Count |
+|---|---|
+| vault member table -> `members[]` | 19, including 2 placeholder rows |
+| `data/members-profile.json` | 20 |
+| distinct session attendees | 15 first names |
+| distinct real people named anywhere | 20 |
+
+- **2 fake cards render:** `Unknown #1` and `Unknown #2`, headcount placeholders from the
+  vault table. So 18 real people show.
+- **3 people never render as members** (full profile with photo, no row in the vault
+  table): Andrei Prusu, Pavel Kucera, Ernestas Sazinas.
+- **4 attendee names have no member record:** `Auri` (Auri's own nickname, needs an alias
+  to Aurimas Baciauskas) plus `Mari`, `Yogi`, `Frederik`, who look like real people who
+  attended and were never added.
+
+Realistic roster is about 24 once Mari, Yogi and Frederik are identified. **Their full
+names are not in any source in the repo, so only Auri can supply them.** Do not guess names
+into a public repo.
+
+### Next steps
+1. Fix the `findEvent` fallback and remove emails from the response, one change.
+2. Build `content/members.md` with the 21 accountable people and clearly marked gaps.
+3. Ask Auri for the full names of Mari, Yogi and Frederik, and whether they are members or
+   one-time guests.
+
+### File pointers
+`api/_gcal.js` `findEvent` (the fallback), `api/attendees.js` (ungated GET),
+`src/lib/attendees.js` (`resolveGuest`, the client-side matcher),
+`scripts/build-data.js` `parseHub` (parses the vault member table).
+
 ## OPEN PRIVACY ISSUE, 2026-08-31, member and invitee emails are published
 
 **Current state:** UNFIXED. Nothing built for this yet. `main` clean at `75303d7`. Found

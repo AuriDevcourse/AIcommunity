@@ -1,23 +1,19 @@
 {
   "Aurimas Baciauskas": {
-    "email": "baciauskas.aurimas@gmail.com",
     "linkedin": "https://www.linkedin.com/in/auribaci/",
     "photo": "/members/auri.png",
     "order": 1
   },
   "Eividas Maciulis": {
-    "email": "neverkits@gmail.com",
     "linkedin": "https://www.linkedin.com/in/eividas-m/",
     "photo": "/members/eividas.jpg",
     "order": 2
   },
   "Ignas Valavicius": {
-    "email": "valavicius.ign@gmail.com",
     "linkedin": "https://www.linkedin.com/in/valavicius/",
     "photo": "/members/ignas.jpg"
   },
   "Andrei Prusu": {
-    "email": "andrei.prusu@gmail.com",
     "photo": "/members/andrei.jpg"
   },
   "Dovydas Vinickis": {
@@ -56,12 +52,28 @@
     "photo": "/members/maria.jpg",
     "order": 99
   },
-  "Inigo Casillas": { "gender": "male" },
-  "Aiza Watzlawek": { "gender": "female" },
-  "Cristina Bodnari": { "gender": "female" },
-  "Kernius Savickas": { "gender": "male" },
-  "Kristina Juozapaviciute": { "gender": "female" },
-  "Vasare Liutkeviciute": { "gender": "female" },
-  "Tady Kapic": { "gender": "male" },
-  "Valentin": { "gender": "male" }
+  "Inigo Casillas": {
+    "gender": "male"
+  },
+  "Aiza Watzlawek": {
+    "gender": "female"
+  },
+  "Cristina Bodnari": {
+    "gender": "female"
+  },
+  "Kernius Savickas": {
+    "gender": "male"
+  },
+  "Kristina Juozapaviciute": {
+    "gender": "female"
+  },
+  "Vasare Liutkeviciute": {
+    "gender": "female"
+  },
+  "Tady Kapic": {
+    "gender": "male"
+  },
+  "Valentin": {
+    "gender": "male"
+  }
 }
