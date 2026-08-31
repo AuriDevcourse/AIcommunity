@@ -2,6 +2,65 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## OPEN PRIVACY ISSUE, 2026-08-31, member emails reach the client bundle
+
+**Current state:** UNFIXED. Nothing built for this yet. `main` clean at `75303d7`. Found
+while designing `content/members.md`; recorded first because it is live.
+
+### What
+`data/members-profile.json` stores an `email` for four members. `src/lib/members-profile.js`
+imports that JSON and `src/lib/attendees.js` reads `.email` from it, so the file is bundled
+into the **client** JavaScript and the addresses are served to every visitor of the public
+site. Verified against the live production bundle, not a local build: all four present.
+
+The repo is also **public**, so the same addresses sit in `data/members-profile.json` on
+GitHub and in history since commit `072aaa0`.
+
+Affected: Aurimas Baciauskas, Eividas Maciulis, Ignas Valavicius, Andrei Prusu. Three of
+the four are other people's addresses. Rules 6 and 18 (personal data, minimise,
+purpose-limit, lawful basis). Rule 2's logic applies to the history: removing the values
+now stops future publication but does not un-publish what is already out.
+
+### Why the emails are there
+`src/lib/attendees.js` matches a Google Calendar invitee's email against the profile
+emails, so the "Coming" list on the next-session card shows the right member name and
+photo instead of a raw calendar entry. It is a real feature, so the values cannot simply be
+deleted without breaking it.
+
+### The fix
+The address is only ever compared for **equality**, never displayed or contacted. So store
+a SHA-256 of the lowercased address as `emailHash`, drop `email`, and hash the incoming
+calendar address before comparing. The "Coming" list keeps working and the bundle carries
+non-reversible digests instead of contactable addresses. Contained: one field in the JSON
+and one lookup in `src/lib/attendees.js`.
+
+### Numbered next steps
+1. **Add `emailHash`, remove `email`, update the one lookup in `src/lib/attendees.js`, then
+   redeploy.** This is the step that stops the ongoing publication.
+2. Verify afterwards that no address appears in the deployed client bundle.
+3. Decide whether to purge history. It does not un-publish, so the usual advice is to
+   accept it and stop the bleeding, but it is Auri's call.
+4. **Auri's judgement, not a technical step:** the three other members did not choose to
+   have their address on a public site. Consider telling them.
+5. Then build `content/members.md` (below), which must NOT carry emails.
+
+### Related: `content/members.md`, requested and not yet built
+Single source of truth for who is on the team. Today the member list is parsed from a
+`| Name | Status |` table in **Auri's Obsidian vault**
+(`Documents/Obsidian Vault/AI Workshop/AI Workshop.md`, `scripts/build-data.js` `parseHub`),
+so it exists only on his desktop and Vercel builds fall back to the committed
+`src/data.json` snapshot. Photos and links live separately in `data/members-profile.json`.
+Merging both into one in-repo markdown file also fixes the three problems already recorded
+in the Area 7 block: the `Unknown #1` / `Unknown #2` parsing artifacts, the three members
+with full profiles who never render (Andrei Prusu, Pavel Kucera, Ernestas Sažinas), and the
+missing alias that makes `Auri` fail to match `Aurimas Baciauskas` in attendance counts.
+Proposed columns: Name, Status, Aliases. No email column.
+
+### File pointers
+`data/members-profile.json` (the stored values), `src/lib/attendees.js` (the only reader of
+`.email`), `src/lib/members-profile.js` (imports the JSON into the client bundle),
+`scripts/build-data.js` `parseHub` (parses the vault member table).
+
 ## Area 7 (Members) pre-work findings, 2026-08-31
 
 **Current state:** nothing built for Area 7 yet. `main` clean at `ad747db`. This is
