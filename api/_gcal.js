@@ -4,7 +4,11 @@
 //
 // Env (set in .env.local for dev, Vercel project env for prod):
 //   GCAL_CLIENT_ID, GCAL_CLIENT_SECRET, GCAL_REFRESH_TOKEN. OAuth credentials
-//   GCAL_CALENDAR_ID  (optional, default 'primary')
+//   GCAL_CALENDAR_ID  (optional, default 'primary'). Set this to a DEDICATED
+//                     calendar that holds only sessions and the title filter
+//                     below switches itself off, because every event in such a
+//                     calendar is a session. Get the value from Google Calendar
+//                     settings, Integrate calendar, "Calendar ID".
 //   GCAL_EVENT_MATCH  (optional), title substring to pick the event. Comma-
 //                     separated alternatives are allowed; any one matching wins.
 //                     Defaults to the community's current AND former name, so a
@@ -50,7 +54,7 @@ async function findEvent(accessToken, date, calendarId, match) {
   const j = await r.json();
   if (!r.ok) throw new Error(`events.list failed: ${j.error?.message || r.status}`);
   const items = j.items || [];
-  const matches = typeof match === 'function' ? match : titleMatcher(match);
+  const matches = typeof match === 'function' ? match : titleMatcher(match, calendarId);
   // Title match only. There used to be a second fallback that accepted ANY event
   // with attendees, so on a date where the session had none it happily returned
   // a personal event from the same calendar and published its guest list. No
@@ -66,9 +70,24 @@ const STATUS = { accepted: 'accepted', tentative: 'tentative', declined: 'declin
 // events are titled (and however long the rename takes), the schedule still fills.
 const DEFAULT_EVENT_MATCH = 'AI Sundays,AI Workshop';
 
+// Is the app pointed at a calendar that holds nothing but sessions?
+//
+// On `primary` the title filter is essential: that calendar carries someone's
+// whole life and sessions have to be picked out of it. On a DEDICATED calendar
+// the same filter is a liability, because an event titled "Session #09" or
+// "Image-to-3D demos" matches no needle and the schedule silently empties. So a
+// dedicated calendar means every event counts, unless GCAL_EVENT_MATCH is set
+// explicitly, which stays an escape hatch either way.
+const isDedicatedCalendar = (calendarId) => {
+  const id = String(calendarId || process.env.GCAL_CALENDAR_ID || 'primary');
+  return id !== 'primary';
+};
+
 // A matcher for one or more comma-separated title substrings.
-const titleMatcher = (match) => {
-  const needles = String(match ?? process.env.GCAL_EVENT_MATCH ?? DEFAULT_EVENT_MATCH)
+const titleMatcher = (match, calendarId) => {
+  const explicit = match ?? process.env.GCAL_EVENT_MATCH;
+  if (explicit == null && isDedicatedCalendar(calendarId)) return () => true;
+  const needles = String(explicit ?? DEFAULT_EVENT_MATCH)
     .split(',')
     .map((x) => x.trim().toLowerCase())
     .filter(Boolean);
@@ -82,7 +101,7 @@ export async function getSessionAttendees({ date, calendarId, match }) {
   if (!gcalConfigured()) return { configured: false };
   if (!date) throw new Error('date required');
   const cal = calendarId || process.env.GCAL_CALENDAR_ID || 'primary';
-  const matches = titleMatcher(match);
+  const matches = titleMatcher(match, cal);
 
   const token = await getAccessToken();
   const event = await findEvent(token, date, cal, matches);
@@ -148,7 +167,7 @@ function toSession(e) {
 export async function listUpcomingSessions({ calendarId, match, max = 8, now } = {}) {
   if (!gcalConfigured()) return { configured: false };
   const cal = calendarId || process.env.GCAL_CALENDAR_ID || 'primary';
-  const matches = titleMatcher(match);
+  const matches = titleMatcher(match, cal);
 
   const token = await getAccessToken();
   const params = new URLSearchParams({
