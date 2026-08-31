@@ -34,6 +34,12 @@ The production endpoint answers an unauthenticated request with **ten** addresse
 invitee rather than only the four members in the JSON, and it is edge-cached with
 `s-maxage` so it serves fast and a stale response can outlive a fix by the cache window.
 
+**Several of the exposed addresses belong to people who DECLINED or never answered the
+invite** (`status: "declined"` / `"needsAction"`). They are not members and never opted
+into anything, and their personal address is served from the site. That is the sharpest
+fact about this: an unauthenticated, edge-cached JSON endpoint full of gmail addresses is
+exactly what email-harvesting bots look for.
+
 The UI never renders those addresses. It uses them only to match a guest to a member so the
 "Coming" list can show the right name and photo.
 
@@ -51,10 +57,16 @@ fix and the wrong one:
 ### The fix: stop sending the data to the client at all
 The matching already runs on a server. It just hands the raw addresses over afterwards.
 Less code than hashing, and it closes both leaks instead of obscuring one.
-1. **Drop `email` from the `/api/attendees` response** (`api/_gcal.js`, one line). Closes
-   the ten-address leak immediately. Do this first.
-2. **Move member matching server-side**, so `_gcal.js` resolves guest to member and returns
-   `name`, `avatar`, `status`, which is all the UI draws.
+1. **Steps 1 and 2 must land TOGETHER. Dropping `email` on its own is a regression.**
+   An earlier version of this entry said removing the field was a one-line fix to do
+   first. That was wrong. `resolveGuest()` in `src/lib/attendees.js` tries the email match
+   FIRST (line 13) and only falls back to name-token guessing, so deleting the field alone
+   makes the Coming list quietly worse: some members lose their photo and render as a raw
+   handle like `viktorijea` instead of a first name.
+2. **Move member matching server-side and drop `email` in the same change.** Lift
+   `resolveGuest()` out of `src/lib/attendees.js` into `api/_gcal.js` roughly as-is, and
+   have the response return `label`, `photo` and `status`, which is all the UI draws. The
+   address then never leaves the server.
 3. **Delete `email` from `data/members-profile.json` outright.** Once the client is not
    matching it needs no address, hashed or otherwise. Photos, LinkedIn and displayName stay
    client-side and are fine there.
