@@ -40,6 +40,9 @@ const TAB_KEYS = TABS.map((t) => t.key);
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
   if (h === 'polls') return 'discussions'; // polls moved into the Forum
+  // A shared poll link. Polls live inside the Forum, so route there and let
+  // Polls.jsx scroll to the one named in the hash.
+  if (h.startsWith('poll/')) return 'discussions';
   if (h === 'cockpit') return 'home';      // renamed
   return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'home';
 }

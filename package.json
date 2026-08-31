@@ -20,7 +20,8 @@
     "theme:check": "node scripts/theme-check.mjs",
     "identity:check": "node scripts/identity-check.mjs",
     "lightbox:check": "node scripts/lightbox-check.mjs",
-    "history:check": "node scripts/history-check.mjs"
+    "history:check": "node scripts/history-check.mjs",
+    "polls:check": "node scripts/polls-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",

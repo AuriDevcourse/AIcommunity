@@ -160,6 +160,17 @@ export async function handlePolls({ method, body, user = null, store = createSto
       .filter(Boolean);
     if (!question) return { status: 400, json: { ok: false, error: 'question required' } };
     if (options.length < 2) return { status: 400, json: { ok: false, error: 'need at least 2 options' } };
+    // Duplicate labels produce a poll nobody can answer sensibly: two identical
+    // rows with separate tallies. Compared case- and space-insensitively, since
+    // "Ollama" and "ollama " are the same answer to a human.
+    const seen = new Map();
+    for (const label of options) {
+      const key = label.toLowerCase().replace(/\s+/g, ' ').trim();
+      if (seen.has(key)) {
+        return { status: 400, json: { ok: false, error: `Duplicate option: "${seen.get(key)}" and "${label}" are the same.` } };
+      }
+      seen.set(key, label);
+    }
     const id = `${slug(question)}-${randomUUID().slice(0, 4)}`;
     const poll = {
       id,

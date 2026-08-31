@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BarChart3, Plus, X, Check, RefreshCw, Users } from 'lucide-react';
+import { BarChart3, Plus, X, Check, RefreshCw, Users, ArrowDownWideNarrow, Link2 } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
@@ -13,6 +13,35 @@ function myVote(poll, name) {
 }
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
 
+// Normalise an option label the way the server does, so the modal can warn about
+// a duplicate before the request instead of after the rejection.
+const optKey = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+// A poll's shareable address. Mirrors #recap/<date>: a real hash route, unlike the
+// forum's sessionStorage hand-off, which only ever worked inside one tab.
+const pollUrl = (id) => `${window.location.origin}/#poll/${id}`;
+
+// Apply a vote to a poll locally, so the bars move on click instead of after the
+// round trip. Mirrors withResults() on the server: counts, voters and totalVoters
+// all have to move together or the optimistic view disagrees with itself.
+function applyVoteLocally(poll, name, optionIds) {
+  const n = ci(name);
+  const results = {};
+  const voters = {};
+  for (const opt of poll.options) {
+    const was = (poll.voters[opt.id] || []).filter((v) => ci(v) !== n);
+    const now = optionIds.includes(opt.id) ? [...was, name] : was;
+    voters[opt.id] = now;
+    results[opt.id] = now.length;
+  }
+  const votedBefore = poll.options.some((o) => (poll.voters[o.id] || []).some((v) => ci(v) === n));
+  const votesNow = optionIds.length > 0;
+  let totalVoters = poll.totalVoters || 0;
+  if (!votedBefore && votesNow) totalVoters += 1;
+  if (votedBefore && !votesNow) totalVoters -= 1;
+  return { ...poll, results, voters, totalVoters };
+}
+
 export default function Polls({ embedded = false, initialLimit = 0 }) {
   const [polls, setPolls] = useState(null);
   const { authMode, name, setName } = useMemberName();
@@ -21,6 +50,10 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
   const [showCreate, setShowCreate] = useState(false);
   const [err, setErr] = useState('');
   const [showAll, setShowAll] = useState(false); // with initialLimit, show first N then reveal the rest
+  const [sortBy, setSortBy] = useState('order'); // 'order' | 'votes'
+  const [announce, setAnnounce] = useState(''); // polite live region after a vote
+  const [copiedId, setCopiedId] = useState(null);
+  const [focusedOpt, setFocusedOpt] = useState({}); // pollId -> option id holding the roving tabindex
 
   const [configured, setConfigured] = useState(true);
 
@@ -41,6 +74,38 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
     return () => clearInterval(id);
   }, [load]);
 
+  // #poll/<id> scrolls to and highlights a shared poll.
+  //
+  // Two things this has to get right. It must fire when the LIST arrives, since a
+  // cold load has no polls yet; and it must fire on a HASH CHANGE, because moving
+  // from #discussions to #poll/<id> never remounts this component, so depending on
+  // [polls] alone meant a visitor already on the Forum saw nothing.
+  //
+  // And it must fire only ONCE per link. load() refetches every 5s, so without the
+  // handled ref the poll would flash again every five seconds for as long as the
+  // hash stayed put.
+  const [highlightId, setHighlightId] = useState(null);
+  const handledHash = useRef(null);
+  useEffect(() => {
+    const run = () => {
+      if (!polls?.length) return;
+      const hash = window.location.hash.slice(1);
+      const m = hash.match(/^poll\/(.+)$/);
+      if (!m) { handledHash.current = null; return; }
+      if (handledHash.current === hash) return;
+      const id = decodeURIComponent(m[1]);
+      if (!polls.some((p) => p.id === id)) return;
+      handledHash.current = hash;
+      setHighlightId(id);
+      const el = document.getElementById(`poll-${id}`);
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 2400);
+    };
+    run();
+    window.addEventListener('hashchange', run);
+    return () => window.removeEventListener('hashchange', run);
+  }, [polls]);
+
   // Selected = unsaved draft if the user touched it, else their saved server vote.
   const selectedFor = (poll) => drafts[poll.id] ?? myVote(poll, name);
 
@@ -60,6 +125,14 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
     const optionIds = selectedFor(poll);
     if (optionIds.length === 0) return;
     setBusy(poll.id);
+
+    // Optimistic: move the bars now, keep the previous poll so a failure can put
+    // it back. The 5s poll in load() would otherwise be the first sign anything
+    // happened, which reads as a dead button.
+    const before = poll;
+    setPolls((ps) => ps.map((p) => (p.id === poll.id ? applyVoteLocally(p, name.trim(), optionIds) : p)));
+    setDrafts((d) => { const n = { ...d }; delete n[poll.id]; return n; });
+
     try {
       const r = await authedFetch('/api/polls', {
         method: 'POST',
@@ -69,16 +142,55 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
       const j = await r.json();
       if (j.ok) {
         setErr('');
-        setDrafts((d) => { const n = { ...d }; delete n[poll.id]; return n; });
         setPolls((ps) => ps.map((p) => (p.id === poll.id ? j.poll : p)));
+        const chosen = poll.options.filter((o) => optionIds.includes(o.id)).map((o) => o.label);
+        setAnnounce(`Vote saved: ${chosen.join(', ')}. ${j.poll.totalVoters} ${j.poll.totalVoters === 1 ? 'voter' : 'voters'} so far.`);
       } else {
+        setPolls((ps) => ps.map((p) => (p.id === poll.id ? before : p)));      // rollback
+        setDrafts((d) => ({ ...d, [poll.id]: optionIds }));                    // keep their selection
         setErr(j.error || 'Could not save your vote.');
+        setAnnounce('Your vote could not be saved.');
       }
     } catch {
+      setPolls((ps) => ps.map((p) => (p.id === poll.id ? before : p)));
+      setDrafts((d) => ({ ...d, [poll.id]: optionIds }));
       setErr('Voting is unavailable. The poll backend may not be configured yet.');
+      setAnnounce('Your vote could not be saved.');
     } finally {
       setBusy(null);
     }
+  }
+
+  async function copyPollLink(poll) {
+    try {
+      await navigator.clipboard.writeText(pollUrl(poll.id));
+      setCopiedId(poll.id);
+      setTimeout(() => setCopiedId((c) => (c === poll.id ? null : c)), 1600);
+    } catch {
+      setErr('Could not copy the link. Your browser blocked clipboard access.');
+    }
+  }
+
+  // Arrow keys move between options and select as they go, which is what a radio
+  // group does. Home and End jump to the ends. Space and Enter are already handled
+  // by the button element.
+  function onOptionKeyDown(e, poll, index) {
+    if (poll.closed) return;
+    const n = poll.options.length;
+    let next = null;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (index + 1) % n;
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (index - 1 + n) % n;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = n - 1;
+    if (next === null) return;
+    e.preventDefault();
+    const opt = poll.options[next];
+    setFocusedOpt((f) => ({ ...f, [poll.id]: opt.id }));
+    // Single-choice groups move the selection with the focus, the way native
+    // radios do. Multi-select only moves focus; the user picks with space.
+    if (!poll.multi) setDrafts((d) => ({ ...d, [poll.id]: [opt.id] }));
+    const el = document.getElementById(`opt-${poll.id}-${opt.id}`);
+    if (el) el.focus();
   }
 
   async function act(body) {
@@ -130,8 +242,12 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
         )
       ) : (
         <div className="card card-pad mb-5 flex items-center gap-3">
-          <Users size={16} strokeWidth={2} className="text-muted flex-shrink-0" />
+          <Users size={16} strokeWidth={2} className="text-muted flex-shrink-0" aria-hidden="true" />
+          {/* A placeholder is not a label: it disappears on focus and screen
+              readers treat it as a hint, so the field had no accessible name. */}
+          <label htmlFor="poll-voter-name" className="sr-only">Your name, required to vote</label>
           <input
+            id="poll-voter-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name (required to vote)"
@@ -152,6 +268,32 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
         <div className="card card-pad mb-5 text-sm text-err border-err/30" role="alert">{err}</div>
       )}
 
+      {/* Voting changed numbers on screen and said nothing to a screen reader.
+          Polite, so it waits for a pause rather than interrupting. */}
+      <div aria-live="polite" className="sr-only">{announce}</div>
+
+      {(polls?.length || 0) > 1 && (
+        <div className="mb-3 flex items-center justify-end gap-2 text-xs">
+          <ArrowDownWideNarrow size={13} className="text-muted" aria-hidden="true" />
+          <span id="poll-sort-label" className="text-muted">Sort</span>
+          <div role="group" aria-labelledby="poll-sort-label" className="inline-flex rounded-full border border-border overflow-hidden">
+            {[['order', 'Newest'], ['votes', 'Most votes']].map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSortBy(key)}
+                aria-pressed={sortBy === key}
+                className={`px-2.5 py-1 font-medium transition-colors ${
+                  sortBy === key ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {polls === null && (
         <div className="space-y-4">
           {Array.from({ length: 2 }).map((_, i) => (
@@ -169,33 +311,70 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
       )}
 
       <div className="space-y-4">
-        {(initialLimit > 0 && !showAll ? (polls || []).slice(0, initialLimit) : (polls || [])).map((poll) => {
+        {(() => {
+          // Sorted on a copy: `polls` is server state and mutating it would make
+          // the next reconcile compare against a reordered array.
+          const ordered = sortBy === 'votes'
+            ? [...(polls || [])].sort((a, b) => (b.totalVoters || 0) - (a.totalVoters || 0))
+            : (polls || []);
+          return (initialLimit > 0 && !showAll ? ordered.slice(0, initialLimit) : ordered);
+        })().map((poll) => {
           const selected = selectedFor(poll);
           const saved = myVote(poll, name);
           const dirty = !sameSet(selected, saved);
           const maxCount = Math.max(1, ...poll.options.map((o) => poll.results[o.id] || 0));
           return (
-            <div key={poll.id} className={`card card-pad ${poll.closed ? 'opacity-80' : ''}`}>
+            <div
+              key={poll.id}
+              id={`poll-${poll.id}`}
+              className={`card card-pad ${poll.closed ? 'opacity-80' : ''} ${
+                highlightId === poll.id ? 'ring-2 ring-[var(--gold-edge)]' : ''
+              }`}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-base font-semibold tracking-tight break-words">{poll.question}</div>
                   <div className="flex items-center gap-2 mt-1.5 text-muted">
                     <span className="pill pill-mute">{poll.multi ? 'Pick any' : 'Pick one'}</span>
-                    <span className="text-xs ">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
+                    <span className="text-xs">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
                     {poll.closed && <span className="pill pill-warn">closed</span>}
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => copyPollLink(poll)}
+                  title="Copy a link to this poll"
+                  aria-label={`Copy a link to the poll: ${poll.question}`}
+                  className="tap-target flex-shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-muted hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  {copiedId === poll.id
+                    ? (<><Check size={13} strokeWidth={2.5} /> Copied</>)
+                    : (<><Link2 size={13} /> Share</>)}
+                </button>
               </div>
 
-              <div className="mt-4 space-y-2">
-                {poll.options.map((opt) => {
+              <div
+                className="mt-4 space-y-2"
+                role={poll.multi ? 'group' : 'radiogroup'}
+                aria-label={poll.question}
+              >
+                {poll.options.map((opt, optIndex) => {
                   const count = poll.results[opt.id] || 0;
                   const isSel = selected.includes(opt.id);
                   const voters = poll.voters[opt.id] || [];
                   const barPct = (count / maxCount) * 100;
+                  // One tab stop for the whole group, as a radio group has: Tab
+                  // reaches it, arrows move within it.
+                  const roving = focusedOpt[poll.id] ?? (selected[0] || poll.options[0].id);
                   return (
                     <button
                       key={opt.id}
+                      id={`opt-${poll.id}-${opt.id}`}
+                      role={poll.multi ? 'checkbox' : 'radio'}
+                      aria-checked={isSel}
+                      tabIndex={poll.multi ? 0 : (roving === opt.id ? 0 : -1)}
+                      onKeyDown={(e) => onOptionKeyDown(e, poll, optIndex)}
+                      onFocus={() => setFocusedOpt((f) => ({ ...f, [poll.id]: opt.id }))}
                       onClick={() => !poll.closed && toggle(poll, opt.id)}
                       disabled={poll.closed}
                       className={`relative w-full overflow-hidden text-left rounded-lg border px-3 py-2.5 transition-colors ${
@@ -282,7 +461,26 @@ function CreatePoll({ open, setOpen, onCreate, busy, creatorName }) {
 
   useEffect(() => { if (open && firstRef.current) firstRef.current.focus(); }, [open]);
 
-  const valid = question.trim() && options.filter((o) => o.trim()).length >= 2;
+  // Say WHY the button is disabled. Before, Create just sat greyed out, and a
+  // duplicate option was only caught by the server after submitting.
+  const filled = options.filter((o) => o.trim());
+  const dupe = (() => {
+    const seen = new Map();
+    for (const o of filled) {
+      const k = optKey(o);
+      if (seen.has(k)) return [seen.get(k), o.trim()];
+      seen.set(k, o.trim());
+    }
+    return null;
+  })();
+  const problem = !question.trim()
+    ? 'Add a question.'
+    : filled.length < 2
+      ? 'Add at least two options.'
+      : dupe
+        ? `"${dupe[0]}" and "${dupe[1]}" are the same option.`
+        : null;
+  const valid = !problem;
 
   function reset() { setQuestion(''); setOptions(['', '']); setMulti(false); }
 
@@ -311,6 +509,7 @@ function CreatePoll({ open, setOpen, onCreate, busy, creatorName }) {
         onChange={(e) => setQuestion(e.target.value)}
         placeholder="Question, e.g. Which topic should we do next?"
         maxLength={200}
+        aria-label="Poll question"
         className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
       />
 
@@ -322,7 +521,11 @@ function CreatePoll({ open, setOpen, onCreate, busy, creatorName }) {
               onChange={(e) => setOptions((o) => o.map((v, j) => (j === i ? e.target.value : v)))}
               placeholder={`Option ${i + 1}`}
               maxLength={100}
-              className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground"
+              aria-label={`Option ${i + 1}`}
+              aria-invalid={Boolean(dupe) && optKey(opt) === optKey(dupe[1]) && opt.trim() !== ''}
+              className={`flex-1 bg-background border rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-foreground ${
+                dupe && optKey(opt) === optKey(dupe[1]) && opt.trim() ? 'border-warn' : 'border-border'
+              }`}
             />
             {options.length > 2 && (
               <button onClick={() => setOptions((o) => o.filter((_, j) => j !== i))} className="text-muted hover:text-err p-1" aria-label="Remove option"><X size={16} /></button>
@@ -335,6 +538,10 @@ function CreatePoll({ open, setOpen, onCreate, busy, creatorName }) {
         <button onClick={() => setOptions((o) => [...o, ''])} className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-foreground transition-colors">
           <Plus size={13} strokeWidth={2.5} /> Add option
         </button>
+      )}
+
+      {problem && (
+        <p className="mt-3 text-xs text-warn" role="status">{problem}</p>
       )}
 
       <div className="mt-4 flex items-center justify-between gap-3">
