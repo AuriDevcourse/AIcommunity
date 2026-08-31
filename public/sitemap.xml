@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  One URL, deliberately.
+
+  Every view in this app is a hash route (#members, #recap/2025-07-27). Crawlers
+  do not treat a fragment as a separate URL, so listing them would be listing the
+  same page ten times. If the app ever moves to real paths, generate this file
+  from the route table instead of hand-writing it.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://a-icommunity.vercel.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

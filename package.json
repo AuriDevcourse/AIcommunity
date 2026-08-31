@@ -23,7 +23,9 @@
     "history:check": "node scripts/history-check.mjs",
     "polls:check": "node scripts/polls-check.mjs",
     "members:check": "node scripts/members-check.mjs",
-    "news:check": "node scripts/news-check.mjs"
+    "news:check": "node scripts/news-check.mjs",
+    "csp:check": "node scripts/csp-check.mjs",
+    "audit": "node scripts/audit.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",

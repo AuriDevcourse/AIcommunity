@@ -59,6 +59,40 @@ function readPresent() {
   return (typeof window !== 'undefined' ? window.location.hash.slice(1) : '') === 'present';
 }
 
+/**
+ * Offline notice.
+ *
+ * Every tab fetches something, and each fetch had its own failure copy, so
+ * dropping the network produced a scatter of unrelated messages and never named
+ * the actual cause. One banner says it once.
+ *
+ * navigator.onLine only knows whether there is a link, not whether the internet
+ * is reachable, so this is a hint rather than a guarantee. It is still right for
+ * the common case (laptop lid, tunnel, wifi drop) and it costs nothing.
+ */
+function OfflineNotice() {
+  const [offline, setOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
+  useEffect(() => {
+    const on = () => setOffline(false);
+    const off = () => setOffline(true);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+  if (!offline) return null;
+  return (
+    <div
+      role="status"
+      className="sticky top-14 z-30 border-b border-border bg-[var(--gold-wash-a)] px-4 py-2 text-center text-xs font-medium text-foreground"
+    >
+      You are offline. What is on screen still works; anything that needs the network will wait.
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState(readTabFromHash);
   const [recapDate, setRecapDate] = useState(readRecapDate);
@@ -246,6 +280,7 @@ export default function App() {
           </div>
         </div>
       </header>
+      <OfflineNotice />
 
       <div aria-live="polite" className="sr-only">
         {recapDate ? 'Session recap' : TABS.find((t) => t.key === tab)?.label || 'Home'} section

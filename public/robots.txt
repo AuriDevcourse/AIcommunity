@@ -1,0 +1,9 @@
+# AI Sundays · https://a-icommunity.vercel.app
+User-agent: *
+Allow: /
+
+# The API is data, not pages. It has no useful content for a crawler and every
+# GET is edge-cached, so crawling it only burns cache.
+Disallow: /api/
+
+Sitemap: https://a-icommunity.vercel.app/sitemap.xml
