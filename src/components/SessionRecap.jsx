@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Link2, Check, PenLine, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare, ExternalLink, Info, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
@@ -45,7 +45,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
   // paint. Fixed (not random) so the browser can cache it and it loads eagerly.
   const cover = committed?.photos?.[0] || photos[0];
 
-  // Photo lightbox (in-page overlay) — null when closed, else the open photo index.
+  // Photo lightbox (in-page overlay), null when closed, else the open photo index.
   const [lightbox, setLightbox] = useState(null);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const PHOTO_PREVIEW = 6;
@@ -70,7 +70,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         <RecapActions date={date} />
       </header>
 
-      {/* Cover — the featured photo, loaded eagerly so it's there right away */}
+      {/* Cover, the featured photo, loaded eagerly so it's there right away */}
       {cover && (
         <div className="mt-6 rounded-2xl overflow-hidden border border-border bg-accent">
           <img src={cover} alt="" loading="eager" fetchpriority="high" decoding="async" className="w-full max-h-[460px] object-cover" />
@@ -84,7 +84,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         </section>
       )}
 
-      {/* Topics — what we talked about, split into themes */}
+      {/* Topics, what we talked about, split into themes */}
       {committed?.topics?.length > 0 && (
         <section className="mt-8">
           <div className="flex items-center gap-1.5 h-section">
@@ -206,14 +206,66 @@ function PhotoLightbox({ photos, index, onIndex, onClose }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [next, prev, onClose]);
 
+  // Fetch the next photo while this one is on screen, so paging feels instant.
+  useEffect(() => {
+    if (total < 2) return;
+    const img = new Image();
+    img.src = photos[(index + 1) % total];
+  }, [index, total, photos]);
+
+  // Swipe. Only a clearly horizontal drag pages the photo, a vertical scroll or
+  // a diagonal flick must not flip the image out from under a thumb.
+  const touchStart = useRef(null);
+  // A touch that moved is a gesture, not a tap on the backdrop. The browser fires
+  // a click right after such a touch ends, which would hit the overlay's
+  // click-to-dismiss and close the viewer mid-swipe. That one click is swallowed.
+  //
+  // Timestamped rather than a plain flag: a flag left standing after the gesture
+  // also eats the next real tap, so dismissing after a swipe would take two.
+  const dragEndedAt = useRef(0);
+
+  const onTouchStart = (e) => {
+    const t = e.changedTouches[0];
+    touchStart.current = t ? { x: t.clientX, y: t.clientY } : null;
+  };
+  const onTouchEnd = (e) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    const t = e.changedTouches[0];
+    if (!start || !t) return;
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) dragEndedAt.current = Date.now();
+    if (total < 2) return;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0) next(); else prev();
+  };
+
+  // Only the click a gesture just produced is ignored; anything later is a
+  // deliberate tap on the backdrop and closes the viewer.
+  const onBackdropClick = () => {
+    if (Date.now() - dragEndedAt.current < 400) return;
+    onClose();
+  };
+
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-foreground/90 backdrop-blur-sm"
-      onClick={onClose}
-      style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))', paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm"
+      onClick={onBackdropClick}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={{
+        paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
+        // Horizontal drags belong to the photo viewer, not the browser. Without
+        // this, a right-swipe near the left edge is the platform's back gesture,
+        // so paging back would navigate off the recap page instead.
+        touchAction: 'pan-y',
+        overscrollBehavior: 'contain',
+      }}
     >
       <div className="flex justify-end px-4 shrink-0">
-        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full bg-white/90 p-2 text-foreground hover:bg-white transition-colors" aria-label="Close">
+        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full chip-on-media p-2 transition-colors" aria-label="Close">
           <X size={18} />
         </button>
       </div>
@@ -221,20 +273,37 @@ function PhotoLightbox({ photos, index, onIndex, onClose }) {
       <div className="relative flex-1 min-h-0 flex items-center justify-center px-4 sm:px-20">
         {total > 1 && (
           <>
-            <button onClick={(e) => { e.stopPropagation(); prev(); }} className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors" aria-label="Previous">
+            <button onClick={(e) => { e.stopPropagation(); prev(); }} className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 rounded-full chip-on-media p-2.5 transition-colors" aria-label="Previous">
               <ChevronLeft size={22} />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); next(); }} className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2.5 text-foreground hover:bg-white transition-colors" aria-label="Next">
+            <button onClick={(e) => { e.stopPropagation(); next(); }} className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 rounded-full chip-on-media p-2.5 transition-colors" aria-label="Next">
               <ChevronRight size={22} />
             </button>
           </>
         )}
-        <img src={photos[index]} alt="" draggable={false} onClick={(e) => e.stopPropagation()} className="max-h-full max-w-full object-contain rounded-xl select-none" />
+        <img
+          src={photos[index]}
+          alt={`Session photo ${index + 1} of ${total}`}
+          draggable={false}
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-full max-w-full object-contain rounded-xl select-none"
+        />
       </div>
 
       {total > 1 && (
-        <div className="shrink-0 text-center text-xs text-background/80 num pt-3" onClick={(e) => e.stopPropagation()}>
-          {index + 1} / {total}
+        <div
+          className="shrink-0 flex items-center justify-center gap-4 pt-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* The side arrows are desktop-only, so touch needs its own controls.
+              Without these, a phone could only ever see the first photo. */}
+          <button onClick={prev} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Previous photo">
+            <ChevronLeft size={20} />
+          </button>
+          <span className="text-xs text-white/80 num tabular-nums">{index + 1} / {total}</span>
+          <button onClick={next} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Next photo">
+            <ChevronRight size={20} />
+          </button>
         </div>
       )}
     </div>,
@@ -287,7 +356,7 @@ function ToolChips({ tools }) {
 }
 
 // Hero actions for a recap: copy the link, and hand off to the Post maker tool
-// (Tools tab) with this session preselected — post writing happens there, not here.
+// (Tools tab) with this session preselected, post writing happens there, not here.
 function RecapActions({ date }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== 'undefined' ? `${window.location.origin}/#recap/${date}` : '';

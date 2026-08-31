@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronDown, Clock } from 'lucide-react';
 import news from '../../data/news.json';
 
@@ -45,11 +45,20 @@ const CARD_BADGE = {
   'eu-policy': 'Europe',
 };
 
+// Newest first. data/news.json is written by the drafting pipeline in whatever
+// order the sources came back, so file order is not chronological, without this
+// the roundup shows an arbitrary item first. Sorted on a copy; `news` is an
+// imported module object and must not be mutated.
+const byNewest = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
+
 export default function News() {
   const [filter, setFilter] = useState('all');
-  const items = filter === 'all'
-    ? news.items
-    : news.items.filter((i) => (filter === 'europe' ? isEurope(i.category) : i.category === filter));
+  const items = useMemo(() => {
+    const list = filter === 'all'
+      ? news.items
+      : news.items.filter((i) => (filter === 'europe' ? isEurope(i.category) : i.category === filter));
+    return [...list].sort(byNewest);
+  }, [filter]);
 
   return (
     <div className="space-y-10">
@@ -126,13 +135,13 @@ function NewsCard({ item }) {
         className="relative aspect-video overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
         <NewsImage src={item.image} alt="" />
-        <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground">
+        <span className="absolute right-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider">
           {CARD_BADGE[item.category] || 'Global'}
         </span>
-        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground num">
+        <span className="absolute left-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider num">
           #{item.n}
         </span>
-        <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
+        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
           {date}
         </span>
       </a>
