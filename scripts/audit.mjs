@@ -15,7 +15,7 @@
 //                   every assertion then passes against.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -30,6 +30,7 @@ const SUITES = [
   { name: 'smoke', script: 'smoke.mjs', needs: 'preview' },
   { name: 'theme', script: 'theme-check.mjs', needs: 'preview' },
   { name: 'history', script: 'history-check.mjs', needs: 'preview' },
+  { name: 'shell', script: 'shell-check.mjs', needs: 'preview' },
   { name: 'lightbox', script: 'lightbox-check.mjs', needs: 'preview' },
   { name: 'members', script: 'members-check.mjs', needs: 'preview' },
   { name: 'news', script: 'news-check.mjs', needs: 'preview' },
@@ -63,8 +64,13 @@ function start(cmd, args) {
 
 console.log('audit: preparing targets\n');
 
-if (!existsSync(join(ROOT, 'dist', 'index.html'))) {
-  console.log('  building dist/ (csp and preview both need it)');
+// ALWAYS rebuild. This used to build only when dist/index.html was missing, which
+// made the audit quietly test whatever was last built: a members change reported
+// "21 cards, data says 23", read exactly like a filtering bug, and was a stale
+// dist. An audit that can pass against code you did not write is worse than no
+// audit. The build costs a few seconds; a false green costs an hour.
+console.log('  building dist/ (csp and preview both need it)');
+{
   const r = spawnSync('npx', ['vite', 'build'], { cwd: ROOT, stdio: 'ignore', shell: process.platform === 'win32' });
   if (r.status !== 0) { console.error('  build failed'); process.exit(1); }
 }

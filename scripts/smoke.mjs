@@ -14,7 +14,10 @@ const CHROME = process.env.CHROME || (
   : 'google-chrome');
 const PORT = Number(process.env.CDP_PORT || 9334);
 const PROFILE = `/tmp/chrome-smoke-${process.pid}`;
-const ROUTES = ['home', 'discussions', 'learn', 'news', 'members', 'sessions', 'tools'];
+// The footer pages are routes too. 'assets' is here because it renders fifteen
+// <img> previews and any one of them going missing is a console error, not a
+// visual glitch anyone would notice in review.
+const ROUTES = ['home', 'discussions', 'learn', 'news', 'members', 'sessions', 'tools', 'assets'];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

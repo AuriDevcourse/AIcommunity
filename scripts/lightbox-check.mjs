@@ -164,6 +164,50 @@ try {
     sEdge.open && sEdge.href === beforeEdge.href,
     `open=${sEdge.open} hash="${sEdge.href}"`);
 
+  // Plan 8.6 / 8.5. The thumbnail strip, and the keyboard hint that must NOT
+  // appear on a touch viewport (390px here) where there are no keys to press.
+  const strip = await evalJs(`(() => {
+    const el = document.querySelector('[role="group"][aria-label="Session photos"]');
+    if (!el) return { found: false };
+    const thumbs = [...el.querySelectorAll('button')];
+    const hint = [...document.querySelectorAll('span')].find((x) => /Esc to close/.test(x.textContent));
+    const cs = getComputedStyle(el);
+    return {
+      found: true,
+      thumbs: thumbs.length,
+      tabStops: thumbs.filter((t) => t.tabIndex === 0).length,
+      activeIdx: thumbs.findIndex((t) => t.dataset.active === 'true'),
+      aria: thumbs[2] ? thumbs[2].getAttribute('aria-label') : null,
+      overflowX: cs.overflowX,
+      touchAction: cs.touchAction,
+      hintVisible: hint ? hint.getBoundingClientRect().width > 0 : false,
+      srHint: [...document.querySelectorAll('.sr-only')].some((x) => /arrow keys/i.test(x.textContent)),
+    };
+  })()`);
+  check('a thumbnail strip renders, one thumb per photo', strip.found && strip.thumbs === 12,
+    `found=${strip.found} thumbs=${strip.thumbs}`);
+  check('the strip is a single tab stop', strip.tabStops === 1, `tabStops=${strip.tabStops}`);
+  // Derived from the live counter, not hardcoded: the checks above page around,
+  // so the open index depends on everything that ran before this line.
+  const sNow = await state();
+  const openIdx = Number((sNow.counter || '0 / 0').split('/')[0].trim()) - 1;
+  check('the strip marks the open photo', strip.activeIdx === openIdx,
+    `activeIdx=${strip.activeIdx} counter="${sNow.counter}"`);
+  check('each thumbnail has an accessible name', /^Photo 3 of 12$/.test(strip.aria || ''), `aria="${strip.aria}"`);
+  check('the strip scrolls horizontally, and takes pan-x back from the overlay',
+    strip.overflowX === 'auto' && strip.touchAction === 'pan-x',
+    `overflowX=${strip.overflowX} touchAction=${strip.touchAction}`);
+  check('the keyboard hint stays hidden on a touch viewport', strip.hintVisible === false);
+  check('the keys are still spelled out for assistive tech', strip.srHint === true);
+
+  // Jumping by thumbnail, the whole point of the strip.
+  await evalJs(`document.querySelectorAll('[role="group"][aria-label="Session photos"] button')[9].click()`);
+  await sleep(400);
+  const sJump = await state();
+  const jumpActive = await evalJs(`[...document.querySelectorAll('[role="group"][aria-label="Session photos"] button')].findIndex((t) => t.dataset.active === 'true')`);
+  check('tapping a thumbnail jumps straight to that photo',
+    sJump.counter === '10 / 12' && jumpActive === 9, `counter="${sJump.counter}" active=${jumpActive}`);
+
   // A genuine tap on the backdrop must still dismiss it. (The bottom nav bar
   // swallows its own taps, so aim at the gutter beside the photo.)
   // Dismissing is a separate, deliberate action, so let the gesture's own
