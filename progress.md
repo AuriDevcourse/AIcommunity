@@ -2,6 +2,71 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, Area 3 Next session complete
+
+**Current state:** `main` at `641f53a`. `npm run audit` green on all nine suites. Plan
+**78 done, 6 partial, 4 open, 12 moot**. Every area is now complete or near it.
+
+While updating the tally I corrected two headers that overstated: Area 4 said "10 done"
+with 4.5 and 4.7 marked partial in its own item list, and Area 6 said "10 done" with 6.7
+partial. They read 8+2 and 9+1 now. If you count the `- [x]` marks with a script you get 91,
+not 100: Area 9's ten moot items are collapsed onto a single line.
+
+### The venue map link was DEAD on production, not just sparse
+Recorded because the plan described this as "only matrikel1 is mapped", which is not what
+was wrong. `venueMapUrl` did an EXACT match on the lowercased name. `data/schedule.json`
+says `"Matrikel1"` and Google Calendar returns
+`"Matrikel1, Højbro Pl. 10, 1200 København, Denmark"`, so the live value matched nothing and
+the venue rendered as plain text on the site while looking perfectly correct in the static
+data anyone would test against.
+
+Curated pins are substring-matched now, and any unrecognised value falls back to a Maps
+search, so **a new venue no longer needs a code change**. `TBD`, `In-person`,
+`In-person + Online` are recognised as statuses rather than places and get no link, because
+sending someone to Maps for "TBD" is worse than plain text.
+
+### Two controls disagreed about the same date
+`relative()` returned "in 2 wk" at 12 days out while the hero counted "12 days 21 hr" beside
+it. Days now run to a fortnight before switching to weeks. Note the two still differ by one:
+`daysBetween` counts calendar days (13 sleeps) and the countdown counts elapsed hours
+(12d19h). That is defensible, and far better than 2 vs 12.
+
+### 3.9 could not be done literally, and was adapted
+The item asks for a Lean Coffee flag "when fewer than two demos". **Nothing records demo
+signups for a future session**: `data/backlog.json` is empty and an upcoming entry carries
+at most one `presenter`. There is no count to compare against. The flag fires on an
+undecided format with nobody presenting, which is the condition the planning note in
+schedule.json describes anyway. A literal count needs a signup mechanism that does not exist.
+
+### The .ics, and why it is written the way it is
+`src/lib/ics.js` builds the file as a `data:` URL, so no endpoint and no round trip. Times
+are UTC with a `Z` rather than a floating local time, which would shift the session by an
+hour for anyone outside Copenhagen; a correct `VTIMEZONE` block is a lot of hand-rolled
+lines for one recurring event. Values are escaped because a raw comma, semicolon or newline
+in a session note would otherwise truncate the file at that point.
+
+### Numbered next steps, four items left
+1. **8.6** thumbnail strip in the lightbox.
+2. **8.8** timeline showing the recorded gaps (the data is rendered in Schedule ahead
+   already, so this is the archive view of the same thing).
+3. **1.3** header shadow only once scrolled. There is no scroll listener anywhere yet.
+4. **1.10** print stylesheet.
+
+Then the standing items that are not on the plan: `.warm-card` still carries a gradient on
+8 surfaces against palette.md's "scoped, not global" rule, and `public/brand/hero.png`
+(3.4MB) is orphaned but still reprocessed on every build.
+
+### Waiting on Auri
+1. **The 2026-08-30 session has no note**, so the site still says "8 sessions held" when it
+   is nearer 13. This is the most visible remaining problem and no code fixes it: past
+   sessions come from `content/sessions/*.md`, written by hand.
+2. Only one session is in the dedicated calendar (2026-09-13).
+3. `Mari`, `Yogi`, `Frederik`: members or guests?
+
+### File pointers
+`src/lib/venues.js`, `src/lib/ics.js`, `src/lib/dates.js` (`relative`),
+`src/components/NextSession.jsx`, `docs/improvement-plan.md`.
+
 ## SHIPPED 2026-08-31, Area 10 Platform, and the CSP is now ENFORCED
 
 **Current state:** `main` at `e6f544c`. Plan **75 done, 9 partial, 4 open, 12 moot**.

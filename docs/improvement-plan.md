@@ -13,7 +13,7 @@ Area 9 removed the same day, see below.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **75** | **9** | **4** | **12** |
+| Total | **78** | **6** | **4** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -48,19 +48,28 @@ Rebuilt wholesale on 2026-08-30.
 - [-] 2.9 "New here?" entry point, skipped on purpose: the About page it would link to does not exist, and inventing a destination is a speculative feature
 - [x] 2.10 Tighter hero on mobile, `h-20 sm:h-44`
 
-## 3. Next session card, 5 done, 3 partial, 2 open
-- [x] 3.1 Visible field labels, the original bug (icon-only, so values read as bare dashes)
-- [x] 3.2 Actionable empty values: "Open slot" and "TBD" instead of a bare dash
-- [x] 3.3 Lifecycle status pill, `soon` / `thisWeek` / muted variants
-- [~] 3.4 Venue links to a map, works, but `lib/venues.js` only maps `matrikel1`; every other venue silently renders as plain text
-- [~] 3.5 Luma link when present, **prompt when not**, the link renders; there is no prompt for the missing case
-- [~] 3.6 Rotatable roles rendered, only `roles.host` is shown; the other roles in the data are still unrendered
-- [x] 3.7 Clear CTA hierarchy. RSVP is unambiguously primary
-- [ ] 3.8 `.ics` download beside the Google Calendar link. Google-only
-- [ ] 3.9 Lean Coffee auto-flag when fewer than two demos, the format label exists, the auto-flag logic does not
-- [~] 3.10 Countdown consistent with the hero, the card shows `relative()` ("in 6 days"), the hero shows a live `formatCountdown` ("6d 02h"). Different formats, arguably fine, not consistent
+## 3. Next session card, 10 done
+Rebuilt 2026-08-31 (`641f53a`).
+- [x] 3.1 Visible field labels
+- [x] 3.2 Actionable empty values, "Open slot" and "TBD" instead of a bare dash
+- [x] 3.3 Lifecycle status pill
+- [x] 3.4 Venue links to a map. The lookup was an EXACT match on the lowercased name, so it
+      matched schedule.json's "Matrikel1" and failed on the calendar's full address: the
+      link was dead on production while looking right in the static data. Curated pins are
+      substring-matched now and anything else falls back to a Maps search, so no venue
+      needs a hand-written entry. "TBD" / "In-person" are statuses, not places, and get none
+- [x] 3.5 Luma link when present; when absent, a dev-only nudge
+- [x] 3.6 All five roles render, empty ones skipped
+- [x] 3.7 Clear CTA hierarchy, RSVP is primary
+- [x] 3.8 `.ics` download beside the Google Calendar link, built as a data: URL. UTC with a
+      Z, not floating local time, which would shift the session an hour outside Copenhagen
+- [x] 3.9 Lean Coffee flag. It cannot count demos: nothing records signups for a future
+      session and backlog.json is empty. Fires on an undecided format with no presenter,
+      the condition the planning note itself describes
+- [x] 3.10 Countdown consistent with the hero. `relative()` said "in 2 wk" at 12 days while
+      the hero counted "12 days 21 hr" beside it. Days now run to a fortnight
 
-## 4. Schedule ahead, 10 done (2 inert on live data)
+## 4. Schedule ahead, 8 done, 2 partial (both inert on live data, see below)
 Rebuilt 2026-08-31. `ScheduleAhead.jsx` went from 47 lines reading five fields to a
 grouped, foldable list. The graft in `App.jsx` was generalised: it carried only
 `topics` from the static schedule onto the live Google Calendar rows, and now carries
@@ -113,7 +122,7 @@ browser.
 - [x] 5.9 Duplicate options rejected server-side, case- and space-insensitively
 - [x] 5.10 Per-poll share link via a new `#poll/<id>` route, mirroring `#recap/<date>`
 
-## 6. News, 10 done
+## 6. News, 9 done, 1 partial
 Rebuilt 2026-08-31 (`ca08f3c`). `npm run news:check`, 15 assertions.
 - [x] 6.1 Luma-style card hierarchy
 - [x] 6.2 Text search over title, subtitle, summary, both why-fields and source names
