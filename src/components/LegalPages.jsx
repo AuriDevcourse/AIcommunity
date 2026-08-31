@@ -14,6 +14,12 @@ const PAGES = {
 
 export const LEGAL_KEYS = Object.keys(PAGES);
 
+// Footer pages that are NOT part of the compliance trio. They are routed like a
+// legal page (same hash, same Back behaviour) but rendered by their own
+// component: LegalPage stamps an "Effective <date>" line and a contact block on
+// everything it renders, which is right for a policy and wrong for a download page.
+export const FOOTER_KEYS = [...LEGAL_KEYS, 'assets'];
+
 function H({ children }) {
   return <h2 className="text-lg font-semibold tracking-tight mt-8 mb-2">{children}</h2>;
 }
@@ -167,6 +173,7 @@ function AccessibilityStatement() {
 // Footer with the compliance trio + project line. onNavigate(slug) routes to a page.
 export function Footer({ onNavigate }) {
   const links = [
+    ['assets', 'Download assets'],
     ['privacy', 'Privacy'],
     ['terms', 'Terms'],
     ['accessibility', 'Accessibility'],
