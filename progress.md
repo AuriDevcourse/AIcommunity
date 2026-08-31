@@ -2,6 +2,66 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, session #09 recorded
+
+**Current state:** `main` at `d5cb4ca`. `npm run audit` green on all nine suites.
+The site now reads **9 sessions held, 21 members** (was 8 and 20).
+
+### #09 is deliberately INCOMPLETE
+`content/sessions/#09 SESSION 2026-08-30.md` records **only the attendee list**: Auri,
+Ignas, Sany, Andrei, Aiza, Roman. That is all that was reported. Title, topics, demos,
+tools and the summary are absent on purpose, not forgotten: an invented demo becomes the
+permanent record of a real session and the recap page publishes it.
+
+The note carries a comment listing every section, what each renders and the exact format
+the parser wants, so completing it is mechanical. Attendance counts already moved: Auri and
+Ignas to 7, Sany 6, Aiza 3, Andrei 2, Roman 1.
+
+**Roman is new** and is listed under his first name only, like Valentin and Dovile. Add a
+surname to `content/members.md` when known.
+
+### Trap: the Title parser is NOT line-anchored
+`get('Title')` in `scripts/build-data.js` searches the whole file for
+`**Title:**` anywhere, including inside an HTML comment. The first draft of #09 mentioned
+the field name in its own instructions and the session came out **titled with a sentence
+from those instructions**. The other section parsers (`## About This Session`, `## Topics`,
+`## Demos`, `## Tools`, `## Action Items`) are all `^`-anchored, so mentioning those
+indented inside a comment is safe.
+
+Also: leave the Title field OUT rather than setting it to "TBD". The value renders AS the
+session name; with the field absent the UI falls back to "Session #9".
+
+### Pattern worth watching: hardcoded counts in the browser suites
+`members-check` asserted `=== 20` members and went red the moment Roman was added. That is
+the third instance today, after the organiser-badge count and the news reading-time regex.
+**A browser check should read its expectation from `src/data.json`, not a literal.** Both
+member assertions do now.
+
+### Numbered next steps
+1. **The archive gap is only partly closed.** #08 was 2026-06-14 and #09 is 2026-08-30, so
+   at a biweekly cadence roughly four sessions between them are still unrecorded. Each
+   needs a note like #09. Only Auri knows whether they happened or the cadence lapsed; if
+   it lapsed, that is a `gaps` entry in `data/schedule.json` instead, which Schedule ahead
+   already renders.
+2. **8.6** thumbnail strip in the lightbox.
+3. **8.8** timeline showing the recorded gaps in the archive view.
+4. **1.3** header shadow only once scrolled; there is still no scroll listener anywhere.
+5. **1.10** print stylesheet.
+6. Standing, not on the plan: `.warm-card` carries a gradient on 8 surfaces against
+   palette.md's "scoped, not global" rule, and `public/brand/hero.png` (3.4MB) is orphaned
+   but still reprocessed on every build.
+
+### Waiting on Auri
+1. Fill in #09's title, topics, demos and summary, or say there is nothing to add.
+2. Whether sessions happened between 2026-06-14 and 2026-08-30.
+3. Only one session is in the dedicated calendar (2026-09-13).
+4. `Mari`, `Yogi`, `Frederik`: members or guests? Roman's surname.
+
+### File pointers
+`content/sessions/#09 SESSION 2026-08-30.md`, `content/members.md`,
+`scripts/build-data.js` (`parseSessionFile`, `attendanceCounts`),
+`scripts/members-check.mjs`.
+
 ## SHIPPED 2026-08-31, Area 3 Next session complete
 
 **Current state:** `main` at `641f53a`. `npm run audit` green on all nine suites. Plan
