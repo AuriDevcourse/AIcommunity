@@ -2,6 +2,70 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED, 2026-08-31, ten commits on `main`, pushed
+
+**Current state:** `main` == `origin/main` at `93baf8d`. Working tree clean apart from
+`probe.html` / `probe.jsx`, which are Hero timer instrumentation from an earlier session,
+deliberately not committed and not gitignored either. `feat/dark-mode` was fast-forwarded
+into `main` and carries nothing extra.
+
+Everything in parts 1 to 4 below is now on `main` and deployed. **Where those entries say
+"uncommitted on feat/dark-mode", read it as history, not as the current state.**
+
+| commit | subject |
+|---|---|
+| `643ce11` | fix(security): take caller identity from the verified session, never the body |
+| `e898ce2` | feat(theme): dark mode and the AI Sundays palette, with gradients scoped |
+| `7c1f57f` | feat(brand): rebrand to AI Sundays |
+| `0ac6781` | feat(hero): rebuild the hero, and stop the masthead repeating on every tab |
+| `03e6e31` | fix(ui): make the photo lightbox usable on a phone, and sort news |
+| `3a6fe6c` | chore(copy): remove em-dashes and tighten the UI copy |
+| `8878d6f` | refactor: remove the feedback feature |
+| `b28e147` | feat(schedule): rebuild Schedule ahead |
+| `e85386f` | chore(tooling): make the screenshot harness wait for fetch |
+| `93baf8d` | docs: record the plan status in the repo, and the session handoff |
+
+**Verified from the committed tree before pushing**, not from the working copy:
+`npx vite build` clean, `npm run smoke` PASS, `npm run theme:check` PASS (34 assertions),
+`npm run identity:check` 21/21, `npm run lightbox:check` 13/13.
+
+**Known imperfection in the split.** `index.css`, `App.jsx`, `server.js` and
+`vite.config.js` each carry more than one concern, and a single file cannot be split
+across commits without interactive staging. They landed with their dominant change and
+each commit message names what rode along. The security fix is the one that matters for
+review and it is clean in `643ce11` on its own.
+
+**Check on the live site once Vercel finishes:** the wordmark and favicon in both themes,
+and that polls and the forum still read and write, because vote keys moved from the
+normalised display name to the Supabase user id. Pre-fix votes are deduped on the voter's
+next vote rather than migrated in bulk.
+
+### Numbered next steps
+1. **Refresh the dates in `data/schedule.json`** to match the live Google Calendar. That
+   alone activates 4.5 (venue-status pill) and 4.7 (maintainer hints), which are built and
+   verified but inert because the static file lists 2026-05-03 to 2026-07-12 while the
+   calendar returns 2026-09-06 to 2026-12-13. Data task, no code.
+2. **Area 7 Members** (5/10), the most visible remaining: search, role badges, a real sort
+   control in place of the random shuffle on every mount, sessions-attended counts. Also
+   the surface a Projects showcase would hang off.
+3. **Area 5 Polls** (2/10), the weakest: optimistic vote with rollback, sort toggle,
+   arrow-key radio group, aria-live results, duplicate-option detection, share links.
+4. **The CSP is still `Content-Security-Policy-Report-Only` with no `report-uri`**
+   (`vercel.json:18`), so it neither blocks nor reports and its `frame-ancestors` is inert.
+   Left alone deliberately: flipping it ships straight to prod and wants sign-off.
+   Groundwork done, `index.html` has no inline scripts and every other header is correct.
+5. `.warm-card` still carries a gradient on 8 surfaces, which is gradient-as-default and
+   breaks the "scoped, not global" rule in palette.md.
+6. `public/brand/hero.png` (3.4MB) is orphaned, and `scripts/optimize-images.mjs` still
+   reprocesses it on every build.
+
+### File pointers
+`docs/improvement-plan.md` is the live status board for all 100 items (50 done, 17 partial,
+21 open, 12 moot across 90 live). `api/_identity.js` is the identity contract every
+mutating route now goes through. `src/index.css` holds the palette in the three-state
+pattern. `src/components/ScheduleAhead.jsx` and the graft at `src/App.jsx` are the Area 4
+work. Brand source of truth is `Desktop/SideProjects/ai-sundays/brand/palette.md`.
+
 ## SESSION HANDOFF, 2026-08-31 (part 4), gradients, declutter, feedback removed, Area 4
 
 Everything below shipped to `main` on 2026-08-31.
