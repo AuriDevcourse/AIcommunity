@@ -2,6 +2,48 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## IN PROGRESS 2026-08-31, migrating to a dedicated Google Calendar
+
+**Current state:** code ready and shipped (`034469e`). **`GCAL_CALENDAR_ID` is still
+UNSET**, so the app reads Auri's `primary` calendar. Auri is moving session events into a
+new dedicated calendar named **"AI Workshops"** right now.
+
+**If the schedule looks empty, this is why.** Events are leaving `primary` as they are
+moved, and the app still reads `primary`. 2026-09-06 was returned at 12:30 and gone by
+15:20. Once the migration finishes, `primary` returns nothing until the env var is set.
+
+### What Auri has to do (config, not code)
+1. Google Calendar, the "AI Workshops" calendar, **Integrate calendar**, copy **Calendar
+   ID** (ends `@group.calendar.google.com`).
+2. Set `GCAL_CALENDAR_ID` in `.env.local` AND in Vercel project env. Production reads its
+   own env, so setting one without the other leaves prod broken.
+3. **Get shareable link** on that calendar is the subscribe link for members. It is already
+   public with "See event details".
+4. The calendar is named "AI Workshops", not "AI Sundays". Cosmetic, but subscribers see it.
+
+### What shipped for it
+`titleMatcher` is now calendar-aware. The title filter exists only because the default is
+`primary`, where sessions must be picked out of someone's whole life. On a dedicated
+calendar that filter is a liability: an event titled "Session #09" matches no needle and the
+schedule silently empties, the wrong-event bug in reverse. So any `GCAL_CALENDAR_ID` other
+than `primary` treats every event as a session. `GCAL_EVENT_MATCH` still overrides.
+No re-auth needed: the stored refresh token is Auri's own with account-wide
+`calendar.events.readonly`.
+
+### Google Calendar cannot do link-based RSVP
+Worth recording so it is not re-investigated. Making a calendar public lets people SEE
+events; only individually added guest emails produce an RSVP status. There is no self-serve
+join link. The dashboard's own RSVP button (Upstash, Google sign-in) already IS link-based
+RSVP and is the primary path; Luma is the option for people who will not sign in. Do not
+try to route RSVPs through Google Calendar.
+
+### The archive is the bigger gap, and no calendar choice fixes it
+Most recent recorded session is `#08` on 2026-06-14, **78 days ago**. Up to 5 sessions are
+missing including one Auri says happened 2026-08-30. The site therefore claims "8 sessions
+held" when it is nearer 13. Upcoming dates come from Google Calendar; PAST sessions come
+from `content/sessions/*.md`, written by hand. Needs Auri to say what happened, or a `gaps`
+entry if the cadence genuinely lapsed.
+
 ## FIXED 2026-08-31, `9b1c9ab`, the email exposure and the wrong-event bug
 
 **Current state:** shipped to `main` and deployed. Three leaks closed. `main` at `153d73b`.
