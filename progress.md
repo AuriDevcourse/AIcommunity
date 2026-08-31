@@ -2,6 +2,60 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, Area 5 Polls complete
+
+**Current state:** `main` at `6ecaf2d`, pushed and deployed. **Six** suites, all green:
+`smoke`, `theme:check` (34), `identity:check` (21), `lightbox:check` (13),
+`history:check` (11) and the new `polls:check` (14). Plan now **59 done, 15 partial,
+14 open, 12 moot**; Areas 2, 4, 5 and 8 are effectively finished and 9 is deleted.
+
+All ten Area 5 items are in `6ecaf2d`: optimistic vote with rollback, sort toggle, a real
+radio group (roving tabindex, arrows that move AND select, Home/End), a polite live region,
+labelled fields, inline create-modal validation, server-side duplicate-option rejection,
+and a per-poll share link on a new `#poll/<id>` route.
+
+### Two traps worth not relearning
+1. **A hash change does not remount a component.** The share-link highlight depended on
+   `[polls]` alone, so going from `#discussions` to `#poll/<id>` fired nothing and a visitor
+   already on the Forum saw no highlight at all. It listens to `hashchange` too now. Any
+   future hash route inside a mounted tab has the same trap.
+2. **`vite preview` has no API layer**, so `/api/polls` 404s, the list renders empty, and a
+   browser check happily passes against a blank page. `polls:check` therefore targets the
+   DEV server (5280), unlike `smoke`, `history:check` and `theme:check` which want preview
+   (5281). It also waits for a poll card rather than sleeping, because the Forum is a lazy
+   chunk plus an Upstash round trip and a flat 3s was sometimes short.
+
+Also: `load()` refetches every 5s, so anything keyed off the hash needs a "handled" ref or
+it repeats forever. Without one the shared poll flashed again every five seconds.
+
+### Numbered next steps
+1. **Area 7 Members** (5/10) is the most visible remaining, but stays BLOCKED on full names
+   for `Mari`, `Yogi`, `Frederik`. Do not guess names into a public repo. The rest of it
+   (search, role badges, a real sort control instead of the random shuffle on mount, the
+   `Unknown #1/#2` removal, the three invisible members) can proceed without them.
+2. **Area 6 News** (3/10): search, sticky filters, blur-up, source count and reading time,
+   arrow-key chips, last-updated.
+3. **Area 10 Platform** (4/10), and the **CSP is still `Report-Only` with no `report-uri`**,
+   so it neither blocks nor reports. Flipping it ships straight to prod.
+4. **Area 3 Next session** (5/10): `.ics` download, Lean Coffee auto-flag, `lib/venues.js`
+   maps only `matrikel1`, Luma prompt, the unrendered roles.
+5. Area 1's last two: header shadow on scroll, print stylesheet.
+6. `.warm-card` still carries a gradient on 8 surfaces, against palette.md's "scoped, not
+   global" rule.
+
+### Waiting on Auri
+1. **The remaining sessions are not in the dedicated calendar.** It holds one event,
+   2026-09-13, so the schedule shows a single date and the low-runway warning fires.
+   `GCAL_CALENDAR_ID` IS now set in both `.env.local` and Vercel, and prod is confirmed
+   reading it.
+2. **Yesterday's session (2026-08-30) has no note**, so the archive stops at `#08` on
+   2026-06-14 and the site claims "8 sessions held" when it is nearer 13.
+
+### File pointers
+`src/components/Polls.jsx`, `api/_polls-core.js` (duplicate detection in the create action),
+`src/App.jsx` (`readTabFromHash` routes `#poll/`), `scripts/polls-check.mjs`,
+`docs/improvement-plan.md` (per-item status).
+
 ## SHIPPED 2026-08-31, mono-font rule and the Back button
 
 **Current state:** `main` at `382ca84`, pushed and deployed. Five test suites now, all

@@ -13,7 +13,7 @@ Area 9 removed the same day, see below.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **50** | **17** | **21** | **12** |
+| Total | **59** | **15** | **14** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -23,7 +23,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` open · `[-]` moot (solved another 
 
 ---
 
-## 1. Global shell & navigation, 6 done, 3 open, 1 moot
+## 1. Global shell & navigation, 7 done, 2 open, 1 moot
 - [x] 1.1 Skip-to-content link, `App.jsx:157`, `.skip-link` in `index.css`
 - [x] 1.2 Real footer (identity, links, data freshness), `LegalPages.jsx` `Footer`
 - [ ] 1.3 Header shadow only once scrolled, header is a static `border-b`, no scroll listener anywhere
@@ -32,7 +32,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` open · `[-]` moot (solved another 
 - [x] 1.6 `aria-live` announcement on tab change, `App.jsx:214`
 - [x] 1.7 Wordmark links home, carries the brand mark, `App.jsx:166`
 - [x] 1.8 `prefers-reduced-motion` honoured globally, `index.css:212`, blanket rule on `*`
-- [ ] 1.9 Back/forward between tabs, still `history.replaceState` (`App.jsx:91`), so Back leaves the app
+- [x] 1.9 Back/forward between tabs, `382ca84`: only the first sync replaces, later changes push. `npm run history:check`, 11 assertions
 - [ ] 1.10 Print stylesheet, no `@media print` anywhere
 
 ## 2. Hero & at-a-glance, 9 done, 1 deliberately skipped
@@ -97,17 +97,21 @@ is byte-identical to HEAD.
 **This is a data task, not a code one.** Refresh the dates in `data/schedule.json` and
 both light up with no further work.
 
-## 5. Community polls, 2 done, 2 partial, 6 open
+## 5. Community polls, 10 done
+Rebuilt 2026-08-31 (`6ecaf2d`). `npm run polls:check` covers it, 14 assertions in a real
+browser.
 - [x] 5.1 Skeleton loading instead of a spinner line
-- [ ] 5.2 Optimistic vote with rollback
-- [x] 5.3 Explicit "your vote" state, `myVote()` + "Your vote is in"
-- [ ] 5.4 Sort by votes / by order toggle
-- [ ] 5.5 Options behave as a radio group (arrow keys)
-- [ ] 5.6 `aria-live` result announcements
-- [~] 5.7 Labelled, validated name field, placeholder only, no `<label>`; moot in auth mode where the field is hidden
-- [~] 5.8 Inline validation in the create modal, the server error is surfaced, nothing validates before submit
-- [ ] 5.9 Surface the server's duplicate-option response, the server does not detect duplicates either
-- [ ] 5.10 Per-poll share link
+- [x] 5.2 Optimistic vote with rollback, `applyVoteLocally` mirrors the server's
+      `withResults`; the previous poll is restored on failure and the selection kept as a draft
+- [x] 5.3 Explicit "your vote" state
+- [x] 5.4 Sort by votes / by order, sorted on a copy so server state is not reordered
+- [x] 5.5 Options behave as a radio group, `role=radiogroup` + `aria-checked` + roving
+      tabindex + arrows that move AND select, Home/End; multi-select uses group/checkbox
+- [x] 5.6 `aria-live` polite region announcing the saved vote and the new total
+- [x] 5.7 Labelled name field, and the question and option inputs too
+- [x] 5.8 Inline validation in the create modal, naming the missing requirement
+- [x] 5.9 Duplicate options rejected server-side, case- and space-insensitively
+- [x] 5.10 Per-poll share link via a new `#poll/<id>` route, mirroring `#recap/<date>`
 
 ## 6. News, 3 done, 4 partial, 3 open
 - [x] 6.1 Luma-style card hierarchy, cover → title → meta
