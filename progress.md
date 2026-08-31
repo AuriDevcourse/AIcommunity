@@ -2,6 +2,65 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, Area 6 News complete
+
+**Current state:** `main` at `ca08f3c`. **Eight** suites, all green: `smoke`,
+`theme:check` (34), `identity:check` (21), `lightbox:check` (13), `history:check` (11),
+`polls:check` (14), `members:check` (13), `news:check` (15). Plan **71 done, 11 partial,
+6 open, 12 moot**. Areas 1, 2, 4, 5, 6, 7 and 8 are effectively complete; 9 is deleted.
+
+### gen-news-placeholders.mjs was macOS-only and failed SILENTLY
+The worst thing found this round. It wrote its temp HTML to a hardcoded `/tmp` and passed
+Chrome the string `file://` + a Windows path, which is not a resolvable URL. Chrome rendered
+its own ERR_FILE_NOT_FOUND page to PNG and **exited 0**, so the script reported a tick for
+every card. The 12 "generated" cards were all 11.5KB error pages.
+
+Fixed with `os.tmpdir()`, `pathToFileURL()` and a per-platform Chrome default. Real cards
+are 121 to 126KB, so the size alone tells you whether a run worked.
+
+**`--force` regenerates ALL twelve and overwrites the six real source photos** (CNBC,
+Anthropic, University of Copenhagen, Danish AI Safety Conference, EU-Startups, Under30CEO)
+with typographic cards. It happened twice today. Run it WITHOUT `--force` unless you mean
+that; the restore is a manual merge against `git show HEAD:data/news.json`.
+
+### Freshness is real data now, not derived
+`data/news.json` has `curatedAt: "2026-08-29"`, the date of the commit that actually moved
+the window (`14db26d`). Deriving it from git reports unrelated commits: the most recent
+change to that file was an em-dash cleanup. The newest story date is also not the same
+thing as when the list was reviewed. `draft-news.mjs` now emits `curatedAt` so promoting a
+draft carries it forward.
+
+### Gotcha: JSX drops whitespace between elements
+`{n} min <span>·</span> {m} sources` rendered as `1 min·2 sources`. Needs explicit `{' '}`.
+`news:check` caught it. The same check also showed that a backslash inside a template
+literal is an escape, so a regex written as `/\d+/` inside `evalJs(\`...\`)` arrives as
+`/d+/` and silently matches nothing. Prefer plain string assertions in those checks.
+
+### Numbered next steps
+1. **Area 10 Platform** (4/10): robots.txt and sitemap.xml, a repeatable audit script,
+   network-failure states. **The CSP is still `Report-Only` with no `report-uri`** so it
+   neither blocks nor reports; flipping it ships straight to prod and wants sign-off.
+2. **Area 3 Next session** (5/10): `.ics` download, Lean Coffee auto-flag, `lib/venues.js`
+   maps only `matrikel1` so every other venue renders as plain text, Luma prompt, the
+   unrendered roles.
+3. **Area 8's last two**: thumbnail strip in the lightbox, timeline with the recorded gaps.
+4. Area 1's last two: header shadow on scroll, print stylesheet.
+5. `.warm-card` still carries a gradient on 8 surfaces, against palette.md's "scoped, not
+   global" rule.
+6. `public/brand/hero.png` (3.4MB) is orphaned and still reprocessed every build.
+7. The `ca08f3c` commit message lost the phrase `file://<windows path>` to a shell backtick;
+   the full explanation is in this entry instead. Not worth force-pushing over.
+
+### Waiting on Auri
+1. **Only one session is in the dedicated calendar** (2026-09-13).
+2. **Yesterday's session (2026-08-30) has no note**, so the site still says "8 sessions
+   held" when it is nearer 13. Past sessions come from `content/sessions/*.md`.
+3. `Mari`, `Yogi`, `Frederik`: members or guests? One row each in `content/members.md`.
+
+### File pointers
+`src/components/News.jsx`, `data/news.json` (`curatedAt`), `scripts/news-check.mjs`,
+`scripts/gen-news-placeholders.mjs` (the portability fix), `scripts/draft-news.mjs`.
+
 ## SHIPPED 2026-08-31, Area 7 Members complete
 
 **Current state:** `main` at `50fa800`. **Seven** suites, all green: `smoke`,

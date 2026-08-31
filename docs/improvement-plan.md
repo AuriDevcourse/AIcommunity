@@ -13,7 +13,7 @@ Area 9 removed the same day, see below.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **64** | **15** | **9** | **12** |
+| Total | **71** | **11** | **6** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -113,17 +113,20 @@ browser.
 - [x] 5.9 Duplicate options rejected server-side, case- and space-insensitively
 - [x] 5.10 Per-poll share link via a new `#poll/<id>` route, mirroring `#recap/<date>`
 
-## 6. News, 3 done, 4 partial, 3 open
-- [x] 6.1 Luma-style card hierarchy, cover → title → meta
-- [ ] 6.2 Text search across titles and summaries
-- [x] 6.3 Explicit newest-first ordering, **fixed 2026-08-31**; the file is genuinely unsorted
-- [x] 6.4 Collapsible "why it matters", `aria-expanded`, chevron
-- [~] 6.5 Source count and reading time, a `Clock` and `sources[0]` are used; no count, no computed reading time
-- [ ] 6.6 Sticky filter bar
-- [~] 6.7 Blur-up image placeholders, `loading="lazy"` only
-- [~] 6.8 External-link affordance, `target="_blank"` with no visible icon
-- [ ] 6.9 Arrow-key navigation across filter chips
-- [~] 6.10 "Last updated" line, `windowLabel` covers the window, not a last-updated timestamp
+## 6. News, 10 done
+Rebuilt 2026-08-31 (`ca08f3c`). `npm run news:check`, 15 assertions.
+- [x] 6.1 Luma-style card hierarchy
+- [x] 6.2 Text search over title, subtitle, summary, both why-fields and source names
+- [x] 6.3 Explicit newest-first ordering
+- [x] 6.4 Collapsible "why it matters"
+- [x] 6.5 Source count and reading time, from the prose only at 200wpm
+- [x] 6.6 Sticky filter bar, with the search beside it
+- [~] 6.7 Image placeholders: a skeleton holds the box and the photo fades over it.
+      NOT a true LQIP blur-up, which needs a per-image base64 thumbnail emitted at build
+      time; a new generated artifact for a difference invisible at this card size
+- [x] 6.8 External-link affordance, a visible arrow on every off-site link
+- [x] 6.9 Arrow-key navigation across the filter chips, with one tab stop
+- [x] 6.10 "Last reviewed" line, from a real `curatedAt` in data/news.json
 
 ## 7. Members, 10 done
 Rebuilt 2026-08-31 (`50fa800`). `npm run members:check`, 13 assertions.
