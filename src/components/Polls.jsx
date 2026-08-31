@@ -181,7 +181,7 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
                   <div className="text-base font-semibold tracking-tight break-words">{poll.question}</div>
                   <div className="flex items-center gap-2 mt-1.5 text-muted">
                     <span className="pill pill-mute">{poll.multi ? 'Pick any' : 'Pick one'}</span>
-                    <span className="text-xs num">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
+                    <span className="text-xs ">{poll.totalVoters} {poll.totalVoters === 1 ? 'voter' : 'voters'}</span>
                     {poll.closed && <span className="pill pill-warn">closed</span>}
                   </div>
                 </div>

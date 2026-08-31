@@ -70,12 +70,12 @@ export default function Learn() {
               >
                 <div className="flex items-center gap-2">
                   <span className={`pill ${levelPill}`}>{t.level}</span>
-                  {t.minutes && <span className="inline-flex items-center gap-1 text-[11px] text-muted num"><Clock size={11} /> {t.minutes} min</span>}
+                  {t.minutes && <span className="inline-flex items-center gap-1 text-[11px] text-muted "><Clock size={11} /> {t.minutes} min</span>}
                 </div>
                 <h3 className="mt-3 text-base font-semibold tracking-tight leading-snug">{t.title}</h3>
                 <p className="mt-1 text-sm text-muted leading-relaxed flex-1">{t.summary}</p>
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-[11px] text-muted num">{slideCount} slides</span>
+                  <span className="text-[11px] text-muted ">{slideCount} slides</span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold">
                     <Play size={13} strokeWidth={2.5} /> Start
                   </span>
@@ -133,7 +133,7 @@ function SlideViewer({ tutorial, onClose }) {
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-5">
                 <span className={`pill ${LEVEL_PILL[s.level] || 'pill-mute'}`}>{s.level}</span>
-                {s.minutes && <span className="inline-flex items-center gap-1 text-xs text-muted num"><Clock size={12} /> {s.minutes} min</span>}
+                {s.minutes && <span className="inline-flex items-center gap-1 text-xs text-muted "><Clock size={12} /> {s.minutes} min</span>}
               </div>
               <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">{s.title}</h2>
               <p className="mt-4 text-lg text-muted leading-relaxed max-w-xl mx-auto">{s.summary}</p>

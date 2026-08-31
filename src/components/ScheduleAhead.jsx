@@ -179,9 +179,9 @@ function Row({ session: s, isNext, commonVenue, showHints }) {
           <span className={`text-sm ${isNext ? 'font-semibold' : 'font-medium'}`}>
             {fmtDate(s.date)}
           </span>
-          <span className="text-[11px] text-muted num">{relative(s.date)}</span>
+          <span className="text-[11px] text-muted ">{relative(s.date)}</span>
           {isNext && <span className="pill pill-acc">next</span>}
-          {s.number != null && <span className="pill pill-mute num">#{s.number}</span>}
+          {s.number != null && <span className="pill pill-mute ">#{s.number}</span>}
         </div>
 
         {s.theme && <div className="mt-0.5 text-xs text-muted truncate">{s.theme}</div>}

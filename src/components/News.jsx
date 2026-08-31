@@ -68,7 +68,7 @@ export default function News() {
             <div className="h-section">AI News Roundup</div>
             <div className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</div>
           </div>
-          <div className="text-xs text-muted num">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
+          <div className="text-xs text-muted ">{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
         </div>
 
         {/* Planned: auto-refresh this roundup on a schedule instead of by hand. */}
@@ -101,7 +101,7 @@ export default function News() {
                   : 'bg-pill text-foreground border-border hover:bg-foreground hover:text-background'
               }`}
             >
-              {c.label} <span className="num ml-1">{c.count}</span>
+              {c.label} <span className=" ml-1">{c.count}</span>
             </button>
           ))}
         </div>
@@ -138,10 +138,10 @@ function NewsCard({ item }) {
         <span className="absolute right-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider">
           {CARD_BADGE[item.category] || 'Global'}
         </span>
-        <span className="absolute left-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider num">
+        <span className="absolute left-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ">
           #{item.n}
         </span>
-        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
+        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium ">
           {date}
         </span>
       </a>

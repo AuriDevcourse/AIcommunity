@@ -63,7 +63,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         <div className="flex items-center gap-2 h-section">
           <CalendarDays size={11} strokeWidth={2.2} />
           <span>Session recap</span>
-          {committed?.number != null && <span className="pill pill-mute num">#{committed.number}</span>}
+          {committed?.number != null && <span className="pill pill-mute ">#{committed.number}</span>}
         </div>
         <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight">{title}</h1>
         <p className="mt-2 text-sm text-muted">{fmtDateLong(date)} · Copenhagen{place ? ` · ${place}` : ''}</p>
@@ -89,7 +89,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         <section className="mt-8">
           <div className="flex items-center gap-1.5 h-section">
             <MessagesSquare size={11} strokeWidth={2.2} /><span>What we talked about</span>
-            <span className="pill pill-mute num ml-1">{committed.topics.length}</span>
+            <span className="pill pill-mute ml-1">{committed.topics.length}</span>
           </div>
           <div className="mt-3 space-y-2.5">
             {committed.topics.map((t, i) => (
@@ -132,7 +132,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         <section className="mt-8">
           <div className="flex items-center gap-1.5 h-section">
             <Users size={11} strokeWidth={2.2} /><span>Who came</span>
-            <span className="pill pill-mute num ml-1">{committed.attendees.length}</span>
+            <span className="pill pill-mute ml-1">{committed.attendees.length}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {committed.attendees.map((a) => <span key={a} className="pill">{a}</span>)}
@@ -145,7 +145,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
         <section className="mt-8">
           <div className="flex items-center gap-1.5 h-section">
             <Wrench size={11} strokeWidth={2.2} /><span>Tools & ideas discussed</span>
-            <span className="pill pill-mute num ml-1">{committed.tools.length}</span>
+            <span className="pill pill-mute ml-1">{committed.tools.length}</span>
           </div>
           <ToolChips tools={committed.tools} />
         </section>
@@ -154,7 +154,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
       {/* Photo gallery */}
       <section className="mt-8">
         <div className="flex items-center gap-1.5 h-section"><MapPin size={11} strokeWidth={2.2} /><span>Photos</span>
-          {photos.length > 0 && <span className="pill pill-mute num ml-1">{photos.length}</span>}
+          {photos.length > 0 && <span className="pill pill-mute ml-1">{photos.length}</span>}
         </div>
         {!loaded ? (
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -176,7 +176,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
             </div>
             {photos.length > PHOTO_PREVIEW && !showAllPhotos && (
               <button onClick={() => setShowAllPhotos(true)} className="btn btn-sm btn-ghost mt-3">
-                See more <ChevronDown size={14} strokeWidth={2.2} /> <span className="num text-muted">({photos.length - PHOTO_PREVIEW})</span>
+                See more <ChevronDown size={14} strokeWidth={2.2} /> <span className=" text-muted">({photos.length - PHOTO_PREVIEW})</span>
               </button>
             )}
           </>

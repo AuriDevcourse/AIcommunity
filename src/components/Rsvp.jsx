@@ -25,7 +25,7 @@ function PersonAvatar({ person, tentative }) {
       {showImg ? (
         <img src={person.avatar} alt="" loading="lazy" onError={() => setFailed(true)} className="w-6 h-6 rounded-full object-cover border border-border bg-accent" />
       ) : (
-        <span className="w-6 h-6 rounded-full grid place-items-center bg-accent border border-border text-[9px] font-semibold num">{getInitials(person.name)}</span>
+        <span className="w-6 h-6 rounded-full grid place-items-center bg-accent border border-border text-[9px] font-semibold ">{getInitials(person.name)}</span>
       )}
       <span className="text-sm">{firstNameOf(person.name)}</span>
     </span>

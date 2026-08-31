@@ -666,7 +666,7 @@ export default function PostMaker({ sessions = [] }) {
 
           {output ? (
             <div className="mt-2 flex items-center justify-between text-xs text-muted">
-              <span className="num">{output.length} characters · {countWords(output)} words</span>
+              <span className="">{output.length} characters · {countWords(output)} words</span>
               <span>{output.length > FOLD[format] ? `Folds after ~${FOLD[format]} chars` : 'Fits above the fold'}</span>
             </div>
           ) : (

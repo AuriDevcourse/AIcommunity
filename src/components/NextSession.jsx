@@ -43,7 +43,7 @@ export default function NextSession({ session }) {
         </div>
         <div className="flex flex-row sm:flex-col items-end gap-2 flex-shrink-0">
           <span className="pill pill-acc">{fmt.label}</span>
-          {session.number && <span className="pill pill-mute num">#{session.number}</span>}
+          {session.number && <span className="pill pill-mute ">#{session.number}</span>}
         </div>
       </div>
 

@@ -202,15 +202,15 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             <MessagesSquare size={26} strokeWidth={1.6} />
             <span className="text-xs font-semibold text-foreground">View recap</span>
             {topicCount > 0 && (
-              <span className="text-[10px] font-medium num">{topicCount} topics</span>
+              <span className="text-[10px] font-medium ">{topicCount} topics</span>
             )}
           </div>
         )}
-        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
+        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium ">
           {date}
         </span>
         {hasPhotos && session.photos.length > 1 && (
-          <span className="absolute left-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
+          <span className="absolute left-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium ">
             {session.photos.length} photos
           </span>
         )}

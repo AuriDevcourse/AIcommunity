@@ -42,7 +42,7 @@ export default function LegalPage({ slug, onBack }) {
         </span>
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{meta.title}</h1>
       </div>
-      <p className="mt-2 text-xs text-muted num">Effective {EFFECTIVE}</p>
+      <p className="mt-2 text-xs text-muted ">Effective {EFFECTIVE}</p>
 
       <div className="mt-4">
         {slug === 'privacy' && <Privacy />}

@@ -172,7 +172,7 @@ export default function SessionThread({
       <div className="flex items-center gap-1.5 h-section">
         <MessagesSquare size={11} strokeWidth={2.2} />
         <span>{title}</span>
-        {list.length > 0 && <span className="pill pill-mute num ml-1">{list.length}</span>}
+        {list.length > 0 && <span className="pill pill-mute ml-1">{list.length}</span>}
       </div>
       {subtitle && <p className="mt-2 text-sm text-muted">{subtitle}</p>}
 
@@ -320,11 +320,11 @@ function Comment({ c, isReply, name, named, onVote, onRemove, replyTo, setReplyT
 
   return (
     <div className="flex items-start gap-2.5">
-      <span className={`mt-0.5 grid place-items-center flex-shrink-0 rounded-full bg-accent border border-border font-semibold num ${isReply ? 'w-6 h-6 text-[9px]' : 'w-7 h-7 text-[10px]'}`}>{initials(c.name)}</span>
+      <span className={`mt-0.5 grid place-items-center flex-shrink-0 rounded-full bg-accent border border-border font-semibold  ${isReply ? 'w-6 h-6 text-[9px]' : 'w-7 h-7 text-[10px]'}`}>{initials(c.name)}</span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold leading-none">{c.name}</span>
-          <span className="text-[11px] text-muted num leading-none">{timeAgo(c.createdAt)}</span>
+          <span className="text-[11px] text-muted leading-none">{timeAgo(c.createdAt)}</span>
         </div>
         {c.text && <p className="text-sm leading-snug whitespace-pre-wrap break-words mt-1">{c.text}</p>}
 
