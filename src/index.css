@@ -1,19 +1,159 @@
 @import "tailwindcss";
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(0 0% 8%);
-  --muted: hsl(0 0% 45%);
-  --border: hsl(0 0% 90%);
-  --accent: hsl(0 0% 96%);
-  --pill: hsl(0 0% 100%);
+  /* ---- AI Sundays palette. Locked 2026-08-31 in the brand repo's palette.md;
+     every value below is from that table, and every pairing used for text was
+     measured, not eyeballed. The one trap: yellow on cream is 1.57, so yellow is
+     never text and never a control that has to be seen. ---- */
+  --brand-green:  #124A30;
+  --brand-deep:   #0B2E1E;
+  --brand-yellow: #F8B800;
+  --brand-cream:  #F8F0E4;
+  --brand-ink:    #111111;
+  --brand-lime:   #D4F53A;  /* gradient end-stop / deliberate accents only */
+  --brand-amber:  #F08A00;  /* gradient end-stop ONLY, 2.23 on cream, never text */
 
-  --ok:   hsl(150 35% 38%);
-  --warn: hsl(35 75% 45%);
-  --err:  hsl(0 60% 48%);
+  /* The page sits on cream and cards sit on white, so a card reads as paper on
+     paper. --background stays the SURFACE colour: it is what btn-primary uses
+     for its text and what the focus ring punches through, so it cannot become
+     the page ground without inverting both. */
+  --page: var(--brand-cream);
+  --background: #FFFFFF;
+  --foreground: var(--brand-ink);   /* 16.70 on cream, 18.88 on white */
+  --muted: #6B6355;                 /* 5.25 on cream */
+  --border: #E4D9C6;
+  --accent: #F3EADB;
+  --pill: #FFFFFF;
+
+  /* Primary action. Green ground, cream text: 9.07. */
+  --primary: var(--brand-green);
+  --primary-fg: var(--brand-cream);
+
+  /* The colour a tint is mixed *into*. Was a literal `white` in half a dozen
+     places, which is exactly what breaks when the surface goes dark. */
+  --surface-mix: #FFFFFF;
+  /* Dim behind modals and the mobile menu. Cannot be derived from --foreground:
+     in dark mode that would wash the screen white instead of dimming it. */
+  --overlay: rgb(11 46 30 / 0.45);
+  /* Gold accents, now the brand yellow. Washes are pale enough to carry ink
+     text; the chip foreground is brand green on yellow (5.79, AA). */
+  /* The two wash stops trace the Sun's hue path: a yellow tint into an AMBER
+     tint, not yellow into a paler yellow. Tints because ink and muted text sit
+     on top, measured 15.43 and 4.85 on the strongest stop. */
+  --gold-wash-a: #FBE7B0;
+  --gold-wash-b: #FBDFBC;
+  --gold-soft:   #FDF7E8;
+  --gold-chip-a: var(--brand-yellow);
+  --gold-chip-b: #FFD666;
+  --gold-chip-fg: var(--brand-green);
+  --gold-edge:   #E0A400;
+  --card-shadow: 0 1px 2px rgba(17, 17, 17, 0.05), 0 1px 3px rgba(17, 17, 17, 0.03);
+  --card-shadow-hover: 0 8px 24px rgba(17, 17, 17, 0.09);
+  --modal-shadow: 0 30px 60px rgba(11, 46, 30, 0.22);
+  --popover-shadow: 0 20px 40px rgba(11, 46, 30, 0.16);
+
+  /* Measured on cream: 5.74 / 4.80 / 5.78. The brand amber fails here (2.23),
+     so warn is a darkened amber rather than the brand value. */
+  --ok:   #1B6B45;
+  --warn: #9A5B00;
+  --err:  #B3261E;
 
   --font-geist-sans: "Geist Variable", system-ui, -apple-system, sans-serif;
   --font-geist-mono: "Geist Mono Variable", ui-monospace, "SF Mono", monospace;
+}
+
+:root { color-scheme: light; }
+
+/* Dark theme. Two selectors, deliberately:
+   1. the media query is the default for anyone who has not chosen, and it is
+      opted out of by an explicit data-theme="light";
+   2. data-theme="dark" wins regardless of the OS, so the toggle works in both
+      directions. Every token is redefined here and nowhere else, so no colour
+      has its only definition inside a conditional block. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    /* Dark mode grounds on deep green, not black, palette.md is explicit about
+       it. Cream on deep green is 13.05. */
+    --page: var(--brand-deep);
+    --background: #103A26;
+    --foreground: var(--brand-cream);  /* 11.22 on the surface, 13.05 on the page */
+    --muted: #9DB3A5;                  /* 6.62 on the page */
+    --border: #1B4732;
+    --accent: #17402A;
+    --pill: #103A26;
+
+    /* Yellow on deep green is 8.32, so the accent flips to yellow here and the
+       text on it back to deep green. */
+    --primary: var(--brand-yellow);
+    --primary-fg: var(--brand-deep);
+
+    --surface-mix: #103A26;
+    --overlay: rgb(4 20 12 / 0.65);
+
+    /* Gold survives as a hue, not as a wash: at these lightnesses a pale yellow
+       panel would glare. Dark green surfaces with a bright gold foreground. */
+    --gold-wash-a: #1E4A2C;
+    --gold-wash-b: #143524;
+    --gold-soft:   #123522;
+    --gold-chip-a: var(--brand-yellow);
+    --gold-chip-b: #E0A400;
+    --gold-chip-fg: var(--brand-deep);
+    --gold-edge:   var(--brand-yellow);
+
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
+    --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+    --modal-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+    --popover-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+
+    /* Lightened so they still clear 4.5:1 against the deep green ground:
+       7.92 / 8.35 / 6.46. */
+    --ok:   #5FD39B;
+    --warn: #F5B93F;
+    --err:  #FF8A80;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* Dark mode grounds on deep green, not black, palette.md is explicit about
+     it. Cream on deep green is 13.05. */
+  --page: var(--brand-deep);
+  --background: #103A26;
+  --foreground: var(--brand-cream);  /* 11.22 on the surface, 13.05 on the page */
+  --muted: #9DB3A5;                  /* 6.62 on the page */
+  --border: #1B4732;
+  --accent: #17402A;
+  --pill: #103A26;
+
+  /* Yellow on deep green is 8.32, so the accent flips to yellow here and the
+     text on it back to deep green. */
+  --primary: var(--brand-yellow);
+  --primary-fg: var(--brand-deep);
+
+  --surface-mix: #103A26;
+  --overlay: rgb(4 20 12 / 0.65);
+
+  /* Gold survives as a hue, not as a wash: at these lightnesses a pale yellow
+     panel would glare. Dark green surfaces with a bright gold foreground. */
+  --gold-wash-a: #1E4A2C;
+  --gold-wash-b: #143524;
+  --gold-soft:   #123522;
+  --gold-chip-a: var(--brand-yellow);
+  --gold-chip-b: #E0A400;
+  --gold-chip-fg: var(--brand-deep);
+  --gold-edge:   var(--brand-yellow);
+
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --modal-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+  --popover-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+
+  /* Lightened so they still clear 4.5:1 against the deep green ground:
+     7.92 / 8.35 / 6.46. */
+  --ok:   #5FD39B;
+  --warn: #F5B93F;
+  --err:  #FF8A80;
 }
 
 @theme inline {
@@ -45,7 +185,7 @@ html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 html, body, #root { height: 100%; }
 
 body {
-  background-color: var(--background);
+  background-color: var(--page);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -53,25 +193,30 @@ body {
   overflow-x: hidden; /* guard against accidental horizontal scroll on mobile */
 }
 
-/* Very dim, warm yellow/beige glimmer behind everything. Sits above the solid
-   white background but below all content, so it only tints the page gutters. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(58% 48% at 12% -2%,  hsl(46 85% 66% / 0.14), transparent 70%),
-    radial-gradient(50% 44% at 92% 10%,  hsl(40 80% 62% / 0.10), transparent 70%),
-    radial-gradient(60% 52% at 50% 104%, hsl(48 75% 70% / 0.10), transparent 75%);
-  animation: glimmer 14s ease-in-out infinite;
+/* Ambient halo behind everything. DARK ONLY, on purpose.
+   This used to be three animated warm-yellow radials painted in every theme,
+   with the colours written as raw hsl() literals from when the page was white.
+   On the cream ground they do nothing: yellow on cream is a 1.57 contrast pair,
+   so at 14% opacity it is invisible, and all it cost was a repaint every frame
+   of a 14s loop. palette.md scopes the Halo to dark grounds, so that is where it
+   lives now, static, brand yellow, one shape. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(62% 46% at 50% -4%, color-mix(in oklab, var(--brand-yellow) 12%, transparent), transparent 72%); }
 }
+:root[data-theme="dark"] body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(62% 46% at 50% -4%, color-mix(in oklab, var(--brand-yellow) 12%, transparent), transparent 72%); }
 
-@keyframes glimmer {
-  0%, 100% { opacity: 0.65; }
-  50%      { opacity: 1; }
+/* The hero band ships as two real images, so the old invert/hue-rotate fake is
+   gone, run on the brand art it turns the green horizon magenta. Same
+   three-state swap as the wordmark. */
+.hero-art--dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hero-art--light { display: none; }
+  :root:not([data-theme="light"]) .hero-art--dark { display: block; }
 }
+:root[data-theme="dark"] .hero-art--light { display: none; }
+:root[data-theme="dark"] .hero-art--dark { display: block; }
 
 html { scroll-behavior: smooth; }
 
@@ -162,7 +307,7 @@ select:focus-visible {
     background-color: var(--background);
     border: 1px solid var(--border);
     border-radius: 1rem;
-    box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04), 0 1px 3px rgba(16, 16, 16, 0.02);
+    box-shadow: var(--card-shadow);
   }
   .card-interactive {
     cursor: pointer;
@@ -173,12 +318,12 @@ select:focus-visible {
      utilities automatically; these hand-written rules need it explicitly. */
   @media (hover: hover) and (pointer: fine) {
     .card-interactive:hover {
-      box-shadow: 0 8px 24px rgba(16, 16, 16, 0.08);
+      box-shadow: var(--card-shadow-hover);
       transform: translateY(-1px);
       border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
     }
   }
-  /* Touch gets a press state instead — feedback that ends when the finger lifts. */
+  /* Touch gets a press state instead, feedback that ends when the finger lifts. */
   .card-interactive:active { transform: translateY(0) scale(0.995); }
   .card-pad { padding: 1rem; }
   @media (min-width: 640px) {
@@ -204,9 +349,20 @@ select:focus-visible {
     color: var(--foreground);
   }
   .pill-mute { color: var(--muted); }
-  .pill-ok   { color: var(--ok);   border-color: color-mix(in oklab, var(--ok) 35%, transparent); background: color-mix(in oklab, var(--ok) 8%, white); }
-  .pill-warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 35%, transparent); background: color-mix(in oklab, var(--warn) 8%, white); }
-  .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 8%, white); }
+
+  /* Chips and buttons that sit on top of a photo. The photo does not change
+     with the theme, so these must not either, a themed foreground here goes
+     white-on-white the moment dark mode is on. */
+  .chip-on-media {
+    background: hsl(0 0% 100% / 0.92);
+    color: hsl(0 0% 8%);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .chip-on-media:hover { background: hsl(0 0% 100%); }
+  }
+  .pill-ok   { color: var(--ok);   border-color: color-mix(in oklab, var(--ok) 35%, transparent); background: color-mix(in oklab, var(--ok) 8%, var(--surface-mix)); }
+  .pill-warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 35%, transparent); background: color-mix(in oklab, var(--warn) 8%, var(--surface-mix)); }
+  .pill-err  { color: var(--err);  border-color: color-mix(in oklab, var(--err) 35%, transparent); background: color-mix(in oklab, var(--err) 8%, var(--surface-mix)); }
   .pill-acc  { color: var(--foreground); border-color: var(--foreground); background: var(--background); }
   /* Small gold gradient badge for the top-voted suggestion. */
   .pill-top {
@@ -217,23 +373,51 @@ select:focus-visible {
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 600;
-    color: hsl(35 78% 30%);
-    background: linear-gradient(135deg, hsl(46 92% 82%), hsl(40 90% 91%));
-    border: 1px solid hsl(44 85% 58% / 0.5);
+    color: var(--gold-chip-fg);
+    background: var(--gold-chip-a);
+    border: 1px solid color-mix(in oklab, var(--gold-edge) 50%, transparent);
   }
   /* The top suggestion's row gets a faint warm wash + gold edge to match. */
   .top-idea-card {
-    background: linear-gradient(135deg, hsl(46 88% 95%) 0%, var(--background) 55%);
-    border-color: color-mix(in oklab, hsl(44 85% 58%) 38%, var(--border));
+    background: linear-gradient(135deg, var(--gold-soft) 0%, var(--background) 55%);
+    border-color: color-mix(in oklab, var(--gold-edge) 38%, var(--border));
   }
-  /* Gold square chip behind the Ideas board's leading icon. */
+  /* Gold square chip behind the Ideas board's leading icon. Flat: gradient is
+     scoped to the icon, hero moments and large shapes, and this is none of those. */
   .ideas-chip {
-    background: linear-gradient(135deg, hsl(46 92% 82%), hsl(40 90% 91%));
-    color: hsl(35 78% 30%);
+    background: var(--gold-chip-a);
+    color: var(--gold-chip-fg);
   }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* Brand lockup. Two colourways ship: the standard mark (green blob, amber
+     letters) and the inverted one (amber blob, green letters). Each is a solid
+     blob, so the choice is about not fighting the page, the green blob muddies
+     into a near-black header, the amber one glares on white.
+
+     Swapped in CSS rather than by picking a src in JS, so the right mark is
+     painted on the first frame instead of flipping after hydration. Mirrors the
+     three-state pattern the theme tokens use above: bare :root is light, the
+     media query is guarded so an explicit Light choice beats a dark OS, and the
+     [data-theme] stamp wins in both directions. */
+  .brand-lockup { display: block; height: 32px; width: auto; }
+  .brand-lockup--dark { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .brand-lockup--light { display: none; }
+    :root:not([data-theme="light"]) .brand-lockup--dark { display: block; }
+  }
+  :root[data-theme="dark"] .brand-lockup--light { display: none; }
+  :root[data-theme="dark"] .brand-lockup--dark { display: block; }
+
+  /* Fluid instead of the two-step text-3xl/sm:text-5xl jump, which left the
+     headline oversized on a small phone and undersized on a wide desktop. */
+  .hero-title {
+    font-size: clamp(1.75rem, 1.1rem + 3.2vw, 3rem);
+    line-height: 1.08;
+  }
   .skeleton {
-    background: linear-gradient(90deg, var(--accent) 25%, color-mix(in oklab, var(--accent) 55%, white) 37%, var(--accent) 63%);
+    background: linear-gradient(90deg, var(--accent) 25%, color-mix(in oklab, var(--accent) 55%, var(--surface-mix)) 37%, var(--accent) 63%);
     background-size: 400% 100%;
     animation: shimmer 1.4s ease-in-out infinite;
     border-radius: 0.5rem;
@@ -255,7 +439,7 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: color-mix(in oklab, var(--foreground) 40%, transparent);
+    background: var(--overlay);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
@@ -266,7 +450,7 @@ select:focus-visible {
     border: 1px solid var(--border);
     border-radius: 1rem;
     padding: 1.25rem;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--modal-shadow);
     max-height: 90vh;
     overflow-y: auto;
   }
@@ -318,7 +502,7 @@ select:focus-visible {
   }
   .btn:not(:disabled):active { transform: scale(0.98); }
   .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
-  .btn-primary { background: var(--foreground); color: var(--background); }
+  .btn-primary { background: var(--primary); color: var(--primary-fg); }
   .btn-ghost {
     background: var(--pill);
     color: var(--foreground);
@@ -341,17 +525,19 @@ select:focus-visible {
 }
 .tab-enter { animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Premium card: a static warm yellow→white gradient + a soft gradient border.
-   Used for the hero "Next session" card. The border is a masked ::before ring so
-   it follows the rounded corners. No animation — fixed look. */
+/* Premium card: the one hero moment in the UI, so the one place a wash belongs.
+   Its stops now trace the brand Sun (yellow → amber, 135deg top-left to
+   bottom-right) instead of fading yellow into a paler yellow. Tints, not the
+   saturated Sun itself, ink has to stay readable on top. The border is a masked
+   ::before ring so it follows the rounded corners. No animation. */
 .premium-card {
   position: relative;
   border-radius: 1rem;
   background: linear-gradient(135deg,
-    hsl(46 92% 90%) 0%,
-    hsl(45 82% 95%) 32%,
+    var(--gold-wash-a) 0%,
+    var(--gold-wash-b) 32%,
     var(--background) 58%);
-  box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04), 0 12px 32px rgba(120, 90, 20, 0.06);
+  box-shadow: var(--card-shadow), 0 12px 32px color-mix(in oklab, var(--gold-edge) 12%, transparent);
 }
 .premium-card::before {
   content: "";
@@ -360,20 +546,20 @@ select:focus-visible {
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(135deg,
-    hsl(45 90% 68% / 0.8) 0%,
-    hsl(40 30% 86% / 0.25) 48%,
-    hsl(38 60% 82% / 0.4) 100%);
+    color-mix(in oklab, var(--gold-edge) 80%, transparent) 0%,
+    color-mix(in oklab, var(--border) 60%, transparent) 48%,
+    color-mix(in oklab, var(--gold-edge) 35%, transparent) 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   pointer-events: none;
 }
 
-/* Lighter warm card — a subtle cousin of premium-card for secondary surfaces, so
+/* Lighter warm card, a subtle cousin of premium-card for secondary surfaces, so
    the yellow carries across the app without competing with the hero. */
 .warm-card {
   border-radius: 1rem;
-  background: linear-gradient(135deg, hsl(46 88% 96%) 0%, var(--background) 48%);
-  border: 1px solid color-mix(in oklab, hsl(44 85% 58%) 20%, var(--border));
-  box-shadow: 0 1px 2px rgba(16, 16, 16, 0.04);
+  background: linear-gradient(135deg, var(--gold-soft) 0%, var(--background) 48%);
+  border: 1px solid color-mix(in oklab, var(--gold-edge) 20%, var(--border));
+  box-shadow: var(--card-shadow);
 }
