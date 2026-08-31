@@ -9,11 +9,13 @@ affordances, restrained density), Stripe docs (typographic hierarchy), and the 2
 event-landing-page consensus: *relevance → proof → logistics → action*, with **one** primary CTA.
 
 **Status re-triaged 2026-08-31 against the working tree** (branch `feat/dark-mode`).
-Area 9 removed the same day, see below.
+Area 9 removed the same day, see below. The last four open items were closed on
+2026-08-31 (branch `feat/plan-remaining`), so nothing is open now: what remains is
+five partials, three of which are deliberate and two of which are blocked on data.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **78** | **6** | **4** | **12** |
+| Total | **83** | **5** | **0** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -23,17 +25,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` open · `[-]` moot (solved another 
 
 ---
 
-## 1. Global shell & navigation, 7 done, 2 open, 1 moot
+## 1. Global shell & navigation, 9 done, 1 moot
 - [x] 1.1 Skip-to-content link, `App.jsx:157`, `.skip-link` in `index.css`
 - [x] 1.2 Real footer (identity, links, data freshness), `LegalPages.jsx` `Footer`
-- [ ] 1.3 Header shadow only once scrolled, header is a static `border-b`, no scroll listener anywhere
+- [x] 1.3 Header shadow only once scrolled, **added 2026-08-31**. `App.jsx` holds a
+      `scrolled` flag from a passive, rAF-throttled scroll listener; `.app-header.is-scrolled`
+      in `index.css` adds a warm shadow mixed from the foreground, not neutral black,
+      which on the cream ground reads as grime. The listener runs once on mount too:
+      a reload can restore a scrolled position before any scroll event fires
 - [-] 1.4 Horizontally scrollable tabs on mobile with edge fade, solved differently: mobile uses a fixed bottom bar + hamburger sheet, so there is no tab strip to scroll
 - [x] 1.5 Per-tab document title, `App.jsx:126`
 - [x] 1.6 `aria-live` announcement on tab change, `App.jsx:214`
 - [x] 1.7 Wordmark links home, carries the brand mark, `App.jsx:166`
 - [x] 1.8 `prefers-reduced-motion` honoured globally, `index.css:212`, blanket rule on `*`
 - [x] 1.9 Back/forward between tabs, `382ca84`: only the first sync replaces, later changes push. `npm run history:check`, 11 assertions
-- [ ] 1.10 Print stylesheet, no `@media print` anywhere
+- [x] 1.10 Print stylesheet, **added 2026-08-31**. `@media print` at the end of
+      `index.css`: app chrome and anything marked `data-print="hide"` is dropped, the
+      cream ground and the dark halo flatten to white, `position` is reset everywhere
+      (a sticky header reprints on every page), cards lose their fills, sessions and
+      headings stop splitting across pages, and off-site links print their URL
 
 ## 2. Hero & at-a-glance, 9 done, 1 deliberately skipped
 Rebuilt wholesale on 2026-08-30.
@@ -158,15 +168,29 @@ Fixed by the move, none of which were on the plan: `Unknown #1` and `Unknown #2`
 headcount placeholders rendering as blank cards and inflating the count; Andrei Prusu,
 Pavel Kucera and Ernestas Sazinas had photos but no member row and never appeared at all.
 
-## 8. Sessions archive & lightbox, 7 done, 1 partial, 2 open
+## 8. Sessions archive & lightbox, 10 done
 - [x] 8.1 List every session, not only those with photos, `SessionTile` handles `hasPhotos === false`
 - [x] 8.2 Show demos, attendees and summary, on the recap page
-- [x] 8.3 Preload the next lightbox image, **added 2026-08-31**
+- [x] 8.3 Preload the next lightbox image, **added 2026-08-31**, widened the same day
+      to both neighbours: the arrows and the thumbnail strip page backwards just as often
 - [x] 8.4 Swipe navigation on touch, **added 2026-08-31**, plus `touch-action: pan-y` so an edge swipe is not the browser's back gesture
-- [~] 8.5 Position counter and keyboard hints, the counter is there, the keyboard hints are only a code comment
-- [ ] 8.6 Thumbnail strip
+- [x] 8.5 Position counter and keyboard hints, **finished 2026-08-31**. The hint is
+      pointer-only (`hidden sm:inline-flex`): a touch device has no keys to press and the
+      hint would be a lie. It is two chevron glyphs, which a screen reader announces as
+      "to move Esc to close" and never names a key, so the visual hint is `aria-hidden`
+      and an `sr-only` line spells the keys out
+- [x] 8.6 Thumbnail strip, **added 2026-08-31**. Horizontally scrollable, the active
+      thumb ringed and scrolled into view. Two traps: the overlay sets `touch-action: pan-y`
+      to claim horizontal swipes, which made the strip unscrollable on touch (it takes
+      `pan-x` back and stops its own touch events reaching the swipe handler), and
+      `total` focusable thumbs would flood the tab order, so it is a roving tabindex,
+      one tab stop, with the arrow keys already bound
 - [x] 8.7 Descriptive alt text, **added 2026-08-31**, was `alt=""`
-- [ ] 8.8 Timeline with the recorded gaps
+- [x] 8.8 Timeline with the recorded gaps, **added 2026-08-31**. `ArchiveTimeline` in
+      `SessionsGallery.jsx`. The grid cannot show rhythm: that #04 and #05 sit six months
+      apart, or that a stretch of 2026 went unlogged. One rail, oldest first, sessions and
+      `schedule.gaps` interleaved by date, each gap a dashed segment naming its window and
+      reason. Collapsed by default so the photo grid stays above the fold
 - [x] 8.9 Hover treatment respects reduced motion, covered by the blanket rule at `index.css:212`
 - [x] 8.10 Deep-link to a single session, `#recap/<date>`
 
@@ -200,9 +224,12 @@ Rebuilt 2026-08-31 (`e6f544c`). `npm run csp:check` (5) and `npm run audit` are 
 - [~] 10.8 Request logging and a readiness probe. `/healthz` exists; no structured logging
       or requestId, and both would only affect the parked `server.js`
 - [x] 10.9 JSON 404/405 for unknown API routes
-- [x] 10.10 A repeatable audit script. `npm run audit` runs all nine suites, starts what
+- [x] 10.10 A repeatable audit script. `npm run audit` runs all ten suites, starts what
       each needs, and reports SKIP separately from PASS so a suite that could not run never
-      reads as green
+      reads as green. **Fixed 2026-08-31:** it built `dist/` only when `dist/index.html` was
+      missing, so it silently graded whatever was last built. A members change reported
+      "21 cards, data says 23", which reads exactly like a filtering bug and was a stale
+      dist. It always rebuilds now: the build costs seconds, a false green costs an hour
 
 ---
 
@@ -214,3 +241,16 @@ any signed-in member vote as anyone, post under anyone's name, and delete anyone
 comment. Fixed 2026-08-31 (`api/_identity.js`, 21 assertions in `npm run identity:check`).
 
 Treat the 100 items as a backlog, not as a definition of done.
+
+## The five remaining partials, and why each one stays partial
+
+- **4.5** venue-status colour coding and **4.7** dev maintainer hints. Built and verified,
+  rendering nothing. `venueStatus`, `roles` and `notes` live only in `data/schedule.json`,
+  which still lists 2026-05-03 to 2026-07-12 while Google Calendar returns 2026-09-06 to
+  2026-12-13, so the date graft never matches. **A data refresh lights both up with no code.**
+- **6.7** LQIP blur-up. A skeleton holds the box and the photo fades over it. A true
+  blur-up needs a per-image base64 thumbnail emitted at build time: a new generated
+  artifact, for a difference invisible at news-card size.
+- **10.2** compression and **10.8** structured logging with a requestId. Both would only
+  change `server.js`, a parked runtime. Vercel compresses at the edge, so production is
+  already covered, and `/healthz` already exists.

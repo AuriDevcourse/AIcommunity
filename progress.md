@@ -2,6 +2,190 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-08-31, Download assets footer page
+
+**Current state:** branch `feat/plan-remaining`, NOT committed. `npm run audit` green on all 10
+suites (shell is now 23 assertions). New page live at `#assets`, linked first in the footer.
+
+Auri asked for a footer page where the logos, icons and colours can be downloaded.
+`src/components/BrandAssets.jsx`, lazy-loaded, 14 files plus the locked palette.
+
+### What it lists
+Everything is served from `/public`, so a download is a plain same-origin `<a download>`:
+no endpoint, nothing to rate-limit, nothing to authenticate.
+
+- **Wordmark**, standard and inverted (`brand/logo.svg`, `brand/logo-dark.svg`).
+- **Marks**, the app tile (`favicon.svg`), the inverted tile, and two sunrise icon variants
+  (full colour, badge).
+- **Raster and social**, `brand/og.png` plus the four PWA and favicon PNGs.
+- **Imagery**, `hero-light.webp`, `hero-dark.webp`, `pattern.webp`.
+- **Colours**, the eight locked values read off the `:root` block in `index.css`, each swatch
+  copying its own hex on click, each carrying its measured contrast. The three that are not
+  text colours (yellow 1.57, amber 2.23, lime) say so in `--warn`.
+- **Type**, Geist and Geist Mono, with a note to install from npm rather than lifting the
+  woff2 files out of this repo.
+- **Four rules**, including the one this project has now relearned twice: in the inverted
+  lockup the sun sits outside the blob, so it must contrast with the PAGE, not the blob.
+
+Three files exist in the repo and are deliberately NOT offered: `brand/icon-mono.svg` (drawn
+in `currentColor`, so an `<img>` preview renders it flat black and reads as broken, Auri cut it
+on sight), `brand/hero.png` (3.4MB original) and `brand/hero.webp` (superseded by the two
+themed bands). Every path on the page was verified to return 200.
+
+### Routing
+`FOOTER_KEYS` is new in `LegalPages.jsx` (`[...LEGAL_KEYS, 'assets']`). The assets page routes
+like a legal page and renders as its own component, because `LegalPage` stamps an
+"Effective <date>" line and a contact block on everything it renders: right for a policy,
+wrong for a download page. `App.jsx` branches on `isAssets` before `isLegal`, and the document
+title and the `aria-live` region both name it.
+
+### Two things worth keeping
+1. A `<button>` used as a grid item does NOT stretch to the row height the way a div does. The
+   swatches with less text centred themselves and the colour bands stopped lining up across the
+   row. `h-full flex flex-col` on the button fixes it.
+2. Every swatch band carries a `border-b`. Without it, cream on a white card in light mode (and
+   deep green on a dark card) has no edge at all and reads as empty space.
+
+### Coverage
+`shell-check` grew from 15 to 23 assertions: the footer link routes to `#assets`, the page
+titles itself, all 14 downloads exist and are same-origin with sane filenames, every download
+control has an accessible name, no preview image is broken, eight copyable swatches render, and
+Back returns Home. `assets` was also added to the `smoke` route crawl, since fourteen `<img>`
+previews are fourteen chances at a console error nobody would notice by eye.
+
+### Numbered next steps
+1. Commit. This is a third clean commit on top of the members change and the plan items.
+2. If a zip of everything is wanted, that is a build step (`scripts/`), not a runtime route. It
+   does not exist and the page does not claim it does.
+3. `data/schedule.json` still needs its dates refreshed, see the entry below.
+
+### File pointers
+`src/components/BrandAssets.jsx`, `src/components/LegalPages.jsx` (`FOOTER_KEYS`, the footer
+links), `src/App.jsx` (`isAssets`), `scripts/shell-check.mjs`, `scripts/smoke.mjs:17`,
+`public/brand/`.
+
+## 2026-08-31, the last four open plan items closed
+
+**Current state:** branch `feat/plan-remaining`, NOT committed, off `main`. `npm run audit`
+green on **all 10 suites** (a tenth was added). `docs/improvement-plan.md` now reads
+**83 done, 5 partial, 0 open, 12 moot**.
+
+The four items were 1.3, 1.10, 8.6 and 8.8, plus partial 8.5.
+
+- **1.3 header shadow on scroll.** `src/App.jsx` holds a `scrolled` flag from a passive,
+  rAF-throttled listener and the header takes `.is-scrolled`; `.app-header` in
+  `src/index.css` carries the shadow. Two details worth keeping: the listener reads once on
+  mount, because a reload can restore a scrolled position before any event fires, and the
+  shadow is mixed from `--foreground` rather than neutral black, which on the cream ground
+  reads as grime.
+- **1.10 print stylesheet.** `@media print` at the end of `src/index.css`. Drops the header,
+  anything tagged `data-print="hide"` (mobile menu, Add photos, per-tile Edit, the recap's
+  copy-link and post buttons) and the dark halo; flattens to white on black; resets
+  `position` globally, since a sticky header reprints on every page; stops cards and
+  sessions splitting across pages; prints the URL after off-site links.
+- **8.5 keyboard hints.** Pointer-only (`hidden sm:inline-flex`): a phone has no keys and
+  the hint would be a lie. It is two chevron glyphs, which a screen reader renders as "to
+  move Esc to close" and never names a key, so the visual hint is `aria-hidden` and an
+  `sr-only` line spells the keys out.
+- **8.6 lightbox thumbnail strip.** In `SessionRecap.jsx`. The active thumb is ringed and
+  scrolls itself into view (`block: 'nearest'`, or the whole overlay is dragged around).
+- **8.8 archive timeline.** `ArchiveTimeline` in `SessionsGallery.jsx`, fed by a new `gaps`
+  prop from `App.jsx` (`data.schedule.gaps`). Sessions and gaps interleave on one rail by
+  date, oldest first, each gap a dashed segment. Collapsed by default so the photo grid
+  stays above the fold.
+- **8.3** was widened to preload both neighbours, not just the next photo, now that the
+  strip pages backwards as often as forwards.
+
+### Two traps hit while building the strip
+1. The overlay sets `touch-action: pan-y` so a horizontal swipe pages the photo. That also
+   made the strip unscrollable on touch. It takes `pan-x` back and stops its own touch
+   events from reaching the swipe handler, or dragging the strip would flip the photo.
+2. Twelve focusable thumbnails would flood the tab order. It is a roving tabindex, one tab
+   stop, and the arrow keys were already bound.
+
+### `npm run audit` was grading a stale build. Fixed
+`scripts/audit.mjs` built `dist/` **only when `dist/index.html` was missing**, so every
+later run graded whatever was last built. That is how the earlier members change reported
+"21 cards, data says 23": a stale dist, reading exactly like a filtering bug. It now always
+rebuilds. The build costs seconds; a false green costs an hour.
+
+### New suite, and the lightbox suite grew
+- `scripts/shell-check.mjs` (`npm run shell:check`), 15 assertions: the header shadow
+  appearing and disappearing, the print rules under `Emulation.setEmulatedMedia` (nothing
+  sticky, white ground, header gone), and the timeline (collapsed by default, the span and
+  gap-count summary, ten rows, the gap window, oldest-first, a row opening its recap).
+  Registered in `audit.mjs` between history and lightbox.
+- `scripts/lightbox-check.mjs` gained 8 assertions for the strip and the hint, now 21.
+- Harness note: reading `aria-expanded` in the same tick as the `click()` reported a
+  component bug that did not exist. React had not re-rendered. Assert after a sleep.
+
+### Numbered next steps
+1. Commit. Two clean commits: the three new members (previous entry) and these plan items.
+2. Refresh `data/schedule.json` to the current dates. Partials **4.5** and **4.7** are built
+   and verified and render nothing because the static file lists 2026-05-03 to 2026-07-12
+   while Google Calendar returns 2026-09-06 to 2026-12-13. Data task, zero code.
+3. The other three partials stay partial on purpose, reasons written at the bottom of
+   `docs/improvement-plan.md`: **6.7** LQIP (a new build artifact for an invisible
+   difference), **10.2** and **10.8** (both only touch the parked `server.js`).
+4. Untracked `probe.html` and `probe.jsx` still sit in the tree, from before these sessions.
+
+### File pointers
+`src/App.jsx` (scroll flag, `gaps` prop), `src/index.css` (`.app-header`, `@media print`,
+both at the end), `src/components/SessionRecap.jsx` (`PhotoLightbox`),
+`src/components/SessionsGallery.jsx` (`ArchiveTimeline`), `scripts/shell-check.mjs`,
+`scripts/lightbox-check.mjs`, `scripts/audit.mjs:26` (the suite registry),
+`docs/improvement-plan.md`.
+
+## 2026-08-31, three new members: Roman Novosad, Marlu Adamczyk, Prachi Abhyankar
+
+**Current state:** working tree on `main`, NOT committed. The site reads **23 members**
+(was 21). Dev server on `http://localhost:5280`. `members-check` passes 13/13 against it.
+
+Auri supplied a LinkedIn URL and a `.jfif` photo for each of the three.
+
+- `content/members.md`, added `Marlu Adamczyk | Active | Marlu` and
+  `Prachi Abhyankar | Active | Prachi`, and promoted the first-name-only `Roman` row to
+  **Roman Novosad**. The "add a surname when known" line about Roman is gone from Known gaps.
+- `data/members-profile.json`, three entries with `linkedin` + `photo`, placed above
+  `Maria Krupa` so they take the default `order` of 50.
+- `public/members/{roman,marlu,prachi}.jpg`, the Desktop `.jfif` files. All three were
+  already 400x400 JPEG, identical to every existing member photo, so a rename was enough.
+  `npm run optimize:images` then took them to 15KB / 9KB / 17KB.
+
+Roman still counts 1 session attended with **no alias**: `attendanceCounts` in
+`scripts/build-data.js` keys on the tokens of the canonical name, so `Roman` in the #09
+notes resolves to `Roman Novosad` on its own. Marlu and Prachi read 0, correct, neither
+appears in any session note yet.
+
+### Gotcha: `npm run members:check` alone tests a STALE build
+It defaults to `http://127.0.0.1:5281`, a `vite preview` of `dist/`, and does NOT rebuild.
+A preview left running from an earlier session reported `21 cards, data says 23`, which
+reads exactly like a real filtering bug and is not one. Either run `npm run audit`, which
+rebuilds `dist/` first, or pass the dev URL: `node scripts/members-check.mjs http://127.0.0.1:5280`.
+The same trap applies to every `*-check` suite marked `needs: 'preview'` in `scripts/audit.mjs`.
+
+### Noise in the diff, not from this task
+`npm run optimize:images` also compressed **22 `public/news-images` files** that had been
+committed unoptimized, saving 1.3MB. Idempotent, and a Vercel build would have done it
+anyway, but they show up as modified alongside the member changes.
+
+### Numbered next steps
+1. Commit this. The member change and the news-image recompression are separable if you
+   want two commits.
+2. Refresh `data/schedule.json`, it still lists 2026-05-03 to 2026-07-12 while Google
+   Calendar returns 2026-09-06 to 2026-12-13. The two sources never overlap, so plan items
+   **4.5** (venue-status colours) and **4.7** (dev maintainer hints) are built, verified and
+   rendering nothing. Data task, zero code.
+3. The four open plan items are unchanged: **8.6** lightbox thumbnail strip, **8.8** gaps
+   timeline, **1.3** header shadow on scroll, **1.10** print stylesheet.
+4. Untracked `probe.html` and `probe.jsx` predate this session and are still sitting in the
+   working tree. Delete or commit them.
+
+### File pointers
+`content/members.md`, `data/members-profile.json`, `public/members/`,
+`scripts/build-data.js:213` (`attendanceCounts`), `src/lib/members-profile.js`,
+`src/components/MembersGallery.jsx`, `scripts/audit.mjs:30` (which suite needs which server).
+
 ## SHIPPED 2026-08-31, `41a87dc`, the dark-mode logo sun
 
 **Current state:** `main` at `41a87dc`, clean and pushed. `npm run audit` green on all
