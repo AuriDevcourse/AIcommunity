@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T15:35:36.055Z",
+  "generatedAt": "2026-08-31T16:01:05.132Z",
   "sessions": [
     {
       "number": 1,
@@ -762,6 +762,26 @@
         }
       ],
       "photos": []
+    },
+    {
+      "number": 9,
+      "date": "2026-08-30",
+      "title": "",
+      "location": "TBD",
+      "attendees": [
+        "Auri",
+        "Ignas",
+        "Sany",
+        "Andrei",
+        "Aiza",
+        "Roman"
+      ],
+      "demos": [],
+      "actions": [],
+      "summary": "",
+      "topics": [],
+      "tools": [],
+      "photos": []
     }
   ],
   "members": [
@@ -771,19 +791,19 @@
       "aliases": [
         "Auri"
       ],
-      "attended": 6
+      "attended": 7
     },
     {
       "name": "Aiza Watzlawek",
       "status": "Active",
       "aliases": [],
-      "attended": 2
+      "attended": 3
     },
     {
       "name": "Andrei Prusu",
       "status": "Active",
       "aliases": [],
-      "attended": 1
+      "attended": 2
     },
     {
       "name": "Cristina Bodnari",
@@ -823,7 +843,7 @@
       "name": "Ignas Valavicius",
       "status": "Active",
       "aliases": [],
-      "attended": 6
+      "attended": 7
     },
     {
       "name": "Inigo Casillas",
@@ -878,10 +898,16 @@
       "attended": 0
     },
     {
+      "name": "Roman",
+      "status": "Active",
+      "aliases": [],
+      "attended": 1
+    },
+    {
       "name": "Sany Ivanova",
       "status": "Active",
       "aliases": [],
-      "attended": 5
+      "attended": 6
     },
     {
       "name": "Tady Kapic",

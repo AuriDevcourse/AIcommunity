@@ -106,8 +106,11 @@ try {
   await waitFor(`document.getElementById('member-search') !== null`, 'the members tab');
   await sleep(400);
 
+  // Counts come from the data, not a literal. The roster changes (Roman joined
+  // at #09) and a hardcoded 20 turns that into a red suite for no reason.
+  const expected = data.members.length;
   const all = await cardNames();
-  check('every member renders', all.length === 20, `${all.length} cards`);
+  check('every member renders', all.length === expected, `${all.length} cards, data says ${expected}`);
   check('no Unknown placeholder cards', !all.some((n) => /^Unknown/.test(n)), all.filter((n) => /Unknown/.test(n)).join(', '));
   check('the three previously invisible members render',
     ['Andrei Prusu', 'Pavel Kucera', 'Ernestas Sažinas'].every((n) => all.includes(n)),
@@ -135,7 +138,7 @@ try {
     await evalJs(`/Nobody matches/.test(document.body.innerText)`));
 
   await search('');
-  check('clearing the search restores everyone', (await cardNames()).length === 20);
+  check('clearing the search restores everyone', (await cardNames()).length === expected);
 
   // Sort
   await clickSort('Name');
