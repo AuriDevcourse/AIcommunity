@@ -2,6 +2,70 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, mono-font rule and the Back button
+
+**Current state:** `main` at `382ca84`, pushed and deployed. Five test suites now, all
+green: `smoke`, `theme:check` (34), `identity:check` (21), `lightbox:check` (13) and the new
+`history:check` (11).
+
+### The mono rule, which is a CONVENTION to follow, not just a past change
+Two faces ship: Geist and Geist Mono. `.num` applies the mono one, and it had spread to 46
+places, many of them prose. `relative()` rendered "in 2 wk" in monospace, and so did
+"3 slides", "12 stories", "5 voters", `timeAgo()` output, dates, `#8` id badges, count
+pills and avatar initials. Auri read it as the app having a stray font, which is fair.
+
+**Use `.num` only for:** code, filenames, JSON, values that tick while you watch them, and
+digits that line up in a column. 26 usages reverted to sans in `ac7cb8f`; **20 keep it**:
+the hero countdown and stat numerals (the numerals-first row from item 2.4), the JSON tool's
+input and output, code blocks, the slide and lightbox counters, live upload status, the
+character counter, vote scores in fixed-width chips, poll counts that align across options,
+and filenames in `TopicFiles` / `TopicsPresentation`.
+
+Gotcha: `tabular-nums` contains the substring `num`. Match `num` as a whole class token or
+you will strip it.
+
+### Back and Forward, item 1.9, the most reachable bug in the app
+Every tab change wrote the hash with `history.replaceState`, so **no history entry was ever
+created** and Back walked straight out of the site. On a seven-tab app that is worse than
+most of the polish items on the plan.
+
+Only the FIRST hash sync replaces now (writing `#home` on load should not add an entry the
+user never asked for); every later change pushes. A change that came FROM the browser has
+already updated the hash by the time the effect runs, so `current === tab` and nothing is
+written. **That guard is what stops a pushState loop, do not remove it.** `popstate` is now
+listened to alongside `hashchange`, because `pushState` does not fire `hashchange`.
+
+`npm run history:check` drives real `Page.navigateToHistoryEntry` calls rather than
+synthetic `popstate` events, so it fails if the entries are not genuinely there. Verified
+against the old code: 4 failures including "two tab clicks added two history entries:
+2 -> 2" and Back landing outside the app with no active tab.
+
+### Numbered next steps
+1. **Area 5, Polls** (2/10), the weakest area and needs no decisions: optimistic vote with
+   rollback, sort toggle, arrow-key radio group, `aria-live` results, duplicate-option
+   detection (needs a small server change), per-poll share links.
+2. **Area 7, Members** stays BLOCKED on full names for `Mari`, `Yogi`, `Frederik`. Do not
+   guess names into a public repo.
+3. Area 6 News (3/10), Area 3 Next session (5/10), Area 1's remaining two (header shadow on
+   scroll, print stylesheet).
+4. The CSP is still `Report-Only` with no `report-uri`, so it neither blocks nor reports.
+5. `.warm-card` still carries a gradient on 8 surfaces, against palette.md's "scoped, not
+   global" rule.
+6. `public/brand/hero.png` (3.4MB) is orphaned and still reprocessed every build.
+
+### Waiting on Auri, cannot be done from here
+1. **`GCAL_CALENDAR_ID` in Vercel**, or production keeps reading his `primary` calendar.
+   Value is in `.env.local`.
+2. **The remaining sessions are not in the dedicated calendar** (it holds one event,
+   2026-09-13), so the schedule shows a single date.
+3. **Yesterday's session (2026-08-30) has no note**, so the archive stops at `#08` on
+   2026-06-14 and the site claims "8 sessions held" when it is nearer 13.
+
+### File pointers
+`src/index.css` (`.num` at the bottom of the components layer), `src/App.jsx` (the hash
+effect and the popstate listener), `scripts/history-check.mjs`,
+`docs/improvement-plan.md` (per-item status for all 100).
+
 ## IN PROGRESS 2026-08-31, migrating to a dedicated Google Calendar
 
 **Current state:** switched and working in LOCAL DEV. `GCAL_CALENDAR_ID` is set in
