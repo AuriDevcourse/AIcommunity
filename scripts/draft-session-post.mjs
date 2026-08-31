@@ -1,6 +1,6 @@
-// Generate a shareable social post for a past session, in the AI Workshop voice.
+// Generate a shareable social post for a past session, in the AI Sundays voice.
 // Reuses the SAME prompt/engine as the dashboard's Post Maker + the recap page's
-// "Draft a LinkedIn post" button — so the CLI and the UI produce consistent output.
+// "Draft a LinkedIn post" button, so the CLI and the UI produce consistent output.
 //
 // Builds the brief from the committed src/data.json (about + demos + tools + people),
 // so it draws on the AI ideas parsed out of the session note.
@@ -31,7 +31,7 @@ const fmtLong = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB',
 function buildNotes(session) {
   const title = session.number != null ? `Session #${session.number}` : date;
   const lines = [`Session: ${title}.`];
-  if (session.number != null) lines.push(`This was AI Workshop meetup #${session.number}.`);
+  if (session.number != null) lines.push(`This was AI Sundays meetup #${session.number}.`);
   lines.push(`It happened in Copenhagen on ${fmtLong(session.date)}.`);
   if (session.location) lines.push(`Format/location: ${session.location}.`);
   if (session.summary) lines.push(`What it was about: ${session.summary}`);

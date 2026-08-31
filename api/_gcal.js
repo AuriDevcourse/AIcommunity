@@ -3,9 +3,12 @@
 // organiser via a stored OAuth refresh token (no public API key can see it).
 //
 // Env (set in .env.local for dev, Vercel project env for prod):
-//   GCAL_CLIENT_ID, GCAL_CLIENT_SECRET, GCAL_REFRESH_TOKEN  — OAuth credentials
+//   GCAL_CLIENT_ID, GCAL_CLIENT_SECRET, GCAL_REFRESH_TOKEN. OAuth credentials
 //   GCAL_CALENDAR_ID  (optional, default 'primary')
-//   GCAL_EVENT_MATCH  (optional, default 'AI Workshop') — title substring to pick the event
+//   GCAL_EVENT_MATCH  (optional), title substring to pick the event. Comma-
+//                     separated alternatives are allowed; any one matching wins.
+//                     Defaults to the community's current AND former name, so a
+//                     calendar renamed on one side does not empty the schedule.
 //
 // Mint the refresh token once with: npm run google:auth
 
@@ -47,9 +50,9 @@ async function findEvent(accessToken, date, calendarId, match) {
   const j = await r.json();
   if (!r.ok) throw new Error(`events.list failed: ${j.error?.message || r.status}`);
   const items = j.items || [];
-  const m = String(match || '').toLowerCase();
+  const matches = typeof match === 'function' ? match : titleMatcher(match);
   const hit =
-    items.find((e) => (e.summary || '').toLowerCase().includes(m) && (e.attendees || []).length) ||
+    items.find((e) => matches(e.summary) && (e.attendees || []).length) ||
     items.find((e) => (e.attendees || []).length) ||
     null;
   return hit;
@@ -57,14 +60,31 @@ async function findEvent(accessToken, date, calendarId, match) {
 
 const STATUS = { accepted: 'accepted', tentative: 'tentative', declined: 'declined', needsAction: 'needsAction' };
 
+// The community was renamed from "AI Workshop" to "AI Sundays". Calendar events
+// live in Google, not in this repo, so both names are matched: whichever way the
+// events are titled (and however long the rename takes), the schedule still fills.
+const DEFAULT_EVENT_MATCH = 'AI Sundays,AI Workshop';
+
+// A matcher for one or more comma-separated title substrings.
+const titleMatcher = (match) => {
+  const needles = String(match ?? process.env.GCAL_EVENT_MATCH ?? DEFAULT_EVENT_MATCH)
+    .split(',')
+    .map((x) => x.trim().toLowerCase())
+    .filter(Boolean);
+  return (summary) => {
+    const t = String(summary || '').toLowerCase();
+    return needles.some((n) => t.includes(n));
+  };
+};
+
 export async function getSessionAttendees({ date, calendarId, match }) {
   if (!gcalConfigured()) return { configured: false };
   if (!date) throw new Error('date required');
   const cal = calendarId || process.env.GCAL_CALENDAR_ID || 'primary';
-  const matchStr = match ?? process.env.GCAL_EVENT_MATCH ?? 'AI Workshop';
+  const matches = titleMatcher(match);
 
   const token = await getAccessToken();
-  const event = await findEvent(token, date, cal, matchStr);
+  const event = await findEvent(token, date, cal, matches);
   if (!event) return { configured: true, found: false, date };
 
   const guests = (event.attendees || [])
@@ -93,18 +113,25 @@ export async function getSessionAttendees({ date, calendarId, match }) {
 
 // Map a raw Google Calendar event to the app's session shape. By design the
 // calendar only drives date + title + venue; the richer fields (format, presenter,
-// host, Luma) stay blank — they're not encoded in a plain event.
+// host, Luma) stay blank, they're not encoded in a plain event.
 function toSession(e) {
   const startRaw = e.start?.dateTime || e.start?.date || '';
   const date = startRaw.slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  // Strip a leading "AI Workshop" / "AI Workshop:" prefix so the title becomes the theme.
-  const theme = String(e.summary || '').replace(/^\s*ai\s*workshop\s*[:\-–—]?\s*/i, '').trim();
+  // Strip a leading "AI Sundays" / "AI Workshop" prefix (with or without a
+  // separator) so what is left is the theme.
+  const theme = String(e.summary || '')
+    .replace(/^\s*ai\s*(sundays|workshop)\s*[:\-–—]?\s*/i, '')
+    .trim();
   return {
     date,
     theme,
     venue: String(e.location || '').trim(),
-    notes: '', // the calendar event description is the generic community blurb — skip it
+    notes: '', // the calendar event description is the generic community blurb, skip it
+    // Real start instant when the event is timed (all-day events have no
+    // dateTime). Lets the hero count down to the actual time rather than
+    // assuming the usual 12:30.
+    startsAt: e.start?.dateTime || '',
     format: 'tbd',
     presenter: '',
     number: null,
@@ -112,12 +139,12 @@ function toSession(e) {
   };
 }
 
-// List upcoming AI Workshop events (from now forward), newest-day first deduped,
+// List upcoming AI Sundays events (from now forward), newest-day first deduped,
 // for the live schedule. Same auth as the attendee lookup.
 export async function listUpcomingSessions({ calendarId, match, max = 8, now } = {}) {
   if (!gcalConfigured()) return { configured: false };
   const cal = calendarId || process.env.GCAL_CALENDAR_ID || 'primary';
-  const matchStr = String(match ?? process.env.GCAL_EVENT_MATCH ?? 'AI Workshop').toLowerCase();
+  const matches = titleMatcher(match);
 
   const token = await getAccessToken();
   const params = new URLSearchParams({
@@ -134,7 +161,7 @@ export async function listUpcomingSessions({ calendarId, match, max = 8, now } =
 
   const seen = new Set();
   const upcoming = (j.items || [])
-    .filter((e) => e.status !== 'cancelled' && (e.summary || '').toLowerCase().includes(matchStr))
+    .filter((e) => e.status !== 'cancelled' && matches(e.summary))
     .map(toSession)
     .filter(Boolean)
     .filter((s) => (seen.has(s.date) ? false : (seen.add(s.date), true))) // one per day

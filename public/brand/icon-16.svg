@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="AI Sundays">
+  <!-- Simplified favicon variant. No rays, no halo, no sheen: they all turn to
+       mud below 24px. Dome and wave only, both fattened to survive. -->
+  <defs>
+    <linearGradient id="s-sun" gradientUnits="userSpaceOnUse" x1="110" y1="170" x2="400" y2="320">
+      <stop offset="0" stop-color="#F8B800"/><stop offset="1" stop-color="#F08A00"/>
+    </linearGradient>
+    <linearGradient id="s-wave" gradientUnits="userSpaceOnUse" x1="92" y1="0" x2="420" y2="0">
+      <stop offset="0" stop-color="#124A30"/><stop offset="1" stop-color="#D4F53A"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="#0B2E1E"/>
+  <path d="M104 316 C104 232 172 164 256 164 C340 164 408 232 408 316 C348 330 164 330 104 316 Z" fill="url(#s-sun)"/>
+  <path d="M92 384 C150 344 210 412 256 396 C316 376 364 344 420 376" fill="none" stroke="url(#s-wave)" stroke-width="58" stroke-linecap="round"/>
+</svg>

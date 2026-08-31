@@ -3,38 +3,37 @@
     <!-- userSpaceOnUse, NOT objectBoundingBox: a perfectly vertical or
          horizontal stroke has a zero-area bounding box, which collapses an
          objectBoundingBox gradient and makes the shape render as nothing. -->
-    <linearGradient id="b-sun" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="390" y2="340">
+    <linearGradient id="ais-sun" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="390" y2="340">
       <stop offset="0" stop-color="#F8B800"/>
       <stop offset="1" stop-color="#F08A00"/>
     </linearGradient>
-    <linearGradient id="b-wave" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="416" y2="0">
+    <linearGradient id="ais-wave" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="416" y2="0">
       <stop offset="0" stop-color="#124A30"/>
       <stop offset="1" stop-color="#D4F53A"/>
     </linearGradient>
-    <radialGradient id="b-halo" gradientUnits="userSpaceOnUse" cx="256" cy="286" r="210">
+    <radialGradient id="ais-halo" gradientUnits="userSpaceOnUse" cx="256" cy="286" r="210">
       <stop offset="0"    stop-color="#F8B800" stop-opacity="0.38"/>
       <stop offset="0.55" stop-color="#F8B800" stop-opacity="0.15"/>
       <stop offset="1"    stop-color="#F8B800" stop-opacity="0"/>
     </radialGradient>
     <!-- one broad low-contrast sheen, not a hard glassy shine -->
-    <linearGradient id="b-sheen" gradientUnits="userSpaceOnUse" x1="176" y1="216" x2="248" y2="312">
+    <linearGradient id="ais-sheen" gradientUnits="userSpaceOnUse" x1="176" y1="216" x2="248" y2="312">
       <stop offset="0"   stop-color="#FFFFFF" stop-opacity="0.30"/>
       <stop offset="1"   stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="b-clip">
+    <clipPath id="ais-clip">
       <path d="M138 330 C138 266 190 212 256 212 C322 212 374 266 374 330 C330 342 182 342 138 330 Z"/>
     </clipPath>
   </defs>
 
-  <rect width="512" height="512" rx="114" fill="#0B2E1E"/>
-  <circle cx="256" cy="286" r="210" fill="url(#b-halo)"/>
-  <g stroke="url(#b-sun)" stroke-width="30" stroke-linecap="round">
+  <circle cx="256" cy="286" r="210" fill="url(#ais-halo)"/>
+  <g stroke="url(#ais-sun)" stroke-width="30" stroke-linecap="round">
     <line x1="256" y1="180" x2="256" y2="135"/>
     <line x1="150" y1="224" x2="118" y2="192"/>
     <line x1="362" y1="224" x2="394" y2="192"/>
   </g>
-  <path d="M138 330 C138 266 190 212 256 212 C322 212 374 266 374 330 C330 342 182 342 138 330 Z" fill="url(#b-sun)"/>
+  <path d="M138 330 C138 266 190 212 256 212 C322 212 374 266 374 330 C330 342 182 342 138 330 Z" fill="url(#ais-sun)"/>
   <ellipse cx="210" cy="256" rx="70" ry="50" transform="rotate(-32 210 256)"
-           fill="url(#b-sheen)" clip-path="url(#b-clip)"/>
-  <path d="M96 372 C150 340 202 400 256 386 C310 372 366 336 416 366" fill="none" stroke="url(#b-wave)" stroke-width="40" stroke-linecap="round"/>
+           fill="url(#ais-sheen)" clip-path="url(#ais-clip)"/>
+  <path d="M96 372 C150 340 202 400 256 386 C310 372 366 336 416 366" fill="none" stroke="url(#ais-wave)" stroke-width="40" stroke-linecap="round"/>
 </svg>

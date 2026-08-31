@@ -1,9 +1,9 @@
 import { ArrowLeft, Shield, FileText, Accessibility } from 'lucide-react';
 
-// AI Workshop is a small community dashboard. Operator + contact for the
+// AI Sundays is a small community dashboard. Operator + contact for the
 // compliance trio (privacy / terms / accessibility). Edit these in one place.
 const CONTACT = 'baciauskas.aurimas@gmail.com';
-const OPERATOR = 'the AI Workshop community (Aurimas Baciauskas), Copenhagen, Denmark';
+const OPERATOR = 'the AI Sundays community (Aurimas Baciauskas), Copenhagen, Denmark';
 const EFFECTIVE = '5 June 2026';
 
 const PAGES = {
@@ -109,10 +109,10 @@ function Privacy() {
 function Terms() {
   return (
     <>
-      <P>By using the AI Workshop dashboard you agree to these terms. The service is run by {OPERATOR}.</P>
+      <P>By using the AI Sundays dashboard you agree to these terms. The service is run by {OPERATOR}.</P>
 
       <H>Using the service</H>
-      <P>The dashboard is provided for members of the AI Workshop community. Browsing is open to everyone; posting, voting, and uploading require you to sign in.</P>
+      <P>The dashboard is provided for members of the AI Sundays community. Browsing is open to everyone; posting, voting, and uploading require you to sign in.</P>
 
       <H>Acceptable use</H>
       <ul className="mt-2 space-y-1.5 list-disc pl-5">
@@ -142,7 +142,7 @@ function Terms() {
 function AccessibilityStatement() {
   return (
     <>
-      <P>We want the AI Workshop dashboard to be usable by everyone, and we aim to meet the <strong>WCAG 2.2 Level AA</strong> standard, in line with the European Accessibility Act.</P>
+      <P>We want the AI Sundays dashboard to be usable by everyone, and we aim to meet the <strong>WCAG 2.2 Level AA</strong> standard, in line with the European Accessibility Act.</P>
 
       <H>What we do</H>
       <ul className="mt-2 space-y-1.5 list-disc pl-5">
@@ -174,7 +174,7 @@ export function Footer({ onNavigate }) {
   return (
     <footer className="border-t border-border mt-10">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-xs text-muted">AI Workshop · a community for building with AI</p>
+        <p className="text-xs text-muted">AI Sundays · a community for building with AI</p>
         <nav className="flex items-center gap-4">
           {links.map(([slug, label]) => (
             <button

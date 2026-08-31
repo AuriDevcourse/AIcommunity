@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="AI Sundays">
+  <!-- Single-colour variant. Inherits currentColor, for stamps, embroidery,
+       favicon masks and anywhere the gradient cannot go. -->
+  <g fill="currentColor" stroke="currentColor">
+    <g stroke-width="30" stroke-linecap="round">
+      <line x1="256" y1="180" x2="256" y2="135"/>
+      <line x1="150" y1="224" x2="118" y2="192"/>
+      <line x1="362" y1="224" x2="394" y2="192"/>
+    </g>
+    <path d="M138 330 C138 266 190 212 256 212 C322 212 374 266 374 330 C330 342 182 342 138 330 Z" stroke="none"/>
+    <path d="M96 372 C150 340 202 400 256 386 C310 372 366 336 416 366" fill="none" stroke-width="40" stroke-linecap="round"/>
+  </g>
+</svg>

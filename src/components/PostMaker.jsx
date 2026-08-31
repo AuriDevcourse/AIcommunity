@@ -10,7 +10,7 @@ const FOLD = { linkedin: 210, instagram: 125 };
 const igHandle = (name) => String(name || 'you').toLowerCase().replace(/[^a-z]+/g, '.').replace(/^\.|\.$/g, '');
 const countWords = (t) => t.trim().split(/\s+/).filter(Boolean).length;
 
-// Random placeholder identity for the preview — purely cosmetic, just to see how
+// Random placeholder identity for the preview, purely cosmetic, just to see how
 // the post looks in-feed. NOT who the post is written as (that's you, the writer).
 const NAMES = ['Mia Larsen', 'Tomas Berg', 'Aisha Khan', 'Lukas Novak', 'Sofia Rossi', 'Daniel Park', 'Nina Holm', 'Omar Haddad', 'Elena Costa', 'Jonas Vik', 'Priya Nair', 'Felix Brandt'];
 const TITLES = ['Indie hacker', 'Product designer', 'Full-stack developer', 'AI engineer', 'Startup founder', 'UX designer', 'Data scientist', 'Creative technologist', 'Frontend developer', 'Solo founder'];
@@ -19,10 +19,10 @@ function randomAuthor() {
   const name = NAMES[Math.floor(Math.random() * NAMES.length)];
   const title = TITLES[Math.floor(Math.random() * TITLES.length)];
   const img = 1 + Math.floor(Math.random() * 70);
-  return { name, headline: `${title} · AI Workshop Copenhagen`, avatar: `https://i.pravatar.cc/96?img=${img}` };
+  return { name, headline: `${title} · AI Sundays Copenhagen`, avatar: `https://i.pravatar.cc/96?img=${img}` };
 }
 
-// Fisher-Yates copy — used to reshuffle which photos lead the preview collage.
+// Fisher-Yates copy, used to reshuffle which photos lead the preview collage.
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -47,21 +47,21 @@ const QUESTIONS = [
 ];
 
 function sessionLine(s) {
-  return s ? `Meetup: AI Workshop${s.number != null ? ` #${s.number}` : ''}, ${fmtDate(s.date)}.` : '';
+  return s ? `Meetup: AI Sundays${s.number != null ? ` #${s.number}` : ''}, ${fmtDate(s.date)}.` : '';
 }
 
 const toolNames = (s) => (s?.tools || []).map((t) => t.name).filter(Boolean);
 const presenterNames = (s) => (s?.demos || []).map((d) => d.presenter).filter(Boolean);
 
 // Loose first-name match so the author ("Aurimas Baciauskas") is recognised as the
-// session presenter ("Auri") — handles nicknames / prefixes either direction.
+// session presenter ("Auri"), handles nicknames / prefixes either direction.
 const firstTok = (n) => String(n || '').trim().toLowerCase().split(/\s+/)[0];
 const sameName = (a, b) => {
   const x = firstTok(a), y = firstTok(b);
   return !!x && !!y && (x === y || (x.length >= 3 && y.length >= 3 && (x.startsWith(y) || y.startsWith(x))));
 };
 
-// Brief built straight from a session's own data — no manual fields needed. The
+// Brief built straight from a session's own data, no manual fields needed. The
 // author's own demo is framed as "I" so the post never credits the writer in the
 // third person; everyone else is credited by name.
 function sessionBrief(s, extra, authorName) {
@@ -70,9 +70,9 @@ function sessionBrief(s, extra, authorName) {
   const tools = toolNames(s);
   if (tools.length) lines.push(`Tools and ideas discussed: ${tools.join(', ')}.`);
   if (s.demos?.length) {
-    lines.push('Who presented (you are the author — credit the OTHERS by name, write your own demo as "I"):');
+    lines.push('Who presented (you are the author, so credit the OTHERS by name, write your own demo as "I"):');
     for (const d of s.demos) {
-      const who = sameName(d.presenter, authorName) ? 'I (the author — not third person)' : d.presenter;
+      const who = sameName(d.presenter, authorName) ? 'I (the author, not third person)' : d.presenter;
       lines.push(`- ${who}${d.topic ? `: ${d.topic}` : ''}`);
     }
   }
@@ -83,7 +83,7 @@ function sessionBrief(s, extra, authorName) {
 
 function buildBrief(fields, session, extra) {
   const lines = [];
-  if (session) lines.push(`Meetup: AI Workshop${session.number != null ? ` #${session.number}` : ''}, ${fmtDate(session.date)}.`);
+  if (session) lines.push(`Meetup: AI Sundays${session.number != null ? ` #${session.number}` : ''}, ${fmtDate(session.date)}.`);
   if (fields.topic) lines.push(`What we explored: ${fields.topic}`);
   if (fields.tools) lines.push(`Tools tested or mentioned: ${fields.tools}`);
   if (fields.credit) lines.push(`Presented by (credit them): ${fields.credit}`);
@@ -107,7 +107,7 @@ function Collage({ photos }) {
   const shown = photos.slice(0, 4);
   const extra = photos.length - shown.length;
   const img = 'w-full h-full object-cover';
-  // key={url} on every image so a shuffle remounts them all together — the big
+  // key={url} on every image so a shuffle remounts them all together, the big
   // featured one swaps with the rest instead of clinging to its previous picture.
   if (shown.length === 1) return <img key={shown[0]} src={shown[0]} alt="" className="w-full max-h-[320px] object-cover" />;
   if (shown.length === 2) return <div className="grid grid-cols-2 gap-0.5 h-60">{shown.map((p) => <img key={p} src={p} alt="" className={img} />)}</div>;
@@ -136,7 +136,7 @@ function Caret() {
   return <span className="inline-block w-[2px] h-[1em] -mb-[0.15em] ml-px bg-current opacity-70 animate-pulse" aria-hidden />;
 }
 
-// Renders post text. It streams in fully and STAYS open once written — no snapping
+// Renders post text. It streams in fully and STAYS open once written, no snapping
 // back to a fold. The "…more" / "…less" toggle is just there if you want to see the
 // in-feed look; it never auto-collapses after generating.
 function FoldedText({ text, limit, prefix, streaming }) {
@@ -157,7 +157,7 @@ function FoldedText({ text, limit, prefix, streaming }) {
 
 function LinkedInPreview({ author, text, photos, streaming }) {
   return (
-    <div className="rounded-xl border border-border bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#1f1f1f]">
+    <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#1f1f1f]">
       <div className="p-4">
         <div className="flex items-start gap-2">
           <img src={author.avatar} alt="" className="w-12 h-12 rounded-full object-cover bg-accent" />
@@ -204,7 +204,7 @@ function SquareCollage({ photos }) {
 function InstagramPreview({ author, text, photos, streaming }) {
   const handle = igHandle(author.name);
   return (
-    <div className="rounded-xl border border-border bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#262626]">
+    <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.1)] text-[#262626]">
       <div className="flex items-center gap-2 p-3">
         <img src={author.avatar} alt="" className="w-8 h-8 rounded-full object-cover bg-accent outline outline-1 outline-[#eee]" />
         <span className="text-sm font-semibold leading-tight truncate flex-1">{handle}</span>
@@ -293,7 +293,7 @@ function SessionSelect({ sessions, value, onChange }) {
       </button>
 
       {open && (
-        <ul role="listbox" className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-md border border-border bg-background shadow-[0_12px_30px_rgba(0,0,0,0.14)] py-1">
+        <ul role="listbox" className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-md border border-border bg-background shadow-[var(--popover-shadow)] py-1">
           {sessions.map((s, i) => {
             const isSel = s.date === value;
             return (
@@ -321,7 +321,7 @@ function SessionSelect({ sessions, value, onChange }) {
 
 export default function PostMaker({ sessions = [] }) {
   // Sessions only carry photos committed under /sessions/. Photos uploaded later
-  // (Vercel Blob) live behind /api/photos, like the recap uses — merge them in so
+  // (Vercel Blob) live behind /api/photos, like the recap uses, merge them in so
   // the picker thumbnails + selected-session photos match what the recap shows.
   const [uploadsByDate, setUploadsByDate] = useState({});
   useEffect(() => {
@@ -351,7 +351,7 @@ export default function PostMaker({ sessions = [] }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [author, setAuthor] = useState(randomAuthor); // preview-only placeholder
 
-  // The post is always written as YOU (the signed-in writer) — this drives the
+  // The post is always written as YOU (the signed-in writer), this drives the
   // first-person voice in the text, separate from the cosmetic preview person.
   const { name: myName } = useAuth();
   const [status, setStatus] = useState('idle'); // idle | loading | streaming | error | notconfigured
@@ -381,17 +381,17 @@ export default function PostMaker({ sessions = [] }) {
   );
 
   // Just record the choice. "From the Session" reads the session live; "Clean
-  // Sheet" stays blank (its whole point) — the session material lives in the other
+  // Sheet" stays blank (its whole point), the session material lives in the other
   // mode, so there's nothing to pre-fill here.
   const prefill = (date) => setSelectedDate(date);
 
   // Default to the latest session on load so you never land on the empty manual
-  // form — the newest session is almost always what you want to post about.
+  // form, the newest session is almost always what you want to post about.
   useEffect(() => {
     if (!selectedDate && withContent.length) setSelectedDate(withContent[0].date);
   }, [withContent, selectedDate]);
 
-  // With a session picked, its own data is the content — just press Generate.
+  // With a session picked, its own data is the content, just press Generate.
   const hasContent = mode === 'free'
     ? freeText.trim()
     : (selectedSession ? true : (fields.topic.trim() || extra.trim()));
@@ -413,8 +413,8 @@ export default function PostMaker({ sessions = [] }) {
         ? [sessionLine(selectedSession), freeText.trim()].filter(Boolean).join('\n\n')
         : (selectedSession ? sessionBrief(selectedSession, extra, myName) : buildBrief(fields, null, extra));
       const voice = myName
-        ? `Write this in the FIRST PERSON as ${myName}, a member of the AI Workshop Copenhagen community. Use "I" and "we" — never refer to ${myName} in the third person (if ${myName} presented, say "I demoed…").`
-        : 'Write this in the FIRST PERSON (use "I" and "we") as someone who was there — never describe the writer in the third person.';
+        ? `Write this in the FIRST PERSON as ${myName}, a member of the AI Sundays Copenhagen community. Use "I" and "we". Never refer to ${myName} in the third person (if ${myName} presented, say "I demoed…").`
+        : 'Write this in the FIRST PERSON (use "I" and "we") as someone who was there. Never describe the writer in the third person.';
       const notes = [voice, body].join('\n\n');
       const r = await authedFetch('/api/generate-post', {
         method: 'POST',
@@ -429,7 +429,7 @@ export default function PostMaker({ sessions = [] }) {
         const j = await r.json().catch(() => ({}));
         if (j.configured === false) { setStatus('notconfigured'); return; }
         setStatus('error');
-        setError(j.error || (r.status === 429 ? 'Slow down — too many requests.' : r.status === 401 ? 'Sign in to generate posts.' : 'Generation failed.'));
+        setError(j.error || (r.status === 429 ? 'Too many requests. Wait a minute.' : r.status === 401 ? 'Sign in to generate posts.' : 'Generation failed.'));
         return;
       }
 
@@ -482,7 +482,7 @@ export default function PostMaker({ sessions = [] }) {
         <span>Post maker</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Turn a session into a post</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Pick a session — it pulls what was explored, the tools, and who presented. Add your own angle if you like, then Generate. No session? Answer a few prompts instead.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Pick a session and it pulls the tools, the demos and who presented. No session? Answer a few prompts instead.</p>
 
       {status === 'notconfigured' && (
         <div className="card card-pad mt-5 text-sm text-warn">
@@ -517,9 +517,9 @@ export default function PostMaker({ sessions = [] }) {
           {mode === 'guided' ? (
             selectedSession ? (
               <>
-                {/* The session already holds the content — show it, then Generate. */}
+                {/* The session already holds the content, show it, then Generate. */}
                 <div className="rounded-md border border-border bg-pill/40 p-3 space-y-2.5">
-                  <span className="text-xs font-medium text-muted">From this session — what the post is written from</span>
+                  <span className="text-xs font-medium text-muted">What the post is written from</span>
                   {selectedSession.summary && (
                     <p className="text-sm text-foreground leading-relaxed line-clamp-4">{selectedSession.summary}</p>
                   )}

@@ -1,4 +1,4 @@
-// Post Maker: turns session notes into a social post in the AI Workshop voice.
+// Post Maker: turns session notes into a social post in the AI Sundays voice.
 // Uses OpenRouter (Auri's key) so the dashboard needs no separate Anthropic key.
 // Env: OPENROUTER_API_KEY (required), POST_MODEL (optional, default below).
 
@@ -9,8 +9,8 @@ export function postmakerConfigured() {
   return Boolean(process.env.GEMINI_API_KEY || process.env.OPENROUTER_API_KEY);
 }
 
-// The AI Workshop voice. The reader does NOT know TechBBQ — never reference it.
-const VOICE = `You are the host of the AI Workshop community writing a social post about a meetup. You write as a real person (mostly "I", sometimes "we"), a builder talking to other builders. Warm, honest, a little playful, self-deprecating, never corporate or press-release. The reader does NOT know what TechBBQ is; never mention it or assume outside context.
+// The AI Sundays voice. The reader does NOT know TechBBQ, never reference it.
+const VOICE = `You are the host of the AI Sundays community writing a social post about a meetup. You write as a real person (mostly "I", sometimes "we"), a builder talking to other builders. Warm, honest, a little playful, self-deprecating, never corporate or press-release. The reader does NOT know what TechBBQ is; never mention it or assume outside context.
 
 About the community:
 - A recurring meetup in Copenhagen where people build real things with AI and show each other what they made. Small and hands-on. It is a shipping community, not a lecture series. Tagline spirit: "Build with AI. Show what you learned."
@@ -25,7 +25,16 @@ What makes these posts work (learned from real performance):
 
 Hard rules:
 - Never invent attendance numbers, names, tools, or outcomes that are not in the brief. If a detail is not given, leave it out.
-- Banned filler: "excited to announce", "thrilled", "game changer", "synergy", "disruption", "dive deep", "unlock", "in today's fast-paced world", "revolutionize".`;
+- Banned filler: "excited to announce", "thrilled", "game changer", "synergy", "disruption", "dive deep", "unlock", "in today's fast-paced world", "revolutionize".
+
+Sentence shape. These tells matter more than word choice. (Em dashes are covered in OUTPUT RULES below.)
+- No "not X, but Y" contrasts. State Y on its own.
+- No throat-clearing openers: "Here's the thing", "It's worth noting", "The truth is". Start with the actual sentence.
+- Active voice with a real subject. Never let a thing perform a human action ("the session sparked", "the tools unlocked").
+- Cut adverbs. "Really", "actually", "incredibly", "truly" all go.
+- Vary sentence length. Do not write three medium sentences in a row, and do not end every paragraph on a short punchy line.
+- Two examples beat three. Resist the rule-of-three list.
+- Name the actual tool. "Some useful tools" says nothing.`;
 
 // Real posts from the community, labelled by how they performed. Few-shot guide.
 const EXAMPLES = `Study these REAL past posts and how they performed. Match the voice of the ones that did well; avoid the structure of the one that did not.
@@ -57,7 +66,7 @@ Tools we talked about: ChatGPT, Windsurf, Make, n8n.
 
 Things are moving fast. If this sounds interesting, send a message 🖐
 
-[PERFORMED WORST — too dense and listy, do NOT copy this structure]
+[PERFORMED WORST: too dense and listy, do NOT copy this structure]
 Analysis Paralysis in the AI Age. So many tools to choose from... 🚀
 
 This was our 3rd meetup. This time we explored generative AI for image creation, and 3D modeling in particular. Initial tests showed a clear winner: Hyper3D Rodin.
@@ -72,7 +81,7 @@ const FORMAT_RULES = {
   linkedin: `FORMAT: LINKEDIN POST
 - Structure: specific hook line; 2 to 4 short lines on what was built/demoed/learned (name tools + results); one line on why it is worth doing; an inviting low-pressure CTA (come build with us / DM to join the next one).
 - Target length 70 to 110 words.
-- End with 3 to 6 hashtags such as #BuildWithAI #AICommunity #Copenhagen #AIWorkshop #ShipIt.
+- End with 3 to 6 hashtags such as #BuildWithAI #AICommunity #Copenhagen #AISundays #ShipIt.
 - 1 to 3 emoji max, only at the start or end of a line.`,
   instagram: `FORMAT: INSTAGRAM CAPTION
 - First line must work as a standalone hook (it shows before "more").
@@ -91,8 +100,8 @@ ${FORMAT_RULES[format] || FORMAT_RULES.linkedin}
 
 OUTPUT RULES:
 - Plain text only. No markdown bold/italic, no HTML, no asterisks.
-- NEVER use the em dash character " — ". Use commas, periods, or restructure.
-- Hashtags plain (#AIWorkshop, never \\#AIWorkshop), always at the bottom.
+- NEVER use the em dash character ", ". Use commas, periods, or restructure.
+- Hashtags plain (#AISundays, never \\#AISundays), always at the bottom.
 - Output ONLY the post text. No preamble, no explanation, no quotes around it.`;
 }
 
@@ -120,7 +129,7 @@ async function callGemini(system, notes) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: 'user', parts: [{ text: notes }] }],
-      // thinkingBudget 0 — no hidden reasoning tokens eating the output (Gemini 2.5 thinks by default).
+      // thinkingBudget 0, no hidden reasoning tokens eating the output (Gemini 2.5 thinks by default).
       generationConfig: { temperature: 0.8, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
@@ -135,7 +144,7 @@ async function callOpenRouter(system, notes) {
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
-      'X-Title': 'AI Workshop Post Maker',
+      'X-Title': 'AI Sundays Post Maker',
     },
     body: JSON.stringify({
       model: MODEL,
@@ -181,7 +190,7 @@ async function* streamOpenRouter(system, notes) {
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
-      'X-Title': 'AI Workshop Post Maker',
+      'X-Title': 'AI Sundays Post Maker',
     },
     body: JSON.stringify({
       model: MODEL, stream: true, max_tokens: 700, temperature: 0.7,
