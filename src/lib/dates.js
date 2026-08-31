@@ -29,7 +29,10 @@ export function relative(s, today = TODAY) {
   if (d === 0) return 'today';
   if (d === 1) return 'tomorrow';
   if (d === -1) return 'yesterday';
-  if (d > 0 && d < 7) return `in ${d} days`;
+  // Days out to a fortnight, not weeks. At 12 days the old rounding said "in
+  // 2 wk" while the hero counted down "12 days 21 hr" beside it, so the two
+  // controls on the same screen disagreed about the same date.
+  if (d > 0 && d < 14) return `in ${d} days`;
   if (d > 0 && d < 30) return `in ${Math.round(d / 7)} wk`;
   if (d > 0) return `in ${Math.round(d / 30)} mo`;
   if (d < 0 && d > -30) return `${-d} days ago`;

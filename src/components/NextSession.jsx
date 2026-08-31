@@ -1,7 +1,18 @@
 import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
-import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video } from 'lucide-react';
+import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video, Download, Coffee } from 'lucide-react';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
+import { icsHref, icsFilename } from '../lib/ics.js';
+
+// Every role a session can carry. Only filled ones render: an empty
+// "Timekeeper —" line is noise, and the data usually has one or two set.
+const ROLE_LABELS = {
+  host: 'Host',
+  timekeeper: 'Timekeeper',
+  noteTaker: 'Notes',
+  demoCurator: 'Demos',
+  recapWriter: 'Recap',
+};
 
 const FORMATS = {
   'show-tell':    { label: 'Show & Tell' },
@@ -21,6 +32,16 @@ export default function NextSession({ session }) {
   const soon = days <= 1;              // today / tomorrow → strong pill
   const thisWeek = days > 1 && days < 7;
   const lumaUrl = /^https?:\/\//i.test(session.luma || '') ? session.luma : null;
+  const roles = Object.entries(ROLE_LABELS)
+    .map(([key, label]) => [label, session.roles?.[key]])
+    .filter(([, who]) => Boolean(who));
+
+  // Lean Coffee flag. Nobody records demo signups for a FUTURE session, so the
+  // literal "fewer than two demos" cannot be counted: backlog.json is empty and
+  // an upcoming entry carries a single `presenter` at most. The honest signal is
+  // an undecided format with nobody presenting, which is the condition the
+  // planning note itself describes.
+  const likelyLeanCoffee = session.format === 'tbd' && !session.presenter;
 
   return (
     <div className="premium-card card-pad">
@@ -64,8 +85,21 @@ export default function NextSession({ session }) {
             : 'TBD'}
           muted={!session.venue}
         />
-        {session.roles?.host && <Field icon={UserCheck} label="Host" value={session.roles.host} />}
+        {roles.map(([label, who]) => (
+          <Field key={label} icon={UserCheck} label={label} value={who} />
+        ))}
       </dl>
+
+      {likelyLeanCoffee && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-border bg-pill px-3.5 py-3">
+          <Coffee size={15} strokeWidth={2} className="text-foreground mt-0.5 flex-shrink-0" />
+          <p className="text-sm leading-snug text-muted">
+            <span className="font-medium text-foreground">Likely a Lean Coffee.</span>{' '}
+            No presenter yet and the format is open, so we pick topics on the day.
+            Want to demo something? Say so and it becomes a Show &amp; Tell.
+          </p>
+        </div>
+      )}
 
       {session.notes && (
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
@@ -83,8 +117,19 @@ export default function NextSession({ session }) {
       {/* One RSVP control + unified "Coming" list (in-app RSVPs + calendar accepts). */}
       <Rsvp date={session.date} />
 
-      {lumaUrl && (
-        <div className="mt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+        {/* The hero offers Google Calendar. This is the same event for everyone
+            else: Apple Calendar, Outlook, Thunderbird, anything reading .ics.
+            Built in the browser as a data: URL, so it needs no endpoint. */}
+        <a
+          href={icsHref(session)}
+          download={icsFilename(session)}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground transition-colors"
+        >
+          <Download size={14} strokeWidth={2.2} />
+          Download .ics
+        </a>
+        {lumaUrl ? (
           <a
             href={lumaUrl}
             target="_blank"
@@ -94,8 +139,16 @@ export default function NextSession({ session }) {
             <Ticket size={14} strokeWidth={2.2} />
             Also on Luma
           </a>
-        </div>
-      )}
+        ) : import.meta.env.DEV ? (
+          /* Maintainer nudge only. A member does not need to know a Luma page is
+             missing, and import.meta.env.DEV is false in every build. */
+          <span className="inline-flex items-center gap-1.5 text-sm text-muted">
+            <Ticket size={14} strokeWidth={2.2} />
+            <span className="font-mono text-[10px] uppercase tracking-wider">dev</span>
+            no Luma link set for this session
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }
