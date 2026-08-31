@@ -45,9 +45,11 @@ anything the site renders.
 | Kernius Savickas | Active | Kernius |
 | Kristina Juozapaviciute | Active | Kristina |
 | Maria Krupa | Active | Maria |
+| Marlu Adamczyk | Active | Marlu |
 | Martin Windsor | Active | |
 | Pavel Kucera | Active | Pavel |
-| Roman | Active | |
+| Prachi Abhyankar | Active | Prachi |
+| Roman Novosad | Active | |
 | Sany Ivanova | Active | |
 | Tady Kapic | Active | |
 | Valentin | Active | |
@@ -56,8 +58,7 @@ anything the site renders.
 ## Known gaps
 
 Three names appear in session attendance and match nobody above: **Mari**, **Yogi** and
-**Frederik**. **Roman** joined at #09 on 2026-08-30 and is listed under his first name
-only, like Valentin and Dovile; add a surname when known. They are either guests who never joined, or members recorded under a name
+**Frederik**. They are either guests who never joined, or members recorded under a name
 that needs an alias. Auri is the only person who knows which. Until then they are counted
 as guests and get no member row, which is the safe default: guessing a full name into a
 public repo is worse than leaving a gap.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T16:01:05.132Z",
+  "generatedAt": "2026-08-31T17:23:06.375Z",
   "sessions": [
     {
       "number": 1,
@@ -884,6 +884,14 @@
       "attended": 0
     },
     {
+      "name": "Marlu Adamczyk",
+      "status": "Active",
+      "aliases": [
+        "Marlu"
+      ],
+      "attended": 0
+    },
+    {
       "name": "Martin Windsor",
       "status": "Active",
       "aliases": [],
@@ -898,7 +906,15 @@
       "attended": 0
     },
     {
-      "name": "Roman",
+      "name": "Prachi Abhyankar",
+      "status": "Active",
+      "aliases": [
+        "Prachi"
+      ],
+      "attended": 0
+    },
+    {
+      "name": "Roman Novosad",
       "status": "Active",
       "aliases": [],
       "attended": 1

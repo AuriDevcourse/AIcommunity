@@ -47,6 +47,18 @@
     "linkedin": "https://www.linkedin.com/in/dovile-perednyte/",
     "photo": "/members/dovile.jpg"
   },
+  "Roman Novosad": {
+    "linkedin": "https://www.linkedin.com/in/roman-novosad/",
+    "photo": "/members/roman.jpg"
+  },
+  "Marlu Adamczyk": {
+    "linkedin": "https://www.linkedin.com/in/marlu/",
+    "photo": "/members/marlu.jpg"
+  },
+  "Prachi Abhyankar": {
+    "linkedin": "https://www.linkedin.com/in/prachiabhyankar/",
+    "photo": "/members/prachi.jpg"
+  },
   "Maria Krupa": {
     "linkedin": "https://www.linkedin.com/in/maria-krupa-/",
     "photo": "/members/maria.jpg",
@@ -56,7 +68,8 @@
     "gender": "male"
   },
   "Aiza Watzlawek": {
-    "gender": "female"
+    "linkedin": "https://www.linkedin.com/in/aiza-a-watzlawek/",
+    "photo": "/members/aiza.jpg"
   },
   "Cristina Bodnari": {
     "gender": "female"
