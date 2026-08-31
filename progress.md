@@ -4,22 +4,43 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## IN PROGRESS 2026-08-31, migrating to a dedicated Google Calendar
 
-**Current state:** code ready and shipped (`034469e`). **`GCAL_CALENDAR_ID` is still
-UNSET**, so the app reads Auri's `primary` calendar. Auri is moving session events into a
-new dedicated calendar named **"AI Workshops"** right now.
+**Current state:** switched and working in LOCAL DEV. `GCAL_CALENDAR_ID` is set in
+`.env.local` to the dedicated "AI Workshops" calendar
+(`7f91f0da...4753@group.calendar.google.com`, safe to record: the calendar is public by
+Auri's own choice and he shared the subscribe link). **NOT set in Vercel yet, so production
+still reads `primary`.**
+
+The dedicated calendar currently holds **one** future event, 2026-09-13. The dates the old
+`primary` calendar showed (09-20, 10-04, 10-18, 11-01, 11-15 and more) have NOT been moved
+across. So the schedule went from 8 entries to 1, and the low-runway warning built in Area
+4 is firing correctly: "Only one date scheduled."
+
+Note the next-session date CHANGED: `primary` said 2026-09-06, the dedicated calendar says
+2026-09-13. Worth confirming which is real, since that is what members see.
 
 **If the schedule looks empty, this is why.** Events are leaving `primary` as they are
 moved, and the app still reads `primary`. 2026-09-06 was returned at 12:30 and gone by
 15:20. Once the migration finishes, `primary` returns nothing until the env var is set.
 
-### What Auri has to do (config, not code)
-1. Google Calendar, the "AI Workshops" calendar, **Integrate calendar**, copy **Calendar
-   ID** (ends `@group.calendar.google.com`).
-2. Set `GCAL_CALENDAR_ID` in `.env.local` AND in Vercel project env. Production reads its
-   own env, so setting one without the other leaves prod broken.
+### What Auri still has to do (config, not code)
+1. **Set `GCAL_CALENDAR_ID` in Vercel** project env to the value now in `.env.local`.
+   Until then production reads `primary` and will empty out as events are moved.
+2. **Move or recreate the remaining sessions** in the dedicated calendar. It has one.
 3. **Get shareable link** on that calendar is the subscribe link for members. It is already
    public with "See event details".
 4. The calendar is named "AI Workshops", not "AI Sundays". Cosmetic, but subscribers see it.
+
+### Also observed after switching
+- No guests are invited to the 2026-09-13 event, so `/api/attendees` returns
+  `found: false` and the Coming list is empty. Correct: `findEvent` only returns an event
+  that HAS attendees. Given Google Calendar cannot do link RSVP, the dashboard button is
+  the path anyway.
+- The event produces an empty `theme`, which means it is titled bare ("AI Workshops"). Put
+  the topic in the event title and the app strips the prefix and shows the rest as the
+  session theme.
+- `.env.local.example` was a stub containing only stale comments about the removed feedback
+  button. Rewritten to document all 20 env vars the app actually reads, each with what
+  breaks without it. Verified complete and value-free.
 
 ### What shipped for it
 `titleMatcher` is now calendar-aware. The title filter exists only because the default is
