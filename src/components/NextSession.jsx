@@ -1,5 +1,5 @@
 import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
-import { Mic, MapPin, Ticket, CalendarClock, CalendarPlus, UserCheck, Video } from 'lucide-react';
+import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video } from 'lucide-react';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
 
@@ -11,22 +11,6 @@ const FORMATS = {
   'tool-explore': { label: 'Tool Exploration' },
   'tbd':          { label: 'Format TBD' },
 };
-
-function googleCalendarUrl(session) {
-  const dateStr = session.date.replace(/-/g, '');
-  const start = `${dateStr}T123000`;
-  const end = `${dateStr}T143000`;
-  const title = session.theme ? `AI Workshop: ${session.theme}` : 'AI Workshop Session';
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: title,
-    dates: `${start}/${end}`,
-    ctz: 'Europe/Copenhagen',
-    location: session.venue || '',
-    details: session.notes || 'AI Workshop bi-weekly meetup · Copenhagen',
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
 
 export default function NextSession({ session }) {
   if (!session) {
@@ -50,16 +34,8 @@ export default function NextSession({ session }) {
             <span className={`pill ${soon ? 'pill-acc' : thisWeek ? 'pill-warn' : 'pill-mute'}`}>{relative(session.date)}</span>
           </div>
           <div className="text-xl sm:text-2xl font-semibold mt-2 tracking-tight">{fmtDateLong(session.date)}</div>
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <div className="mt-0.5">
             <span className="text-sm font-medium text-muted">12:30–14:30 · Copenhagen</span>
-            <a
-              href={googleCalendarUrl(session)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors"
-            >
-              <CalendarPlus size={13} strokeWidth={2} /> Add to calendar
-            </a>
           </div>
           {session.theme && (
             <div className="mt-3 text-base sm:text-lg font-medium leading-snug tracking-tight text-foreground">{session.theme}</div>
@@ -125,7 +101,7 @@ export default function NextSession({ session }) {
 }
 
 // The label used to live only in a `title` attribute, so "Open slot" and "TBD"
-// rendered as bare values next to an unlabelled icon — ambiguous by sight, and
+// rendered as bare values next to an unlabelled icon, ambiguous by sight, and
 // invisible to a screen reader, which reads the icon as nothing at all. Now a
 // real description list: the label is visible text and programmatically tied to
 // its value.

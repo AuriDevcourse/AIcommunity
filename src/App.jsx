@@ -1,9 +1,10 @@
 import { Component, lazy, Suspense, useEffect, useState } from 'react';
 import data from './data.json';
 // Home-tab (default view) components stay eager so the landing paint isn't gated
-// on a second chunk. The other tabs are code-split below — their JS only downloads
+// on a second chunk. The other tabs are code-split below, their JS only downloads
 // when the user opens that tab, shrinking the initial bundle.
 import NextSession from './components/NextSession.jsx';
+import Hero from './components/Hero.jsx';
 import ScheduleAhead from './components/ScheduleAhead.jsx';
 import Suggestions from './components/Suggestions.jsx';
 import LatestDiscussion from './components/LatestDiscussion.jsx';
@@ -18,7 +19,7 @@ const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
 const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
 const TopicsPresentation = lazy(() => import('./components/TopicsPresentation.jsx'));
-import FeedbackButton from './components/FeedbackButton.jsx';
+import ThemeToggle from './components/ThemeToggle.jsx';
 import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
 import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
@@ -30,7 +31,7 @@ const TABS = [
   { key: 'discussions', label: 'Forum',    icon: MessagesSquare },
   { key: 'learn',       label: 'Learn',    icon: GraduationCap },
   { key: 'news',        label: 'News',     icon: Newspaper },
-  { key: 'members',     label: 'Members',  icon: Users },
+  { key: 'members',     label: 'Members', icon: Users },
   { key: 'sessions',    label: 'Photos',   icon: Images },
   { key: 'tools',       label: 'Tools',    icon: Wrench },
 ];
@@ -121,22 +122,37 @@ export default function App() {
   useEffect(() => {
     const label = TABS.find((t) => t.key === tab)?.label;
     const view = recapDate ? 'Session recap' : isLegal ? 'Legal' : label || 'Home';
-    document.title = `AI Workshop · ${view}`;
+    document.title = `AI Sundays · ${view}`;
   }, [tab, recapDate, isLegal]);
 
 
   // Upcoming sessions come live from Google Calendar when configured, else from
   // the static build-time snapshot (see useSchedule).
-  const { upcoming: liveUpcoming } = useSchedule(data.schedule.upcoming);
+  const { upcoming: liveUpcoming, status: scheduleStatus } = useSchedule(data.schedule.upcoming);
   const todayIso = TODAY.toISOString().slice(0, 10);
-  // Google Calendar only carries date/theme/venue, so graft the per-session
-  // topics from the static schedule onto the live session by date.
-  const topicsByDate = Object.fromEntries(
-    (data.schedule.upcoming || []).filter((s) => s.topics?.length).map((s) => [s.date, s.topics])
+  // Google Calendar only carries date/theme/venue/startsAt. Everything else a
+  // session knows (topics, who is presenting, whether the venue is actually
+  // booked, the maintainer notes) lives only in data/schedule.json, so graft the
+  // static entry onto the live one by date. Live values win where both have
+  // something, because the calendar is the more current source for the fields it
+  // does carry.
+  const staticByDate = Object.fromEntries(
+    (data.schedule.upcoming || []).map((s) => [s.date, s]),
   );
+  const GRAFTED = ['topics', 'presenter', 'venueStatus', 'roles', 'notes', 'number', 'luma'];
   const upcomingFromToday = liveUpcoming
     .filter((s) => s.date >= todayIso)
-    .map((s) => (s.topics?.length ? s : { ...s, topics: topicsByDate[s.date] || [] }));
+    .map((s) => {
+      const base = staticByDate[s.date];
+      if (!base) return s;
+      const merged = { ...s };
+      for (const key of GRAFTED) {
+        const live = s[key];
+        const has = Array.isArray(live) ? live.length > 0 : Boolean(live);
+        if (!has && base[key] !== undefined) merged[key] = base[key];
+      }
+      return merged;
+    });
   const next = upcomingFromToday[0];
   const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
 
@@ -167,11 +183,11 @@ export default function App() {
                 e.preventDefault();
                 goTo('home');
               }}
-              aria-label="AI Workshop — go to Home"
-              className="tap-target flex items-center gap-2 flex-shrink-0 rounded-md text-foreground"
+              aria-label="AI Sundays, go to Home"
+              className="tap-target flex items-center flex-shrink-0 rounded-md text-foreground"
             >
-              <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
-              <span className="text-sm font-semibold tracking-tight">AI Workshop</span>
+              <img src="/brand/logo.svg" alt="" width="92" height="32" className="brand-lockup brand-lockup--light" />
+              <img src="/brand/logo-dark.svg" alt="" width="92" height="32" className="brand-lockup brand-lockup--dark" />
             </a>
             {/* Desktop / tablet: top menu. Mobile uses the fixed bottom bar below. */}
             <nav className="hidden sm:flex items-center gap-0.5">
@@ -194,7 +210,7 @@ export default function App() {
             </nav>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {import.meta.env.VITE_FEEDBACK_ENABLED === 'true' && <FeedbackButton />}
+            <ThemeToggle compact />
             <AuthControls />
             {/* Mobile: hamburger opens the full nav. Desktop uses the top menu. */}
             <button
@@ -227,14 +243,21 @@ export default function App() {
           </TabErrorBoundary>
         ) : (
         <>
-        <section className="mb-8 sm:mb-10">
-          <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight">
-            Build with AI. Show what you learned.
-          </h1>
-          <div className="mt-6 rounded-2xl border border-border overflow-hidden">
-            <img src="/brand/hero.webp" alt="" width="1600" height="176" fetchpriority="high" decoding="async" className="w-full h-28 sm:h-44 object-cover" />
-          </div>
-        </section>
+        {/* Home only. The masthead used to render on every tab, so Tools, Learn,
+            News, Members, Photos and Forum each opened with the h1, the
+            description and the art band before their OWN header, two stacked
+            headings and about 410px of chrome above the first card, on a
+            ~1070px page. Every tab has its own header, and the wordmark in the
+            nav already carries the brand, so nothing is lost by dropping it. */}
+        {tab === 'home' && (
+          <Hero
+            showGlance
+            next={next}
+            sessionCount={data.sessions.length}
+            memberCount={data.members.length}
+            scheduleStatus={scheduleStatus}
+          />
+        )}
 
         <TabErrorBoundary key={`eb-${tab}`}>
         <Suspense fallback={<TabFallback />}>
@@ -277,23 +300,23 @@ export default function App() {
         </>
         )}
       </main>
-      {/* polls render removed — now a pinned card in the Forum */}
+      {/* polls render removed, now a pinned card in the Forum */}
 
       <Footer onNavigate={goTo} />
 
       {/* Mobile menu (hamburger). Desktop uses the top menu. */}
       {menuOpen && (
         <div className="sm:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden />
-          <nav className="absolute top-0 inset-x-0 bg-background border-b border-border shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+          <div className="absolute inset-0 bg-[color:var(--overlay)] backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden />
+          <nav className="absolute top-0 inset-x-0 bg-background border-b border-border shadow-[var(--modal-shadow)]">
             <div className="h-14 flex items-center justify-between px-4 border-b border-border">
               <button
                 onClick={() => { goTo('home'); setMenuOpen(false); }}
-                aria-label="AI Workshop — go to Home"
-                className="flex items-center gap-2 rounded-md text-foreground"
+                aria-label="AI Sundays, go to Home"
+                className="flex items-center rounded-md text-foreground"
               >
-                <img src="/favicon.svg" alt="" width="24" height="24" className="rounded-md" />
-                <span className="text-sm font-semibold tracking-tight">AI Workshop</span>
+                <img src="/brand/logo.svg" alt="" width="92" height="32" className="brand-lockup brand-lockup--light" />
+                <img src="/brand/logo-dark.svg" alt="" width="92" height="32" className="brand-lockup brand-lockup--dark" />
               </button>
               <button onClick={() => setMenuOpen(false)} className="grid place-items-center w-9 h-9 rounded-full text-muted hover:text-foreground hover:bg-accent transition-colors" aria-label="Close menu">
                 <X size={18} />
@@ -318,6 +341,9 @@ export default function App() {
                   </button>
                 );
               })}
+            </div>
+            <div className="p-2 pt-0 border-t border-border pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+              <ThemeToggle />
             </div>
           </nav>
         </div>
