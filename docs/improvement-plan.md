@@ -13,7 +13,7 @@ Area 9 removed the same day, see below.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **71** | **11** | **6** | **12** |
+| Total | **75** | **9** | **4** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -174,17 +174,26 @@ store polls and threads already use.
 
 - [-] 9.1 to 9.10, all moot with the feature removed.
 
-## 10. Platform, 4 done, 4 partial, 2 open
-- [~] 10.1 Security headers (CSP, nosniff, referrer, frame-ancestors, HSTS), every header ships **except** that the CSP is `Content-Security-Policy-Report-Only` with no `report-uri`, so it neither blocks nor reports and its `frame-ancestors` is inert. Highest-value open item here.
-- [~] 10.2 Response compression. Vercel compresses at the edge (production), `server.js` does not. Only matters if the parked self-host runtime is ever used.
-- [x] 10.3 Real `og:image` with absolute URLs, and regenerated from the AI Sundays wordmark on 2026-08-31
-- [ ] 10.4 `robots.txt` + `sitemap.xml`, neither exists
-- [x] 10.5 Route-level code splitting, `React.lazy` on every non-default tab
-- [x] 10.6 Long-cache hashed assets, never the HTML, `/assets/*` immutable, `/api/*` no-store
-- [~] 10.7 Network-failure states in the UI, `TabErrorBoundary` catches stale-chunk failures; there is no general offline/fetch-failure state
-- [~] 10.8 Request logging and a readiness probe, `/healthz` exists; no structured logging, no requestId
-- [x] 10.9 JSON 404/405 for unknown API routes, **fixed 2026-08-31**; previously returned 200 + the SPA shell
-- [ ] 10.10 A repeatable audit script, `scripts/audit.mjs` exists only on `origin/claude/audit-and-ui-overhaul`
+## 10. Platform, 8 done, 2 partial
+Rebuilt 2026-08-31 (`e6f544c`). `npm run csp:check` (5) and `npm run audit` are new.
+- [x] 10.1 Security headers and CSP. **Enforced now**, was `Report-Only` with no
+      `report-uri`, so it neither blocked nor reported. `i.ibb.co` had to be added to
+      `img-src` first or every Forum image upload would have been blocked
+- [~] 10.2 Response compression. Vercel compresses at the edge, so production is covered;
+      `server.js` does not, and it is a parked runtime. Not worth a dependency
+- [x] 10.3 Real `og:image` with absolute URLs
+- [x] 10.4 `robots.txt` and `sitemap.xml`. One URL in the sitemap on purpose: every view is
+      a hash route and a fragment is not a separate URL to a crawler
+- [x] 10.5 Route-level code splitting
+- [x] 10.6 Long-cache hashed assets, never the HTML
+- [x] 10.7 Network-failure states. One offline notice below the header, plus the existing
+      TabErrorBoundary for stale-chunk failures
+- [~] 10.8 Request logging and a readiness probe. `/healthz` exists; no structured logging
+      or requestId, and both would only affect the parked `server.js`
+- [x] 10.9 JSON 404/405 for unknown API routes
+- [x] 10.10 A repeatable audit script. `npm run audit` runs all nine suites, starts what
+      each needs, and reports SKIP separately from PASS so a suite that could not run never
+      reads as green
 
 ---
 

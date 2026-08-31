@@ -2,6 +2,80 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, Area 10 Platform, and the CSP is now ENFORCED
+
+**Current state:** `main` at `e6f544c`. Plan **75 done, 9 partial, 4 open, 12 moot**.
+Areas 1, 2, 4, 5, 6, 7, 8 and 10 are effectively complete; 9 is deleted.
+
+**`npm run audit` is the one command now.** It runs all nine suites, starts what each
+needs, and points each at the right target. It reports SKIP separately from PASS and exits
+2, because a suite that could not run must never read as green.
+
+### READ THIS FIRST if the live site breaks
+**The Content-Security-Policy is enforced as of `e6f544c`.** It was
+`Content-Security-Policy-Report-Only` with no `report-uri` for months, which means it
+neither blocked anything nor reported anything. If something stops loading on production
+and it worked yesterday, suspect the CSP before anything else, and check the browser
+console for a violation naming the blocked origin.
+
+**Adding any new external origin now requires editing `img-src` / `connect-src` in
+`vercel.json`.** The trap found while flipping it: `img-src` did not list `i.ibb.co`, where
+every image uploaded through the ImgBB proxy is served from, so enforcing it as written
+would have blanked every Forum image. Found by grepping `data/threads-store.json` for
+hosts, not by reading the policy, which looks complete.
+
+**`npm run csp:check` is the only way to test it.** Neither `vite dev` nor `vite preview`
+applies `vercel.json`, so the shipping headers are never exercised by the normal servers.
+The check serves `dist/` with the real headers and walks ten routes.
+
+### A check that passed while proving nothing
+The first version of `csp-check` attached the `securitypolicyviolation` listener AFTER
+navigating and then reloaded, which wipes the listener along with the document. It reported
+a clean pass while `api.dicebear.com` was deliberately removed from the policy. Now
+installed with `Page.addScriptToEvaluateOnNewDocument`, and re-verified by removing
+dicebear again: it names all eight blocked avatars.
+
+Worth generalising: **a browser check that has never been seen to fail is not evidence.**
+The same mistake produced a passing `polls:check` against an empty page earlier today.
+
+### Also in
+- `robots.txt` and `sitemap.xml`. The sitemap holds ONE url deliberately: every view is a
+  hash route and a fragment is not a separate URL to a crawler. If the app ever moves to
+  real paths, generate the file from the route table.
+- A single offline notice below the header. Each tab's fetch had its own failure copy, so
+  losing the network produced a scatter of unrelated messages that never named the cause.
+- Auri's Organizer status removed at his request, so no card carries a badge. The Status
+  column stays in `content/members.md`. `members-check` now derives the expected badge
+  count from `src/data.json` rather than asserting one.
+
+### Deliberately NOT claimed
+10.2 response compression and 10.8 structured logging both only affect `server.js`, which
+is a parked runtime: `.github/workflows/deploy.yml` has its push trigger commented out and
+Vercel is production, compressing at the edge. Marking them done would be false.
+
+### Numbered next steps
+1. **Area 3 Next session** (5/10), the largest remaining: `.ics` download beside the Google
+   Calendar link, Lean Coffee auto-flag when fewer than two demos, `lib/venues.js` maps
+   only `matrikel1` so every other venue renders as plain text, a prompt when no Luma link
+   is set, and the roles in the data that are still unrendered.
+2. **Area 8's last two**: a thumbnail strip in the lightbox, and a timeline showing the
+   recorded gaps.
+3. **Area 1's last two**: header shadow only once scrolled, and a print stylesheet.
+4. `.warm-card` still carries a gradient on 8 surfaces, against palette.md's "scoped, not
+   global" rule.
+5. `public/brand/hero.png` (3.4MB) is orphaned and still reprocessed on every build.
+
+### Waiting on Auri
+1. **Only one session is in the dedicated calendar** (2026-09-13).
+2. **The 2026-08-30 session has no note**, so the site still says "8 sessions held" when it
+   is nearer 13. Past sessions come from `content/sessions/*.md`, written by hand.
+3. `Mari`, `Yogi`, `Frederik`: members or guests? One row each in `content/members.md`.
+
+### File pointers
+`vercel.json` (the policy), `scripts/csp-check.mjs`, `scripts/audit.mjs`,
+`public/robots.txt`, `public/sitemap.xml`, `src/App.jsx` (`OfflineNotice`),
+`docs/improvement-plan.md`.
+
 ## SHIPPED 2026-08-31, Area 6 News complete
 
 **Current state:** `main` at `ca08f3c`. **Eight** suites, all green: `smoke`,
