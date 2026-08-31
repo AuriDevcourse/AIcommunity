@@ -19,8 +19,9 @@ const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
 const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
 const TopicsPresentation = lazy(() => import('./components/TopicsPresentation.jsx'));
+const BrandAssets = lazy(() => import('./components/BrandAssets.jsx'));
 import ThemeToggle from './components/ThemeToggle.jsx';
-import LegalPage, { Footer, LEGAL_KEYS } from './components/LegalPages.jsx';
+import LegalPage, { Footer, LEGAL_KEYS, FOOTER_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
 import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
@@ -44,7 +45,7 @@ function readTabFromHash() {
   // Polls.jsx scroll to the one named in the hash.
   if (h.startsWith('poll/')) return 'discussions';
   if (h === 'cockpit') return 'home';      // renamed
-  return (TAB_KEYS.includes(h) || LEGAL_KEYS.includes(h)) ? h : 'home';
+  return (TAB_KEYS.includes(h) || FOOTER_KEYS.includes(h)) ? h : 'home';
 }
 
 // Recap pages live at #recap/<date>. Returns the date or null.
@@ -148,6 +149,27 @@ export default function App() {
     }
   }, [tab, recapDate, present]);
 
+  // Plan 1.3. The header is sticky, so on a scrolled page it floats over content
+  // with nothing but a hairline border to separate the two. Lift it once the page
+  // has actually moved, and leave it flat at the top where there is nothing to
+  // lift off. rAF-throttled and passive: a scroll handler that writes state on
+  // every event is the classic way to make a page feel heavy.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const read = () => {
+      frame = 0;
+      setScrolled(window.scrollY > 4);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(read); };
+    read(); // a reload can restore a scrolled position before any event fires
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
@@ -173,14 +195,18 @@ export default function App() {
     if (typeof window !== 'undefined') { window.location.hash = `recap/${date}`; window.scrollTo({ top: 0, behavior: 'instant' }); }
   };
   const isLegal = LEGAL_KEYS.includes(tab);
+  const isAssets = tab === 'assets';
 
   // The tab is the page as far as history, bookmarks and screen readers care;
   // every view previously reported the same title.
   useEffect(() => {
     const label = TABS.find((t) => t.key === tab)?.label;
-    const view = recapDate ? 'Session recap' : isLegal ? 'Legal' : label || 'Home';
+    const view = recapDate ? 'Session recap'
+      : isAssets ? 'Download assets'
+      : isLegal ? 'Legal'
+      : label || 'Home';
     document.title = `AI Sundays · ${view}`;
-  }, [tab, recapDate, isLegal]);
+  }, [tab, recapDate, isLegal, isAssets]);
 
 
   // Upcoming sessions come live from Google Calendar when configured, else from
@@ -227,7 +253,7 @@ export default function App() {
     <div className="min-h-full flex flex-col">
       <a href="#main" className="skip-link">Skip to content</a>
 
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+      <header className={`app-header sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur ${scrolled ? 'is-scrolled' : ''}`}>
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-7 min-w-0">
             {/* The wordmark is the universal "take me home" affordance and this
@@ -283,11 +309,19 @@ export default function App() {
       <OfflineNotice />
 
       <div aria-live="polite" className="sr-only">
-        {recapDate ? 'Session recap' : TABS.find((t) => t.key === tab)?.label || 'Home'} section
+        {recapDate ? 'Session recap' : isAssets ? 'Download assets' : TABS.find((t) => t.key === tab)?.label || 'Home'} section
       </div>
 
       <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 sm:py-10 flex-1">
-        {isLegal ? (
+        {isAssets ? (
+          <TabErrorBoundary key="eb-assets">
+            <Suspense fallback={<TabFallback />}>
+              <div key="assets" className="tab-enter">
+                <BrandAssets onBack={() => goTo('home')} />
+              </div>
+            </Suspense>
+          </TabErrorBoundary>
+        ) : isLegal ? (
           <div key={tab} className="tab-enter">
             <LegalPage slug={tab} onBack={() => goTo('home')} />
           </div>
@@ -351,7 +385,7 @@ export default function App() {
             {tab === 'news' && <News />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
             {tab === 'members' && <MembersGallery members={data.members} />}
-            {tab === 'sessions' && <SessionsGallery sessions={data.sessions} onOpenRecap={openRecap} />}
+            {tab === 'sessions' && <SessionsGallery sessions={data.sessions} gaps={data.schedule?.gaps || []} onOpenRecap={openRecap} />}
           </div>
         </Suspense>
         </TabErrorBoundary>
@@ -364,7 +398,7 @@ export default function App() {
 
       {/* Mobile menu (hamburger). Desktop uses the top menu. */}
       {menuOpen && (
-        <div className="sm:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+        <div data-print="hide" className="sm:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-[color:var(--overlay)] backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden />
           <nav className="absolute top-0 inset-x-0 bg-background border-b border-border shadow-[var(--modal-shadow)]">
             <div className="h-14 flex items-center justify-between px-4 border-b border-border">

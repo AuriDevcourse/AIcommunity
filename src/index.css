@@ -563,3 +563,78 @@ select:focus-visible {
   border: 1px solid color-mix(in oklab, var(--gold-edge) 20%, var(--border));
   box-shadow: var(--card-shadow);
 }
+
+/* Plan 1.3. The sticky header sits flat at the top of the page and lifts once
+   the page has scrolled under it, so the separation is earned rather than
+   permanent. The shadow is warm (mixed from the brand yellow) instead of neutral
+   black, which on the cream ground reads as grime. `--card-shadow` is not reused:
+   a header needs a wider, softer falloff than a card. The blanket
+   prefers-reduced-motion rule at the top of this file kills the transition. */
+.app-header {
+  transition: box-shadow 240ms ease, background-color 240ms ease;
+}
+.app-header.is-scrolled {
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--foreground) 6%, transparent),
+    0 10px 28px -14px color-mix(in oklab, var(--foreground) 22%, transparent);
+  background-color: color-mix(in oklab, var(--background) 92%, transparent);
+}
+
+/* Plan 1.10. Print. The site is a dashboard, so what someone prints is a
+   session recap or the schedule to carry into a room, never the navigation.
+   Strip the app chrome, drop every decorative ground to white (a cream flood
+   fill wastes a cartridge and greys the text), and stop cards breaking across
+   pages. Kept deliberately short: rules nobody verifies on paper rot. */
+@media print {
+  /* Chrome that means nothing on paper. */
+  .app-header,
+  .skip-link,
+  [data-print="hide"],
+  .agentation-root {
+    display: none !important;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  /* The dark-mode halo is a fixed pseudo-element, which would tile onto every
+     printed page. */
+  body::before { display: none !important; }
+
+  /* Sticky and fixed positioning both repeat their element on every page. */
+  * {
+    position: static !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Warm grounds and tinted cards become a hairline box. */
+  .card, .premium-card, .warm-card, .pill {
+    background: #fff !important;
+    border: 1px solid #bbb !important;
+  }
+  .premium-card::before { display: none !important; }
+
+  /* Never split a session, a card or a heading across a page break. */
+  article, section, .card, .premium-card, .warm-card, figure, img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, .h-section {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* A link's destination is lost on paper. Print it once, for real links only:
+     hash routes resolve to nothing useful and in-app buttons are anchors too. */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  img { max-width: 100% !important; filter: none !important; }
+
+  @page { margin: 16mm; }
+}

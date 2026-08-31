@@ -206,12 +206,26 @@ function PhotoLightbox({ photos, index, onIndex, onClose }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [next, prev, onClose]);
 
-  // Fetch the next photo while this one is on screen, so paging feels instant.
+  // Fetch the neighbouring photos while this one is on screen, so paging feels
+  // instant. Both sides, not just forward: the arrows and the thumbnail strip
+  // page backwards just as often.
   useEffect(() => {
     if (total < 2) return;
-    const img = new Image();
-    img.src = photos[(index + 1) % total];
+    for (const i of [(index + 1) % total, (index - 1 + total) % total]) {
+      const img = new Image();
+      img.src = photos[i];
+    }
   }, [index, total, photos]);
+
+  // Plan 8.6. The active thumbnail scrolls itself into view, so paging with the
+  // arrows keeps the strip in sync instead of leaving the highlight off-screen.
+  // `block: 'nearest'` confines the scroll to the strip; without it the whole
+  // overlay is dragged around under the photo.
+  const stripRef = useRef(null);
+  useEffect(() => {
+    const active = stripRef.current?.querySelector('[data-active="true"]');
+    active?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [index]);
 
   // Swipe. Only a clearly horizontal drag pages the photo, a vertical scroll or
   // a diagonal flick must not flip the image out from under a thumb.
@@ -291,19 +305,72 @@ function PhotoLightbox({ photos, index, onIndex, onClose }) {
       </div>
 
       {total > 1 && (
-        <div
-          className="shrink-0 flex items-center justify-center gap-4 pt-3"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* The side arrows are desktop-only, so touch needs its own controls.
-              Without these, a phone could only ever see the first photo. */}
-          <button onClick={prev} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Previous photo">
-            <ChevronLeft size={20} />
-          </button>
-          <span className="text-xs text-white/80 num tabular-nums">{index + 1} / {total}</span>
-          <button onClick={next} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Next photo">
-            <ChevronRight size={20} />
-          </button>
+        <div className="shrink-0 pt-3" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-center gap-4">
+            {/* The side arrows are desktop-only, so touch needs its own controls.
+                Without these, a phone could only ever see the first photo. */}
+            <button onClick={prev} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Previous photo">
+              <ChevronLeft size={20} />
+            </button>
+            <span className="text-xs text-white/80 num tabular-nums">{index + 1} / {total}</span>
+            <button onClick={next} className="sm:hidden rounded-full chip-on-media p-2.5 transition-colors" aria-label="Next photo">
+              <ChevronRight size={20} />
+            </button>
+            {/* Plan 8.5. The keys have worked since this viewer was written and
+                nothing said so. Pointer-only, because a touch device has no keys
+                to press and the hint would be a lie. */}
+            <span aria-hidden className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-white/55">
+              <span className="inline-flex items-center">
+                <ChevronLeft size={12} strokeWidth={2.4} />
+                <ChevronRight size={12} strokeWidth={2.4} />
+              </span>
+              <span>to move</span>
+              <span>·</span>
+              <span>Esc to close</span>
+            </span>
+            {/* The visual hint is two icons and a separator, which a screen reader
+                announces as "to move Esc to close" and never names a key. Spell it
+                out once, for AT only. */}
+            <span className="sr-only">Use the left and right arrow keys to move between photos, Escape to close.</span>
+          </div>
+
+          {/* Plan 8.6. Thumbnail strip. Paging one photo at a time is the only way
+              to reach #14 of 18 without it. One tab stop, not `total` of them: the
+              active thumb is the only focusable one (roving tabindex) and the
+              arrow keys, already bound above, move the selection. */}
+          <div
+            ref={stripRef}
+            role="group"
+            aria-label="Session photos"
+            /* The overlay pages the photo on a horizontal swipe and sets
+               touch-action: pan-y to claim that gesture from the browser. Both
+               would make this strip unscrollable on touch, so it takes pan-x
+               back and keeps its own touches to itself. */
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            className="mt-3 flex gap-1.5 overflow-x-auto px-3 pb-1 justify-start sm:justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            style={{ touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
+          >
+            {photos.map((url, i) => {
+              const active = i === index;
+              return (
+                <button
+                  key={url}
+                  type="button"
+                  data-active={active}
+                  aria-current={active ? 'true' : undefined}
+                  tabIndex={active ? 0 : -1}
+                  onClick={() => onIndex(i)}
+                  aria-label={`Photo ${i + 1} of ${total}`}
+                  className={`relative shrink-0 h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-md transition-opacity ${
+                    active ? 'opacity-100 ring-2 ring-white' : 'opacity-45 hover:opacity-80'
+                  }`}
+                >
+                  <img src={url} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover" />
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>,
@@ -372,7 +439,7 @@ function RecapActions({ date }) {
   }
 
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-2">
+    <div data-print="hide" className="mt-5 flex flex-wrap items-center gap-2">
       <button onClick={copyLink} className="btn btn-sm btn-ghost">
         {copied ? <Check size={14} strokeWidth={2.4} className="text-ok" /> : <Link2 size={14} strokeWidth={2.2} />}
         {copied ? 'Link copied' : 'Copy link'}
