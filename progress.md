@@ -2,7 +2,7 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## OPEN PRIVACY ISSUE, 2026-08-31, member emails reach the client bundle
+## OPEN PRIVACY ISSUE, 2026-08-31, member and invitee emails are published
 
 **Current state:** UNFIXED. Nothing built for this yet. `main` clean at `75303d7`. Found
 while designing `content/members.md`; recorded first because it is live.
@@ -27,22 +27,40 @@ emails, so the "Coming" list on the next-session card shows the right member nam
 photo instead of a raw calendar entry. It is a real feature, so the values cannot simply be
 deleted without breaking it.
 
-### The fix
-The address is only ever compared for **equality**, never displayed or contacted. So store
-a SHA-256 of the lowercased address as `emailHash`, drop `email`, and hash the incoming
-calendar address before comparing. The "Coming" list keeps working and the bundle carries
-non-reversible digests instead of contactable addresses. Contained: one field in the JSON
-and one lookup in `src/lib/attendees.js`.
+### SECOND, LARGER LEAK: /api/attendees returns every invitee's address
+Found after the entry above. `api/_gcal.js` copies `email: a.email || ''` straight out of
+the Google Calendar invite into the response, and `api/attendees.js` puts NO gate on GET.
+The production endpoint answers an unauthenticated request with **ten** addresses, every
+invitee rather than only the four members in the JSON, and it is edge-cached with
+`s-maxage` so it serves fast and a stale response can outlive a fix by the cache window.
 
-### Numbered next steps
-1. **Add `emailHash`, remove `email`, update the one lookup in `src/lib/attendees.js`, then
-   redeploy.** This is the step that stops the ongoing publication.
-2. Verify afterwards that no address appears in the deployed client bundle.
-3. Decide whether to purge history. It does not un-publish, so the usual advice is to
-   accept it and stop the bleeding, but it is Auri's call.
-4. **Auri's judgement, not a technical step:** the three other members did not choose to
-   have their address on a public site. Consider telling them.
-5. Then build `content/members.md` (below), which must NOT carry emails.
+The UI never renders those addresses. It uses them only to match a guest to a member so the
+"Coming" list can show the right name and photo.
+
+### Hashing was considered and REJECTED
+The first version of this entry proposed storing a SHA-256 of each address. That is a weak
+fix and the wrong one:
+- Emails are low-entropy. `firstname.lastname@gmail.com` is guessable and rainbow tables
+  for common addresses exist, so a digest is cheap to brute-force for a targeted person.
+- HMAC with a secret would be far stronger, but the comparison sat in
+  `src/lib/attendees.js`, client-side, so the browser would need the key. That defeats it.
+- Under GDPR a hashed address is pseudonymised, not anonymised. Still personal data where
+  it can be re-linked.
+- It obfuscates one leak and leaves the ten-address endpoint untouched.
+
+### The fix: stop sending the data to the client at all
+The matching already runs on a server. It just hands the raw addresses over afterwards.
+Less code than hashing, and it closes both leaks instead of obscuring one.
+1. **Drop `email` from the `/api/attendees` response** (`api/_gcal.js`, one line). Closes
+   the ten-address leak immediately. Do this first.
+2. **Move member matching server-side**, so `_gcal.js` resolves guest to member and returns
+   `name`, `avatar`, `status`, which is all the UI draws.
+3. **Delete `email` from `data/members-profile.json` outright.** Once the client is not
+   matching it needs no address, hashed or otherwise. Photos, LinkedIn and displayName stay
+   client-side and are fine there.
+4. Verify no address appears in the deployed bundle or in any API response.
+5. Remember the edge cache: a cached `/api/attendees` response can still serve the old
+   payload for the `s-maxage` window after deploy.
 
 ### Related: `content/members.md`, requested and not yet built
 Single source of truth for who is on the team. Today the member list is parsed from a
@@ -57,8 +75,10 @@ missing alias that makes `Auri` fail to match `Aurimas Baciauskas` in attendance
 Proposed columns: Name, Status, Aliases. No email column.
 
 ### File pointers
-`data/members-profile.json` (the stored values), `src/lib/attendees.js` (the only reader of
-`.email`), `src/lib/members-profile.js` (imports the JSON into the client bundle),
+`api/_gcal.js` (copies invitee emails into the response, the larger leak),
+`api/attendees.js` (no gate on GET), `data/members-profile.json` (the four stored values),
+`src/lib/attendees.js` (the client-side matcher that made the emails necessary),
+`src/lib/members-profile.js` (imports the JSON into the client bundle),
 `scripts/build-data.js` `parseHub` (parses the vault member table).
 
 ## Area 7 (Members) pre-work findings, 2026-08-31
