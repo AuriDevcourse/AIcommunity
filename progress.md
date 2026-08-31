@@ -2,6 +2,38 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, `41a87dc`, the dark-mode logo sun
+
+**Current state:** `main` at `41a87dc`, clean and pushed. `npm run audit` green on all
+nine suites.
+
+Auri reported the dark header as "too dark, the logo with green sun is invisible". The
+header ground was fine. The sun was the whole problem.
+
+### The rule this breaks
+In the inverted lockup the sun sits **outside** the blob, so it has to contrast with the
+**page**, not with the blob. It was drawn in `cls-2` (green `#124A30`) on the `#103A26`
+header: two shades of the same green, so the corner rendered as a bare wordmark with a
+missing dot. One character changed in `public/brand/logo-dark.svg`, the sun path
+`M1000.13,160.6...` moved from `cls-2` to `cls-1` (amber `#F8B800`).
+
+**This is the second time.** The identical flaw was found and fixed on the OG image
+earlier the same day and not carried across to the header. Any future edit to one lockup
+should be checked against the other: `public/brand/logo.svg` (sun already `cls-1`, correct
+on cream) and `public/brand/logo-dark.svg`.
+
+`npm run gen:icons` regenerates `brand/og.png` from the light lockup, so the OG image is
+untouched by this and stayed out of the diff.
+
+### Numbered next steps
+Unchanged from the section below. In short: the archive gap (item 1 there) is the only one
+that needs Auri; **8.6** lightbox thumbnail strip, **8.8** gaps timeline, **1.3** header
+shadow on scroll and **1.10** print stylesheet are the four open plan items.
+
+### File pointers
+`public/brand/logo-dark.svg`, `public/brand/logo.svg`, `scripts/gen-icons.mjs`,
+`src/App.jsx:249` (the sticky header).
+
 ## SHIPPED 2026-08-31, session #09 recorded
 
 **Current state:** `main` at `d5cb4ca`. `npm run audit` green on all nine suites.
