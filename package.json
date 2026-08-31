@@ -22,7 +22,8 @@
     "lightbox:check": "node scripts/lightbox-check.mjs",
     "history:check": "node scripts/history-check.mjs",
     "polls:check": "node scripts/polls-check.mjs",
-    "members:check": "node scripts/members-check.mjs"
+    "members:check": "node scripts/members-check.mjs",
+    "news:check": "node scripts/news-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.1.0",

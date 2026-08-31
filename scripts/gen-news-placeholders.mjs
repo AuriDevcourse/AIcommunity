@@ -12,12 +12,17 @@ import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const NEWS = join(ROOT, 'data', 'news.json');
 const IMG_DIR = join(ROOT, 'public', 'news-images');
-const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = process.env.CHROME || (
+  process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : process.platform === 'win32' ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+  : 'google-chrome');
 const FORCE = process.argv.includes('--force');
 
 const PALETTE = {
@@ -78,7 +83,7 @@ function cardHtml(item) {
       <h1>${esc(item.title)}</h1>
       ${item.subtitle ? `<p class="sub">${esc(item.subtitle)}</p>` : ''}
     </div>
-    <div class="foot">AI Workshop · Copenhagen &nbsp;·&nbsp; ${esc(item.sources?.[0]?.name || 'Roundup')}</div>
+    <div class="foot">AI Sundays · Copenhagen &nbsp;·&nbsp; ${esc(item.sources?.[0]?.name || 'Roundup')}</div>
   </body></html>`;
 }
 
@@ -87,7 +92,7 @@ function shoot(htmlPath, outPath) {
     const p = spawn(CHROME, [
       '--headless=new', '--disable-gpu', '--no-sandbox', '--force-color-profile=srgb',
       '--virtual-time-budget=3000', '--window-size=1200,675',
-      `--screenshot=${outPath}`, `file://${htmlPath}`,
+      `--screenshot=${outPath}`, pathToFileURL(htmlPath).href,
     ], { stdio: 'ignore' });
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`chrome exit ${code}`))));
     p.on('error', reject);
@@ -96,7 +101,7 @@ function shoot(htmlPath, outPath) {
 
 let made = 0;
 for (const item of targets) {
-  const html = join('/tmp', `news-card-${item.id}.html`);
+  const html = join(tmpdir(), `news-card-${item.id}.html`);
   const png = join(IMG_DIR, `${item.id}-card.png`);
   writeFileSync(html, cardHtml(item));
   try {

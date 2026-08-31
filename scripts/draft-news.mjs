@@ -175,6 +175,10 @@ async function main() {
 
   const draft = {
     generatedAt: new Date().toISOString(),
+    // Copy this across as `curatedAt` (YYYY-MM-DD) when promoting a draft into
+    // data/news.json. The News tab reads it for its "last reviewed" line, and a
+    // date derived from git would report unrelated commits instead.
+    curatedAt: new Date().toISOString().slice(0, 10),
     note: 'AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app.',
     windowLabel: '',
     items,

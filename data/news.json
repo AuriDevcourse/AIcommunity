@@ -1,5 +1,6 @@
 {
   "windowLabel": "Aug 15 – Aug 29, 2026",
+  "curatedAt": "2026-08-29",
   "themes": {
     "global": "Consolidation, not capability. Nvidia moved to buy Hugging Face for $12.9B, the open-model commons acquired by the company that sells the silicon underneath it, while DeepSeek raised at $74B on the strength of being cheap. The labs also started behaving like an industry rather than rivals: OpenAI and Anthropic co-signed a cyber-defence call with a hundred other companies, and Anthropic proposed a shared standard for agents driving physical lab hardware. IBM quietly shipped Granite 4.2 open weights for people who want none of it in the cloud.",
     "europe": "A Danish fortnight. Copenhagen University put DKK 110M and a Deputy Prorector behind AI, Denmark held its first national AI-safety conference, and Odense's Velatir raised €5M for the layer that makes an agent stop and ask a human, three answers to the same question about who supervises these systems. Slovakia went the other way and legislated, banning under-16s from social accounts."
@@ -75,7 +76,7 @@
           "url": "https://www.anthropic.com/news"
         }
       ],
-      "image": "/news-images/openai-anthropic-joint-cyber-defence-call-card.jpg",
+      "image": "/news-images/openai-anthropic-joint-cyber-defence-call-card.png",
       "imageSource": "generated"
     },
     {
@@ -94,7 +95,7 @@
           "url": "https://techstartups.com/2026/08/26/top-tech-news-today-august-26-2026-amazon-anthropic-google-microsoft-waymo-more/"
         }
       ],
-      "image": "/news-images/deepseek-raises-at-74-billion-valuation-card.jpg",
+      "image": "/news-images/deepseek-raises-at-74-billion-valuation-card.png",
       "imageSource": "generated"
     },
     {
@@ -113,7 +114,7 @@
           "url": "https://techstartups.com/2026/08/26/top-tech-news-today-august-26-2026-amazon-anthropic-google-microsoft-waymo-more/"
         }
       ],
-      "image": "/news-images/ibm-granite-4-2-open-weights-card.jpg",
+      "image": "/news-images/ibm-granite-4-2-open-weights-card.png",
       "imageSource": "generated"
     },
     {
@@ -136,7 +137,7 @@
           "url": "https://www.anthropic.com/news"
         }
       ],
-      "image": "/news-images/anthropic-model-hardware-standard-card.jpg",
+      "image": "/news-images/anthropic-model-hardware-standard-card.png",
       "imageSource": "generated"
     },
     {
@@ -216,7 +217,7 @@
           "url": "https://www.eu-startups.com/2026/08/weekly-funding-round-up-all-of-the-european-startup-funding-rounds-we-tracked-this-week-aug-24-aug-28"
         }
       ],
-      "image": "/news-images/neno-amsterdam-ai-financial-services-card.jpg",
+      "image": "/news-images/neno-amsterdam-ai-financial-services-card.png",
       "imageSource": "generated"
     },
     {
@@ -235,7 +236,7 @@
           "url": "https://techstartups.com/2026/08/26/top-tech-news-today-august-26-2026-amazon-anthropic-google-microsoft-waymo-more/"
         }
       ],
-      "image": "/news-images/slovakia-bans-under-16-social-accounts-card.jpg",
+      "image": "/news-images/slovakia-bans-under-16-social-accounts-card.png",
       "imageSource": "generated"
     },
     {
