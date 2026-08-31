@@ -2,6 +2,76 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-08-31, declutter audit. Findings only, NOTHING applied
+
+**Current state:** `main` at `ed30ca8`, clean. No code changed by this audit. Measured against
+the **dev** server with live Google Calendar, Upstash and Blob data, at 1280x900 and 390x844.
+
+Full report, published as an Artifact:
+https://claude.ai/code/artifact/b660706e-d476-4a33-8ec1-3d0fd2e4a74f
+(the earlier before/after of the plan items is
+https://claude.ai/code/artifact/18bb6053-8687-4827-9d75-484e71a30223)
+
+### Measure against dev, never preview
+`vite preview` serves `dist/` with **no serverless functions**, so `/api/*` 404s and Home renders
+every panel as an empty state: "None", "No upcoming session scheduled", "No dates on the
+calendar yet". Any judgement about density made on port 5281 is a judgement about the empty
+state. The audit suites are right to use preview; a human looking at the page is not.
+
+### The two findings that matter
+1. **41% of desktop Home is an empty panel plus a duplicate panel**, 730px of 1763px.
+   `LatestDiscussion` costs **534px** to say "No discussions yet", because the two-column row
+   stretches it to match Top ideas, so an empty state is the tallest block on the page.
+   `ScheduleAhead` costs another **196px** (245px mobile) to restate the session spelled out
+   directly above it, under a warning that only one date is scheduled. It earns its place at two
+   or more future dates and not before.
+2. **The next session is stated three times, in three disagreeing formats:** `12 days 17 hr`
+   (hero), `in 13 days` (card pill), `Sun 13 Sept` (schedule row). Counted from
+   `main.innerText`: the date 3x, "in 13 days" 2x, the venue address 2x, "Copenhagen" 2x,
+   "12:30" 2x, and the Top ideas author 4x. Identical at both widths, so it is the content, not
+   a responsive artifact.
+
+### Constants masquerading as information
+- **`1 min` on all twelve news cards.** `readingMinutes` runs at 200wpm over cards that are all
+  well under 200 words, so it can only ever print 1 min. Verified across all 12 items.
+- **`6 slides` on all four Learn decks.**
+- **`2 sources` printed beside the two source names.**
+- **The `#N` badge on news covers is `item.n`, an id, not a rank.** Cards render newest first, so
+  it reads #3, #6, #7, #1, #2 down the page. Worse than no number.
+
+### Biggest single redundancy, needs an Auri decision
+**Six of twelve news covers have the title and subtitle burned into the image**, and the same
+title and subtitle are set as text directly beneath (the `*-card.png` files). Keep the text (it
+is selectable, searchable and legible on a phone) and let covers be pictures, or regenerate the
+covers without type. Not a code fix, a generation decision.
+
+### Ranked next steps, none started
+1. Collapse `LatestDiscussion` when empty, or let the two-column row become one. **534px.**
+2. Render `ScheduleAhead` only when it holds a date the Next session card does not. **196px**,
+   and it takes the duplicated venue address with it.
+3. Strip the news meta row to sources and date: drop `1 min`, the source tally, the `#N` badge.
+4. The burned-in headline decision above.
+5. One sign-in prompt per tab. The Forum renders **three** `SignInGate`s plus the header button.
+6. Line deletions: the eyebrows that restate the nav (ARCHIVE/Sessions, COMMUNITY/Members,
+   LEARN/Build with AI, DISCUSSIONS/Community forum), `9 sessions.` under the Photos title (the
+   timeline row says it with the span), `12 stories · 2 themes`, the `Format TBD` pill (the Lean
+   Coffee note already says the format is open), the Top ideas author column, and ideas at a
+   negative score on the landing page.
+7. Restyle the generated avatars. Seven bright DiceBear faces outshout sixteen real portraits.
+
+### Do NOT cut these, they only look redundant
+"Sessions are recorded" (the one notice with a legal job, make it quieter but keep it before the
+session), the hero countdown (the only statement of the date that answers "is it soon"), the news
+GLOBAL/EUROPE theme summaries (the only editorial judgement on the page), `1 session` under a
+member name (what the Sessions sort runs on), and the date + photo-count pills on session tiles.
+
+### File pointers
+`src/components/LatestDiscussion.jsx`, `src/components/ScheduleAhead.jsx`,
+`src/components/NextSession.jsx`, `src/components/Hero.jsx`, `src/components/News.jsx`
+(`readingMinutes` at the top, the meta row around line 279), `src/components/Suggestions.jsx`
+(Top ideas), `src/components/Learn.jsx`, `src/components/MembersGallery.jsx` (the DiceBear
+avatar), `src/App.jsx:373` (the Home two-column row).
+
 ## 2026-08-31, Download assets footer page
 
 **Current state:** SHIPPED. `main` at `e58981f`, pushed, and Vercel deployed it on the push
