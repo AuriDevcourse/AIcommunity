@@ -46,6 +46,31 @@ removal note.
    the directory at all? Yes moves this toward the member/projects directory he asked
    about earlier; no means the attendance count just ignores them.
 
+### WhatsApp as a member-data source: investigated, rejected
+Asked whether the roster could be pulled from the WhatsApp group automatically. Three
+routes, none usable:
+- **Official Meta WhatsApp Business Cloud API** does not expose group participant lists or
+  group history for an existing community group, and needs a dedicated number plus Business
+  verification. It cannot read the group's roster at all.
+- **whatsapp-web.js / Baileys** can, by driving WhatsApp Web or reimplementing the
+  protocol, and are a direct ToS violation with a real risk of the number being banned.
+  This is the case rule 19 exists for. Do not.
+- **Manual chat export** is legitimate but manual, and yields names only.
+
+It is also the wrong SHAPE even if it worked: WhatsApp names are the nicknames (`Auri`,
+`Mari`, `Yogi`) that already cause the 10-of-15 matching failure above, with no photo, no
+LinkedIn, no email. And a roster is phone numbers, so rules 6 and 18 apply.
+
+**Use the already-planned Supabase `profiles` table instead.** Google sign-in is live and
+`user_metadata` already carries `full_name`, `avatar_url` and a `description` that
+`src/lib/auth.jsx:19` reads, so names and photos self-update from a source the member
+maintains. It gives a canonical user id per member, which fixes the nickname matching at
+the root, and carries the "what I'm building" field the projects showcase needs.
+Non-signed-in members keep `data/members-profile.json` as the fallback.
+
+**Unverified:** Auri's `orgsConsole` project reportedly aggregates Google + WhatsApp for
+LYS/LTBB. If WhatsApp ingestion is already solved there, check how before re-deciding.
+
 ### File pointers
 `src/components/MembersGallery.jsx` (the tab), `src/lib/members-profile.js` (the merge),
 `data/members-profile.json` (photos, LinkedIn, displayName, gender), `scripts/build-data.js`
