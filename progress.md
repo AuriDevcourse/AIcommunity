@@ -2,6 +2,55 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## Area 7 (Members) pre-work findings, 2026-08-31
+
+**Current state:** nothing built for Area 7 yet. `main` clean at `ad747db`. This is
+investigation only, recorded so it is not re-derived: reading the data turned up three
+problems that would make a naive implementation display wrong information.
+
+**Where the ten stand.** Done: 7.4 deterministic DiceBear avatars, 7.5 LinkedIn
+affordance, 7.7 responsive 2/3/4/5 grid, 7.8 accessible names, 7.9 empty state.
+Open: 7.1 role badges, 7.2 search, 7.3 sort control, 7.6 sessions-attended, 7.10
+removal note.
+
+### The three data problems, measured
+1. **Two fake members.** `Unknown #1` and `Unknown #2` carry `status: "Number only"`, a
+   parsing artifact where the vault member table recorded a headcount without names.
+   Render 7.1 as-is and two cards get a badge reading "Number only". They also inflate
+   the count: the tab claims "20 people" and draws 20 cards, but two are not people.
+2. **Three members never render.** `Andrei Prusu`, `Pavel Kucera` and `Ernestas Sažinas`
+   have full entries with photos in `data/members-profile.json` but **no row in the member
+   table**, so they are absent from `members[]` in `src/data.json`.
+3. **Attendance names do not line up.** Sessions record first names (`Auri`, `Ignas`,
+   `Sany`); members are full names. A naive token match resolves **10 of 15** distinct
+   attendee names. The five misses split two ways: `Auri` is Auri's own nickname and needs
+   an alias, while `Mari`, `Yogi` and `Frederik` look like guests who were never members.
+   A count that silently drops the organiser's own attendance is worse than no count.
+
+### What the data does support
+- **7.1 is pure render work.** `members[].status` already holds exactly `Organizer` /
+  `Active` (1 and 16 respectively, plus the 2 bogus rows).
+- **7.6 is computable.** 6 of 8 sessions have a populated `attendees[]`.
+- `PostMaker.jsx` already has a `sameName` helper handling nicknames and prefixes, so the
+  fuzzy matcher for 7.6 exists to reuse rather than write.
+- 7.3 replaces a **random shuffle on every mount** (`MembersGallery.jsx:56`), which is the
+  opposite of a sort control.
+
+### Numbered next steps
+1. Fix the data layer first, in `scripts/build-data.js` and `data/members-profile.json`:
+   drop the `Unknown #N` rows from the member list (keep them in a headcount if the number
+   matters), add the three missing member rows, add an alias field so `Auri` resolves to
+   `Aurimas Baciauskas`. 7.1 and 7.6 become honest only after this.
+2. Then the UI items: 7.2 search, 7.3 a real sort control, 7.10 removal note.
+3. **Open question for Auri:** should guests who attended but are not members appear in
+   the directory at all? Yes moves this toward the member/projects directory he asked
+   about earlier; no means the attendance count just ignores them.
+
+### File pointers
+`src/components/MembersGallery.jsx` (the tab), `src/lib/members-profile.js` (the merge),
+`data/members-profile.json` (photos, LinkedIn, displayName, gender), `scripts/build-data.js`
+(parses the vault member table into `members[]`), `src/components/PostMaker.jsx` (`sameName`).
+
 ## SHIPPED, 2026-08-31, ten commits on `main`, pushed
 
 **Current state:** `main` == `origin/main` at `93baf8d`. Working tree clean apart from
