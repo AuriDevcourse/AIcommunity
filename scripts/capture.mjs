@@ -7,7 +7,7 @@
 // and drives it directly: Emulation.setEmulatedMedia for the colour scheme,
 // Page.captureBeyondViewport for the whole scroll height.
 //
-// Requires the dev server (npm run dev) on BASE_URL. No npm dependencies —
+// Requires the dev server (npm run dev) on BASE_URL. No npm dependencies
 // Node's global WebSocket does the CDP transport.
 
 import { spawn } from 'node:child_process';
@@ -20,7 +20,10 @@ if (!OUT) {
   process.exit(1);
 }
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:5281';
-const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = process.env.CHROME || (
+  process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : process.platform === 'win32' ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+  : 'google-chrome');
 const PORT = Number(process.env.CDP_PORT || 9222);
 const PROFILE = `/tmp/chrome-capture-${process.pid}`;
 
@@ -32,6 +35,13 @@ const SHOTS = [
   { name: 'sessions-light', hash: 'sessions', w: 1440, h: 1000, scheme: 'light' },
   { name: 'tools-light', hash: 'tools', w: 1440, h: 1000, scheme: 'light' },
   { name: 'home-mobile', hash: 'home', w: 390, h: 844, scheme: 'light', mobile: true },
+  { name: 'news-dark', hash: 'news', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'members-dark', hash: 'members', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'sessions-dark', hash: 'sessions', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'tools-dark', hash: 'tools', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'discussions-dark', hash: 'discussions', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'learn-dark', hash: 'learn', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'home-mobile-dark', hash: 'home', w: 390, h: 844, scheme: 'dark', mobile: true },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -153,7 +163,7 @@ try {
 
     // Scroll the whole page before capturing. captureBeyondViewport renders the
     // full height but does NOT trigger loading="lazy" images below the fold, so
-    // without this the tail of every long page screenshots as blank boxes —
+    // without this the tail of every long page screenshots as blank boxes
     // which silently misrepresents the site in any before/after comparison.
     await cdp.send('Runtime.evaluate', {
       expression: `(async () => {
@@ -168,6 +178,16 @@ try {
         document.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = 'eager'; });
         await Promise.all([...document.images].filter(i => !i.complete).map(i =>
           new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 2500); })));
+        // Then wait for the network to go quiet. Images alone are not enough:
+        // the schedule, photos and RSVPs arrive by fetch after first paint, so
+        // without this a shot can catch the empty state and look like a
+        // regression. Polls the resource count until it stops growing.
+        let last = -1, stable = 0;
+        for (let i = 0; i < 50 && stable < 6; i++) {
+          await new Promise(r => setTimeout(r, 100));
+          const n = performance.getEntriesByType('resource').length;
+          if (n === last) stable += 1; else { stable = 0; last = n; }
+        }
         await new Promise(r => setTimeout(r, 250));
       })()`,
       awaitPromise: true,
