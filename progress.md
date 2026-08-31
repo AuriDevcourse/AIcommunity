@@ -2,6 +2,70 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## SHIPPED 2026-08-31, Area 7 Members complete
+
+**Current state:** `main` at `50fa800`. **Seven** suites, all green: `smoke`,
+`theme:check` (34), `identity:check` (21), `lightbox:check` (13), `history:check` (11),
+`polls:check` (14) and `members:check` (13). Plan **64 done, 15 partial, 9 open, 12 moot**.
+Areas 1, 2, 4, 5, 7 and 8 are effectively complete; 9 is deleted.
+
+### content/members.md is the source of truth now
+**To add or remove a member, edit that file.** Columns are Name | Status | Aliases, then
+`npm run build:data` (which `npm run dev` runs anyway). It replaces the `| Name | Status |`
+table in Auri's Obsidian vault, which only existed on one laptop, so nobody else could add
+a person and Vercel builds fell back to a committed snapshot. `scripts/build-data.js`
+prefers the file and keeps `parseHub()` as a fallback for an older checkout.
+
+- **Name must match the key in `data/members-profile.json`** or that person gets a
+  generated avatar instead of their photo.
+- **Aliases exist for attendance matching.** Session notes record first names, so a member
+  whose notes name differs from their row reads zero sessions without one. `Auri` is why
+  the organiser's own count is 6 and not 0.
+- **No email column, deliberately.** The repo is public and nothing rendered needs one.
+
+### Three data faults the move fixed, none of them on the plan
+1. `Unknown #1` and `Unknown #2` were headcount placeholders from the vault table. They
+   rendered as two blank cards AND counted toward "20 people".
+2. Andrei Prusu, Pavel Kucera and Ernestas Sazinas had full profiles with photos but no
+   member row, so they never appeared at all.
+3. The roster is now 20 real people; the tab previously claimed 20 while drawing 18 plus
+   two blanks.
+
+### Still an open gap
+`Mari`, `Yogi` and `Frederik` appear in session attendance and match nobody. 31 of 34
+entries resolve; those three are treated as guests and counted nowhere. **Only Auri knows
+whether they are members recorded under another name.** Recorded under "Known gaps" in
+`content/members.md`; adding each is one row. Do not guess a full name into a public repo.
+
+### Numbered next steps
+1. **Area 6 News** (3/10): text search, sticky filter bar, blur-up placeholders, source
+   count and reading time, arrow-key filter chips, a real last-updated line.
+2. **Area 10 Platform** (4/10): robots.txt and sitemap.xml, a repeatable audit script,
+   network-failure states. **The CSP is still `Report-Only` with no `report-uri`**, so it
+   neither blocks nor reports; flipping it ships straight to prod and wants sign-off.
+3. **Area 3 Next session** (5/10): `.ics` download, Lean Coffee auto-flag, `lib/venues.js`
+   maps only `matrikel1` so every other venue renders as plain text, Luma prompt, the
+   unrendered roles.
+4. Area 1's last two: header shadow on scroll, print stylesheet.
+5. `.warm-card` still carries a gradient on 8 surfaces, against palette.md's "scoped, not
+   global" rule.
+6. `public/brand/hero.png` (3.4MB) is orphaned and still reprocessed every build.
+
+### Waiting on Auri
+1. **Only one session is in the dedicated calendar** (2026-09-13), so the schedule shows a
+   single date and the low-runway warning fires. `GCAL_CALENDAR_ID` is set in `.env.local`
+   AND Vercel, and prod is confirmed reading it.
+2. **Yesterday's session (2026-08-30) has no note.** The archive stops at `#08` on
+   2026-06-14, so the site says "8 sessions held" when it is nearer 13. Past sessions come
+   from `content/sessions/*.md`, written by hand; no calendar change fixes this.
+3. The three unmatched attendance names above.
+
+### File pointers
+`content/members.md` (the roster), `scripts/build-data.js` (`parseMembersFile`,
+`attendanceCounts`), `src/components/MembersGallery.jsx`, `data/members-profile.json`
+(photos, LinkedIn, displayName, gender), `scripts/members-check.mjs`,
+`docs/improvement-plan.md`.
+
 ## SHIPPED 2026-08-31, Area 5 Polls complete
 
 **Current state:** `main` at `6ecaf2d`, pushed and deployed. **Six** suites, all green:

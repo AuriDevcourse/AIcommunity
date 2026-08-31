@@ -13,7 +13,7 @@ Area 9 removed the same day, see below.
 
 | | Done | Partial | Open | Moot |
 |---|---|---|---|---|
-| Total | **59** | **15** | **14** | **12** |
+| Total | **64** | **15** | **9** | **12** |
 
 Area 9 (Feedback) was removed on 2026-08-31, which moved its 1 done, 2 partial and
 7 open into moot. 90 items are now live. Area 4 was rebuilt the same day: 8 done and
@@ -125,17 +125,26 @@ browser.
 - [ ] 6.9 Arrow-key navigation across filter chips
 - [~] 6.10 "Last updated" line, `windowLabel` covers the window, not a last-updated timestamp
 
-## 7. Members, 5 done, 5 open
-- [ ] 7.1 Role badges (Organizer vs Active)
-- [ ] 7.2 Member search
-- [ ] 7.3 Sort control, the order is a random **shuffle on every mount**, which is the opposite of a control
-- [x] 7.4 Deterministic colour for initials avatars. DiceBear seeded by name
-- [x] 7.5 Clearer LinkedIn affordance, brand bug + `aria-label`
-- [ ] 7.6 Sessions-attended count from real history
-- [x] 7.7 Grid tuned per breakpoint, 2 / 3 / 4 / 5
-- [x] 7.8 Accessible names on every card, `aria-label` on the link, `alt=""` on the decorative photo
-- [x] 7.9 Empty state, "No members yet."
-- [ ] 7.10 Visible note on how to be removed
+## 7. Members, 10 done
+Rebuilt 2026-08-31 (`50fa800`). `npm run members:check`, 13 assertions.
+**`content/members.md` is now the source of truth** (Name | Status | Aliases), replacing the
+table that lived only in Auri's Obsidian vault. `scripts/build-data.js` reads it and keeps
+the vault table as a fallback for an older checkout.
+- [x] 7.1 Role badges, only `Organizer` renders; nineteen "Active" badges would be noise
+- [x] 7.2 Member search, over display name and aliases
+- [x] 7.3 Sort control: Featured / Name / Sessions. The old random shuffle survives as ONE
+      option instead of being the only behaviour
+- [x] 7.4 Deterministic colour for initials avatars, DiceBear seeded by name
+- [x] 7.5 Clearer LinkedIn affordance
+- [x] 7.6 Sessions-attended from real history, 31 of 34 attendance entries resolve
+- [x] 7.7 Grid tuned per breakpoint
+- [x] 7.8 Accessible names on every card
+- [x] 7.9 Empty state, plus a distinct "nobody matches" state for a search
+- [x] 7.10 Visible note on how to be removed
+
+Fixed by the move, none of which were on the plan: `Unknown #1` and `Unknown #2` were
+headcount placeholders rendering as blank cards and inflating the count; Andrei Prusu,
+Pavel Kucera and Ernestas Sazinas had photos but no member row and never appeared at all.
 
 ## 8. Sessions archive & lightbox, 7 done, 1 partial, 2 open
 - [x] 8.1 List every session, not only those with photos, `SessionTile` handles `hasPhotos === false`
