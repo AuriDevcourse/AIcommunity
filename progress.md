@@ -2,158 +2,74 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## OPEN BUG, 2026-08-31, the Coming list shows an unrelated calendar event
+## FIXED 2026-08-31, `9b1c9ab`, the email exposure and the wrong-event bug
 
-**Current state:** UNFIXED, and recorded here UNCOMMITTED on purpose. It should be
-committed together with the fix rather than as another docs-only commit.
+**Current state:** shipped to `main` and deployed. Three leaks closed. `main` at `153d73b`.
 
-`findEvent()` in `api/_gcal.js` has two fallbacks:
+### What was wrong
+Two faults, fixed in one commit because fixing either alone regressed the other.
 
-    items.find(e => matches(e.summary) && e.attendees.length)
-    || items.find(e => e.attendees.length)     // <- this one
+1. **`findEvent` matched the wrong event.** It had a second fallback accepting ANY event in
+   the window with attendees. The 2026-09-06 session has none, so `/api/attendees` returned
+   the guest list of `"Placeholder: Atostogos | Neda"`, a personal holiday event in the same
+   calendar. Two of its tentative guests, `Eltjuga` and `Arnas127`, were rendering by name
+   on the live next-session card. Neither is a member.
+2. **The endpoint published every invitee's address.** Public and unauthenticated, ten per
+   request, four of whom had declined the invite.
+3. **The bundle published four more.** `data/members-profile.json` stored addresses for four
+   members, and because `src/lib/attendees.js` imported that file, Vite compiled all four
+   into the client JS served to every visitor. `resolveGuest` tried an exact-email match
+   first, which was the only reason they were stored.
 
-The second accepts **any** event in the window that has attendees. The AI Sundays session
-on 2026-09-06 has none, so `/api/attendees?date=2026-09-06` matched
-`"Placeholder: Atostogos | Neda"`, a personal holiday placeholder starting 2026-08-29, and
-returned its ten guests.
+### What shipped
+Title match only in `findEvent`; no match returns `found: false` and the Coming row does not
+render. `email` removed from the `/api/attendees` response. Addresses removed from
+`members-profile.json` and the email branch removed from `resolveGuest`.
 
-Two consequences:
-1. **Functional:** the "Coming" list on the live next-session card shows guests of an
-   unrelated personal event. Anyone's event, whatever happens to be in the calendar.
-2. **Privacy, and it makes the entry above worse in kind:** the ten published addresses
-   belong to people with no connection to the community at all, not members who might
-   arguably have expected to appear. Four had declined, four never answered.
+Verified: zero addresses in the repo file, zero in `dist/assets/*.js` beyond the deliberate
+GDPR contact at `src/components/LegalPages.jsx:5`, and no `email` key in the API response.
+All four suites pass.
 
-Also note the matched event starts 2026-08-29 while the query asked for 2026-09-06, so the
-date window is looser than it looks. Worth checking `timeMin`/`timeMax` while in there.
+### Two caveats that are NOT bugs
+- **Matching is slightly weaker.** The email branch is gone and three name-based fallbacks
+  remain. It covered only 4 of 20 members, and `name` still carries the email local part
+  when the calendar has no display name, so token matching resolves those cases.
+- **The Coming list will look empty** until people are actually invited to the session event
+  in Google Calendar. Correct behaviour, but a visible change from before.
 
-**Fix:** drop the second fallback, or require a title match. No match should return
-`{ found: false }` and the card should simply show no Coming list. Guessing at an event is
-worse than showing nothing. Do it in the same change as the email removal.
+### Still open on this topic
+- The four addresses remain in git history and on GitHub in commits before `9b1c9ab`.
+  Removing them going forward does not un-publish them. Auri's call whether to rewrite
+  history; the usual advice is to accept it.
+- **Auri's judgement, not a technical step:** people who declined an unrelated invite had
+  their address served from the site. Consider whether to tell anyone.
+- `api/attendees.js` still has no gate on GET. That is now fine, since the response carries
+  no personal data, but worth remembering if fields are ever added back.
 
-### Member reconciliation, measured the same day
-The tab says "20 people" and that total is honest, but it is the wrong 20.
+## Favicon replaced, `153d73b`
+Auri supplied a 620x620 rounded-tile mark with the rising-sun dome, in both colourways,
+replacing the one derived by hand from the wordmark. Colours corrected on the way in: both
+files were exported with the pre-lock `#1e4c34` / `#fbb90c`. Both ship, with the inverted
+mark served to dark browser chrome via `media="(prefers-color-scheme: dark)"`.
+`gen-icons.mjs` is down to one source for all five sizes, and `apple-touch-icon` is
+flattened onto the tile green because iOS shows transparent corners as dark notches.
 
-| Source | Count |
-|---|---|
-| vault member table -> `members[]` | 19, including 2 placeholder rows |
-| `data/members-profile.json` | 20 |
-| distinct session attendees | 15 first names |
-| distinct real people named anywhere | 20 |
+**This retires the gradient icons** (`brand/icon.svg`, `icon-badge.svg`, `icon-16.svg`,
+`icon-mono.svg` are now unreferenced), which contradicts palette.md's "the icon carries
+gradient" rule. That line in the brand doc should be updated to match.
 
-- **2 fake cards render:** `Unknown #1` and `Unknown #2`, headcount placeholders from the
-  vault table. So 18 real people show.
-- **3 people never render as members** (full profile with photo, no row in the vault
-  table): Andrei Prusu, Pavel Kucera, Ernestas Sazinas.
-- **4 attendee names have no member record:** `Auri` (Auri's own nickname, needs an alias
-  to Aurimas Baciauskas) plus `Mari`, `Yogi`, `Frederik`, who look like real people who
-  attended and were never added.
-
-Realistic roster is about 24 once Mari, Yogi and Frederik are identified. **Their full
-names are not in any source in the repo, so only Auri can supply them.** Do not guess names
-into a public repo.
-
-### Next steps
-1. Fix the `findEvent` fallback and remove emails from the response, one change.
-2. Build `content/members.md` with the 21 accountable people and clearly marked gaps.
-3. Ask Auri for the full names of Mari, Yogi and Frederik, and whether they are members or
-   one-time guests.
-
-### File pointers
-`api/_gcal.js` `findEvent` (the fallback), `api/attendees.js` (ungated GET),
-`src/lib/attendees.js` (`resolveGuest`, the client-side matcher),
-`scripts/build-data.js` `parseHub` (parses the vault member table).
-
-## OPEN PRIVACY ISSUE, 2026-08-31, member and invitee emails are published
-
-**Current state:** UNFIXED. Nothing built for this yet. `main` clean at `75303d7`. Found
-while designing `content/members.md`; recorded first because it is live.
-
-### What
-`data/members-profile.json` stores an `email` for four members. `src/lib/members-profile.js`
-imports that JSON and `src/lib/attendees.js` reads `.email` from it, so the file is bundled
-into the **client** JavaScript and the addresses are served to every visitor of the public
-site. Verified against the live production bundle, not a local build: all four present.
-
-The repo is also **public**, so the same addresses sit in `data/members-profile.json` on
-GitHub and in history since commit `072aaa0`.
-
-Affected: Aurimas Baciauskas, Eividas Maciulis, Ignas Valavicius, Andrei Prusu. Three of
-the four are other people's addresses. Rules 6 and 18 (personal data, minimise,
-purpose-limit, lawful basis). Rule 2's logic applies to the history: removing the values
-now stops future publication but does not un-publish what is already out.
-
-### Why the emails are there
-`src/lib/attendees.js` matches a Google Calendar invitee's email against the profile
-emails, so the "Coming" list on the next-session card shows the right member name and
-photo instead of a raw calendar entry. It is a real feature, so the values cannot simply be
-deleted without breaking it.
-
-### SECOND, LARGER LEAK: /api/attendees returns every invitee's address
-Found after the entry above. `api/_gcal.js` copies `email: a.email || ''` straight out of
-the Google Calendar invite into the response, and `api/attendees.js` puts NO gate on GET.
-The production endpoint answers an unauthenticated request with **ten** addresses, every
-invitee rather than only the four members in the JSON, and it is edge-cached with
-`s-maxage` so it serves fast and a stale response can outlive a fix by the cache window.
-
-**Several of the exposed addresses belong to people who DECLINED or never answered the
-invite** (`status: "declined"` / `"needsAction"`). They are not members and never opted
-into anything, and their personal address is served from the site. That is the sharpest
-fact about this: an unauthenticated, edge-cached JSON endpoint full of gmail addresses is
-exactly what email-harvesting bots look for.
-
-The UI never renders those addresses. It uses them only to match a guest to a member so the
-"Coming" list can show the right name and photo.
-
-### Hashing was considered and REJECTED
-The first version of this entry proposed storing a SHA-256 of each address. That is a weak
-fix and the wrong one:
-- Emails are low-entropy. `firstname.lastname@gmail.com` is guessable and rainbow tables
-  for common addresses exist, so a digest is cheap to brute-force for a targeted person.
-- HMAC with a secret would be far stronger, but the comparison sat in
-  `src/lib/attendees.js`, client-side, so the browser would need the key. That defeats it.
-- Under GDPR a hashed address is pseudonymised, not anonymised. Still personal data where
-  it can be re-linked.
-- It obfuscates one leak and leaves the ten-address endpoint untouched.
-
-### The fix: stop sending the data to the client at all
-The matching already runs on a server. It just hands the raw addresses over afterwards.
-Less code than hashing, and it closes both leaks instead of obscuring one.
-1. **Steps 1 and 2 must land TOGETHER. Dropping `email` on its own is a regression.**
-   An earlier version of this entry said removing the field was a one-line fix to do
-   first. That was wrong. `resolveGuest()` in `src/lib/attendees.js` tries the email match
-   FIRST (line 13) and only falls back to name-token guessing, so deleting the field alone
-   makes the Coming list quietly worse: some members lose their photo and render as a raw
-   handle like `viktorijea` instead of a first name.
-2. **Move member matching server-side and drop `email` in the same change.** Lift
-   `resolveGuest()` out of `src/lib/attendees.js` into `api/_gcal.js` roughly as-is, and
-   have the response return `label`, `photo` and `status`, which is all the UI draws. The
-   address then never leaves the server.
-3. **Delete `email` from `data/members-profile.json` outright.** Once the client is not
-   matching it needs no address, hashed or otherwise. Photos, LinkedIn and displayName stay
-   client-side and are fine there.
-4. Verify no address appears in the deployed bundle or in any API response.
-5. Remember the edge cache: a cached `/api/attendees` response can still serve the old
-   payload for the `s-maxage` window after deploy.
-
-### Related: `content/members.md`, requested and not yet built
-Single source of truth for who is on the team. Today the member list is parsed from a
-`| Name | Status |` table in **Auri's Obsidian vault**
-(`Documents/Obsidian Vault/AI Workshop/AI Workshop.md`, `scripts/build-data.js` `parseHub`),
-so it exists only on his desktop and Vercel builds fall back to the committed
-`src/data.json` snapshot. Photos and links live separately in `data/members-profile.json`.
-Merging both into one in-repo markdown file also fixes the three problems already recorded
-in the Area 7 block: the `Unknown #1` / `Unknown #2` parsing artifacts, the three members
-with full profiles who never render (Andrei Prusu, Pavel Kucera, Ernestas Sažinas), and the
-missing alias that makes `Auri` fail to match `Aurimas Baciauskas` in attendance counts.
-Proposed columns: Name, Status, Aliases. No email column.
-
-### File pointers
-`api/_gcal.js` (copies invitee emails into the response, the larger leak),
-`api/attendees.js` (no gate on GET), `data/members-profile.json` (the four stored values),
-`src/lib/attendees.js` (the client-side matcher that made the emails necessary),
-`src/lib/members-profile.js` (imports the JSON into the client bundle),
-`scripts/build-data.js` `parseHub` (parses the vault member table).
+### Numbered next steps
+1. **Mono-font cleanup.** `.num` (Geist Mono) is used 46 times, and many are phrases rather
+   than figures: `relative(s.date)` renders "in 3 wk" in monospace, and so do
+   `memberCount`, `slideCount`, `topicCount`, `{index+1} / {total}`. Rule should be tabular
+   figures and live-updating values only; roughly 30 of the 46 revert to sans.
+2. **1.9, the Back button.** Tab navigation uses `history.replaceState` (`src/App.jsx`), so
+   Back leaves the app instead of returning to the previous tab. A bug, not polish.
+3. **Area 5, Polls** (2/10), the weakest area and needs no decisions.
+4. **Area 7, Members** stays BLOCKED: full names for `Mari`, `Yogi` and `Frederik` are in no
+   source in the repo. Do not guess names into a public repo.
+5. `data/schedule.json` dates still lag the calendar, which keeps Area 4's 4.5 and 4.7 inert.
+6. The CSP is still `Report-Only` with no `report-uri`.
 
 ## Area 7 (Members) pre-work findings, 2026-08-31
 
