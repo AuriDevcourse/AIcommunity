@@ -7,14 +7,14 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-// Session notes now live IN THIS REPO (content/sessions) — the transcribe pipeline
+// Session notes now live IN THIS REPO (content/sessions), the transcribe pipeline
 // writes them here directly, so Obsidian is NOT required to build or deploy.
 // Override with AI_WORKSHOP_SESSIONS_DIR if you ever keep them elsewhere.
 const SESSIONS_DIR = process.env.AI_WORKSHOP_SESSIONS_DIR || join(ROOT, 'content', 'sessions');
 
 // The member/hub doc stays OPTIONAL in the Obsidian vault (rarely edited). If it's
 // not present (e.g. a Vercel build, or no vault), members fall back to the committed
-// src/data.json snapshot below — so the dashboard never loses its member list.
+// src/data.json snapshot below, so the dashboard never loses its member list.
 const VAULT_DIR = process.platform === 'win32'
   ? 'C:\\Users\\User\\Documents\\Obsidian Vault\\AI Workshop'
   : '/Users/aurimasbaciauskas/Documents/AuriGrownup/AI Workshop';
@@ -27,7 +27,7 @@ const SESSION_PHOTOS_DIR = join(ROOT, 'public', 'sessions');
 const PHOTO_EXT = /\.(jpe?g|png|webp|gif)$/i;
 const DATE_FOLDER = /^\d{4}-\d{2}-\d{2}$/;
 // Syncing clients (iCloud/Dropbox) drop byte-identical "IMG_4549 2.jpg" copies
-// next to the originals. They are gitignored, so they never deploy — but this
+// next to the originals. They are gitignored, so they never deploy, but this
 // script reads the filesystem, not the index, so without this filter it writes
 // them into data.json and production renders them as broken images. 28 of 77
 // photo references were phantoms before this.
@@ -45,7 +45,7 @@ function isSyncDuplicate(file, siblings) {
 
 // A photo that exists on this laptop but is not tracked by git will not be in
 // the deployed bundle, so referencing it from data.json produces a broken image
-// in production and a working one in local dev — the worst kind of bug to spot.
+// in production and a working one in local dev, the worst kind of bug to spot.
 // Skip those and name them, so `git add` is the obvious next step.
 const untrackedRefs = [];
 let trackedPublic = null;
@@ -55,7 +55,7 @@ function isTracked(publicRelPath) {
       const out = execSync('git ls-files public/', { cwd: ROOT, maxBuffer: 1e8 }).toString();
       trackedPublic = new Set(out.split('\n').filter(Boolean));
     } catch {
-      trackedPublic = false; // no git available (some CI checkouts) — don't filter
+      trackedPublic = false; // no git available (some CI checkouts), don't filter
     }
   }
   if (trackedPublic === false) return true;
@@ -88,13 +88,13 @@ function listAllPhotoDates() {
 // reviewed locally (the hub/members + any vault-sourced bits live on the local box).
 // This keeps deploys deterministic and avoids a partial rebuild dropping data.
 if (process.env.VERCEL && existsSync(OUT_FILE)) {
-  console.log('build-data: on Vercel — using committed src/data.json snapshot');
+  console.log('build-data: on Vercel, using committed src/data.json snapshot');
   process.exit(0);
 }
 
 if (!existsSync(SESSIONS_DIR)) {
   if (existsSync(OUT_FILE)) {
-    console.log(`build-data: notes dir not found (${SESSIONS_DIR}) — keeping existing src/data.json snapshot`);
+    console.log(`build-data: notes dir not found (${SESSIONS_DIR}), keeping existing src/data.json snapshot`);
     process.exit(0);
   }
   console.error(`build-data: notes dir not found (${SESSIONS_DIR}) and no existing src/data.json snapshot to fall back on`);
@@ -123,7 +123,7 @@ function parseSessionFile(filename) {
   const attendees = (get('Attendees') || get('Attendees \\(in-person\\)') || '')
     .split(/,\s*/).map((s) => s.trim()).filter(Boolean);
 
-  // Demos: find "### Name — Topic" blocks under "## Demos"
+  // Demos: find "### Name. Topic" blocks under "## Demos"
   const demos = [];
   const demoSection = raw.split(/^## Demos/m)[1]?.split(/^## /m)[0] || '';
   const demoBlocks = demoSection.split(/^### /m).slice(1);
@@ -131,11 +131,11 @@ function parseSessionFile(filename) {
     const headLine = block.split('\n')[0].trim();
     if (!headLine || headLine === 'TBD') continue;
     const [presenter, ...rest] = headLine.split(/\s+[—–-]\s+/);
-    demos.push({ presenter: presenter.trim(), topic: rest.join(' — ').trim() });
+    demos.push({ presenter: presenter.trim(), topic: rest.join(', ').trim() });
   }
 
   // Action items
-  // `\Z` is not a JavaScript anchor — it matches a literal "Z", so this block
+  // `\Z` is not a JavaScript anchor, it matches a literal "Z", so this block
   // was being cut at the first capital Z in the text (a name like "Zoe" ate the
   // rest of the list). `(?![\s\S])` is a real end-of-input assertion; plain `$`
   // will not do, because under /m it matches at every line ending.
@@ -160,7 +160,7 @@ function parseSessionFile(filename) {
     return { title: lines[0].trim(), summary: lines.slice(1).join('\n').trim() };
   }).filter((t) => t.title);
 
-  // Tools & products discussed: "- **Name** — note" bullets (the AI ideas of the
+  // Tools & products discussed: "- **Name**, note" bullets (the AI ideas of the
   // session). Drives the recap "Tools discussed" list + the auto LinkedIn draft.
   const toolsSection = raw.split(/^## Tools[^\n]*$/m)[1]?.split(/^## /m)[0] || '';
   const tools = [...toolsSection.matchAll(/^-\s+\*\*(.+?)\*\*\s*(?:[—–-]\s*(.+))?$/gm)]
@@ -184,7 +184,7 @@ function parseHub() {
   // Members table
   // Terminating only on a blank line assumed content always follows the table.
   // If the table is the last thing in the hub file, the match fails and members
-  // silently comes back empty — the same shape of bug as the `\Z` one above.
+  // silently comes back empty, the same shape of bug as the `\Z` one above.
   const tableMatch = raw.match(/\| Name \| Status \|\n\|[-\s|]+\|\n([\s\S]*?)(?:\n\n|(?![\s\S]))/);
   const members = [];
   if (tableMatch) {
@@ -254,6 +254,6 @@ const out = {
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2));
 console.log(`build-data: ${sessions.length} sessions, ${members.length} members, ${schedule.upcoming.length} upcoming, ${allActions.length} open actions → src/data.json`);
 if (untrackedRefs.length) {
-  console.warn(`build-data: WARNING — ${untrackedRefs.length} photo(s) exist locally but are not tracked by git, so they were left out (they would 404 in production):`);
+  console.warn(`build-data: WARNING, ${untrackedRefs.length} photo(s) exist locally but are not tracked by git, so they were left out (they would 404 in production):`);
   for (const r of untrackedRefs) console.warn(`build-data:   git add "public${r}"`);
 }

@@ -1,6 +1,6 @@
 // Seed the Discussions forum with fake topics + comments for demoing.
 // Usage: npm run seed:forum   (writes to the local file store in dev, or Upstash
-// if KV env vars are set). Adds topics on each run — it does not clear existing.
+// if KV env vars are set). Adds topics on each run, it does not clear existing.
 import { handleTopics } from '../api/_topics.js';
 import { handleThreads } from '../api/_threads.js';
 
@@ -20,7 +20,7 @@ const TOPICS = [
     ],
   },
   {
-    title: 'Show & Tell next session — who is demoing?',
+    title: 'Show & Tell next session, who is demoing?',
     comments: [
       'I can show a tiny RAG app I built over the weekend.',
       'Count me in, I want to demo an agent that books my calendar.',
@@ -29,7 +29,7 @@ const TOPICS = [
     ],
   },
   {
-    title: 'Cursor vs Windsurf — what are you using daily?',
+    title: 'Cursor vs Windsurf, what are you using daily?',
     comments: [
       'Windsurf at work, Cursor for side projects. Both great honestly.',
       'Cursor tab completion still feels a step ahead to me.',
@@ -72,7 +72,7 @@ const TOPICS = [
     ],
   },
   {
-    title: 'RAG vs long context in 2026 — still worth it?',
+    title: 'RAG vs long context in 2026, still worth it?',
     comments: [
       'For big static knowledge bases RAG still wins on cost.',
       'Long context is great until you see the bill.',

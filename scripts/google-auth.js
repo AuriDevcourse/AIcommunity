@@ -8,7 +8,7 @@
 //   2) Put the client id/secret in .env.local:
 //        GCAL_CLIENT_ID=...
 //        GCAL_CLIENT_SECRET=...
-//   3) Run:  npm run google:auth   — sign in as baciauskas.aurimas@gmail.com.
+//   3) Run:  npm run google:auth, sign in as baciauskas.aurimas@gmail.com.
 //   4) Copy the printed GCAL_REFRESH_TOKEN into .env.local AND your Vercel env.
 //
 import { createServer } from 'node:http';
@@ -67,7 +67,7 @@ const server = createServer(async (req, res) => {
       console.error('\nNo refresh_token in response:', j);
     } else {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Success. Refresh token printed in your terminal — you can close this tab.');
+      res.end('Success. Refresh token printed in your terminal, you can close this tab.');
       console.log('\n=== Add this to .env.local and your Vercel project env ===\n');
       console.log(`GCAL_REFRESH_TOKEN=${j.refresh_token}\n`);
     }

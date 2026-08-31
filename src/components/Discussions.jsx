@@ -8,11 +8,11 @@ import Polls from './Polls.jsx';
 
 const ci = (s) => String(s || '').trim().toLowerCase();
 
-// The "Ideas" board is a pinned, score-sorted thread on a fixed channel — it lives
+// The "Ideas" board is a pinned, score-sorted thread on a fixed channel, it lives
 // outside the user-created topics list (can't be deleted) and is where suggestions
 // for what to build next get voted on and discussed.
 const IDEAS_CHANNEL = 'ideas';
-const IDEAS_TITLE = 'Ideas — what should we build next?';
+const IDEAS_TITLE = 'Ideas: what should we build next?';
 
 function timeAgo(iso) {
   const then = new Date(iso).getTime();
@@ -88,7 +88,7 @@ export default function Discussions() {
         <span>Discussions</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Community forum</h2>
-      <p className="text-sm text-muted mt-1">Vote on ideas and polls below, or start a topic to ask anything and share what you're building. Every post takes replies and upvotes.</p>
+      <p className="text-sm text-muted mt-1">Vote on the ideas and polls below, or start a topic of your own.</p>
 
       {!configured && (
         <div className="card card-pad mt-5 text-sm text-warn">Discussions need a store. Add Upstash Redis and redeploy (same store as Polls).</div>

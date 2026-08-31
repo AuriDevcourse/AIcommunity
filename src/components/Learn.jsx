@@ -39,7 +39,7 @@ export default function Learn() {
         <span>Learn</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Build with AI</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Short, practical decks from our sessions. Open one and click through the slides.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Short decks from our sessions.</p>
 
       <div className="mt-5 flex flex-wrap gap-2">
         {tags.map((t) => (

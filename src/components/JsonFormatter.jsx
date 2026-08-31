@@ -30,7 +30,7 @@ export default function JsonFormatter() {
         <span>JSON formatter</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Format & validate JSON</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Paste JSON, pretty-print or minify it, and catch errors. Everything runs in your browser.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Pretty-print or minify JSON, and catch errors. Runs in your browser.</p>
 
       <textarea
         value={input}

@@ -9,7 +9,7 @@ const SEEDS = [
   {
     question: "Which local LLM tool are you bringing to Sunday's session?",
     multi: false,
-    options: ['LM Studio', 'Ollama', 'Jan', 'GPT4All', 'Not sure yet — need help installing'],
+    options: ['LM Studio', 'Ollama', 'Jan', 'GPT4All', 'Not sure yet, need help installing'],
     createdBy: 'Auri',
   },
 ];
@@ -19,9 +19,9 @@ const existing = await store.listPolls();
 
 for (const seed of SEEDS) {
   if (existing.some((p) => p.question === seed.question)) {
-    console.log(`seed-polls: already present — "${seed.question}"`);
+    console.log(`seed-polls: already present, "${seed.question}"`);
     continue;
   }
   const { json } = await handlePolls({ method: 'POST', body: { action: 'create', ...seed }, store });
-  console.log(json.ok ? `seed-polls: created — "${seed.question}"` : `seed-polls: FAILED — ${json.error}`);
+  console.log(json.ok ? `seed-polls: created, "${seed.question}"` : `seed-polls: FAILED, ${json.error}`);
 }

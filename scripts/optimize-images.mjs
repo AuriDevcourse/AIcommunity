@@ -3,7 +3,7 @@
 // up to ~5MB each). Originals remain recoverable in git history.
 //
 // A manifest (scripts/.image-opt-manifest.json) records each file's optimized
-// byte size. A re-run — including every Vercel build — skips files whose current
+// byte size. A re-run, including every Vercel build, skips files whose current
 // size matches the manifest, so we never re-compress an already-optimized file
 // (which would slowly degrade quality) and the build stays fast. A new or
 // replaced file has a size the manifest doesn't know, so it gets processed.
@@ -22,7 +22,7 @@ const MANIFEST = join(__dirname, '.image-opt-manifest.json');
 const TARGETS = [
   { dir: 'sessions',    maxW: 1600, quality: 78 },
   { dir: 'news-images', maxW: 1280, quality: 80 },
-  { dir: 'members',     maxW: 640,  quality: 82 },
+  { dir: 'members',     maxW: 640, quality: 82 },
 ];
 
 const RASTER = /\.(jpe?g|png|webp)$/i;
@@ -30,7 +30,7 @@ const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8'
 
 // Syncing clients leave byte-identical "<name> 2.<ext>" copies next to the
 // originals. They are gitignored and never deploy, so optimising them burns
-// time and — worse — writes phantom entries into the manifest.
+// time and, worse, writes phantom entries into the manifest.
 const SYNC_SUFFIX = /^(.*) ([2-9])(\.[a-z0-9]+)$/i;
 const isSyncDuplicate = (name, siblings) => {
   const m = name.match(SYNC_SUFFIX);
@@ -73,7 +73,7 @@ async function optimize(file, { maxW, quality }) {
     manifest[rel] = out.length;
     return { before: size, after: out.length, rel };
   }
-  manifest[rel] = size; // won't shrink — record so we don't retry it
+  manifest[rel] = size; // won't shrink, record so we don't retry it
   return { before: size, after: size, nochange: true, rel };
 }
 

@@ -3,7 +3,7 @@
 // a builder-focused Copenhagen AI community, and writes data/news-draft.json.
 //
 // This NEVER touches data/news.json. Auri reviews the draft and copies the good
-// items across by hand — curation stays human; only the gathering is automated.
+// items across by hand, curation stays human; only the gathering is automated.
 //
 // IP/scraping hygiene: we read public RSS (titles + short descriptions + links),
 // write our OWN short summaries, attribute the source, and link back. No wholesale
@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OUT = join(ROOT, 'data', 'news-draft.json');
 
-// Pinned alias, never a dated version (dated Gemini models get retired — see the
+// Pinned alias, never a dated version (dated Gemini models get retired, see the
 // gemini-flash-latest lesson). Free text tier.
 const MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
 const KEY = process.env.GEMINI_API_KEY || '';
@@ -121,7 +121,7 @@ async function curate(candidates) {
 
 async function main() {
   if (!KEY) {
-    console.error('draft-news: GEMINI_API_KEY not set — skipping (no draft written).');
+    console.error('draft-news: GEMINI_API_KEY not set, skipping (no draft written).');
     process.exit(0);
   }
 
@@ -133,7 +133,7 @@ async function main() {
     all.push(...items);
   }
   if (all.length === 0) {
-    console.error('draft-news: no candidate articles found — skipping.');
+    console.error('draft-news: no candidate articles found, skipping.');
     process.exit(0);
   }
 
@@ -162,12 +162,12 @@ async function main() {
   }));
 
   // Rule: exactly 12 items, at least 6 global + at least 6 european. Take 6 of each,
-  // then top up to 12 from the leftovers if one bucket ran short (and warn — never
+  // then top up to 12 from the leftovers if one bucket ran short (and warn, never
   // silently ship an unbalanced/short roundup).
   const globals = shaped.filter((x) => x.category === 'global');
   const europes = shaped.filter((x) => x.category === 'europe');
   if (globals.length < 6 || europes.length < 6) {
-    console.warn(`draft-news: only ${globals.length} global / ${europes.length} european candidates — rule wants >=6 of each (12 total). Widen feeds or the date window.`);
+    console.warn(`draft-news: only ${globals.length} global / ${europes.length} european candidates, rule wants >=6 of each (12 total). Widen feeds or the date window.`);
   }
   const picked12 = [...globals.slice(0, 6), ...europes.slice(0, 6)];
   for (const x of shaped) { if (picked12.length >= 12) break; if (!picked12.includes(x)) picked12.push(x); }

@@ -2,7 +2,7 @@
 //   name  → display label (Obsidian stays the source for rich content)
 //   order → custom photo ordering (array of URLs); the FIRST one is the featured
 //           cover. Unknown/new photos fall in after the ordered ones.
-// Same storage approach as polls/topics — Upstash in prod (shares the store),
+// Same storage approach as polls/topics. Upstash in prod (shares the store),
 // local JSON file in dev.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';

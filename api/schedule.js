@@ -3,7 +3,7 @@
 // Live upcoming sessions read straight from Google Calendar (the organiser's
 // primary calendar), so adding/moving an event there updates the dashboard
 // without a redeploy. Public + edge-cached; reading a guest count is harmless.
-// Returns { configured:false } when GCAL_* env isn't set — the client then falls
+// Returns { configured:false } when GCAL_* env isn't set, the client then falls
 // back to the static build-time schedule snapshot.
 import { listUpcomingSessions } from './_gcal.js';
 

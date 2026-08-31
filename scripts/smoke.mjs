@@ -1,5 +1,5 @@
 // Loads every route in headless Chrome and fails on any console error or
-// uncaught exception. A `vite build` only proves the bundle parses — it will
+// uncaught exception. A `vite build` only proves the bundle parses, it will
 // happily ship a temporal-dead-zone ReferenceError that throws on first render.
 //
 //   node scripts/smoke.mjs [baseUrl]
@@ -8,7 +8,10 @@ import { spawn } from 'node:child_process';
 import { rmSync } from 'node:fs';
 
 const BASE = process.argv[2] || process.env.SMOKE_URL || 'http://127.0.0.1:5281';
-const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = process.env.CHROME || (
+  process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : process.platform === 'win32' ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+  : 'google-chrome');
 const PORT = Number(process.env.CDP_PORT || 9334);
 const PROFILE = `/tmp/chrome-smoke-${process.pid}`;
 const ROUTES = ['home', 'discussions', 'learn', 'news', 'members', 'sessions', 'tools'];

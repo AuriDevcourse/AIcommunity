@@ -2,7 +2,7 @@
 //   { [date]: { [userId]: { name, avatar, status, ts } } }
 //   status ∈ 'going' | 'maybe'   (anything else removes the RSVP)
 // Identity (userId / name / avatar) is ALWAYS derived from the verified Supabase
-// user server-side — never from the request body (see api/_guard.js requireUser).
+// user server-side, never from the request body (see api/_guard.js requireUser).
 // Same storage approach as session-meta/polls: Upstash in prod, a local JSON file
 // in dev.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';

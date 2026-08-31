@@ -6,7 +6,7 @@ import { guardMutation } from './_guard.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'method not allowed' });
   try {
-    // Paid LLM route — gate tightly (auth + low rate cap).
+    // Paid LLM route, gate tightly (auth + low rate cap).
     const blocked = await guardMutation(req, { bucket: 'generate-post', limit: 10 });
     if (blocked) return res.status(blocked.status).json(blocked.json);
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});

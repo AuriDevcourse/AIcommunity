@@ -57,7 +57,7 @@ const todayIso = () => TODAY.toISOString().slice(0, 10);
 
 // Sessions run every 2 weeks. Roll the cadence forward from the most recent
 // recorded session to the latest session date that's already happened (on/before
-// today) — that's the one you're most likely uploading photos for. If none has
+// today), that's the one you're most likely uploading photos for. If none has
 // happened since the last record, fall back to today.
 function nextSessionDate(dates) {
   const base = dates[0]; // dates arrive sorted newest-first

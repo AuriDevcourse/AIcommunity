@@ -74,7 +74,7 @@ async function main() {
   console.log(`Will add ${newComments.length} ideas and ${voteCount} votes.`);
   if (DRY) {
     newComments.forEach((c) => console.log(`  + [${c.name}] ${c.text.slice(0, 60)}`));
-    console.log('\nDry run — nothing written. Re-run without --dry to apply.');
+    console.log('\nDry run, nothing written. Re-run without --dry to apply.');
     return;
   }
   if (newComments.length === 0 && newVotes.length === 0) {

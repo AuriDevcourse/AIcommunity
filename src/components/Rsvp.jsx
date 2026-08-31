@@ -10,7 +10,7 @@ const firstNameOf = (s) => String(s || '').trim().split(/\s+/)[0];
 
 // Stale-while-revalidate cache: keep the last known lists in localStorage so the
 // "Coming" list paints instantly on load (no empty flash), then we re-fetch and
-// only swap state in if something actually changed — so people aren't re-rendered
+// only swap state in if something actually changed, so people aren't re-rendered
 // one by one, only the diff (someone left / someone new) lands.
 const RSVP_CK = (d) => `aiworkshop_rsvp_${d}`;
 const CAL_CK = (d) => `aiworkshop_attendees_${d}`;
@@ -32,8 +32,8 @@ function PersonAvatar({ person, tentative }) {
   );
 }
 
-// Merge the two RSVP sources — in-app RSVPs (Going/Maybe) and Google Calendar
-// accepts (accepted/tentative) — into ONE deduped list. A person who both tapped
+// Merge the two RSVP sources, in-app RSVPs (Going/Maybe) and Google Calendar
+// accepts (accepted/tentative), into ONE deduped list. A person who both tapped
 // Going here AND accepted the invite shows once; "coming" beats "maybe". Keyed by
 // first name (the calendar often only exposes a first name), good enough for a
 // small meetup.

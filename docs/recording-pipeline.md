@@ -24,7 +24,7 @@ Always the same folder so the command never changes. Accepts `m4a / mp3 / wav / 
 cd C:/Users/User/Desktop/SideProjects/transcribe
 # ollama serve   # (usually already running as a service)
 
-# 1) Dry run first — writes DRAFTS only, nothing touches the vault:
+# 1) Dry run first, writes DRAFTS only, nothing touches the vault:
 python run.py "recordings/incoming/<file>.m4a" --number 8 --date 2026-06-16
 
 # 2) Review the two drafts (next to the input file):
@@ -35,50 +35,50 @@ python run.py "recordings/incoming/<file>.m4a" --number 8 --date 2026-06-16
 python run.py "recordings/incoming/<file>.m4a" --number 8 --date 2026-06-16 --vault
 ```
 
-`--number` and `--date` are required — the pipeline can't guess them, Auri provides them.
+`--number` and `--date` are required, the pipeline can't guess them, Auri provides them.
 
 ## What it produces
 
 `run.py` chains, all offline:
 
 1. ffmpeg → 16 kHz mono wav
-2. `diarize.py` — who spoke when (anonymous voices: SPEAKER_00, _01, …)
-3. `match_speakers.py` — voiceprints (**fallback** — only knows previously-enrolled people)
-3b. `name_from_intros.py` — names from each person's **self-introduction** (**primary**;
+2. `diarize.py`, who spoke when (anonymous voices: SPEAKER_00, _01, …)
+3. `match_speakers.py`, voiceprints (**fallback**, only knows previously-enrolled people)
+3b. `name_from_intros.py`, names from each person's **self-introduction** (**primary**;
     overrides voiceprints because intros are true for *this* session). Speakers with no
-    intro and no voiceprint stay as raw `SPEAKER_XX` labels — name them by hand in the map.
-4. `apply_corrections.py` — apply names + product/term glossary
-5. `cleanup_local.py` — local-LLM grammar/readability cleanup, drops filler (`.cleaned.*`)
-6. **`archive_transcript.py`** — full clean transcript, **profanity masked**, written to a
+    intro and no voiceprint stay as raw `SPEAKER_XX` labels, name them by hand in the map.
+4. `apply_corrections.py`, apply names + product/term glossary
+5. `cleanup_local.py`, local-LLM grammar/readability cleanup, drops filler (`.cleaned.*`)
+6. **`archive_transcript.py`**, full clean transcript, **profanity masked**, written to a
    **private** vault folder (see below)
-7. `roundup_local.py` — structured private roundup
-8. `to_session_note.py` — **public-safe** recap → dashboard session note
+7. `roundup_local.py`, structured private roundup
+8. `to_session_note.py`, **public-safe** recap → dashboard session note
 
 ## Two outputs, two homes (important)
 
 | Output | Goes to | Public? | Built by |
 | --- | --- | --- | --- |
-| Full transcript (the whole conversation) | `Obsidian Vault/AI Workshop/Transcripts/#<N> TRANSCRIPT <date>.md` | **No** — internal archive | `archive_transcript.py` |
-| Session recap (short, AI-tools only) | `Obsidian Vault/AI Workshop/Sessions/#<N> SESSION <date>.md` | **Yes** — shown on the dashboard | `to_session_note.py` |
+| Full transcript (the whole conversation) | `Obsidian Vault/AI Workshop/Transcripts/#<N> TRANSCRIPT <date>.md` | **No**, internal archive | `archive_transcript.py` |
+| Session recap (short, AI-tools only) | `Obsidian Vault/AI Workshop/Sessions/#<N> SESSION <date>.md` | **Yes**, shown on the dashboard | `to_session_note.py` |
 
 The dashboard's `scripts/build-data.js` reads **only** the `Sessions/` folder. The
-`Transcripts/` folder is never published — it's the long, searchable archive for the
+`Transcripts/` folder is never published, it's the long, searchable archive for the
 group. Keeping them in separate folders is the privacy boundary.
 
 ### Naming speakers (do the intro round)
 
 Attendees change every session, so **the reliable way to name voices is the intro round**:
-at the very start, have **each person say their own name one at a time** — *"Hi, I'm
+at the very start, have **each person say their own name one at a time**, *"Hi, I'm
 Justas."* `name_from_intros.py` reads those and maps each to its voice automatically.
 Tips:
 - One at a time, own name. *Auri naming everyone in one breath* ("this is X, this is Y")
-  can't be auto-mapped — those names all come from Auri's single voice.
+  can't be auto-mapped, those names all come from Auri's single voice.
 - Anyone the script couldn't name stays as `SPEAKER_XX` in the drafts. To fix by hand,
   edit `<base>.speakermap.json` (e.g. `"SPEAKER_06": "Andrei"`) and re-run from
   `apply_corrections.py` onward, or just correct the names directly in the two draft
   files before publishing.
 - Voiceprints are a **fallback only** now. The old behaviour (a hardcoded name map)
-  caused last session's names to leak onto this session's strangers — that's removed.
+  caused last session's names to leak onto this session's strangers, that's removed.
 
 ### Profanity masking
 
@@ -100,7 +100,7 @@ npm run build:data        # parses the vault note into src/data.json
 
 ## Files
 
-- `transcribe/run.py` — the orchestrator (one command)
-- `transcribe/archive_transcript.py` — full transcript + profanity masking (step 6)
-- `transcribe/to_session_note.py` — public recap (step 8)
-- `AIcommunity/scripts/build-data.js` — reads `Sessions/` notes into `src/data.json`
+- `transcribe/run.py`, the orchestrator (one command)
+- `transcribe/archive_transcript.py`, full transcript + profanity masking (step 6)
+- `transcribe/to_session_note.py`, public recap (step 8)
+- `AIcommunity/scripts/build-data.js`, reads `Sessions/` notes into `src/data.json`

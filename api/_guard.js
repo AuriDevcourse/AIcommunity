@@ -63,12 +63,12 @@ async function withinLimit(id, bucket, limit, windowSec) {
     if (n === 1) await kv(['EXPIRE', key, windowSec]);
     return n <= limit;
   } catch {
-    return true; // fail open on limiter errors — never lock the app out over Redis
+    return true; // fail open on limiter errors, never lock the app out over Redis
   }
 }
 
 // Resolve the verified Supabase user for a request, for routes that need the
-// caller's identity (name/avatar/id) derived from the session — never the body.
+// caller's identity (name/avatar/id) derived from the session, never the body.
 // Returns one of:
 //   { configured: false }  → Supabase isn't set up (auth unavailable)
 //   { blocked: {status,json} } → no/invalid token; send this response

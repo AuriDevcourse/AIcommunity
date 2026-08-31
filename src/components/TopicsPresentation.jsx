@@ -163,7 +163,7 @@ export default function TopicsPresentation({ session, onClose }) {
 }
 
 // Big pipeline for a slide: a row of step cards on desktop (chevrons between),
-// stacked with down-chevrons on mobile. No text arrows — Lucide chevrons only.
+// stacked with down-chevrons on mobile. No text arrows. Lucide chevrons only.
 function FlowBig({ steps }) {
   return (
     <div className="mt-7 flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-1">

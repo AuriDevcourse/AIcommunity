@@ -1,8 +1,8 @@
 {
   "windowLabel": "Aug 15 – Aug 29, 2026",
   "themes": {
-    "global": "Consolidation, not capability. Nvidia moved to buy Hugging Face for $12.9B — the open-model commons acquired by the company that sells the silicon underneath it — while DeepSeek raised at $74B on the strength of being cheap. The labs also started behaving like an industry rather than rivals: OpenAI and Anthropic co-signed a cyber-defence call with a hundred other companies, and Anthropic proposed a shared standard for agents driving physical lab hardware. IBM quietly shipped Granite 4.2 open weights for people who want none of it in the cloud.",
-    "europe": "A Danish fortnight. Copenhagen University put DKK 110M and a Deputy Prorector behind AI, Denmark held its first national AI-safety conference, and Odense's Velatir raised €5M for the layer that makes an agent stop and ask a human — three answers to the same question about who supervises these systems. Slovakia went the other way and legislated, banning under-16s from social accounts."
+    "global": "Consolidation, not capability. Nvidia moved to buy Hugging Face for $12.9B, the open-model commons acquired by the company that sells the silicon underneath it, while DeepSeek raised at $74B on the strength of being cheap. The labs also started behaving like an industry rather than rivals: OpenAI and Anthropic co-signed a cyber-defence call with a hundred other companies, and Anthropic proposed a shared standard for agents driving physical lab hardware. IBM quietly shipped Granite 4.2 open weights for people who want none of it in the cloud.",
+    "europe": "A Danish fortnight. Copenhagen University put DKK 110M and a Deputy Prorector behind AI, Denmark held its first national AI-safety conference, and Odense's Velatir raised €5M for the layer that makes an agent stop and ask a human, three answers to the same question about who supervises these systems. Slovakia went the other way and legislated, banning under-16s from social accounts."
   },
   "items": [
     {
@@ -13,8 +13,8 @@
       "title": "Nvidia agrees to buy Hugging Face for $12.9 billion",
       "subtitle": "The open-model commons, bought by the company that sells the silicon",
       "summary": "The Information reported on 26 August that Nvidia has agreed to acquire Hugging Face, the GitHub-of-AI-models, for $12.9 billion. That is nearly double the roughly $7B valuation the two were negotiating from late last year, and almost 3x the $4.5B round Nvidia itself backed in 2023 alongside Salesforce, Google, Amazon and IBM. Talks reportedly accelerated after another suitor showed interest. No agreement has been signed and the deal could still collapse.",
-      "whyItMatters": "Hugging Face is where open weights are published, discovered and downloaded — infrastructure the whole open ecosystem sits on, and deliberately neutral about whose hardware you run. Owned by the dominant accelerator vendor, that neutrality is at least a question worth asking.",
-      "whyForUs": "Most of us pull models, datasets and Spaces from Hugging Face without thinking about it. Nothing changes tomorrow, but your default model registry may soon have a hardware vendor's incentives behind it — and mirrors and self-hosting exist.",
+      "whyItMatters": "Hugging Face is where open weights are published, discovered and downloaded, infrastructure the whole open ecosystem sits on, and deliberately neutral about whose hardware you run. Owned by the dominant accelerator vendor, that neutrality is at least a question worth asking.",
+      "whyForUs": "Most of us pull models, datasets and Spaces from Hugging Face without thinking about it. Nothing changes tomorrow, but your default model registry may soon have a hardware vendor's incentives behind it, and mirrors and self-hosting exist.",
       "sources": [
         {
           "name": "CNBC",
@@ -39,9 +39,9 @@
       "date": "2026-08-26",
       "title": "Claude in Chrome goes generally available",
       "subtitle": "Autonomous browser actions on every paid plan",
-      "summary": "Anthropic took its Chrome extension out of preview on 26 August for Pro, Max, Team and Enterprise — not the free tier. The substantive change is that Claude can now act in the browser without approving every individual step, with a safety classifier validating each action and prompt-injection defences in place. It reads pages, clicks, types and fills forms across multi-step tasks, and there is an opt-out for anyone who wants per-action approval back.",
+      "summary": "Anthropic took its Chrome extension out of preview on 26 August for Pro, Max, Team and Enterprise, not the free tier. The substantive change is that Claude can now act in the browser without approving every individual step, with a safety classifier validating each action and prompt-injection defences in place. It reads pages, clicks, types and fills forms across multi-step tasks, and there is an opt-out for anyone who wants per-action approval back.",
       "whyItMatters": "Browser agents have been demoed for two years and shipped cautiously, because a model that can click things on your behalf is a genuine security surface. Moving from per-action approval to classifier-gated autonomy is a bet that the defences are finally good enough.",
-      "whyForUs": "Immediately useful for the boring half of running a community — pulling RSVPs, filling forms, reconciling lists. Try it on something low-stakes first and actually watch what it clicks.",
+      "whyForUs": "Immediately useful for the boring half of running a community, pulling RSVPs, filling forms, reconciling lists. Try it on something low-stakes first and actually watch what it clicks.",
       "sources": [
         {
           "name": "Anthropic",
@@ -63,7 +63,7 @@
       "title": "OpenAI and Anthropic co-sign a cyber-defence call with 100+ companies",
       "subtitle": "Microsoft, Google, AWS, AMD, Hugging Face, Visa and Mastercard among them",
       "summary": "On 27 August the two labs jointly called for collective action on cyber defence, in a statement signed by more than a hundred companies including Microsoft, Google, AWS, Broadcom, AMD, Hugging Face, Cognition, Lovable, Visa and Mastercard. The specific asks are thin so far; the notable part is the signatory list, which puts direct competitors and their infrastructure suppliers on one document.",
-      "whyItMatters": "Frontier labs have spent three years differentiating on safety posture. A joint statement is a shift from competing on trust to treating a class of risk as shared — and it is the shape industry self-regulation usually takes before regulation arrives.",
+      "whyItMatters": "Frontier labs have spent three years differentiating on safety posture. A joint statement is a shift from competing on trust to treating a class of risk as shared, and it is the shape industry self-regulation usually takes before regulation arrives.",
       "whyForUs": "Watch whether anything concrete follows. Joint letters are cheap; shared disclosure channels, incident reporting and model-abuse telemetry are not. The gap between the two is the story.",
       "sources": [
         {
@@ -85,9 +85,9 @@
       "date": "2026-08-26",
       "title": "DeepSeek nears $7B raise at a $74B valuation",
       "subtitle": "Targeting a 2027 Shanghai listing",
-      "summary": "DeepSeek is reported to be closing on roughly $7 billion at a $74 billion valuation, with a 2027 IPO on the Shanghai exchange in view. The company has spent the year taking token share on neutral routers by being dramatically cheaper than US frontier models rather than by topping benchmarks — the same dynamic that pushed OpenAI to cut GPT-5.6 Luna by 80% in July.",
+      "summary": "DeepSeek is reported to be closing on roughly $7 billion at a $74 billion valuation, with a 2027 IPO on the Shanghai exchange in view. The company has spent the year taking token share on neutral routers by being dramatically cheaper than US frontier models rather than by topping benchmarks, the same dynamic that pushed OpenAI to cut GPT-5.6 Luna by 80% in July.",
       "whyItMatters": "A $74B valuation on a price-led strategy says the market now believes cost per token, not capability, is the durable moat. That is a very different bet from the one the US labs are funded on.",
-      "whyForUs": "If you are picking a model on your own budget, the cheap-and-good tier is where the action is. Just be deliberate about where inference physically runs — since 2 August that is an AI Act question for anything you ship to EU users, not a preference.",
+      "whyForUs": "If you are picking a model on your own budget, the cheap-and-good tier is where the action is. Just be deliberate about where inference physically runs, since 2 August that is an AI Act question for anything you ship to EU users, not a preference.",
       "sources": [
         {
           "name": "Tech Startups",
@@ -105,7 +105,7 @@
       "title": "IBM ships Granite 4.2 open weights, 3B to 30B",
       "subtitle": "Sized for organisations that want nothing in the cloud",
       "summary": "IBM released Granite 4.2 as open-weight models spanning roughly 3B to 30B parameters, aimed squarely at local enterprise deployment. The range matters more than the headline: 3B runs on almost anything, and 30B fits a single well-specified workstation, so the whole family can be self-hosted inside a network boundary.",
-      "whyItMatters": "The open-weight conversation is dominated by Meta and the Chinese labs. IBM shipping a permissive local family at regulated buyers is a different constituency — organisations for whom “send it to an API” was never on the table.",
+      "whyItMatters": "The open-weight conversation is dominated by Meta and the Chinese labs. IBM shipping a permissive local family at regulated buyers is a different constituency, organisations for whom “send it to an API” was never on the table.",
       "whyForUs": "Good candidates for the local-model setups from session #7. If you already have Ollama or LM Studio running, Granite 4.2 is a straightforward pull and a fair comparison against the Qwen and DeepSeek builds people were benchmarking.",
       "sources": [
         {
@@ -123,9 +123,9 @@
       "date": "2026-08-27",
       "title": "Anthropic previews a Model Hardware Standard",
       "subtitle": "A shared spec for agents driving microscopes and robotic arms",
-      "summary": "Anthropic previewed a Model Hardware Standard — a common specification for AI agents to operate physical devices including microscopes, liquid handlers and robotic arms. It is going out in limited preview to selected scientific research labs and advanced manufacturers rather than shipping broadly.",
+      "summary": "Anthropic previewed a Model Hardware Standard, a common specification for AI agents to operate physical devices including microscopes, liquid handlers and robotic arms. It is going out in limited preview to selected scientific research labs and advanced manufacturers rather than shipping broadly.",
       "whyItMatters": "MCP standardised how models reach software tools and was adopted across the industry within a year. Attempting the same for laboratory instruments is the same play one layer down, where the failure modes involve physical equipment rather than a bad API call.",
-      "whyForUs": "Mostly one to watch. But if MCP is anything to go by, the interesting part is the spec itself — worth reading when it opens up, because the patterns tend to generalise beyond the hardware they were written for.",
+      "whyForUs": "Mostly one to watch. But if MCP is anything to go by, the interesting part is the spec itself, worth reading when it opens up, because the patterns tend to generalise beyond the hardware they were written for.",
       "sources": [
         {
           "name": "MTS",
@@ -146,9 +146,9 @@
       "date": "2026-08-27",
       "title": "Copenhagen University puts DKK 110M behind AI",
       "subtitle": "And appoints a Deputy Prorector to run it",
-      "summary": "UCPH announced a DKK 110 million initiative on 27 August, with Professor Morten Axel Pedersen becoming Deputy Prorector of AI from 1 September. The work splits into two missions: “AI at UCPH”, integrating AI across research, teaching and administration — explicitly including when it should not be used — and “UCPH with AI”, researching digital sovereignty, ethics and regulation, and building the competencies an AI-changed job market needs.",
+      "summary": "UCPH announced a DKK 110 million initiative on 27 August, with Professor Morten Axel Pedersen becoming Deputy Prorector of AI from 1 September. The work splits into two missions: “AI at UCPH”, integrating AI across research, teaching and administration, explicitly including when it should not be used, and “UCPH with AI”, researching digital sovereignty, ethics and regulation, and building the competencies an AI-changed job market needs.",
       "whyItMatters": "Creating a pro-rector-level AI post is an institutional signal, not a pilot. Denmark's largest university is treating this as a decade-long structural change rather than a tooling question.",
-      "whyForUs": "This is on our doorstep. UCPH will be hiring, funding and running events. And “when should we not use AI” is a better session topic than another tool demo — steal the framing.",
+      "whyForUs": "This is on our doorstep. UCPH will be hiring, funding and running events. And “when should we not use AI” is a better session topic than another tool demo, steal the framing.",
       "sources": [
         {
           "name": "University of Copenhagen",
@@ -165,9 +165,9 @@
       "date": "2026-08-22",
       "title": "Denmark holds its first AI safety conference",
       "subtitle": "Next one is 27 February 2027, free",
-      "summary": "The inaugural Danish AI Safety Conference ran on Saturday 22 August in Brøndby, organised by Søren Elverlin — the first national conference in Denmark dedicated to catastrophic and existential risk from increasingly capable AI. Rasmus Herlo (UCPH) gave the keynote, with Lukas Galke Poech (SDU) on mechanistic interpretability, Daniel Juhl on security engineering in AI control, five lightning talks from attendees, and an afternoon workshop drafting a possible Danish statement on AI risk.",
+      "summary": "The inaugural Danish AI Safety Conference ran on Saturday 22 August in Brøndby, organised by Søren Elverlin, the first national conference in Denmark dedicated to catastrophic and existential risk from increasingly capable AI. Rasmus Herlo (UCPH) gave the keynote, with Lukas Galke Poech (SDU) on mechanistic interpretability, Daniel Juhl on security engineering in AI control, five lightning talks from attendees, and an afternoon workshop drafting a possible Danish statement on AI risk.",
       "whyItMatters": "A national safety conference existing at all marks the point where the topic moved from online discourse to a room with a venue and a programme. That it filled a Saturday in August says something about the appetite.",
-      "whyForUs": "The next one is Saturday 27 February 2027, registration is free and capacity is limited. It runs a lightning-talk slot for attendees — a low-stakes way for someone from this group to present outside our own room. Calendar it now.",
+      "whyForUs": "The next one is Saturday 27 February 2027, registration is free and capacity is limited. It runs a lightning-talk slot for attendees, a low-stakes way for someone from this group to present outside our own room. Calendar it now.",
       "sources": [
         {
           "name": "Danish AI Safety Conference",
@@ -184,8 +184,8 @@
       "date": "2026-08-20",
       "title": "Odense's Velatir raises €5M for human-in-the-loop infrastructure",
       "subtitle": "Six months after its pre-seed",
-      "summary": "Velatir, an Odense-based AI infrastructure startup, announced €5 million on 20 August to “triple down” on European expansion — six months after its pre-seed round and official launch. The company builds approval infrastructure for AI agents: the layer that pauses an autonomous action and routes it to a human before it executes.",
-      "whyItMatters": "As agents get permission to actually do things — see the Claude-in-Chrome item above — the interesting engineering moves to the interruption points. A Danish company raising specifically for that layer, six months in, suggests buyers are already feeling the need.",
+      "summary": "Velatir, an Odense-based AI infrastructure startup, announced €5 million on 20 August to “triple down” on European expansion, six months after its pre-seed round and official launch. The company builds approval infrastructure for AI agents: the layer that pauses an autonomous action and routes it to a human before it executes.",
+      "whyItMatters": "As agents get permission to actually do things, see the Claude-in-Chrome item above, the interesting engineering moves to the interruption points. A Danish company raising specifically for that layer, six months in, suggests buyers are already feeling the need.",
       "whyForUs": "Danish, close by, and solving a problem anyone building agents hits by week two. Worth a look if you are wiring up something autonomous, and worth an invite if we want a speaker on agent guardrails.",
       "sources": [
         {
@@ -203,8 +203,8 @@
       "date": "2026-08-25",
       "title": "Amsterdam's Neno raises €6.6M seed for AI financial services",
       "subtitle": "Applied AI in a regulated sector",
-      "summary": "Neno, an Amsterdam-based AI-powered financial services company, announced €6.6 million in seed funding on 25 August. It lands in a European market where AI took a record 55% of all venture capital in the region in H1 2026 — roughly $23 billion, up from $10 billion a year earlier.",
-      "whyItMatters": "The headline European rounds go to compute and chips. A €6.6M seed into applied AI in a heavily regulated sector is the less-reported half of that 55% — money going into things that have to satisfy a compliance officer.",
+      "summary": "Neno, an Amsterdam-based AI-powered financial services company, announced €6.6 million in seed funding on 25 August. It lands in a European market where AI took a record 55% of all venture capital in the region in H1 2026, roughly $23 billion, up from $10 billion a year earlier.",
+      "whyItMatters": "The headline European rounds go to compute and chips. A €6.6M seed into applied AI in a heavily regulated sector is the less-reported half of that 55%, money going into things that have to satisfy a compliance officer.",
       "whyForUs": "Regulated-industry AI is where Copenhagen actually employs people. If you are building anything touching financial data, this is the segment hiring, and the one where the AI Act's transparency duties bite hardest.",
       "sources": [
         {
@@ -226,8 +226,8 @@
       "date": "2026-08-26",
       "title": "Slovakia legislates an under-16 social media ban",
       "subtitle": "With age verification attached",
-      "summary": "Slovakia passed legislation on 26 August prohibiting social media accounts for under-16s and requiring age verification to enforce it. It arrives the same week Meta agreed a $16.68B settlement that includes teen protections such as time limits — regulation and litigation converging on the same question from opposite directions.",
-      "whyItMatters": "Age verification is the part that should interest builders. Enforcing it at scale means either identity documents or inference from behaviour, and the second is an AI system making a consequential judgement about a minor — squarely inside the AI Act's high-risk framing.",
+      "summary": "Slovakia passed legislation on 26 August prohibiting social media accounts for under-16s and requiring age verification to enforce it. It arrives the same week Meta agreed a $16.68B settlement that includes teen protections such as time limits, regulation and litigation converging on the same question from opposite directions.",
+      "whyItMatters": "Age verification is the part that should interest builders. Enforcing it at scale means either identity documents or inference from behaviour, and the second is an AI system making a consequential judgement about a minor, squarely inside the AI Act's high-risk framing.",
       "whyForUs": "If age assurance spreads across the EU, anyone shipping a consumer product inherits the problem. Worth understanding the mechanisms now rather than when it reaches Danish law.",
       "sources": [
         {
@@ -245,9 +245,9 @@
       "date": "2026-08-24",
       "title": "AI took 55% of all European VC in the first half of 2026",
       "subtitle": "$23B, up from $10B a year earlier",
-      "summary": "European AI startups took a record 55% of all venture capital raised in the region in H1 2026 — about $23 billion against $10 billion in the same period last year, a 130% jump. The European Investment Fund's €15B fund-of-funds, aimed at unlocking up to €80B for European scale-ups, sits behind a meaningful share of the later-stage capacity.",
+      "summary": "European AI startups took a record 55% of all venture capital raised in the region in H1 2026, about $23 billion against $10 billion in the same period last year, a 130% jump. The European Investment Fund's €15B fund-of-funds, aimed at unlocking up to €80B for European scale-ups, sits behind a meaningful share of the later-stage capacity.",
       "whyItMatters": "Fifty-five per cent is the number to be slightly uneasy about. When one category takes more than half of everything, the question stops being whether AI is well funded and becomes what is being starved to fund it.",
-      "whyForUs": "If you are raising in Europe right now, an AI angle is close to mandatory — which means the label is worth less than it was. Being specific about what your model actually does will separate you from a crowded field.",
+      "whyForUs": "If you are raising in Europe right now, an AI angle is close to mandatory, which means the label is worth less than it was. Being specific about what your model actually does will separate you from a crowded field.",
       "sources": [
         {
           "name": "AOL / Reuters",

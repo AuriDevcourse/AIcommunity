@@ -109,7 +109,7 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
               <span>Polls</span>
             </div>
             <h2 className="text-3xl font-semibold tracking-tight mt-1">Vote &amp; gut-checks</h2>
-            <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote per name, change it anytime.</p>
+            <p className="text-sm text-muted mt-1">Enter your name once, then vote. One vote each, change it anytime.</p>
           </div>
           <button
             onClick={() => load()}

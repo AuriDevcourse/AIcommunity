@@ -18,7 +18,7 @@ export default function TokenEstimator() {
         <span>Token & cost estimator</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Estimate tokens & cost</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Paste a prompt to get a rough token count (about 4 characters per token) and what it would cost at a given price.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Rough token count and cost for a prompt. About 4 characters per token.</p>
 
       <textarea
         value={text}
@@ -53,7 +53,7 @@ export default function TokenEstimator() {
           <div className="text-xl font-semibold num">${cost < 0.01 && cost > 0 ? cost.toFixed(5) : cost.toFixed(4)}</div>
         </div>
       </div>
-      <p className="mt-2 text-[11px] text-muted">Estimate only. Real tokenizers vary by model; set the price to your model's input rate.</p>
+      <p className="mt-2 text-[11px] text-muted">An estimate. Real tokenizers vary, so set the price to your model's input rate.</p>
     </div>
   );
 }

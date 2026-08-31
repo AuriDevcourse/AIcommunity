@@ -49,7 +49,7 @@ export default function AuthControls() {
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} aria-hidden />
-          <div className="absolute right-0 mt-2 w-48 z-50 rounded-xl border border-border bg-background shadow-[0_20px_40px_rgba(0,0,0,0.12)] p-1">
+          <div className="absolute right-0 mt-2 w-48 z-50 rounded-xl border border-border bg-background shadow-[var(--popover-shadow)] p-1">
             <div className="px-3 py-2 text-[11px] text-muted truncate">{user.email}</div>
             <button
               onClick={() => { setMenuOpen(false); setProfileOpen(true); }}
@@ -140,7 +140,7 @@ export function AuthModal() {
           <h2 className="text-lg font-semibold tracking-tight">{mode === 'signup' ? 'Create account' : 'Sign in'}</h2>
           <button onClick={closeAuth} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
-        <p className="text-xs text-muted mb-4">Sign in to post, vote, and join the discussion. Browsing stays open to everyone.</p>
+        <p className="text-xs text-muted mb-4">Sign in to post and vote. Browsing stays open to everyone.</p>
 
         {googleEnabled && (
           <>

@@ -45,7 +45,7 @@ export default function Tools({ sessions = [] }) {
         <span>Tools</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Free tools for builders</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Small utilities for the community. No sign-up, no cost.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Free, no sign-up.</p>
 
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {TOOLS.map((t) => {

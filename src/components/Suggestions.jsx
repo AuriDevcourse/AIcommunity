@@ -38,7 +38,7 @@ export default function Suggestions({ onOpenForum }) {
         <Lightbulb size={12} strokeWidth={2} />
         <span>Top ideas</span>
       </div>
-      <p className="mt-2 text-sm text-muted leading-relaxed">What the community wants to build next. Vote and reply in the forum.</p>
+      <p className="mt-2 text-sm text-muted leading-relaxed">What the community wants to build next.</p>
 
       <ul className="mt-4 space-y-2">
         {ideas === null && Array.from({ length: 3 }).map((_, i) => (

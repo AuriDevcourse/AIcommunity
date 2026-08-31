@@ -1,6 +1,6 @@
 // Client-side image compression. Downscales to maxDim and re-encodes as JPEG so
 // uploads stay light on the server (and fast for everyone). Animated GIFs and
-// non-images pass through untouched — a canvas would flatten a GIF to one frame.
+// non-images pass through untouched, a canvas would flatten a GIF to one frame.
 const MAX_DIM = 1600;
 const QUALITY = 0.82;
 

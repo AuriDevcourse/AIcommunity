@@ -1,5 +1,5 @@
 // Some stories only exist on aggregators that share one og:image across every
-// item, or block fetching entirely — which leaves several news cards showing the
+// item, or block fetching entirely, which leaves several news cards showing the
 // same picture, or none. This renders a distinct typographic card per story so
 // the grid still reads as twelve separate things.
 //
@@ -106,7 +106,7 @@ for (const item of targets) {
     made++;
     console.log(`  ✓ ${item.id}`);
   } catch (e) {
-    console.log(`  ✗ ${item.id} — ${e.message}`);
+    console.log(`  ✗ ${item.id}, ${e.message}`);
   }
 }
 

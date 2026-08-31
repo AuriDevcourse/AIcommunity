@@ -126,5 +126,5 @@ const fail = results.length - ok;
 console.log(`fetch-news-images: ${ok} fetched · ${fail} failed`);
 for (const r of results) {
   if (r.ok) console.log(`  ✓ ${r.id} (${r.source}, ${(r.bytes / 1024).toFixed(0)}KB)`);
-  else      console.log(`  ✗ ${r.id} — ${r.reason}`);
+  else      console.log(`  ✗ ${r.id}, ${r.reason}`);
 }

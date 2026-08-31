@@ -91,7 +91,7 @@ export default function SessionsGallery({ sessions, onOpenRecap }) {
   const sessionDates = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
   const orderedByDate = new Map(merged.map((s) => [s.date, s]));
 
-  // Session being edited — tracked by date so it reflects live photo changes.
+  // Session being edited, tracked by date so it reflects live photo changes.
   const [editDate, setEditDate] = useState(null);
   const editing = editDate ? orderedByDate.get(editDate) : null;
 
@@ -192,7 +192,7 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             alt=""
             loading="lazy"
             decoding="async"
-            /* 4:5 tile — the intrinsic ratio stops the grid reflowing per image. */
+            /* 4:5 tile, the intrinsic ratio stops the grid reflowing per image. */
             width={512}
             height={640}
             className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
@@ -206,11 +206,11 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             )}
           </div>
         )}
-        <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
+        <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
           {date}
         </span>
         {hasPhotos && session.photos.length > 1 && (
-          <span className="absolute left-4 bottom-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium num text-foreground">
+          <span className="absolute left-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium num">
             {session.photos.length} photos
           </span>
         )}
@@ -220,7 +220,7 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
           conflict with the cover button; lifts on hover/focus. */}
       <button
         onClick={onEdit}
-        className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-white transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+        className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full chip-on-media px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
         aria-label={`Edit ${name}`}
       >
         <Pencil size={12} strokeWidth={2.4} /> Edit
@@ -242,7 +242,7 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
   );
 }
 
-// Placeholder tile shown while photos/meta load — matches SessionTile's footprint
+// Placeholder tile shown while photos/meta load, matches SessionTile's footprint
 // (4:5 cover + name row) so revealing the real grid causes no layout shift.
 function SessionTileSkeleton() {
   return (
@@ -363,7 +363,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
             <p className="text-xs text-muted">No photos in this session.</p>
           ) : (
             <>
-              <p className="text-[11px] text-muted mb-2">Drag to reorder — the first photo is the cover (shown larger). Tap the circle to select, the star to feature.</p>
+              <p className="text-[11px] text-muted mb-2">Drag to reorder. The first photo becomes the cover. Tap the circle to select, the star to feature.</p>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 grid-flow-dense">
                 {photos.map((url, idx) => {
                   const featured = idx === 0;
@@ -403,7 +403,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
                         </span>
                       )}
 
-                      {/* Make featured (move to front) — handy on touch where drag is awkward */}
+                      {/* Make featured (move to front), handy on touch where drag is awkward */}
                       {!featured && (
                         <button
                           onClick={(e) => { e.stopPropagation(); moveTo(url, 0); }}

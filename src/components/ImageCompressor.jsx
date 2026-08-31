@@ -3,7 +3,7 @@ import { Minimize2, Loader2, Download } from 'lucide-react';
 import { compressImage, formatBytes } from '../lib/compressImage.js';
 
 // Drop an image, get a lighter JPEG to download. Same compression the app applies
-// automatically on every upload — this just exposes it as a standalone tool.
+// automatically on every upload, this just exposes it as a standalone tool.
 export default function ImageCompressor() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -36,7 +36,7 @@ export default function ImageCompressor() {
         <span>Image compressor</span>
       </div>
       <h2 className="text-3xl font-semibold tracking-tight mt-1">Image compressor</h2>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image and download a lighter version. Resized to 1600px and saved as JPEG, the same compression every upload in the app uses.</p>
+      <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image, download a lighter one. 1600px JPEG, the same compression uploads use.</p>
 
       <div
         onClick={() => !busy && fileRef.current?.click()}

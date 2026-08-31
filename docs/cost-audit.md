@@ -11,20 +11,20 @@ moment the app is shared more widely or AI drafting gets used a lot.
 | Service | What it does | Tier | Cost risk |
 |---|---|---|---|
 | **Vercel** (hosting + serverless) | hosts the SPA + `/api/*` functions | Hobby (free) | Low. Edge-DDoS protection built in. Function invocations cut by `s-maxage` caching on GET routes. |
-| **Gemini flash** (`gemini-flash-latest`) | Post Maker, auto recap draft, news draft | Free text tier | **Medium** — see exposure #1. Free quota is per-project, not per-key; don't burst. |
-| **OpenRouter** (fallback for Post Maker) | only used if `GEMINI_API_KEY` is unset | Pay-as-you-go | Medium — paid per token if it ever becomes the active provider. |
+| **Gemini flash** (`gemini-flash-latest`) | Post Maker, auto recap draft, news draft | Free text tier | **Medium**, see exposure #1. Free quota is per-project, not per-key; don't burst. |
+| **OpenRouter** (fallback for Post Maker) | only used if `GEMINI_API_KEY` is unset | Pay-as-you-go | Medium, paid per token if it ever becomes the active provider. |
 | **Upstash Redis** | rate-limit counters + RSVP/polls/threads/session-meta stores | Free tier (10k cmd/day) | Low. |
 | **Vercel Blob** | session photo storage | Free tier | Low; images are downscaled client-side before upload. |
 | **ImgBB** | forum/tool image uploads | Free | Low. |
 | **Supabase** | auth (Google + email) | Free tier | Low. |
 
-## Exposure #1 — `/api/generate-post` has no cumulative per-user quota (highest priority)
+## Exposure #1, `/api/generate-post` has no cumulative per-user quota (highest priority)
 
 The route is already **auth-gated + rate-limited** (`guardMutation`, 10/min). That
 caps *frequency* but not *total spend*: a signed-in user making many valid,
 spaced-out requests stays under the rate limit while still drawing tokens on every
 call. This is Security rule 5 (per-user usage quota), and it matters more now that
-**two** features call this endpoint — the Post Maker **and** the new auto recap
+**two** features call this endpoint, the Post Maker **and** the new auto recap
 draft.
 
 **Recommended fix (fast follow, ~30 lines).** Track per-user generations in Redis
@@ -51,13 +51,13 @@ starts) so a mid-stream abort still counts as one use.
 **Backstop:** set a hard spend cap in the Gemini/OpenRouter console so a bug or
 abuse can never run up an unbounded bill.
 
-## Exposure #2 — public exposure of the app
+## Exposure #2, public exposure of the app
 
 Today browsing is open and only writes are gated, which is correct. Before
 promoting the app widely:
 - Confirm every mutating route calls `guardMutation` (currently: photos,
   session-meta, threads, topics, polls, upload-image, generate-post, **rsvp**). ✔
-- Keep the Gemini key server-side only (it is — never `VITE_`-prefixed). ✔
+- Keep the Gemini key server-side only (it is, never `VITE_`-prefixed). ✔
 - Add the per-user quota above before the Post Maker / recap draft are promoted.
 
 ## What's already efficient
@@ -66,7 +66,7 @@ promoting the app widely:
   3.3MB → 29KB). New photos auto-optimize on the next build.
 - **Edge caching**: GET routes (`photos`, `session-meta`, `attendees`, `rsvp`,
   topics/threads) set `s-maxage` + `stale-while-revalidate`, so repeat loads hit
-  the cache, not the function — fewer invocations and faster loads.
+  the cache, not the function, fewer invocations and faster loads.
 - **Code-splitting**: non-default tabs load on demand.
 
 ## Automation now in place
@@ -76,7 +76,7 @@ promoting the app widely:
   cover images are fetched, and a PR is opened for review. Curation stays human;
   only the gathering is automated. Near-zero cost (free Gemini tier).
 - **Auto recap draft**: the recap page drafts a LinkedIn post from a session's
-  notes/photos via the existing Post Maker endpoint — no new LLM plumbing.
+  notes/photos via the existing Post Maker endpoint, no new LLM plumbing.
 
 ## Suggested next automations (not built)
 
