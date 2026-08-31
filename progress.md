@@ -4,8 +4,11 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## 2026-08-31, Download assets footer page
 
-**Current state:** branch `feat/plan-remaining`, NOT committed. `npm run audit` green on all 10
-suites (shell is now 23 assertions). New page live at `#assets`, linked first in the footer.
+**Current state:** SHIPPED. `main` at `e58981f`, pushed, and Vercel deployed it on the push
+(the Hobby push-deploy block did not bite this time, no `npx vercel --prod` needed). `npm run
+audit` green on all 10 suites (shell is now 23 assertions). Live at `#assets`, linked first in
+the footer. Verified on production: the bundle carries `is-scrolled`, "Download assets" and the
+new member names, and `/brand/icon-badge.svg` returns 200.
 
 Auri asked for a footer page where the logos, icons and colours can be downloaded.
 `src/components/BrandAssets.jsx`, lazy-loaded, 14 files plus the locked palette.
@@ -53,11 +56,26 @@ control has an accessible name, no preview image is broken, eight copyable swatc
 Back returns Home. `assets` was also added to the `smoke` route crawl, since fourteen `<img>`
 previews are fourteen chances at a console error nobody would notice by eye.
 
+### What went out, five commits
+`aec4d9e` members · `81545da` the four plan items plus 8.5 · `d74e378` this page ·
+`6e061a0` the shell suite and the audit stale-build fix · `e58981f` the plan re-triage and the
+news-image optimization. Branch `feat/plan-remaining` was fast-forwarded into `main` and deleted.
+
+**Auri cut `brand/icon-mono.svg` from the page on sight**, and he was right: it is drawn in
+`currentColor`, so an `<img>` preview renders it flat black and reads as broken. The file stays
+in the repo with a comment in `BrandAssets.jsx` saying it is deliberately not offered, so nobody
+re-adds it thinking it was an oversight. The badge variant stayed.
+
 ### Numbered next steps
-1. Commit. This is a third clean commit on top of the members change and the plan items.
-2. If a zip of everything is wanted, that is a build step (`scripts/`), not a runtime route. It
-   does not exist and the page does not claim it does.
-3. `data/schedule.json` still needs its dates refreshed, see the entry below.
+1. **`data/schedule.json` dates.** Still the only thing blocking plan items 4.5 and 4.7, which
+   are built and verified and rendering nothing. Data task, zero code.
+2. **Seven members still have no photo or LinkedIn:** Cristina Bodnari, Inigo Casillas, Kernius
+   Savickas, Kristina Juozapaviciute, Tady Kapic, Valentin, Vasare Liutkeviciute. They render a
+   generated avatar, which works; this is only a list if photos are being collected anyway.
+3. **`probe.html` and `probe.jsx`** are still untracked in the working tree, from before these
+   sessions. Delete or commit them.
+4. If a zip of every asset is ever wanted, that is a build step in `scripts/`, not a runtime
+   route. It does not exist and the page does not claim it does.
 
 ### File pointers
 `src/components/BrandAssets.jsx`, `src/components/LegalPages.jsx` (`FOOTER_KEYS`, the footer
@@ -66,9 +84,9 @@ links), `src/App.jsx` (`isAssets`), `scripts/shell-check.mjs`, `scripts/smoke.mj
 
 ## 2026-08-31, the last four open plan items closed
 
-**Current state:** branch `feat/plan-remaining`, NOT committed, off `main`. `npm run audit`
-green on **all 10 suites** (a tenth was added). `docs/improvement-plan.md` now reads
-**83 done, 5 partial, 0 open, 12 moot**.
+**Current state:** SHIPPED in `main` at `e58981f`. `npm run audit` green on **all 10 suites**
+(a tenth was added). `docs/improvement-plan.md` now reads **83 done, 5 partial, 0 open, 12
+moot**.
 
 The four items were 1.3, 1.10, 8.6 and 8.8, plus partial 8.5.
 
@@ -138,8 +156,10 @@ both at the end), `src/components/SessionRecap.jsx` (`PhotoLightbox`),
 
 ## 2026-08-31, three new members: Roman Novosad, Marlu Adamczyk, Prachi Abhyankar
 
-**Current state:** working tree on `main`, NOT committed. The site reads **23 members**
-(was 21). Dev server on `http://localhost:5280`. `members-check` passes 13/13 against it.
+**Current state:** SHIPPED in `main` at `e58981f`. The site reads **23 members** (was 21), 16
+of them with photos. `members-check` passes 13/13. Aiza Watzlawek's photo and LinkedIn landed
+in the same commit, later the same day; her `gender` hint is gone, since nothing reads it once
+a real photo exists.
 
 Auri supplied a LinkedIn URL and a `.jfif` photo for each of the three.
 
