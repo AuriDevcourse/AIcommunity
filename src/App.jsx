@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useEffect, useState } from 'react';
+import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import data from './data.json';
 // Home-tab (default view) components stay eager so the landing paint isn't gated
 // on a second chunk. The other tabs are code-split below, their JS only downloads
@@ -77,17 +77,37 @@ export default function App() {
       if (!rd && !pr) setTab(readTabFromHash());
     };
     window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('popstate', onHashChange);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('popstate', onHashChange);
+    };
   }, []);
 
+  // Every tab write used to be a replaceState, so switching tabs left no history
+  // entry and Back walked straight out of the site. Only the FIRST sync replaces,
+  // because writing #home on load should not add an entry the user never asked
+  // for; every later change pushes, so Back returns to the previous tab.
+  //
+  // A change that came FROM the browser (Back, Forward, a pasted link) has already
+  // updated the hash by the time this runs, so `current === tab` and nothing is
+  // written. That guard is what stops a pushState loop.
+  const didInitialHashSync = useRef(false);
   useEffect(() => {
     if (recapDate || present) return; // the recap / present routes own the hash; don't overwrite it
     const current = window.location.hash.slice(1);
     // Don't rewrite the hash while it carries an auth callback (e.g. an
     // implicit-flow #access_token=...), or we'd wipe it before Supabase reads it.
     if (/access_token=|provider_token=|[?&]?error=/.test(current)) return;
-    if (current !== tab) {
+    if (current === tab) {
+      didInitialHashSync.current = true;
+      return;
+    }
+    if (didInitialHashSync.current) {
+      window.history.pushState(null, '', `#${tab}`);
+    } else {
       window.history.replaceState(null, '', `#${tab}`);
+      didInitialHashSync.current = true;
     }
   }, [tab, recapDate, present]);
 
