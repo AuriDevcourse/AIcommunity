@@ -110,11 +110,20 @@ card, not one.
 - The same is true of `#N`: it came from `item.n`, a stable id, rendered where a rank belongs.
 
 ### File pointers
-- `data/news.json` · `curatedAt`, `windowLabel`, `themes`, and the 12 `items`, each with
-  `summary` / `whyItMatters` / `whyForUs` / `sources[]` / `image`.
-- `src/components/News.jsx` · `:7` `readingMinutes`, `:15` the search haystack, `:115` the
-  header and window label, `:238` the card title, `:279` the "N min · N sources" meta row.
-- `scripts/fetch-news-images.js`, `scripts/draft-news.mjs` · the pipeline behind the data.
+- `data/news.json` · `curatedAt` drives the stale notice. Each source may carry
+  **`official: true`**, set by domain for the subject's own announcements; add it by hand for
+  any new one.
+- `src/components/News.jsx` (lines as of `89fb225`) · `:8` `STALE_AFTER_DAYS`, `:112`
+  `staleDays`, `:228` `onlyOfficial`, `:230` `isTitleCard` (matches the pipeline's `-card.<ext>`
+  naming), `:263` the pattern fallback, `:337` the OFFICIAL tag. **`readingMinutes` and the
+  "N min · N sources" row are gone; do not put them back.**
+- `src/index.css` · `.tap-target`, now 24px on every pointer. **This is app-wide**: any earlier
+  target-size measurement was taken while it was a no-op on desktop.
+- `scripts/news-check.mjs` · 17 assertions, including three that assert the REMOVED things stay
+  removed.
+- `scripts/fetch-news-images.js`, `scripts/draft-news.mjs` · the pipeline. **It generates the
+  `-card` title cards that the component now refuses to render**; ideally it should stop making
+  them, or make real imagery instead.
 
 ## 2026-09-01, backgrounds: brand pattern as an edge-masked overlay
 
