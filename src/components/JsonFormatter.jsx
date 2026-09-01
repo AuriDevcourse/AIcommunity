@@ -29,7 +29,7 @@ export default function JsonFormatter() {
         <Braces size={11} strokeWidth={2.2} />
         <span>JSON formatter</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Format & validate JSON</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Format & validate JSON</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Pretty-print or minify JSON, and catch errors. Runs in your browser.</p>
 
       <textarea

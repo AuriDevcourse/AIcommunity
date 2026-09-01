@@ -38,7 +38,7 @@ export default function Learn() {
         <GraduationCap size={11} strokeWidth={2.2} />
         <span>Learn</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Build with AI</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Build with AI</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Short decks from our sessions.</p>
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -72,7 +72,7 @@ export default function Learn() {
                   <span className={`pill ${levelPill}`}>{t.level}</span>
                   {t.minutes && <span className="inline-flex items-center gap-1 text-[11px] text-muted "><Clock size={11} /> {t.minutes} min</span>}
                 </div>
-                <h3 className="mt-3 text-base font-semibold tracking-tight leading-snug">{t.title}</h3>
+                <h2 className="mt-3 text-base font-semibold tracking-tight leading-snug">{t.title}</h2>
                 <p className="mt-1 text-sm text-muted leading-relaxed flex-1">{t.summary}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-[11px] text-muted ">{slideCount} slides</span>

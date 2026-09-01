@@ -35,7 +35,7 @@ export default function ImageCompressor() {
         <Minimize2 size={11} strokeWidth={2.2} />
         <span>Image compressor</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Image compressor</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Image compressor</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image, download a lighter one. 1600px JPEG, the same compression uploads use.</p>
 
       <div

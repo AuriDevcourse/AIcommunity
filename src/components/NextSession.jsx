@@ -25,7 +25,7 @@ const FORMATS = {
 
 export default function NextSession({ session }) {
   if (!session) {
-    return <div className="card card-pad"><div className="h-section">Next session</div><div className="mt-3 text-muted">No upcoming session scheduled.</div></div>;
+    return <div className="card card-pad"><h2 className="h-section">Next session</h2><div className="mt-3 text-muted">No upcoming session scheduled.</div></div>;
   }
   const fmt = FORMATS[session.format] || FORMATS.tbd;
   const days = daysBetween(TODAY, session.date);
@@ -48,10 +48,10 @@ export default function NextSession({ session }) {
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <div className="flex items-center gap-1.5 h-section">
+            <h2 className="flex items-center gap-1.5 h-section">
               <CalendarClock size={11} strokeWidth={2.2} />
               <span>Next session</span>
-            </div>
+            </h2>
             <span className={`pill ${soon ? 'pill-acc' : thisWeek ? 'pill-warn' : 'pill-mute'}`}>{relative(session.date)}</span>
           </div>
           <div className="text-xl sm:text-2xl font-semibold mt-2 tracking-tight">{fmtDateLong(session.date)}</div>

@@ -17,7 +17,7 @@ export default function TokenEstimator() {
         <Calculator size={11} strokeWidth={2.2} />
         <span>Token & cost estimator</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Estimate tokens & cost</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Estimate tokens & cost</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Rough token count and cost for a prompt. About 4 characters per token.</p>
 
       <textarea

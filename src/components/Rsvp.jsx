@@ -166,12 +166,12 @@ export default function Rsvp({ date }) {
       {/* One unified "Coming" list (in-app RSVPs + calendar accepts, deduped) */}
       {hasAny && (
         <div className="mt-4">
-          <div className="flex items-center gap-1.5 h-section">
+          <h3 className="flex items-center gap-1.5 h-section">
             <Users size={11} strokeWidth={2.2} />
             <span>Coming</span>
             <span className="pill pill-ok ml-1"><Check size={10} strokeWidth={2.8} />{coming.length}</span>
             {maybe.length > 0 && <span className="pill pill-warn"><HelpCircle size={10} strokeWidth={2.5} />{maybe.length} maybe</span>}
-          </div>
+          </h3>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2.5">
             {coming.map((p, i) => <PersonAvatar key={`c-${p.name}-${i}`} person={p} />)}
             {maybe.map((p, i) => <PersonAvatar key={`m-${p.name}-${i}`} person={p} tentative />)}

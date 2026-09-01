@@ -44,7 +44,7 @@ export default function Tools({ sessions = [] }) {
         <Wrench size={11} strokeWidth={2.2} />
         <span>Tools</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Free tools for builders</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Free tools for builders</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Free, no sign-up.</p>
 
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -59,7 +59,7 @@ export default function Tools({ sessions = [] }) {
               <div className="grid place-items-center w-10 h-10 rounded-xl bg-background border border-border">
                 <Icon size={18} strokeWidth={2} />
               </div>
-              <h3 className="mt-3 text-base font-semibold tracking-tight">{t.name}</h3>
+              <h2 className="mt-3 text-base font-semibold tracking-tight">{t.name}</h2>
               <p className="mt-1 text-sm text-muted leading-relaxed flex-1">{t.desc}</p>
               <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold">
                 Open <ChevronRight size={13} strokeWidth={2.5} />

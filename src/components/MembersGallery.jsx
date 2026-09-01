@@ -95,7 +95,7 @@ export default function MembersGallery({ members }) {
     <div className="space-y-6">
       <div>
         <div className="h-section">Community</div>
-        <div className="mt-2 text-3xl font-semibold tracking-tight">Members</div>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Members</h1>
         <p className="mt-2 text-sm text-muted">
           {merged.length} people building with AI in Copenhagen
           {organisers > 0 && `, ${organisers} running it`}.

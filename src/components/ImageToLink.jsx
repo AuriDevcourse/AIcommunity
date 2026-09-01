@@ -49,7 +49,7 @@ export default function ImageToLink() {
         <ImagePlus size={11} strokeWidth={2.2} />
         <span>Image to link</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Image to link</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Image to link</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image or GIF and get a shareable URL. Images are compressed automatically so the link stays light. Handy for issues, posts, and demos.</p>
 
       <div

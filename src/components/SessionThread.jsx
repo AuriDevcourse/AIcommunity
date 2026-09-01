@@ -166,14 +166,15 @@ export default function SessionThread({
   for (const k of Object.keys(repliesByParent)) repliesByParent[k].sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
 
   const sharedProps = { name, named, onVote: vote, onRemove: remove, replyTo, setReplyTo, onReply: submitReply };
+  const Heading = bare ? 'h3' : 'h2';
 
   return (
     <div className={bare ? '' : 'card card-pad'}>
-      <div className="flex items-center gap-1.5 h-section">
+      <Heading className="flex items-center gap-1.5 h-section">
         <MessagesSquare size={11} strokeWidth={2.2} />
         <span>{title}</span>
         {list.length > 0 && <span className="pill pill-mute ml-1">{list.length}</span>}
-      </div>
+      </Heading>
       {subtitle && <p className="mt-2 text-sm text-muted">{subtitle}</p>}
 
       {!configured && (

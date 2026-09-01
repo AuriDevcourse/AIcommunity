@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Download, Check, Copy, Palette, Type, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Download, Check, Copy, Palette, Type, ShieldAlert, Signature, Shapes, Image, Wallpaper } from 'lucide-react';
 
 // Footer page: every brand file in the repo, downloadable, plus the locked
 // palette. It exists because people kept asking Auri for "the logo" and getting
@@ -12,8 +12,9 @@ import { ArrowLeft, Download, Check, Copy, Palette, Type, ShieldAlert } from 'lu
 //
 // Deliberately NOT offered, though the files exist: brand/icon-mono.svg (drawn in
 // currentColor, so an <img> preview renders it flat black and it reads as broken),
-// brand/hero.png (3.4MB original) and brand/hero.webp (superseded by the two
-// themed bands).
+// brand/hero.png (3.4MB original), brand/hero.webp (superseded by the two
+// themed bands) and brand/icon-badge.svg (pulled from the page on request; the
+// file stays in /public, it is just not listed here).
 
 const LOCKUPS = [
   {
@@ -59,14 +60,6 @@ const MARKS = [
     note: 'Full colour, transparent ground. Sits on any surface that is not busy.',
     ground: 'light',
   },
-  {
-    file: '/brand/icon-badge.svg',
-    name: 'Sunrise icon, badge',
-    as: 'ai-sundays-icon-badge.svg',
-    meta: 'SVG · 512 × 512',
-    note: 'The same icon on a deep green rounded tile, for app grids and avatars.',
-    ground: 'dark',
-  },
 ];
 
 const RASTER = [
@@ -107,10 +100,10 @@ const RULES = [
 function Section({ title, icon: Icon, children, hint }) {
   return (
     <section className="mt-10">
-      <div className="flex items-center gap-1.5 h-section">
+      <h2 className="flex items-center gap-1.5 h-section">
         {Icon && <Icon size={11} strokeWidth={2.2} />}
         <span>{title}</span>
-      </div>
+      </h2>
       {hint && <p className="mt-2 text-sm text-muted max-w-2xl">{hint}</p>}
       {children}
     </section>
@@ -239,6 +232,7 @@ export default function BrandAssets({ onBack }) {
 
       <Section
         title="Wordmark"
+        icon={Signature}
         hint="The full lockup. Two colourways, one per ground. Nothing else needs to exist."
       >
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
@@ -248,6 +242,7 @@ export default function BrandAssets({ onBack }) {
 
       <Section
         title="Marks and icons"
+        icon={Shapes}
         hint="Square formats, for avatars, app grids, favicons and anywhere the wordmark is too wide to read."
       >
         <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -255,13 +250,13 @@ export default function BrandAssets({ onBack }) {
         </div>
       </Section>
 
-      <Section title="Raster and social" hint="Already sized. Reach for these only when a PNG is required.">
+      <Section title="Raster and social" icon={Image} hint="Already sized. Reach for these only when a PNG is required.">
         <ul className="mt-2">
           {RASTER.map((a) => <AssetRow key={a.file} asset={a} />)}
         </ul>
       </Section>
 
-      <Section title="Imagery">
+      <Section title="Imagery" icon={Wallpaper}>
         <ul className="mt-2">
           {IMAGERY.map((a) => <AssetRow key={a.file} asset={a} />)}
         </ul>
@@ -298,7 +293,7 @@ export default function BrandAssets({ onBack }) {
         </div>
       </Section>
 
-      <Section title="Four rules" icon={ShieldAlert}>
+      <Section title={`${RULES.length} rules`} icon={ShieldAlert}>
         <ol className="mt-3 flex flex-col gap-2.5">
           {RULES.map((r, i) => (
             <li key={i} className="flex gap-2.5 text-sm text-muted leading-relaxed">

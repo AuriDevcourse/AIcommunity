@@ -481,7 +481,7 @@ export default function PostMaker({ sessions = [] }) {
         <PenLine size={11} strokeWidth={2.2} />
         <span>Post maker</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Turn a session into a post</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Turn a session into a post</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Pick a session and it pulls the tools, the demos and who presented. No session? Answer a few prompts instead.</p>
 
       {status === 'notconfigured' && (

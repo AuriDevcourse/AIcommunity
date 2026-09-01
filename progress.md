@@ -2,6 +2,76 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, heading structure fixed app-wide, plus three /#assets fixes
+
+**Current state:** `npm run audit` **PASS, all 10 suites**. `npx vite build` clean. Working tree
+dirty, nothing committed, no branch taken (the edits were already in progress on the checkout).
+
+**What was just done**
+
+1. **Removed the Sunrise icon, badge card** (`/brand/icon-badge.svg`) from `MARKS` in
+   BrandAssets.jsx. `MARKS` is now 3, which fills the `lg:grid-cols-3` row exactly. The svg stays
+   in `/public/brand/`, only the listing is gone, and it is recorded in the "deliberately NOT
+   offered" comment at the top of the file. `scripts/shell-check.mjs` hardcoded
+   `assets.links === 14`; it is now 13 with the arithmetic written next to it.
+2. **"Four rules" now reads `{RULES.length} rules`.** The heading counted by hand.
+3. **Icons on the four asset sections** that had none: Wordmark `Signature`, Marks and icons
+   `Shapes`, Raster and social `Image`, Imagery `Wallpaper`. All four verified present in the
+   installed lucide-react before use.
+4. **Heading structure, the real fix.** Hero holds the only `<h1>` and renders on Home ONLY
+   (App.jsx:338 explains why the masthead was dropped from the other tabs), so every other tab
+   had no h1, and Members / Sessions / News had **no heading of any level**: their visible title
+   was `<div className="mt-2 text-3xl font-semibold tracking-tight">`. Fixed:
+   - page titles to `<h1>`: MembersGallery, News, SessionsGallery (were divs); Discussions,
+     Learn, Tools, PostMaker, TokenEstimator, ImageCompressor, ImageToLink, JsonFormatter
+     (were h2 with nothing above them).
+   - card titles to `<h2>`: Learn, Tools and News cards were `<h3>`, which skipped a level once
+     the page title became h1.
+   - Home cards to `<h2>`: NextSession (both branches), ScheduleAhead (both branches),
+     LatestDiscussion, Suggestions.
+   - BrandAssets `Section` to `<h2>`; SessionThread to `{bare ? 'h3' : 'h2'}`; Rsvp "Coming"
+     to `<h3>`.
+
+**Evidence:** `scratchpad/heading-outline.mjs` (throwaway CDP probe, same harness shape as
+shell-check) walks all 8 tabs and dumps every heading with its computed font-size and margin.
+After: **every tab has exactly one h1, no level skips**, and every size/margin is identical to
+before, because Tailwind v4 preflight resets heading font-size, weight and margin.
+
+### Ranked next steps
+1. **The #discussions outline is still inverted:** `H2 What we'll talk about` renders BEFORE
+   `H1 Community forum`, because App.jsx:376-383 puts TopicsForTheDay in the first grid column.
+   Left alone on purpose. The fixes all cost something: reordering the DOM puts the forum above
+   the topics on mobile, and CSS `order` splits visual from DOM order, which trades one a11y
+   problem for WCAG 1.3.2. **Needs an Auri call on the mobile order.**
+2. Eyebrows above a real heading were left as `<div>` deliberately, they are decoration, not
+   structure. The 2026-08-31 audit wants several of them **deleted** (next step 6 there), which
+   is still open and would remove the question entirely.
+3. Labels left as `<div className="h-section">` on purpose, they title nothing:
+   Learn:148/168 ("Step 3 of 6", "Keep going"), ThemeToggle:83 ("Theme", a menu group, wants
+   `aria-labelledby` not a heading), PhotoUploader:258, Polls:502 ("New poll"), PostMaker:643
+   ("Preview"), SessionsGallery:220/438/472, TopicsPresentation:71/84/116.
+
+### Gotchas
+- **A heading count in a test will break when the page changes.** shell-check asserted 14
+  downloads. Any assertion of the form `x.length === N` over page content is a landmine.
+- Agentation annotation paths have no nth-child, so `.mt-10 > .mt-3 > .card` **cannot** tell you
+  which instance of a mapped component was clicked. Ask, do not guess.
+- Tailwind v4 preflight is what makes div→h1/h2 free. If preflight is ever disabled, every one
+  of these swaps becomes a visible size change.
+- `npm run audit` starts its own dev server on 5280 and fails to bind if one is already running
+  from `npm run dev`; it still passes because it reuses the live one, but the log line
+  "dev up at" then refers to the server you started.
+
+### File pointers
+- `src/App.jsx:338` · why the masthead is Home-only, the reason the other tabs had no h1.
+  `:357-389` · the tab render tree, and the Discussions two-column grid from step 1.
+- `src/components/BrandAssets.jsx` · `/#assets`. `Section` (now h2), `LOCKUPS`/`MARKS`→`AssetCard`,
+  `RASTER`/`IMAGERY`→`AssetRow`, `PALETTE`→`Swatch`, `RULES`.
+- `src/index.css:332` · `.h-section`, class-only styling. `:624` · the `h1,h2,h3,.h-section`
+  rule is inside the print block and affects none of this.
+- `scripts/audit.mjs` · runs all 10 suites and picks the right target per suite.
+- `scratchpad/heading-outline.mjs` · the probe. Not committed, recreate it if headings change.
+
 ## 2026-08-31, declutter audit. Findings only, NOTHING applied
 
 **Current state:** `main` at `ed30ca8`, clean. No code changed by this audit. Measured against

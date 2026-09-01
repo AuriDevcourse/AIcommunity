@@ -108,7 +108,7 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="h-section">Archive</div>
-          <div className="mt-2 text-3xl font-semibold tracking-tight">Sessions</div>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Sessions</h1>
           <p className="mt-2 text-sm text-muted">
             {loading
               ? 'Loading sessions…'

@@ -72,7 +72,7 @@ export default function ScheduleAhead({ schedule }) {
   if (all.length === 0) {
     return (
       <div className="card card-pad">
-        <div className="h-section">Schedule ahead</div>
+        <h2 className="h-section">Schedule ahead</h2>
         <p className="mt-2 text-sm text-muted">
           No dates on the calendar yet. Add the next few so people can plan.
         </p>
@@ -83,7 +83,7 @@ export default function ScheduleAhead({ schedule }) {
   return (
     <div className="card card-pad">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <div className="h-section">Schedule ahead</div>
+        <h2 className="h-section">Schedule ahead</h2>
         {commonVenue && (
           <div className="text-[11px] text-muted min-w-0">
             All at{' '}

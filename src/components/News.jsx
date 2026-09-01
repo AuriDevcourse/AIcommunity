@@ -113,7 +113,7 @@ export default function News() {
         <div className="flex items-baseline justify-between flex-wrap gap-3">
           <div>
             <div className="h-section">AI News Roundup</div>
-            <div className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</div>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight">{news.windowLabel}</h1>
           </div>
           <div className="text-xs text-muted text-right">
             <div>{news.items.length} stories · {Object.keys(news.themes).length} themes</div>
@@ -235,13 +235,13 @@ function NewsCard({ item }) {
       </a>
 
       <div className="mt-4 flex flex-col">
-        <h3 className="text-base font-semibold leading-snug tracking-tight">
+        <h2 className="text-base font-semibold leading-snug tracking-tight">
           <a href={primary.url} target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">
             {item.title}
             <ArrowUpRight size={13} className="inline-block -mt-1 ml-0.5 text-muted" aria-hidden="true" />
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
-        </h3>
+        </h2>
         {item.subtitle && <p className="text-xs text-muted mt-1 leading-relaxed">{item.subtitle}</p>}
 
         {open && (

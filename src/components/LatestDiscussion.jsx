@@ -31,10 +31,10 @@ export default function LatestDiscussion({ onOpenForum }) {
   return (
     <section className="h-full warm-card p-5 sm:p-6 flex flex-col">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 h-section">
+        <h2 className="flex items-center gap-1.5 h-section">
           <MessagesSquare size={11} strokeWidth={2.2} />
           <span>Latest discussion</span>
-        </div>
+        </h2>
         <button
           onClick={() => onOpenForum?.()}
           className="inline-flex items-center gap-0.5 text-xs font-medium text-muted hover:text-foreground transition-colors"

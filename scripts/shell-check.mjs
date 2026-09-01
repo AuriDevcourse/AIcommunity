@@ -218,8 +218,11 @@ try {
   check('it routes to #assets', assets.hash === '#assets', `hash="${assets.hash}"`);
   check('the page titles itself, not the tab it came from',
     /Download assets/.test(assets.title) && assets.h1 === 'Download assets', `title="${assets.title}" h1="${assets.h1}"`);
+  // 13 = 2 lockups + 3 marks + 5 raster + 3 imagery. Was 14 until the Sunrise
+  // icon badge was pulled from the page on 2026-09-01; the svg is still in
+  // /public, it is just no longer listed.
   check('every brand file is offered as a real download',
-    assets.links === 14 && assets.sameOrigin && assets.named,
+    assets.links === 13 && assets.sameOrigin && assets.named,
     `links=${assets.links} sameOrigin=${assets.sameOrigin} named=${assets.named}`);
   check('every download control has an accessible name', assets.labelled === true);
   check('no preview image is broken', assets.imgs > 0 && assets.broken === 0,

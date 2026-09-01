@@ -87,7 +87,7 @@ export default function Discussions() {
         <MessagesSquare size={11} strokeWidth={2.2} />
         <span>Discussions</span>
       </div>
-      <h2 className="text-3xl font-semibold tracking-tight mt-1">Community forum</h2>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Community forum</h1>
       <p className="text-sm text-muted mt-1">Vote on the ideas and polls below, or start a topic of your own.</p>
 
       {!configured && (

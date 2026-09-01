@@ -34,10 +34,10 @@ export default function Suggestions({ onOpenForum }) {
 
   return (
     <section className="h-full warm-card p-5 sm:p-6">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
+      <h2 className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
         <Lightbulb size={12} strokeWidth={2} />
         <span>Top ideas</span>
-      </div>
+      </h2>
       <p className="mt-2 text-sm text-muted leading-relaxed">What the community wants to build next.</p>
 
       <ul className="mt-4 space-y-2">
