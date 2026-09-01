@@ -248,11 +248,19 @@ export async function streamPostToRes(res, body) {
   res.end();
 }
 
+// Roughly 2k tokens of input. Every session note this tool has ever been given is
+// far under it; the cap exists because nothing else bounded the size of a single
+// paid request. `max_tokens` caps what comes BACK, not what goes in.
+export const MAX_NOTES_CHARS = 8000;
+
 export async function handleGeneratePost({ body }) {
   if (!postmakerConfigured()) return { status: 200, json: { ok: false, configured: false } };
   const notes = String(body?.notes || '').trim();
   const format = body?.format === 'instagram' ? 'instagram' : 'linkedin';
   if (!notes) return { status: 400, json: { ok: false, error: 'notes required' } };
+  if (notes.length > MAX_NOTES_CHARS) {
+    return { status: 413, json: { ok: false, error: 'That is too much text to summarise. Trim it and try again.' } };
+  }
 
   try {
     const system = buildSystemPrompt(format);
@@ -260,6 +268,10 @@ export async function handleGeneratePost({ body }) {
     const raw = process.env.GEMINI_API_KEY ? await callGemini(system, notes) : await callOpenRouter(system, notes);
     return { status: 200, json: { ok: true, text: postProcess(raw) } };
   } catch (e) {
-    return { status: 500, json: { ok: false, error: e.message } };
+    // The provider's own message used to go straight to the browser, which can
+    // carry model names, upstream URLs and quota details. Detail to the log, a
+    // sentence to the person.
+    console.error('generate-post upstream failed:', e?.message || e);
+    return { status: 502, json: { ok: false, error: 'The writing model did not respond. Try again in a moment.' } };
   }
 }

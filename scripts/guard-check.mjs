@@ -70,6 +70,37 @@ await withEnv(AUTH, async ({ guardMutation }) => {
   check('configured auth still 401s an anonymous write', g && g.status === 401, `got ${g ? g.status : 'null (allowed!)'}`);
 });
 
+// 5. The daily quota. It needs a KV store, so stub one: the module talks to
+//    Upstash over plain fetch, and every call it makes here is an INCR or EXPIRE.
+//    Without this the quota silently returns true (documented fail-open) and a
+//    passing test would prove nothing.
+await withEnv({ ...AUTH, KV_REST_API_URL: 'https://kv.example', KV_REST_API_TOKEN: 't' }, async (mod) => {
+  let counter = 0;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    const body = JSON.parse(opts?.body || '[]');
+    // The token check hits Supabase; say the caller is a valid user.
+    if (String(url).includes('supabase')) {
+      return { ok: true, json: async () => ({ id: 'user-1' }) };
+    }
+    if (body[0] === 'INCR') return { ok: true, json: async () => ({ result: ++counter }) };
+    return { ok: true, json: async () => ({ result: 1 }) };
+  };
+  try {
+    const req = { headers: { authorization: 'Bearer tok' }, socket: { remoteAddress: '1.1.1.1' } };
+    // Rate window and daily cap share the counter here, so give the rate limit
+    // plenty of room and let the daily cap of 3 be the thing that bites.
+    const calls = [];
+    for (let i = 0; i < 5; i++) calls.push(await mod.guardMutation(req, { bucket: 'paid', limit: 1000, dailyLimit: 3 }));
+    const blockedAt = calls.findIndex((c) => c !== null);
+    check('a daily quota blocks once it is exceeded', blockedAt !== -1, 'never blocked');
+    const last = calls[calls.length - 1];
+    check('the daily-quota refusal is a 429 that says it resets', Boolean(last) && last.status === 429 && /resets/i.test(last.json.error), JSON.stringify(last));
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${failed.length ? `GUARD FAIL · ${failed.length} of ${results.length}` : `GUARD PASS · ${results.length} passed`}\n`);
 process.exit(failed.length ? 1 : 0);

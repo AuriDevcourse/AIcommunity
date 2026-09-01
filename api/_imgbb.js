@@ -27,7 +27,9 @@ export async function handleImageUpload({ body }) {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j?.data?.url) {
-      return { status: 502, json: { ok: false, error: j?.error?.message || `imgbb ${r.status}` } };
+      // Same rule as the post maker: the upstream's message is for the log.
+      console.error('imgbb upload failed:', j?.error?.message || `imgbb ${r.status}`);
+      return { status: 502, json: { ok: false, error: 'The image host rejected that upload. Try again in a moment.' } };
     }
     return { status: 200, json: { ok: true, url: j.data.url, width: j.data.width, height: j.data.height } };
   } catch (e) {

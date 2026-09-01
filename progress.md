@@ -2,6 +2,61 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, spend protection on the paid routes (tools findings 1-3)
+
+**Current state:** done, audit green (11 suites, guard now 8 assertions), not pushed.
+
+**First, the answer to what was asked: there is no news API to abuse.**
+`data/news.json` is a **build-time import** compiled into the client bundle
+(`News.jsx:3`), so viewing the news page makes **no server call at all** and costs nothing per
+view. The Gemini call happens once a week inside GitHub Actions, never from a browser. Nothing
+to rate-limit there. So the work went to the endpoints that CAN be abused.
+
+**What was already fine:** every mutating route has a per-minute limit
+(generate-post 10, upload-image 30, photos 40, polls 60, rsvp 30, session-meta 60, threads 60,
+topics 30), and the Upstash store backing them is configured.
+
+**The real gap: a per-minute limit bounds SPEED, not SPEND.** At 10/minute a signed-in member
+could make **14,400 paid model calls a day** without ever tripping it, each one carrying
+unbounded input. Three fixes:
+1. **Daily quota.** `guardMutation` takes `dailyLimit`; `withinDailyQuota` keys on
+   `q:<bucket>:<id>:<UTC day>` and expires after two days so keys clean themselves.
+   **generate-post 40/day, upload-image 120/day.**
+2. **Input cap.** `MAX_NOTES_CHARS = 8000` (~2k tokens). `max_tokens` only ever capped what came
+   BACK. Enforced in `handleGeneratePost` and again in the streaming branch **before any bytes
+   go out**, because an SSE response cannot carry a JSON error afterwards.
+3. **Upstream errors no longer reach the browser.** `_postmaker.js` returned the provider's own
+   `e.message`, which can carry model names, upstream URLs and quota details; `_imgbb.js` did
+   the same. Both now log the detail and return one sentence, 502.
+
+**Verified:** `guard-check.mjs` gained two assertions that stub the KV store over `fetch` (the
+quota fails open without a store, so an unstubbed test would have proven nothing). **Confirmed
+they have teeth** by deleting the quota block: 2 of 8 fail.
+
+### Next steps
+1. **The quota is per user per UTC day, and it fails OPEN if Upstash is unreachable**, same as
+   the rate limiter. That is a deliberate availability tradeoff, not an oversight, but it means
+   a KV outage removes the spend ceiling.
+2. 40/day and 120/day are guesses at sane. If Auri sees legitimate users hitting them, they are
+   one argument each in `api/generate-post.js` and `api/upload-image.js`.
+3. Still open from the news work: `GEMINI_API_KEY` is not set on the repo, so the weekly draft
+   pipeline writes nothing.
+
+### Gotchas
+- **A rate limit is not a spend limit.** Frequency caps and total caps are different controls,
+  and only the second one bounds a bill. Any route that costs money per call wants both.
+- **Testing a fail-open control needs the dependency stubbed.** `withinDailyQuota` returns true
+  when KV is absent, so a test run without a stub passes whether or not the code works.
+- The size check must come BEFORE the stream opens. Once SSE headers are sent there is no way
+  to return a JSON error.
+
+### File pointers
+- `api/_guard.js` · `withinDailyQuota` and the `dailyLimit` option on `guardMutation`. Add
+  `dailyLimit` to any new route that costs money.
+- `api/_postmaker.js` · `MAX_NOTES_CHARS`, and the catch that now logs instead of leaking.
+- `api/generate-post.js` · both enforcement points, non-stream and stream.
+- `scripts/guard-check.mjs` · the KV stub pattern, reusable for any other quota test.
+
 ## 2026-09-01, the news pipeline has been silently dead since June
 
 **Current state:** no code changed, this is a diagnosis. Auri asked whether the roundup updates

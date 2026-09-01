@@ -97,8 +97,27 @@ export async function requireUser(req) {
   return { user };
 }
 
+// A per-minute rate limit caps how FAST a caller hits a route. It says nothing
+// about the total: at 10/minute a signed-in member can make 14,400 calls to a paid
+// model in a day and never trip it. For anything that costs money per call, the
+// daily cap is the one that bounds the bill.
+//
+// Keyed by UTC day and expired after two, so the keys clean themselves up.
+async function withinDailyQuota(id, bucket, limit) {
+  if (!KV_URL) return true; // no store, same fail-open as the limiter
+  const day = new Date().toISOString().slice(0, 10);
+  const key = `q:${bucket}:${id}:${day}`;
+  try {
+    const n = await kv(['INCR', key]);
+    if (n === 1) await kv(['EXPIRE', key, 172800]);
+    return n <= limit;
+  } catch {
+    return true;
+  }
+}
+
 // Guard a mutating request. Returns null when allowed, or { status, json } to send.
-export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec = 60 } = {}) {
+export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec = 60, dailyLimit = 0 } = {}) {
   let id = null;
   if (authConfigured()) {
     const user = await verifyToken(bearer(req));
@@ -112,6 +131,9 @@ export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec
   id = id || clientIp(req) || 'anon';
   if (!(await withinLimit(id, bucket, limit, windowSec))) {
     return { status: 429, json: { ok: false, error: 'Too many requests. Please slow down and try again shortly.' } };
+  }
+  if (dailyLimit && !(await withinDailyQuota(id, bucket, dailyLimit))) {
+    return { status: 429, json: { ok: false, error: "You've reached today's limit for this tool. It resets at midnight UTC." } };
   }
   return null;
 }
