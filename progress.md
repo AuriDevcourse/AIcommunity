@@ -4,8 +4,16 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## 2026-09-01, session #9 published: Session after Summer Break
 
-**Current state:** session 2026-08-30 now has a title, 3 topics and 4 photos. Audit green
-(11 suites). Committed, **not pushed** (it rides along with the eight audit-fix commits).
+**Current state:** session 2026-08-30 has a title, 3 topics and 4 photos. Audit green
+(11 suites). **Not pushed.**
+
+**A bug shipped into that first commit and is now fixed.** Auri saw the entire `<!-- INCOMPLETE
+... -->` block rendered as visible text on the recap page. Adding a Topics section ABOVE the
+comment folded the whole comment into the last topic's body, because every section parser in
+build-data just takes the text between two headings and nothing stripped comments. `build-data`
+now strips `<!-- ... -->` before any parsing, and **fails the build** if a comment reaches the
+output anyway. Verified by removing the strip: the build refuses with
+"an HTML comment leaked into the output".
 
 **What was done**
 - 4 photos from Auri's phone into `public/sessions/2026-08-30/` as `01-04.jpg`, ordered so the
@@ -16,12 +24,15 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 - `npm run build:data` picked all of it up: title, 4 photos, 3 topics.
 
 ### Gotchas
+- **A markdown comment is not safe scratch space in a file a parser reads.** It is invisible in
+  Obsidian, which is exactly why it feels safe, and it was published on a live page. Anything a
+  section parser can see between two headings can reach the site.
 - **`build:data` refuses photos that are not git-tracked** and prints the exact `git add` lines
   to run. It is not an error, it is the guard against `src/data.json` referencing files that
   never got committed. Run `git add public/sessions/<date>/` then rebuild.
-- **Never write the Title field name in bold-with-colon inside a comment in a session note.**
-  The parser is not line-anchored, so it matches inside HTML comments too, and a session once
-  ended up titled with a sentence from its own instructions. The note file says so itself.
+- The Title field parser is not line-anchored, so it used to match a field name written inside a
+  comment, and a session once ended up titled with a sentence from its own instructions. Now
+  moot, comments are stripped first, but the parser is still not line-anchored.
 - Location for #9 is still `TBD` on purpose. The note's comment says it was probably Matrikel1
   but was left unassumed, and an invented value becomes the permanent public record.
 - The topics were written from ONLY what Auri said. The note file warns against inventing

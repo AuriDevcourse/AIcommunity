@@ -110,7 +110,15 @@ function parseSessionFile(filename) {
   if (!m) return null;
   const number = parseInt(m[1], 10);
   const date = m[2];
-  const raw = read(join(SESSIONS_DIR, filename));
+  // Strip HTML comments BEFORE anything parses the note. A comment is invisible
+  // in Obsidian, so it reads as safe scratch space, but every section parser here
+  // just takes the text between two headings: add a section above a comment and
+  // the comment becomes part of that section's body and gets PUBLISHED on the
+  // recap page. That is exactly what happened to session #9 on 2026-09-01, whose
+  // last topic shipped with the whole "INCOMPLETE, add sections here" block
+  // appended to it. It also stops the not-line-anchored field parsers below from
+  // matching a field name written inside a comment.
+  const raw = read(join(SESSIONS_DIR, filename)).replace(/<!--[\s\S]*?-->/g, '');
 
   const get = (label) => {
     // [^\S\n]* = inline whitespace only (NOT newlines), so an empty field like
@@ -310,7 +318,16 @@ const out = {
   openActions: allActions,
 };
 
-writeFileSync(OUT_FILE, JSON.stringify(out, null, 2));
+// Nothing that reaches the site should carry raw markup from a note. An HTML
+// comment getting this far means a parser swallowed one again, and the recap page
+// would publish it verbatim. Fail the build rather than ship it.
+const serialised = JSON.stringify(out, null, 2);
+if (serialised.includes('<!--')) {
+  console.error('build-data: an HTML comment leaked into the output. A section parser is including comment text in a body.');
+  process.exit(1);
+}
+
+writeFileSync(OUT_FILE, serialised);
 console.log(`build-data: ${sessions.length} sessions, ${members.length} members, ${schedule.upcoming.length} upcoming, ${allActions.length} open actions → src/data.json`);
 if (untrackedRefs.length) {
   console.warn(`build-data: WARNING, ${untrackedRefs.length} photo(s) exist locally but are not tracked by git, so they were left out (they would 404 in production):`);
