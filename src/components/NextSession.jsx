@@ -20,7 +20,7 @@ const FORMATS = {
   'build':        { label: 'Build Together' },
   'skill-share':  { label: 'Skill Share' },
   'tool-explore': { label: 'Tool Exploration' },
-  'tbd':          { label: 'Format TBD' },
+  'tbd':          { label: 'Open format' },
 };
 
 export default function NextSession({ session }) {
@@ -72,7 +72,7 @@ export default function NextSession({ session }) {
         <Field
           icon={Mic}
           label="Presenter"
-          value={session.presenter || 'Open slot'}
+          value={session.presenter || 'Open, yours if you want it'}
           muted={!session.presenter}
         />
         <Field

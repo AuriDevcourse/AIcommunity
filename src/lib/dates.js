@@ -100,6 +100,10 @@ export function formatCountdown(ms) {
   const hours = Math.floor((total % 86400) / 3600);
   const minutes = Math.floor((total % 3600) / 60);
   const seconds = total % 60;
+  // Past a couple of days the hour is false precision: nobody plans a fortnightly
+  // meetup to the hour eleven days out, and "11 days 23 hr" reads like a launch
+  // timer. Inside 48 hours the hour genuinely helps, so keep it there.
+  if (days > 2) return [{ n: days, u: 'days' }];
   if (days > 0) return [{ n: days, u: days === 1 ? 'day' : 'days' }, { n: hours, u: 'hr' }];
   if (hours > 0) return [{ n: hours, u: hours === 1 ? 'hr' : 'hrs' }, { n: minutes, u: 'min' }];
   if (minutes > 0) return [{ n: minutes, u: 'min' }, { n: seconds, u: 'sec' }];

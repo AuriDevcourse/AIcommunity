@@ -14,8 +14,12 @@ export default function Suggestions({ onOpenForum }) {
     try {
       const r = await fetch(`/api/threads?key=${encodeURIComponent(IDEAS_CHANNEL)}`);
       const j = await r.json();
+      // Score > 0 only. This panel is on the LANDING page, so it is a stranger's
+      // first look at what the community wants to build: an idea nobody upvoted,
+      // or one voted down, is not a good answer to that. It also keeps leftover
+      // test rows off the front page without matching on anyone's name.
       const roots = (j.comments || [])
-        .filter((c) => !c.parentId)
+        .filter((c) => !c.parentId && (c.score || 0) > 0)
         .sort((a, b) => (b.score - a.score) || (b.createdAt || '').localeCompare(a.createdAt || ''))
         .slice(0, TOP_N);
       setIdeas(roots);

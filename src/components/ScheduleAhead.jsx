@@ -104,8 +104,11 @@ export default function ScheduleAhead({ schedule }) {
       </div>
 
       {/* Runway. Two dates left is about a month at this cadence, which is when
-          it is worth saying something rather than after the list empties. */}
-      {all.length <= 2 && (
+          it is worth saying something rather than after the list empties.
+          DEV only: it is an instruction to the organiser ("add more in the
+          calendar"), and to a first-time visitor on the landing page it reads as
+          "this community is winding down". */}
+      {showHints && all.length <= 2 && (
         <p className="mt-2 text-xs text-warn">
           Only {all.length === 1 ? 'one date' : `${all.length} dates`} scheduled. Add more in
           the calendar so the schedule stays useful.
@@ -153,7 +156,10 @@ export default function ScheduleAhead({ schedule }) {
         </button>
       )}
 
-      {gaps.map((g) => (
+      {/* Also DEV only. "Protocol paused. Sessions in this window went unlogged"
+          is bookkeeping in the organiser's own language; the gaps stay recorded in
+          data/schedule.json either way. */}
+      {showHints && gaps.map((g) => (
         <p key={`${g.from}-${g.to}`} className="mt-3 text-[11px] text-muted">
           Gap on record: {gapDate(g.from)} to {gapDate(g.to)}.{g.reason ? ` ${g.reason}` : ''}
         </p>
