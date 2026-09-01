@@ -4,8 +4,13 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## 2026-09-01, heading structure fixed app-wide, plus three /#assets fixes
 
-**Current state:** `npm run audit` **PASS, all 10 suites**. `npx vite build` clean. Working tree
-dirty, nothing committed, no branch taken (the edits were already in progress on the checkout).
+**Current state:** **Shipped and live.** `npm run audit` PASS, all 10 suites. `npx vite build`
+clean. Committed as `6e53940` and pushed straight to `main` (`ad6deab..6e53940`, 21 files) on
+Auri's explicit go-ahead, so WORKFLOW.md r1 was waived for this one push, not in general.
+Vercel auto-deployed: prod bundle went `index-E3eB-_MW.js` to `index-TP5RpiSL.js`. The heading
+probe was re-run against https://a-icommunity.vercel.app and all 8 tabs report exactly one h1
+with the same computed sizes as local. `probe.html` and `probe.jsx` are still untracked and were
+deliberately kept out of the commit (`git add -u`).
 
 **What was just done**
 
