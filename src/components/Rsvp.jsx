@@ -163,6 +163,16 @@ export default function Rsvp({ date }) {
         )}
       </div>
 
+      {/* Signing in was the ONLY visible way in, which reads as a door with a lock
+          on it. It is not one: RSVP helps plan the room, walk-ins are welcome, and
+          it costs nothing. Say that to the people who are not signed in, since
+          they are the ones deciding whether to come at all. */}
+      {!user && (
+        <p className="mt-2 text-xs text-muted">
+          An RSVP helps us plan the room, but you are welcome to just turn up.
+        </p>
+      )}
+
       {/* One unified "Coming" list (in-app RSVPs + calendar accepts, deduped) */}
       {hasAny && (
         <div className="mt-4">

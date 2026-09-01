@@ -94,6 +94,15 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
       <p className="mt-3 text-sm sm:text-base text-muted max-w-3xl leading-relaxed">
         A Copenhagen community that meets every two weeks to build with AI, then shows the work.
       </p>
+      {/* What a session IS, and who it is for. The page described the logistics of
+          the NEXT session but never the recurring shape, so a first-time visitor
+          could not tell what they would walk into or whether they would be out of
+          place. Every comparable community answers both in its first screen. */}
+      <p className="mt-2 text-sm text-muted max-w-3xl leading-relaxed">
+        Two hours on a Sunday. Someone shows what they built, or we pick topics on the day and
+        work through them together. Engineers, designers, founders and students, anyone building
+        with AI. Free to attend, and you never have to present.
+      </p>
 
       <div className="mt-5 sm:mt-6 rounded-2xl border border-border overflow-hidden">
         {/* Two pieces of art, not one inverted piece. The old band was a

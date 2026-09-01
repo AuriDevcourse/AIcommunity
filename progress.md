@@ -2,9 +2,16 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, landing page audit vs other communities. Findings only, NOTHING applied
+## 2026-09-01, landing page audit vs other communities. 8 of 10 applied
 
-**Current state:** no code changed. Benchmarked `/#home` against **AI Tinkerers Copenhagen**
+**Current state:** **8 of 10 done** across `3cd3f54` (the four cuts), `f799765` (photos) and
+the commit carrying this entry (what/who/free/walk-ins). **9 is half-done and 10 is dropped**,
+both on Auri's answers, see below. Audit green, 11 suites. Nothing pushed.
+
+**Auri's answers, which decided the last four:** walk-ins are fine with RSVP preferred;
+attending is **free**; **name no organisers**; and there is **no follow channel yet**.
+
+Original audit: Benchmarked `/#home` against **AI Tinkerers Copenhagen**
 (literally the same thing in the same city, https://copenhagen.aitinkerers.org/), the global
 AI Tinkerers page, and general event-landing guidance. **Everything below was verified on
 PRODUCTION**, not dev, because the two things that matter most are DEV-gated differently.
@@ -13,9 +20,9 @@ PRODUCTION**, not dev, because the two things that matter most are DEV-gated dif
 is serving as a FRONT DOOR. Items 1-4 are the dashboard leaking out; 5-10 are the front door
 missing.
 
-### Ranked next steps, none started
+### The ten
 
-**Cut (verified live on prod)**
+**Cut. ALL FOUR DONE in `3cd3f54`,** verified against the built bundle, not the dev server:
 1. **Internal ops notes are public.** `ScheduleAhead` renders "Only one date scheduled. **Add
    more in the calendar so the schedule stays useful.**" (an instruction to Auri) and "Gap on
    record: 22 Feb 2026 to 19 Apr 2026. Protocol paused. Sessions in this window went unlogged."
@@ -25,18 +32,28 @@ missing.
 3. **The next session leads with what is NOT decided:** "Format TBD", "Presenter: Open slot".
    The comparable frames identical uncertainty as "+50 AI builders, slide-free demos".
 4. **"11 days 23 hr"** is false precision for a fortnightly meetup.
+   *How:* 1 and 2 moved behind the existing `showHints` DEV gate and are now
+   **dead-code-eliminated from the production bundle** (checked by grepping `dist/`, the only
+   reliable test since `vite preview` cannot render this page). 3 became "Open format" and
+   "Open, yours if you want it". 4 drops the hour past two days out; inside 48h it still shows.
 
 **Add**
-5. **Session photos above the fold.** 9 sessions, ~70 photos, and Home renders **zero** (only
-   the two hero band images). Strongest asset, entirely unused.
-6. **Who it is for.** The comparable names roles and topics; ours names nobody, so a designer or
-   a beginner cannot tell if they would be out of place.
-7. **What a session is like IN GENERAL**, not just this one's logistics: how long, what happens,
-   whether watching is fine.
-8. **A way in that is not an account.** The only CTA is "Sign in to RSVP"; the guidance is that
-   forced registration costs 30-40% of signups.
-9. **Say it is free, and name the organisers.** Cost is never stated and no organiser appears.
-10. **A follow path for people who cannot come.** No newsletter, LinkedIn or Slack anywhere.
+5. **DONE** (`f799765`). Four session covers, newest first, linking to the archive. Committed
+   photos only, since Blob uploads arrive async and would pop in after paint. Two thumbs on a
+   phone, four from `sm`. Caption is "Photos from our sessions", deliberately countless: the
+   strip shows four and only seven of nine sessions have photos, so any number would be wrong.
+6 + 7. **DONE.** One paragraph under the hero subhead: "Two hours on a Sunday. Someone shows
+   what they built, or we pick topics on the day and work through them together. Engineers,
+   designers, founders and students, anyone building with AI. Free to attend, and you never have
+   to present." **Auri should sanity-check this copy**, it is the public description of his
+   community and I drafted it from session data plus his answers, not from his words.
+8. **DONE.** Under the signed-out RSVP button: "An RSVP helps us plan the room, but you are
+   welcome to just turn up." Shown only to signed-out visitors, who are the ones deciding.
+9. **HALF DONE.** "Free to attend" is in the hero paragraph. **Organisers deliberately NOT
+   named**, Auri chose nobody. No member currently has `Organizer` status in the data anyway.
+10. **DROPPED for now.** There is no newsletter, LinkedIn, Slack or Luma link to point at. Needs
+    a channel to exist first. Revisit when one does; the `luma` field per session already exists
+    and is empty.
 
 ### Gotchas
 - **`vite preview` (5281) CANNOT test what the public sees on Home.** No API means NextSession
