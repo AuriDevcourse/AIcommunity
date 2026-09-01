@@ -57,10 +57,23 @@ they have teeth** by deleting the quota block: 2 of 8 fail.
 - `api/generate-post.js` · both enforcement points, non-stream and stream.
 - `scripts/guard-check.mjs` · the KV stub pattern, reusable for any other quota test.
 
-## 2026-09-01, the news pipeline has been silently dead since June
+## 2026-09-01, news pipeline revived: key added, workflow re-enabled, one blocker left
 
-**Current state:** no code changed, this is a diagnosis. Auri asked whether the roundup updates
-itself. **It does not, and has not since 13 June.**
+**Current state:** **it generates again.** Two of the three blockers are cleared and the third
+is a repo setting waiting on Auri. Run `33530610655` at 16:14 UTC pulled 5 feeds, found **60
+unique candidates**, had gemini-flash-latest curate, and **wrote 12 draft items** — the first
+output since 13 June.
+
+**The three blockers, in the order they surfaced:**
+1. ~~`GEMINI_API_KEY` missing.~~ **Auri added it** as a repository secret, 16:13 UTC.
+2. ~~Workflow disabled by GitHub for repo inactivity.~~ **I re-enabled it**
+   (`gh workflow enable news.yml`). This is what the missing 31 Aug run pointed at; the guess in
+   the original diagnosis was right. **Note this was a repo state change made by me.**
+3. **STILL BLOCKING: "GitHub Actions is not permitted to create or approve pull requests."**
+   `repos/.../actions/permissions/workflow` reports `can_approve_pull_request_reviews: false`.
+   The draft is generated and then thrown away because the PR step cannot run.
+
+**Original diagnosis, kept because the failure mode is worth remembering:**
 
 **What is actually true**
 - `.github/workflows/news.yml` runs every Monday 07:00 UTC and has reported **success** every
@@ -81,7 +94,7 @@ opens a PR; a human still copies items into `data/news.json`. So the "Coming soo
 itself" banner removed earlier today was, at best, half true.
 
 ### Next steps
-1. **Add `GEMINI_API_KEY` to repo secrets:**
+1. **DONE (Auri, 16:13 UTC).** Was: **add `GEMINI_API_KEY` to repo secrets:**
    https://github.com/AuriDevcourse/AIcommunity/settings/secrets/actions > New repository secret.
    Name exactly `GEMINI_API_KEY`, which is what `news.yml:36` reads.
    **It must be a REPOSITORY secret, not an Environment one.** That page also lists Preview and
@@ -100,7 +113,16 @@ itself" banner removed earlier today was, at best, half true.
    secrets. `deploy.yml` also references `HETZNER_DEPLOY_KEY_AIWORKSHOP`, but that workflow is
    deliberately disabled (its `push` trigger is commented out and it has never run), so it needs
    no secret until the move off Vercel.
-2. **Check whether the schedule was disabled for inactivity** and re-enable it if so.
+2. **DONE (me).** The schedule HAD been disabled for inactivity; `gh workflow run` refused with
+   `Cannot trigger a 'workflow_dispatch' on a disabled workflow` until `gh workflow enable`.
+   **A disabled workflow is invisible in `gh run list`** — it simply stops appearing, which is
+   why the 31 Aug gap was the only clue.
+2b. **NEEDS AURI: tick "Allow GitHub Actions to create and approve pull requests"** at
+   https://github.com/AuriDevcourse/AIcommunity/settings/actions (Workflow permissions). I did
+   not flip it: changing what CI may do is a security setting, not mine to decide.
+   Also note `default_workflow_permissions` is `read`; the workflow asks for `contents: write`
+   and `pull-requests: write` itself, which should suffice, but that dropdown is the next thing
+   to check if the PR step still fails.
 3. **Make the failure loud. OFFERED, NOT DONE:** `draft-news.mjs` exiting 0 on a missing key is
    exactly what hid this for 2.5 months. In CI it should exit non-zero. The same script also
    exits 0 when it finds no candidate articles (`:136-137`), which hides a second failure mode.
