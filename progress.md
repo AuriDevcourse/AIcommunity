@@ -2,48 +2,87 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#news audit. Findings only, NOTHING applied
+## 2026-09-01, /#news audit. 8 of 10 applied, 2 are editorial
 
-**Current state:** no code changed. Ten findings, measured on the running page and on
-`data/news.json`. **Four of them (3, 4, 7, 9) were already found by the 2026-08-31 declutter
-audit and have sat open since** — that audit is still entirely unstarted.
+**Current state:** **8 of 10 applied**, audit green (11 suites, news now 17 assertions). Items 5
+and 8 are partly done and partly editorial, see below. Four of the ten (3, 4, 7, 9) had already
+been found by the 2026-08-31 declutter audit and had sat open since.
 
-### Ranked next steps, none started
+**Verified after the work:** no reading time, no source count, no `#N` badges, no "coming soon"
+banner, **0 controls under 24x24 (was 40)**, 5 official-source markers, 2 no-independent-source
+notices, 0 generated title cards rendered as images.
+
+**The sharpest thing found, which the audit had understated:** the six `*-card.png` "images" are
+not photographs. They are generated title cards carrying the **category, date, headline,
+subtitle and source** as baked-in raster text, and the UI paints its own category and date chips
+on top, so those cards showed GLOBAL twice and the date twice, overlapping. Six duplications per
+card, not one.
+
+### The ten
 
 **Freshness and logic**
 1. **The roundup is stale and only whispers it.** `curatedAt: 2026-08-29`, window
    "Aug 15 - Aug 29", newest story 27 Aug, today 1 Sept. The rule is 12 items from the past 14
    days; the oldest here (20 Aug) is already 12 days old, so the window closes on itself within
    days. Only signal is "Last reviewed 29 August 2026" in 11px grey.
+   **DONE.** A computed notice appears once `curatedAt` is more than `STALE_AFTER_DAYS = 14`
+   old: "This roundup is N days old." **Correction to my own finding: the roundup is 3 days
+   old, not stale.** Its WINDOW had closed, which is not the same thing. The notice therefore
+   does not show, correctly, and was verified by arithmetic rather than by eye.
 2. **"Coming soon: this updates itself"** is a roadmap promise published to visitors, telling a
    reader the page is hand-maintained and may not be current. Same class as the Home ops notes.
+   **DONE**, replaced by the stale notice above, which is what a reader actually needs.
 3. **The `#N` badge is an id, not a rank.** Renders **#3 #6 #7 #1 #2 #4 #5 #11 #10 #12 #8 #9**
    down the page, in the most prominent corner of each cover. *(Also found 2026-08-31.)*
+   **DONE**, removed.
 4. **"1 min" on all twelve cards, always.** `News.jsx:7` `readingMinutes` is
    `max(1, round(words/200))` and the longest item is ~190 words, so it is **mathematically
    incapable of returning anything else**. *(Also found 2026-08-31.)*
+   **DONE**, function and label deleted.
 
 **Sources**
 5. **Half the items are single-sourced.** 6 of 12 have one source; exactly one has three.
    Counts per item: 2,2,1,3,2,1,1,1,2,2,1,1.
+   **PARTLY DONE, the rest is editorial.** I did NOT invent citations: a source that does not
+   actually cover the story is worse than one source. What shipped is transparency (item 6).
+   **Auri: three of the singles (#4, #5, #11) all rest on the same outlet, techstartups.com.**
 6. **Several "sources" are the subject's own press office** and are styled identically to CNBC or
    Reuters: "Anthropic" / "Anthropic Newsroom" on Anthropic stories, "University of Copenhagen"
    on the Copenhagen story, "Danish AI Safety Conference" on the conference.
+   **DONE.** Sources in `data/news.json` carry `official: true`, matched on domain
+   (claude.com, anthropic.com, news.ku.dk, aisafetyconference.dk), rendered as a small OFFICIAL
+   tag with an sr-only explanation. **Two stories (#7, #8) have NO independent source at all**
+   and now say so on the card.
 7. **"N sources" is printed right next to the source names it counts.** *(Also found
-   2026-08-31.)*
+   2026-08-31.)* **DONE**, removed.
 
 **Amount of text**
 8. **~2,900 words if everything is expanded.** 3,932 chars collapsed, each card reveals another
    **874**. Every item carries three prose blocks (`summary`, `whyItMatters`, `whyForUs`)
    whether or not it earns three. Total prose in the data: 9,816 chars across 12 items.
+   **PARTLY DONE.** Cutting written analysis is Auri's call, so instead all the non-content
+   chrome went (12 reading times, 12 source counts, 12 badges, the banner), and **"For us in
+   Copenhagen" gained a left border** so the one block no other outlet writes is findable
+   without reading the other two first. Checked and rejected as a lever: subtitles are 3-8
+   words and mostly additive, only #9 repeats its summary wholesale.
 9. **6 of 12 covers have the title burned into the image** (`*-card.png`) with the same title as
    text directly beneath. The burned-in copy cannot be selected, searched, translated or
    resized. *(Also found 2026-08-31, which called it "a generation decision, not a code fix".)*
+   **DONE, and it WAS a code fix.** Those files are not photographs, so there is nothing to
+   regenerate: they are title cards duplicating five fields the component already renders.
+   Detected by the pipeline's own `-card.<ext>` naming and replaced with the brand pattern.
 
 **UI**
 10. **40 controls under 24x24, the worst page on the site.** "Read more"/"Show less" and every
     source link render 16px high. Separately **12 of 43 external links do not announce the new
     tab** while 31 do, so the pattern is applied inconsistently.
+    **DONE, and the root cause was one line.** `.tap-target` was wrapped in
+    `@media (pointer: coarse)`, so on a mouse it did nothing; WCAG 2.5.8 is not
+    pointer-conditional. Now 24px on every pointer, 44 on coarse, **which fixes this class of
+    bug across the whole app, not just this page**. Headline links took `-my-0.5 py-0.5` to
+    clear 21px. The 12 non-announcing links were the cover `<a>`, a duplicate of the headline
+    link to the same URL announced as "Global 27 Aug"; now `aria-hidden` and out of the tab
+    order, so each story is one link rather than two.
 
 ### Checked and NOT findings, do not re-audit
 - Search and the Global/Europe filters work.
@@ -52,7 +91,20 @@ audit and have sat open since** — that audit is still entirely unstarted.
 - All 12 images have empty `alt`, which is CORRECT here: the covers are decorative and every
   title is already adjacent as real text.
 
+### Next steps
+1. **Sources are the remaining editorial work.** Six items are single-sourced and three of those
+   (#4, #5, #11) all come from techstartups.com. I deliberately did not invent citations. If a
+   story cannot be corroborated, the honest options are to drop it or to leave the marker on.
+2. **`whyItMatters` vs `whyForUs`.** Every item carries both. If the roundup should be shorter,
+   dropping the generic one and keeping the Copenhagen one is the cut with the least loss, but
+   that is a call about the writing, not the code.
+3. Unchanged: privacy-page recordings section, a `theme` on the next session, three orphaned
+   components, the 4 `/#tools` findings, and **41 commits unpushed**.
+
 ### Gotchas
+- **`.tap-target` was a no-op on desktop for its whole life**, wrapped in
+  `@media (pointer: coarse)`. Any page audited for target size before 2026-09-01 was measured
+  against a utility that did nothing on a mouse. The fix was one rule and it applies app-wide.
 - **A "reading time" derived from a word count can be a constant in disguise.** Check the range
   the formula can actually produce against the real data before shipping it as information.
 - The same is true of `#N`: it came from `item.n`, a stable id, rendered where a rank belongs.

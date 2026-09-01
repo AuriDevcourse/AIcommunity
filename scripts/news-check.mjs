@@ -100,15 +100,24 @@ try {
   const total = await cardCount();
   check('all stories render', total === 12, `${total} cards`);
   check('the last-reviewed line is shown', await evalJs(`/Last reviewed/.test(document.body.innerText)`));
-  // Plain string checks, not a regex: a backslash inside a template literal
-  // is an escape, so /\d+/ written there arrives as /d+/ and silently fails.
-  const meta = await evalJs(`(() => {
-    const s = [...document.querySelectorAll('article span')].map((x) => x.textContent).find((t) => t.includes('min'));
-    return s || '';
-  })()`);
-  check('reading time renders', meta.includes('min'), JSON.stringify(meta));
-  check('source count renders', /source/.test(meta), JSON.stringify(meta));
-  check('the separator has spaces around it', !/·(?!\s)/.test(meta.replace(/\s+/g, ' ')) || / · /.test(meta.replace(/\s+/g, ' ')), JSON.stringify(meta));
+  // Reading time and source count were REMOVED on 2026-09-01. The reading time
+  // was max(1, round(words/200)) over items whose longest is ~190 words, so it
+  // could only ever print "1 min"; the source count sat directly beside the
+  // source names it counted. Assert they stay gone.
+  const cardMeta = await evalJs(`[...document.querySelectorAll("article")].map((a) => a.innerText).join(" ")`);
+  check('no reading time is printed', !/\d+ min\b/.test(cardMeta), cardMeta.slice(0, 80));
+  check('no source count is printed', !/\d+ sources?\b/.test(cardMeta), cardMeta.slice(0, 80));
+
+  // Added the same day: the subject's own announcements are marked, and a story
+  // resting on nothing else says so.
+  check('official sources are marked', await evalJs(`[...document.querySelectorAll('article a span')].filter((s) => /official/i.test(s.textContent)).length`) === 5);
+  check('a story with no independent source says so', await evalJs(`/Only the subject.s own announcement/.test(document.body.innerText)`));
+
+  // Generated title cards duplicated the headline, subtitle, category and date
+  // as baked-in raster text; they now fall back to the brand pattern.
+  check('no generated title card is rendered as an image', await evalJs(`[...document.querySelectorAll('article img')].filter((i) => /-card\./.test(i.src)).length`) === 0);
+  // The 'separator has spaces' check guarded the "1 min · 2 sources" string and
+  // went with it. Nothing else on a card joins values with a middot.
   check('the filter bar is sticky',
     await evalJs(`(() => { const g = document.querySelector('[aria-label="Filter stories by region"]'); return g && getComputedStyle(g.parentElement.parentElement).position === 'sticky'; })()`));
   check('external links carry a visible affordance',

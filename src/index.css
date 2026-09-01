@@ -323,15 +323,17 @@ select:focus-visible {
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 @layer components {
-  /* WCAG 2.5.8 asks for ~24px minimum, and fingers really want 44. Applied only
-     on coarse pointers and only as extra vertical padding, so the visual design
-     is unchanged on a mouse but the tappable area is finger-sized on a phone. */
+  /* WCAG 2.5.8 asks for 24px minimum and fingers really want 44.
+     This used to apply ONLY inside `@media (pointer: coarse)`, so on a mouse it
+     did nothing and the news page alone shipped 40 controls at 16px high. 2.5.8
+     is not pointer-conditional: 24 is the floor everywhere, 44 on fingers. */
+  .tap-target {
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
   @media (pointer: coarse) {
-    .tap-target {
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-    }
+    .tap-target { min-height: 44px; }
   }
 
   /* Screen-reader-only text that still participates in the accessibility tree. */

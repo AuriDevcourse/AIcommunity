@@ -1,14 +1,18 @@
 import { useMemo, useRef, useState } from 'react';
 import { ChevronDown, Clock, Search, X, ArrowUpRight } from 'lucide-react';
 import news from '../../data/news.json';
+import { TODAY } from '../lib/dates.js';
+
+// The roundup runs on a 1-2 week cadence, so a fortnight is the point at which
+// the window it covers has closed and the next one is overdue.
+const STALE_AFTER_DAYS = 14;
 
 // Roughly how long the expanded card takes to read, at 200 words a minute. Only
 // the prose counts; a headline and a source name are not what you settle in to read.
-function readingMinutes(item) {
-  const words = [item.summary, item.whyItMatters, item.whyForUs]
-    .filter(Boolean).join(' ').trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
+// A reading time used to live here. It was `max(1, round(words / 200))` over items
+// whose longest runs ~190 words, so it could only ever return 1: twelve identical
+// "1 min" labels presented as if they were data. The source count went the same
+// way, because it sat directly beside the source names it was counting.
 
 // Everything a search should look at. Source names included, so "TechCrunch"
 // finds the stories it reported.
@@ -103,6 +107,12 @@ export default function News() {
     chipRefs.current[next]?.focus();
   }
 
+  // The roundup is hand-curated on a 1-2 week cadence, so "old" starts at a
+  // fortnight: past that the window it covers has closed and the next one is due.
+  const staleDays = news.curatedAt
+    ? Math.floor((TODAY - new Date(news.curatedAt + 'T12:00:00')) / 86400000)
+    : null;
+
   const curated = news.curatedAt
       ? new Date(news.curatedAt + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       : null;
@@ -121,14 +131,20 @@ export default function News() {
           </div>
         </div>
 
-        {/* Planned: auto-refresh this roundup on a schedule instead of by hand. */}
-        <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-pill px-4 py-3 text-sm">
-          <Clock size={15} strokeWidth={2} className="text-foreground mt-0.5 flex-shrink-0" />
-          <p className="text-muted">
-            <span className="font-medium text-foreground">Coming soon: this updates itself.</span>{' '}
-            We're setting up a job that gathers the relevant AI stories automatically every 1–2 weeks (cadence still to be decided), so the roundup stays fresh without manual updates.
-          </p>
-        </div>
+        {/* A "coming soon: this updates itself" banner used to sit here. Telling a
+            reader the page is hand-maintained and might be out of date is a
+            roadmap note for the maintainer, not information for them. What a
+            reader actually needs is whether THIS roundup is current, which is the
+            stale notice below. */}
+        {staleDays !== null && staleDays > STALE_AFTER_DAYS && (
+          <div role="status" className="mt-5 flex items-start gap-2.5 rounded-xl bg-warn/10 px-4 py-3 text-sm">
+            <Clock size={15} strokeWidth={2} className="text-warn mt-0.5 flex-shrink-0" aria-hidden />
+            <p className="text-warn">
+              <span className="font-medium">This roundup is {staleDays} days old.</span>{' '}
+              It covers {news.windowLabel} and has not been refreshed since. Stories below may have moved on.
+            </p>
+          </div>
+        )}
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           {Object.entries(news.themes).map(([key, theme]) => (
@@ -209,6 +225,9 @@ export default function News() {
 }
 
 function NewsCard({ item }) {
+  const onlyOfficial = (item.sources || []).length > 0 && item.sources.every((s) => s.official);
+  // The image pipeline names generated title cards "<slug>-card.<ext>".
+  const isTitleCard = /-card\.[a-z]+$/i.test(item.image || '');
   const [open, setOpen] = useState(false);
   const primary = item.sources[0];
   const date = new Date(item.date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -220,14 +239,31 @@ function NewsCard({ item }) {
         href={primary.url}
         target="_blank"
         rel="noreferrer"
+        /* The headline directly below links to this same URL with a real name, so
+           in the accessibility tree this was a second, duplicate link announced as
+           "Global 27 Aug". Kept clickable for the mouse, taken out of the tree and
+           the tab order so keyboard and screen-reader users get one link per story
+           instead of two. */
+        aria-hidden="true"
+        tabIndex={-1}
         className="relative aspect-video overflow-hidden rounded-2xl bg-accent transition-transform duration-300 ease-out group-hover:-translate-y-1"
       >
-        <NewsImage src={item.image} alt="" />
+        {/* Six of the twelve "images" are generated TITLE CARDS, not photographs:
+            a dark panel carrying the category, the date, the headline, the
+            subtitle and the source. Every one of those five is already rendered
+            as real text by this component, and the chips below are painted on top
+            of the image's own category and date, so those cards showed GLOBAL
+            twice and the date twice, overlapping.
+
+            Text baked into a raster cannot be selected, searched, translated or
+            resized, so the fix is not to shrink it: it is to stop rendering a
+            picture of the card on the card. They fall back to the brand pattern,
+            which is a visual anchor that claims nothing. */}
+        {isTitleCard
+          ? <span className="pattern-fill absolute inset-0" aria-hidden="true" />
+          : <NewsImage src={item.image} alt="" />}
         <span className="absolute right-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider">
           {CARD_BADGE[item.category] || 'Global'}
-        </span>
-        <span className="absolute left-4 top-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ">
-          #{item.n}
         </span>
         <span className="absolute right-4 bottom-4 rounded-full chip-on-media px-2.5 py-1 text-[10px] font-medium ">
           {date}
@@ -236,13 +272,24 @@ function NewsCard({ item }) {
 
       <div className="mt-4 flex flex-col">
         <h2 className="text-base font-semibold leading-snug tracking-tight">
-          <a href={primary.url} target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">
+          {/* -my-0.5 py-0.5 lifts a single-line headline from 21px to 25px, over the
+              24px floor, without moving anything: the padding is cancelled by the
+              margin. */}
+          <a href={primary.url} target="_blank" rel="noreferrer" className="inline-block -my-0.5 py-0.5 hover:underline underline-offset-4">
             {item.title}
             <ArrowUpRight size={13} className="inline-block -mt-1 ml-0.5 text-muted" aria-hidden="true" />
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </h2>
         {item.subtitle && <p className="text-xs text-muted mt-1 leading-relaxed">{item.subtitle}</p>}
+
+        {/* Half the roundup runs on a single source, and two stories rest entirely
+            on the subject's own announcement. Saying so is more honest than
+            printing every source in the same grey and letting a reader assume
+            somebody checked. */}
+        {onlyOfficial && (
+          <p className="mt-2 text-[11px] text-warn">Only the subject's own announcement. No independent reporting found.</p>
+        )}
 
         {open && (
           <div className="mt-3 space-y-2.5">
@@ -253,8 +300,12 @@ function NewsCard({ item }) {
                 <span className="text-muted">{item.whyItMatters}</span>
               </p>
             )}
+            {/* Three same-coloured paragraphs made expanding a card feel like a
+                wall, and this is the only one of the three that no other outlet
+                writes. Given an edge so a reader scanning the expansion can find
+                the local angle without reading the other two first. */}
             {item.whyForUs && (
-              <p className="text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed border-l-2 border-foreground pl-3">
                 <span className="font-semibold text-foreground">For us in Copenhagen. </span>
                 <span className="text-muted">{item.whyForUs}</span>
               </p>
@@ -273,16 +324,6 @@ function NewsCard({ item }) {
               <ChevronDown size={14} strokeWidth={2.2} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
           ) : <span />}
-          {hasMore && (
-            <span className="flex items-center gap-1 text-[11px] text-muted flex-shrink-0">
-              <Clock size={11} aria-hidden="true" />
-              {readingMinutes(item)} min
-              {/* Explicit spaces: JSX drops whitespace between elements, so without
-                  these it renders as "1 min·2 sources". */}
-              {' '}<span aria-hidden="true">·</span>{' '}
-              {item.sources.length} {item.sources.length === 1 ? 'source' : 'sources'}
-            </span>
-          )}
           <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-xs min-w-0">
             {item.sources.map((s, i) => (
               <span key={`${s.url}-${i}`} className="flex items-center gap-1">
@@ -293,6 +334,12 @@ function NewsCard({ item }) {
                   className="tap-target text-muted hover:text-foreground hover:underline underline-offset-2 truncate"
                 >
                   {s.name}
+                  {s.official && (
+                    <>
+                      <span className="ml-1 text-[10px] uppercase tracking-wider text-muted">official</span>
+                      <span className="sr-only"> (the subject's own announcement, not independent reporting)</span>
+                    </>
+                  )}
                   <ArrowUpRight size={11} className="inline-block -mt-0.5 ml-0.5" aria-hidden="true" />
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>

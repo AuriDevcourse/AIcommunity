@@ -46,7 +46,8 @@
       "sources": [
         {
           "name": "Anthropic",
-          "url": "https://claude.com/blog/claude-in-chrome-generally-available"
+          "url": "https://claude.com/blog/claude-in-chrome-generally-available",
+          "official": true
         },
         {
           "name": "GIGAZINE",
@@ -73,7 +74,8 @@
         },
         {
           "name": "Anthropic Newsroom",
-          "url": "https://www.anthropic.com/news"
+          "url": "https://www.anthropic.com/news",
+          "official": true
         }
       ],
       "image": "/news-images/openai-anthropic-joint-cyber-defence-call-card.png",
@@ -134,7 +136,8 @@
         },
         {
           "name": "Anthropic Newsroom",
-          "url": "https://www.anthropic.com/news"
+          "url": "https://www.anthropic.com/news",
+          "official": true
         }
       ],
       "image": "/news-images/anthropic-model-hardware-standard-card.png",
@@ -153,7 +156,8 @@
       "sources": [
         {
           "name": "University of Copenhagen",
-          "url": "https://news.ku.dk/all_news/2026/08/a-new-deputy-prorector-and-dkk-110-million-are-to-prepare-the-university-for-a-new-reality"
+          "url": "https://news.ku.dk/all_news/2026/08/a-new-deputy-prorector-and-dkk-110-million-are-to-prepare-the-university-for-a-new-reality",
+          "official": true
         }
       ],
       "image": "/news-images/ucph-deputy-prorector-for-ai.jpg",
@@ -172,7 +176,8 @@
       "sources": [
         {
           "name": "Danish AI Safety Conference",
-          "url": "https://aisafetyconference.dk/"
+          "url": "https://aisafetyconference.dk/",
+          "official": true
         }
       ],
       "image": "/news-images/danish-ai-safety-conference-first.jpg",
