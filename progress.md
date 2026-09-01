@@ -2,9 +2,17 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#tools audit. Findings only, NOTHING applied
+## 2026-09-01, /#tools audit. 10 findings; page cut to 2 tools, which retires 4 of them
 
-**Current state:** no code changed by this audit. Measured signed OUT against the **dev** server
+**Current state:** **Auri cut the page to Post maker + Image to link.** The token estimator,
+image compressor and JSON formatter are deleted (components and all), which **retires findings
+7, 9 and 10 and half of 4**. Items 1, 2, 3, 5, 6, 8 still stand and are untouched. The subtitle
+was fixed in the same commit: both remaining tools call auth-gated routes, so "Free, no
+sign-up" was not merely misleading, it was false. It now reads "Free to use, sign in to run
+them", and the h1 is "Tools for the community" rather than "Free tools for builders".
+Audit green, 11 suites.
+
+Everything below was measured BEFORE the cut: Measured signed OUT against the **dev** server
 (5280) in Chrome via the extension, cross-checked against the source. Ten findings, grouped by
 the fix they share.
 
@@ -31,7 +39,8 @@ the fix they share.
    `role="alert"`, and `main [aria-live]` returns nothing on that page.
 
 **Accessibility**
-7. **Four of five form controls have no accessible label**, relying on `placeholder` alone: the
+7. ~~RETIRED by the cut~~, except the Image-to-link file input, which is still unlabelled.
+   Originally: **four of five form controls have no accessible label**, relying on `placeholder` alone: the
    Image-to-link and Image-compressor file inputs, the Token-estimator and JSON-formatter
    textareas. Only the estimator's price input is labelled. WCAG 3.3.2 / 4.1.2.
 
@@ -41,10 +50,11 @@ the fix they share.
    by accident: Back landed on `chrome://newtab`.
 
 **Product calls, not defects**
-9. **The estimator prices input only.** Real calls pay for output too, usually 3-5x the input
+9. ~~RETIRED, the estimator is deleted.~~ **The estimator priced input only.** Real calls pay for output too, usually 3-5x the input
    rate, so the headline figure can be an order of magnitude low. Wants output tokens + output
    rate, and model presets so nobody looks a rate up.
-10. **The two image tools do not explain their difference.** Both compress; the real distinction
+10. ~~RETIRED, the compressor is deleted so there is no overlap left.~~
+    **The two image tools did not explain their difference.** Both compress; the real distinction
     is file back vs URL back and neither card says so. The compressor card's second line,
     "Auto-applied on every upload too", describes a site-wide behaviour, not the tool.
 

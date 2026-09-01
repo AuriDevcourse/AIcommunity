@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Wrench, PenLine, Calculator, ImagePlus, Braces, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Wrench, PenLine, ImagePlus, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostMaker from './PostMaker.jsx';
-import TokenEstimator from './TokenEstimator.jsx';
 import ImageToLink from './ImageToLink.jsx';
-import ImageCompressor from './ImageCompressor.jsx';
-import JsonFormatter from './JsonFormatter.jsx';
 
+// Two tools, both of which do something this community actually needs and
+// neither of which duplicates a thing you can get in a browser tab. The token
+// estimator, image compressor and JSON formatter were removed on 2026-09-01:
+// generic utilities that any number of sites already do, and three more surfaces
+// to keep accessible and secure for no gain.
+//
+// BOTH of these call auth-gated routes (/api/generate-post, /api/upload-image),
+// so the page can no longer claim "no sign-up".
 const TOOLS = [
   { id: 'post', name: 'Post maker', desc: 'Turn a session into a LinkedIn or Instagram post.', icon: PenLine },
-  { id: 'tokens', name: 'Token & cost estimator', desc: 'Estimate tokens and API cost for any prompt.', icon: Calculator },
-  { id: 'compress', name: 'Image compressor', desc: 'Drop an image, download a lighter version. Auto-applied on every upload too.', icon: Minimize2 },
   { id: 'image', name: 'Image to link', desc: 'Drop an image or GIF, get a shareable URL.', icon: ImagePlus },
-  { id: 'json', name: 'JSON formatter', desc: 'Format, validate, and minify JSON in your browser.', icon: Braces },
 ];
 
 export default function Tools({ sessions = [] }) {
@@ -30,10 +32,7 @@ export default function Tools({ sessions = [] }) {
           <ChevronLeft size={15} /> All tools
         </button>
         {active === 'post' && <PostMaker sessions={sessions} />}
-        {active === 'tokens' && <TokenEstimator />}
-        {active === 'compress' && <ImageCompressor />}
         {active === 'image' && <ImageToLink />}
-        {active === 'json' && <JsonFormatter />}
       </div>
     );
   }
@@ -44,8 +43,11 @@ export default function Tools({ sessions = [] }) {
         <Wrench size={11} strokeWidth={2.2} />
         <span>Tools</span>
       </div>
-      <h1 className="text-3xl font-semibold tracking-tight mt-1">Free tools for builders</h1>
-      <p className="text-sm text-muted mt-1 max-w-2xl">Free, no sign-up.</p>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1">Tools for the community</h1>
+      {/* Both tools write through an authenticated route, so the old "Free, no
+          sign-up" line was simply untrue: you filled the whole form in and then
+          got a 401. Say it before they start, not after. */}
+      <p className="text-sm text-muted mt-1 max-w-2xl">Free to use, sign in to run them.</p>
 
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {TOOLS.map((t) => {
