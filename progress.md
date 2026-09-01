@@ -84,6 +84,11 @@ itself" banner removed earlier today was, at best, half true.
 1. **Add `GEMINI_API_KEY` to repo secrets:**
    https://github.com/AuriDevcourse/AIcommunity/settings/secrets/actions > New repository secret.
    Name exactly `GEMINI_API_KEY`, which is what `news.yml:36` reads.
+   **It must be a REPOSITORY secret, not an Environment one.** That page also lists Preview and
+   Production environments, created by Vercel's GitHub integration and used by nothing in this
+   repo. Environment secrets are only visible to a job that declares `environment:`, and the
+   `draft` job declares none, so a key filed under Production would read as an empty string and
+   the workflow would go green having done nothing — the same silent failure all over again.
    **Auri already HAS the key** — it is in his local `.env.local` under the same name, so this
    is a copy from a file he owns, not a new key to generate. Terminal alternative that keeps the
    value out of shell history (it prompts):
