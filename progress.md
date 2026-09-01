@@ -2,7 +2,7 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, backgrounds: brand pattern is now a full-page overlay
+## 2026-09-01, backgrounds: brand pattern as an edge-masked overlay
 
 **Current state:** done, audit green (11 suites, theme suite included, so no contrast
 regression), not pushed. **The page ground carries the brand pattern as a fixed overlay masked to
