@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Loader2, Copy, Check, ExternalLink } from 'lucide-react';
 import { authedFetch } from '../lib/supabase.js';
+import { useAuth } from '../lib/auth.jsx';
 import { compressImage, formatBytes } from '../lib/compressImage.js';
 
 const MAX_BYTES = 3 * 1024 * 1024;
@@ -15,6 +16,10 @@ export default function ImageToLink() {
   const [dragOver, setDragOver] = useState(false);
   const [saved, setSaved] = useState(null); // { before, after }
   const fileRef = useRef(null);
+  // Uploading needs a session, so say so on the dropzone rather than after the
+  // file has been picked and compressed. Mirrors guardMutation.
+  const { enabled: authEnabled, user, loading: authLoading, openAuth } = useAuth();
+  const canUpload = authEnabled ? (!authLoading && Boolean(user)) : true;
 
   async function upload(file) {
     if (!file || !file.type.startsWith('image/')) { setErr('Pick an image or GIF.'); return; }
@@ -52,24 +57,30 @@ export default function ImageToLink() {
       <h1 className="text-3xl font-semibold tracking-tight mt-1">Image to link</h1>
       <p className="text-sm text-muted mt-1 max-w-2xl">Drop an image or GIF and get a shareable URL. Images are compressed automatically so the link stays light. Handy for issues, posts, and demos.</p>
 
-      <div
-        onClick={() => !busy && fileRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      <button
+        type="button"
+        onClick={() => { if (!canUpload) { openAuth(); return; } if (!busy) fileRef.current?.click(); }}
+        aria-label={canUpload ? 'Choose an image or GIF to upload' : 'Sign in to upload an image'}
+        onDragOver={(e) => { e.preventDefault(); if (canUpload) setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files?.[0]) upload(e.dataTransfer.files[0]); }}
-        className={`mt-5 rounded-xl border border-dashed py-12 text-center text-sm transition-colors cursor-pointer ${
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); if (canUpload && e.dataTransfer.files?.[0]) upload(e.dataTransfer.files[0]); }}
+        className={`mt-5 w-full rounded-xl border border-dashed py-12 text-center text-sm transition-colors cursor-pointer ${
           dragOver ? 'border-foreground bg-accent text-foreground' : 'border-border bg-pill text-muted hover:border-foreground hover:text-foreground'
         }`}
       >
-        {busy ? (
+        {!canUpload ? (
+          <span className="inline-flex items-center gap-2"><ImagePlus size={16} /> Sign in to upload an image</span>
+        ) : busy ? (
           <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Uploading…</span>
         ) : (
           <span className="inline-flex items-center gap-2"><ImagePlus size={16} /> Drop an image / GIF, or click to choose</span>
         )}
-      </div>
-      <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+      </button>
+      {/* The real input stays hidden and out of the tab order; the button above is
+          the control, and it carries the accessible name. */}
+      <input ref={fileRef} type="file" accept="image/*" hidden tabIndex={-1} aria-hidden="true" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
 
-      {err && <p className="mt-2 text-xs text-err">{err}</p>}
+      {err && <p role="alert" className="mt-2 text-xs text-err">{err}</p>}
 
       {saved && saved.before > saved.after && (
         <p className="mt-2 text-xs text-ok">

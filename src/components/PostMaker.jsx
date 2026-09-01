@@ -354,7 +354,11 @@ export default function PostMaker({ sessions = [] }) {
 
   // The post is always written as YOU (the signed-in writer), this drives the
   // first-person voice in the text, separate from the cosmetic preview person.
-  const { name: myName } = useAuth();
+  // Generating costs money and the route requires a session, so the button says
+  // so BEFORE the form is filled in rather than after. Mirrors guardMutation: with
+  // Supabase unconfigured the server allows the call, so the UI must too.
+  const { name: myName, enabled: authEnabled, user, loading: authLoading, openAuth } = useAuth();
+  const canGenerate = authEnabled ? (!authLoading && Boolean(user)) : true;
   const [status, setStatus] = useState('idle'); // idle | loading | streaming | error | notconfigured
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -617,17 +621,17 @@ export default function PostMaker({ sessions = [] }) {
                 </button>
               )}
               <button
-                onClick={generate}
-                disabled={!hasContent || busy}
+                onClick={canGenerate ? generate : openAuth}
+                disabled={canGenerate && (!hasContent || busy)}
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 <Sparkles size={14} strokeWidth={2.2} />
-                {busy ? 'Writing…' : output ? 'Regenerate' : 'Generate'}
+                {!canGenerate ? 'Sign in to generate' : busy ? 'Writing…' : output ? 'Regenerate' : 'Generate'}
               </button>
             </div>
           </div>
 
-          {status === 'error' && <div className="text-sm text-err">{error}</div>}
+          {status === 'error' && <div role="alert" className="text-sm text-err">{error}</div>}
 
           {output && (
             <div className="flex items-center gap-2">

@@ -2,11 +2,12 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#tools audit. 10 findings; page cut to 2 tools, which retires 4 of them
+## 2026-09-01, /#tools audit. 10 findings; 4 retired by the cut, sign-in fixed, 3 left
 
 **Current state:** **Auri cut the page to Post maker + Image to link.** The token estimator,
 image compressor and JSON formatter are deleted (components and all), which **retires findings
-7, 9 and 10 and half of 4**. Items 1, 2, 3, 5, 6, 8 still stand and are untouched. The subtitle
+7, 9 and 10 and half of 4**. **Items 5, 6 and 7 are now DONE too.** Only **1, 2, 3** (the spend set) and **8** (deep links)
+remain. The subtitle
 was fixed in the same commit: both remaining tools call auth-gated routes, so "Free, no
 sign-up" was not merely misleading, it was false. It now reads "Free to use, sign in to run
 them", and the h1 is "Tools for the community" rather than "Free tools for builders".
@@ -32,14 +33,24 @@ the fix they share.
 **The sign-in story, the same disease the sessions page had**
 4. **"Free, no sign-up" is false** (`Tools.jsx:48`). Post maker and Image to link both call
    auth-gated routes and 401 signed out. Three of five ARE free; the copy should say which.
-5. **Nothing is gated up front.** Post maker opens fully signed out: pick a session, pick
+5. **Nothing is gated up front.** Post maker opened fully signed out: pick a session, pick
    LinkedIn or Instagram, press Generate, and only then get refused.
-6. **The refusal is silent to assistive tech.** `PostMaker.jsx:630` is
+   **DONE.** `canGenerate` / `canUpload` mirror `guardMutation` (`authEnabled ? (!authLoading &&
+   Boolean(user)) : true`). The tools still OPEN signed out, deliberately, because the subtitle
+   promises "free to use, sign in to run them" and someone should be able to see what a tool
+   does before making an account. Only the ACTION is gated: the button reads **"Sign in to
+   generate"** / the dropzone reads **"Sign in to upload an image"**, and both call
+   `openAuth()`.
+6. **DONE.** Both error nodes carry `role="alert"` now. Originally: **the refusal was silent to
+   assistive tech.** `PostMaker.jsx:630` is
    `{status === 'error' && <div className="text-sm text-err">{error}</div>}`: a plain div, no
    `role="alert"`, and `main [aria-live]` returns nothing on that page.
 
 **Accessibility**
-7. ~~RETIRED by the cut~~, except the Image-to-link file input, which is still unlabelled.
+7. **DONE for the survivor.** The Image-to-link dropzone was a `<div onClick>`: not focusable,
+   not keyboard operable, and the only labelling lived on a hidden file input. It is a real
+   `<button>` now, carrying the accessible name, and the file input is `tabIndex={-1}`
+   `aria-hidden` since it is an implementation detail. Retired for the deleted tools.
    Originally: **four of five form controls have no accessible label**, relying on `placeholder` alone: the
    Image-to-link and Image-compressor file inputs, the Token-estimator and JSON-formatter
    textareas. Only the estimator's price input is labelled. WCAG 3.3.2 / 4.1.2.
