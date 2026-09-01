@@ -111,10 +111,18 @@ below is the UI around that gate.
   while `naturalWidth` was already 1200. Wait, or read `complete`/`naturalWidth` instead.
 
 ### File pointers
-- `src/components/SessionsGallery.jsx` · the whole page. `:48` saveMeta, `:98` deletePhotos,
-  `:354` the card Edit button (correct focus-visible pattern), `:497-543` the edit modal grid,
-  `:509-512` the drag handlers.
-- `api/_guard.js:84` `guardMutation`, `:75` `requireUser`. `api/session-meta.js` · the guarded route.
+- `src/components/SessionsGallery.jsx` · the whole page. Line numbers as of `e8d78c4`:
+  `:20` `canEdit` (the gate, mirrors guardMutation), `:59` saveMeta, `:122` deletePhotos,
+  `:382` the card Edit button (the correct `focus-visible:` pattern to copy for item 9),
+  `:543-556` the edit modal grid and the drag handlers (item 7).
+- `api/_guard.js` · `:21` `anonWritesAllowed`, `:90` `requireUser`, `:101` `guardMutation`.
+  `api/session-meta.js` · a guarded route to copy. `.env.local.example` · what
+  `ALLOW_ANONYMOUS_WRITES` means and why it should stay unset.
+- `scripts/guard-check.mjs` · `npm run guard:check`, suite 11. Add a case here for any new
+  auth branch. `scripts/audit.mjs:28` · the suite list.
+- The `waitFor(expr, {timeout})` helper now lives in BOTH `scripts/lightbox-check.mjs` and
+  `scripts/shell-check.mjs` (duplicated, not shared, because each suite is standalone). Use it
+  instead of `await sleep()` for anything that renders behind a fetch.
 - `src/lib/supabase.js:36` `authedFetch`, the reason every `catch` around a write was dead code.
 - `src/lib/api.js` · `writeJson`, the fix. **Any new write goes through it**, never through
   `authedFetch` directly. Other components still call `authedFetch` raw and have the same
