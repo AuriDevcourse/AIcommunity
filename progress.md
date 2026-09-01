@@ -46,9 +46,14 @@ output anyway. Verified by removing the strip: the build refuses with
    fixed elsewhere still exists there.
 
 ### File pointers
-- `content/sessions/#09 SESSION 2026-08-30.md` · the note, with the full format documented in
-  its own HTML comment. `scripts/build-data.js` · `listSessionPhotosForDate` and the
-  tracked-file guard. `scripts/optimize-images.mjs` · in-place, idempotent, manifest-driven.
+- `content/sessions/#09 SESSION 2026-08-30.md` · the note. Its own HTML comment documents every
+  section the format supports and what is deliberately missing.
+- `scripts/build-data.js` · `parseSessionFile` strips `<!-- ... -->` on the FIRST line that
+  reads the file, before any parser sees it. Near `writeFileSync`, the output is checked for
+  `<!--` and the build exits 1 if one got through. Also `listSessionPhotosForDate` and the
+  git-tracked guard that refuses uncommitted photos.
+- `scripts/optimize-images.mjs` · in-place, idempotent, manifest-driven. Safe to re-run; it
+  skips files whose size already matches `scripts/.image-opt-manifest.json`.
 
 ## 2026-09-01, /#sessions audit. All 10 applied
 
