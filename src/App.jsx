@@ -5,7 +5,7 @@ import data from './data.json';
 // when the user opens that tab, shrinking the initial bundle.
 import NextSession from './components/NextSession.jsx';
 import Hero from './components/Hero.jsx';
-import ScheduleAhead from './components/ScheduleAhead.jsx';
+import RecentSessions from './components/RecentSessions.jsx';
 // Suggestions and LatestDiscussion are no longer rendered anywhere. The files are
 // kept for now in case the panels come back once the forum has real traffic; if
 // they do not, delete both components.
@@ -238,7 +238,6 @@ export default function App() {
       return merged;
     });
   const next = upcomingFromToday[0];
-  const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
 
   // One cover per session, newest first, for the landing-page strip. Committed
   // photos only: Blob uploads arrive async and would pop in after paint, and the
@@ -374,7 +373,7 @@ export default function App() {
                   <NextSession session={next} onNavigate={goTo} />
                 </div>
                 <div className="col-span-12">
-                  <ScheduleAhead schedule={futureSchedule} />
+                  <RecentSessions sessions={data.sessions} onOpenRecap={openRecap} />
                 </div>
                 {/* Latest discussion and Top ideas were REMOVED from Home on
                     2026-09-01. Measured before removal: 312px each, 624px of a

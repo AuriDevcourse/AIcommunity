@@ -2,6 +2,46 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, Home: Schedule ahead out, "What we talked about" in
+
+**Current state:** done, audit green (11 suites), not pushed. Home is now hero, photo strip,
+Next session, What we talked about.
+
+**Why the swap works.** Schedule ahead listed **one future date that the Next session card had
+already covered in full**, plus an organiser nudge (now DEV-gated) and a gap note. Past topics do
+something a future date cannot: they show a stranger the **level and the subject matter**, which
+is the "is this for me" question the hero can only assert an answer to. Both comparable
+communities lead with recent talks for exactly this reason.
+
+**New `src/components/RecentSessions.jsx`.** Last 3 sessions THAT HAVE TOPICS, newest first,
+each a row of topic-title pills capped at 4 with a `+N more`, the whole row clicking through to
+that recap. Titles only, no summaries: it is a glance, not a reader. Renders **nothing at all**
+when no session has topics, rather than a panel explaining it is empty.
+
+Currently shows: Session after Summer Break (3 topics), AI tools across business & creativity
+(4 + 3 more), How we build with AI (4 + 3 more). 264px.
+
+**`ScheduleAhead.jsx` is now orphaned**, imported by nothing, like `Suggestions.jsx` and
+`LatestDiscussion.jsx`. Three dead components on Home now. Kept, not deleted; decide together.
+`futureSchedule` in App.jsx went with it, but `upcomingFromToday` stays because `next` needs it.
+
+### Next steps
+1. **Decide on three orphaned components:** `ScheduleAhead.jsx`, `Suggestions.jsx`,
+   `LatestDiscussion.jsx`. All imported by nothing.
+2. **Nothing on Home now shows future dates beyond the next one.** That was Schedule ahead's one
+   real job. If the calendar ever holds several dates, the Sessions tab or a revived panel should
+   carry them, and `data.schedule.upcoming` still has the data.
+3. Unchanged: the privacy page recordings section, a `theme` on the next session, the 4 `/#tools`
+   findings, and **36 commits unpushed**.
+
+### Gotchas
+- Filtering to sessions **with topics** matters: 2026-05-03 "Ice cream session" has 0 topics and
+  would have rendered as a bare title with an empty pill row.
+
+### File pointers
+- `src/components/RecentSessions.jsx` · `MAX_SESSIONS` and `MAX_TOPICS` at the top are the knobs.
+- `src/App.jsx` · the Home grid, now two panels under the hero.
+
 ## 2026-09-01, Next session card audit. 9 of 10 applied, 10th needs data
 
 **Current state:** **9 of 10 applied**, audit green (11 suites), not pushed. Item 4 cannot be
