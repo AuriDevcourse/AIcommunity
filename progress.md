@@ -2,6 +2,70 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, /#tools audit. Findings only, NOTHING applied
+
+**Current state:** no code changed by this audit. Measured signed OUT against the **dev** server
+(5280) in Chrome via the extension, cross-checked against the source. Ten findings, grouped by
+the fix they share.
+
+### Ranked next steps, none started
+
+**Spend and secrets (one commit, all in the paid path)**
+1. **No input cap before a paid LLM call.** `api/_postmaker.js:253` is
+   `String(body?.notes || '').trim()` with no `.slice()`. `max_tokens: 700` caps the OUTPUT
+   only, so one request can carry megabytes into a paid model; the sole ceiling is Vercel's body
+   limit. SECURITY.md r4 and r5.
+2. **Provider error text forwarded to the browser.** `_postmaker.js:263` returns
+   `{ ok:false, error: e.message }` straight from OpenRouter/Gemini; `_imgbb.js:30` does the
+   same with ImgBB's message. r20 wants a safe sentence + correlation id, detail to logs.
+3. **No spend quota.** Only control on the paid route is `limit: 10` per 60s, so ~600 calls an
+   hour per signed-in user. No `quota`/`daily`/`budget` anywhere in `api/`. r5.
+
+**The sign-in story, the same disease the sessions page had**
+4. **"Free, no sign-up" is false** (`Tools.jsx:48`). Post maker and Image to link both call
+   auth-gated routes and 401 signed out. Three of five ARE free; the copy should say which.
+5. **Nothing is gated up front.** Post maker opens fully signed out: pick a session, pick
+   LinkedIn or Instagram, press Generate, and only then get refused.
+6. **The refusal is silent to assistive tech.** `PostMaker.jsx:630` is
+   `{status === 'error' && <div className="text-sm text-err">{error}</div>}`: a plain div, no
+   `role="alert"`, and `main [aria-live]` returns nothing on that page.
+
+**Accessibility**
+7. **Four of five form controls have no accessible label**, relying on `placeholder` alone: the
+   Image-to-link and Image-compressor file inputs, the Token-estimator and JSON-formatter
+   textareas. Only the estimator's price input is labelled. WCAG 3.3.2 / 4.1.2.
+
+**Navigation**
+8. **No deep links.** Entering a tool never changes the URL, it stays `#tools`. So no shareable
+   link to a tool, a reload drops back to the list, and browser Back leaves the SITE. Verified
+   by accident: Back landed on `chrome://newtab`.
+
+**Product calls, not defects**
+9. **The estimator prices input only.** Real calls pay for output too, usually 3-5x the input
+   rate, so the headline figure can be an order of magnitude low. Wants output tokens + output
+   rate, and model presets so nobody looks a rate up.
+10. **The two image tools do not explain their difference.** Both compress; the real distinction
+    is file back vs URL back and neither card says so. The compressor card's second line,
+    "Auto-applied on every upload too", describes a site-wide behaviour, not the tool.
+
+### Gotchas
+- **Checked and NOT a finding:** the Post maker streams with a real `AbortController` and a Stop
+  button (`PostMaker.jsx:361-408, 616`), so DESIGN.md r4 is satisfied. Both image tools validate
+  `file.type` client-side and `_imgbb.js` caps the payload at 4.4MB base64. The tools list page
+  has a clean heading order and zero targets under 24x24. Do not re-report these.
+- **Also checked and NOT a finding:** the `postmaker.session` sessionStorage handoff from the
+  recap looks like it would strand you inside Post maker forever, but `PostMaker.jsx:371`
+  removes the key on mount. One-shot, works as intended.
+
+### File pointers
+- `src/components/Tools.jsx` · the list, the `active` tool state, and the false "Free, no
+  sign-up" line at `:48`. Sub-tools render in place of the list, which is why there is no URL.
+- `api/_postmaker.js` · `:251` `handleGeneratePost`, `:263` the leaked message, `:151/196`
+  `max_tokens`. `api/generate-post.js` · guarded, `limit: 10`.
+- `api/_imgbb.js:8` `handleImageUpload`, size cap at `:15`, leaked message at `:30`.
+- `src/lib/api.js` `writeJson` already exists from the sessions pass; items 5 and 6 should use
+  it rather than inventing a second error path.
+
 ## 2026-09-01, session #9 published: Session after Summer Break
 
 **Current state:** session 2026-08-30 has a title, 3 topics and 4 photos. Audit green
