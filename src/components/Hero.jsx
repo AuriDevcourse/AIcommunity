@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarPlus, TriangleAlert, X } from 'lucide-react';
+import { CalendarPlus, TriangleAlert, X, ArrowRight } from 'lucide-react';
 import { TODAY, fmtDate, fmtToday, formatCountdown, sessionStart } from '../lib/dates.js';
 import { googleCalendarUrl } from '../lib/calendar.js';
 
@@ -61,7 +61,7 @@ function Stat({ value, label, sub }) {
  * stacked cards read as two competing headlines. A hairline band keeps this
  * attached to the hero.
  */
-export default function Hero({ showGlance = false, next, sessionCount = 0, memberCount = 0, scheduleStatus = 'loading' }) {
+export default function Hero({ showGlance = false, next, sessionCount = 0, memberCount = 0, scheduleStatus = 'loading', recentPhotos = [], onOpenPhotos }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
   });
@@ -176,6 +176,43 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
             </div>
           </div>
         </>
+      )}
+
+      {/* Proof the room is real. The archive holds ~70 photos across 7 sessions
+          and the landing page showed none of them, while every comparable
+          community leads with faces. A strip, not a gallery: it answers "is this
+          a real thing with real people" in one glance and then gets out of the
+          way of the next-session card. */}
+      {recentPhotos.length > 0 && (
+        <button
+          type="button"
+          onClick={onOpenPhotos}
+          aria-label="See photos from our sessions"
+          className="group mt-6 block w-full text-left"
+        >
+          <span className="flex gap-2 overflow-hidden rounded-xl">
+            {recentPhotos.map((src, i) => (
+              <span
+                key={src}
+                /* Two on a phone, four from sm up: a fifth thumbnail on a narrow
+                   screen makes every face too small to read. */
+                className={`relative block flex-1 aspect-[4/3] overflow-hidden rounded-lg bg-accent ${i > 1 ? 'hidden sm:block' : ''}`}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                />
+              </span>
+            ))}
+          </span>
+          <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-muted group-hover:text-foreground transition-colors">
+            Photos from our sessions
+            <ArrowRight size={13} strokeWidth={2.2} />
+          </span>
+        </button>
       )}
     </section>
   );

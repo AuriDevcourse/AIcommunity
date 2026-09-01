@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import data from './data.json';
 // Home-tab (default view) components stay eager so the landing paint isn't gated
 // on a second chunk. The other tabs are code-split below, their JS only downloads
@@ -239,6 +239,17 @@ export default function App() {
   const next = upcomingFromToday[0];
   const futureSchedule = { ...data.schedule, upcoming: upcomingFromToday };
 
+  // One cover per session, newest first, for the landing-page strip. Committed
+  // photos only: Blob uploads arrive async and would pop in after paint, and the
+  // strip is the first thing on the page. Four is what fits at sm and up.
+  const recentPhotos = useMemo(() => (
+    [...data.sessions]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map((s) => (s.photos || [])[0])
+      .filter(Boolean)
+      .slice(0, 4)
+  ), [data.sessions]);
+
   // #present renders the topics slide deck on its own (no header/nav), so it can
   // drive a projector in a separate tab.
   if (present) {
@@ -348,6 +359,8 @@ export default function App() {
             sessionCount={data.sessions.length}
             memberCount={data.members.length}
             scheduleStatus={scheduleStatus}
+            recentPhotos={recentPhotos}
+            onOpenPhotos={() => goTo('sessions')}
           />
         )}
 
