@@ -350,7 +350,10 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             /* 4:5 tile, the intrinsic ratio stops the grid reflowing per image. */
             width={512}
             height={640}
-            className="w-full h-full object-cover object-top grayscale contrast-[1.05] transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100"
+            /* Full colour. The covers used to be grayscale until hover, which meant
+               every phone visitor, where there is no hover, saw a permanently black
+               and white archive of a community whose photos are the whole point. */
+            className="w-full h-full object-cover object-top"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-muted bg-accent">

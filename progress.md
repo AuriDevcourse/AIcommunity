@@ -2,10 +2,10 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. 10 findings, 1-9 applied, 10 needs a decision
+## 2026-09-01, /#sessions audit. All 10 applied
 
-**Current state:** **items 1-9 are done.** Only 10 is left and it is a DESIGN CALL for Auri,
-not a bug. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
+**Current state:** **all 10 done.** Seven commits, `a072830` through the one carrying this
+entry. **NOTHING PUSHED YET.** `npm run audit` green (11 suites) after every one. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
 4-6 committed alongside this entry. **Nothing pushed yet.** `npm run audit` is **11 suites**
 and green.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
@@ -18,7 +18,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps (9 done; 1 needs an Auri decision)
+### The ten, all applied
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -112,10 +112,15 @@ below is the UI around that gate.
    *Verified in the DOM on both.*
 
 **UX**
-10. **Mobile gets the worst of both.** Photos are `grayscale` with colour only on
-    `group-hover`, and touch has no hover, so on a phone the whole archive is permanently black
-    and white. Meanwhile Edit is `opacity-100` below `sm`, so every mobile visitor sees a
-    permanent Edit button on every card. Exactly backwards for touch.
+10. **Mobile gets the worst of both.** Photos were `grayscale` with colour only on
+    `group-hover`, and touch has no hover, so on a phone the whole archive was permanently black
+    and white.
+    **DONE, Auri picked option 2: colour everywhere.** The filter classes are gone; the tile
+    still lifts on hover (`group-hover:-translate-y-1` on the wrapper) so hover feedback
+    survives without the desaturation. It suits the cream ground far better.
+    *Deliberately NOT changed:* Edit staying `opacity-100` below `sm`. On touch there is no
+    hover, so a control that only appears on hover would be unreachable. Item 1 already removed
+    it for signed-out visitors, which was the actual complaint.
 
 ### Gotchas
 - **`requestAnimationFrame` never fires in a hidden tab.** The first keyboard-reorder build used
