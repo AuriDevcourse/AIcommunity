@@ -2,7 +2,7 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, heading structure fixed app-wide, plus three /#assets fixes
+## 2026-09-01, heading structure app-wide, three /#assets fixes, photos API made loud
 
 **Current state:** **Shipped and live.** `npm run audit` PASS, all 10 suites. `npx vite build`
 clean. Committed as `6e53940` and pushed straight to `main` (`ad6deab..6e53940`, 21 files) on
@@ -11,6 +11,12 @@ Vercel auto-deployed: prod bundle went `index-E3eB-_MW.js` to `index-TP5RpiSL.js
 probe was re-run against https://a-icommunity.vercel.app and all 8 tabs report exactly one h1
 with the same computed sizes as local. `probe.html` and `probe.jsx` are still untracked and were
 deliberately kept out of the commit (`git add -u`).
+
+Three commits followed on the same day, all pushed to `main` and all live:
+`3f96827` recorded the deploy here, `11f46ae` recorded the preview/photos gotcha, and
+`3ba0550` fixed it in code (prod bundle `index-TP5RpiSL.js` to `index-CiT62q-H.js`, verified on
+prod: 21 and 5 photos, no warning). The leftover preview server on 5281 was killed; `npm run
+audit` starts a new one every run.
 
 **What was just done**
 
@@ -36,6 +42,16 @@ deliberately kept out of the commit (`git add -u`).
      LatestDiscussion, Suggestions.
    - BrandAssets `Section` to `<h2>`; SessionThread to `{bare ? 'h3' : 'h2'}`; Rsvp "Coming"
      to `<h3>`.
+
+5. **The photos API now fails loudly** (`3ba0550`). Auri reported 2026-05-31 and 2026-06-14
+   "suddenly" having no pictures. Nothing had broken: those two are the only sessions whose
+   photos live entirely in Vercel Blob, and he was on the preview server, where `/api/photos`
+   answers **200 with index.html**. `r.json()` threw and **five** components each swallowed it
+   into an empty object. New `src/lib/photos.js` is the single reader: it checks the
+   content-type, separates `no-api` / `http` / `bad-json`, and throws a typed
+   `PhotosUnavailable` whose message names the cause. SessionsGallery renders a warn notice
+   instead of a short gallery. PhotoUploader now treats a failed probe as not-configured, so the
+   uploader is disabled where uploading cannot work rather than accepting files that go nowhere.
 
 **Evidence:** `scratchpad/heading-outline.mjs` (throwaway CDP probe, same harness shape as
 shell-check) walks all 8 tabs and dumps every heading with its computed font-size and margin.
@@ -87,8 +103,14 @@ before, because Tailwind v4 preflight resets heading font-size, weight and margi
   `RASTER`/`IMAGERY`→`AssetRow`, `PALETTE`→`Swatch`, `RULES`.
 - `src/index.css:332` · `.h-section`, class-only styling. `:624` · the `h1,h2,h3,.h-section`
   rule is inside the print block and affects none of this.
+- `src/lib/photos.js` · the ONLY place that should read `/api/photos`. Five components call it.
+  If you add a sixth reader, use `fetchPhotos` (you want to show the failure) or
+  `fetchPhotosByDate` (you do not), never a bare `fetch`.
+- `src/components/SessionsGallery.jsx` · merges committed photos with Blob uploads by date, and
+  renders the `uploadsError` notice. `api/_photos.js` · the Blob side.
 - `scripts/audit.mjs` · runs all 10 suites and picks the right target per suite.
-- `scratchpad/heading-outline.mjs` · the probe. Not committed, recreate it if headings change.
+- `scratchpad/heading-outline.mjs`, `scratchpad/photos-probe.mjs` · the two probes. Not
+  committed, recreate them if headings or the gallery change.
 
 ## 2026-08-31, declutter audit. Findings only, NOTHING applied
 
