@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Trash2, ImagePlus, Check, ArrowRight } from 'lucide-react';
 import { authedFetch, accessToken } from '../lib/supabase.js';
 import { TODAY } from '../lib/dates.js';
 import { fetchPhotos } from '../lib/photos.js';
+import { useDialog } from '../lib/useDialog.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -76,6 +77,8 @@ function nextSessionDate(dates) {
 }
 
 export default function PhotoUploader({ dates, onClose, onChanged }) {
+  const panelRef = useDialog(onClose);
+  const titleId = useId();
   const [mode, setMode] = useState('upload'); // 'upload' | 'move'
   const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) || '');
   const initialNew = dates.length === 0;
@@ -136,9 +139,17 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel max-w-lg" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="modal-panel max-w-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1.5 h-section"><ImagePlus size={12} strokeWidth={2.2} /><span>Add photos</span></div>
+          <h2 id={titleId} className="flex items-center gap-1.5 h-section"><ImagePlus size={12} strokeWidth={2.2} /><span>Add photos</span></h2>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
 

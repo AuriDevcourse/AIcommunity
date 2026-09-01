@@ -2,11 +2,12 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. 10 findings, the auth pass (1, 2, 3) applied
+## 2026-09-01, /#sessions audit. 10 findings, items 1-6 applied
 
-**Current state:** **the auth pass (items 1, 2, 3) is done**, the other seven are untouched.
-`a072830` item 2, `8233334` item 1, item 3 committed alongside this entry. **Nothing pushed
-yet.** `npm run audit` is now **11 suites** and passed twice in a row clean.
+**Current state:** **items 1-6 are done** (the auth pass and the modal pass); 7, 8, 9, 10 are
+untouched. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
+4-6 committed alongside this entry. **Nothing pushed yet.** `npm run audit` is **11 suites**
+and green.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
 server (5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
 for ten improvements across UX, security and convenience, prompted by "you can edit pictures
@@ -17,7 +18,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps (3 done; 7 to go)
+### Ranked next steps (6 done; 4 to go)
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -78,6 +79,19 @@ below is the UI around that gate.
 6. **No focus management.** After opening, `document.activeElement` is still the trigger behind
    the overlay, the background keeps 85 focusable elements, no trap, no restore on close.
 
+   **4, 5 and 6 DONE as one fix.** New `src/lib/useDialog.js` does all three: Escape (capture
+   phase, so the dialog sees it first), focus moved in on open, Tab trapped and wrapping both
+   directions, focus restored to the trigger on close. Applied to the Edit Session panel and
+   PhotoUploader, which also gained `role="dialog" aria-modal="true" aria-labelledby` and a
+   real `<h2>` title (was a div).
+   **The one trap in the hook:** `onClose` is almost always an inline arrow, so a new identity
+   every render. It is held in a ref and the effect runs ONCE on mount; making the effect depend
+   on `onClose` re-runs setup on every parent render and yanks focus back to the first control
+   while you are typing.
+   *Verified on both dialogs:* role/aria-modal correct, accessible name resolves ("Edit
+   session", "Add photos"), focus lands inside, Tab wraps at both ends, Escape closes, focus
+   returns to the trigger.
+
 **Keyboard and target size**
 7. Photo reorder / set-cover is HTML5 drag-and-drop only (SessionsGallery.jsx:509-512), **no
    keyboard path at all**. WCAG 2.1.1.
@@ -127,7 +141,9 @@ below is the UI around that gate.
 - `src/lib/api.js` · `writeJson`, the fix. **Any new write goes through it**, never through
   `authedFetch` directly. Other components still call `authedFetch` raw and have the same
   swallowed-failure shape: `grep -rn authedFetch src/` to find them.
-- `src/components/AuthControls.jsx:110,259` · the Escape + modal pattern to copy.
+- `src/lib/useDialog.js` · Escape + focus move + focus trap + focus restore, one hook. **Every
+  new modal uses it.** AuthControls, Learn, PostMaker and SessionRecap still bind Escape by hand
+  and have no trap; moving them onto the hook is the obvious follow-up, not yet done.
 
 ## 2026-09-01, heading structure app-wide, three /#assets fixes, photos API made loud
 

@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare, ChevronDown, ChevronUp, History, CircleSlash } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { writeJson } from '../lib/api.js';
 import { useAuth } from '../lib/auth.jsx';
+import { useDialog } from '../lib/useDialog.js';
 import PhotoUploader from './PhotoUploader.jsx';
 import { fetchPhotos } from '../lib/photos.js';
 
@@ -422,6 +423,8 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
   const [busy, setBusy] = useState(false);
   const [dragUrl, setDragUrl] = useState(null);
   const [overUrl, setOverUrl] = useState(null);
+  const panelRef = useDialog(onClose);
+  const titleId = useId();
   const [savedFlash, setSavedFlash] = useState(false);
   // Whatever the server said when it refused. Cleared on the next attempt.
   const [actionError, setActionError] = useState('');
@@ -486,9 +489,17 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel max-w-2xl" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="modal-panel max-w-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1.5 h-section"><Pencil size={12} strokeWidth={2.2} /><span>Edit session</span></div>
+          <h2 id={titleId} className="flex items-center gap-1.5 h-section"><Pencil size={12} strokeWidth={2.2} /><span>Edit session</span></h2>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
 
