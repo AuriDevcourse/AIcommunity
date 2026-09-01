@@ -76,7 +76,20 @@ records change. No code touched; nothing in the app needs changing for this.
 1. **Add the domain in Vercel FIRST**, at
    https://vercel.com/auridevcourses-projects/a-icommunity/settings/domains — add
    `aisundays.org` and accept the `www` prompt. This is what generates the values for step 2.
-2. **Then edit the two Hostinger records** to whatever that page shows.
+2. **Then edit the two Hostinger records.** Vercel issued these on 2026-09-01, both still
+   pending at time of writing:
+
+   | Type | Name | From (Hostinger parking) | To (Vercel) |
+   |---|---|---|---|
+   | A | `@` | `2.57.91.91` | **`216.198.79.1`** |
+   | CNAME | `www` | `aisundays.org` | **`4e3684994c86da63.vercel-dns-017.com`** |
+
+   Vercel prints the CNAME with a trailing dot; Hostinger adds that itself, so paste it without.
+   **Note the A record is NOT the legacy `76.76.21.21`** that most guides and my own first
+   answer quote. Vercel is on a new range and shows `216.198.79.1`; the legacy value still works
+   but is not what it recommends.
+   The dashboard shows **308** beside the apex: that is correct, not an error. The bare domain
+   permanently redirects to `www.aisundays.org`, which is the Production host.
 3. **Update the three hardcoded URLs in `index.html`** (`:20` og:url, `:21` og:image,
    `:27` twitter:image) once the domain resolves, or shared links keep advertising the old host.
 4. Offered, not done: I can add the domain via the Vercel CLI, but it changes hosting
