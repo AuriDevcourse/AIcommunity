@@ -2,6 +2,52 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, backgrounds: brand pattern put to work, light ground given an ambient
+
+**Current state:** done, audit green (11 suites, theme suite included, so no contrast
+regression), not pushed.
+
+**The finding behind it.** Cross-checked every file in `public/brand/` against the code.
+**`pattern.webp` and `icon.svg` were referenced ONLY by `BrandAssets.jsx`**, the download page.
+The brand shipped a tiling pattern and the product never used it anywhere. `favicon-mark.svg`
+and `icon-16.svg` are referenced by nothing at all.
+
+**What changed**
+1. **The cream ground had no ambient at all** while dark had a yellow halo. The existing comment
+   is right that yellow on cream is 1.57 and invisible, but that was a reason to change the
+   COLOUR, not to skip light entirely. Light now gets the same shape in **brand green at 7%**,
+   declared on bare `body::before` so the two dark rules simply override it.
+2. **New `.pattern-fill` utility** (`--brand-deep` + the tiling pattern at 300px). palette.md
+   allows the pattern for "backgrounds and slide fills, **never behind body text**", so it is a
+   utility applied only where nothing but a chip or an icon sits on top.
+3. **Photo-less session covers** used flat `bg-accent` and read as a broken image. They now use
+   the pattern, with the label moved onto `chip-on-media` chips so it stays legible on the green.
+4. **An 8px pattern band closes the footer**, replacing its plain top border. `aria-hidden`,
+   nothing on top of it.
+
+### Next steps
+1. **`icon.svg` (the sunrise mark) is still unused in the product.** It is the obvious candidate
+   for empty states that currently use a generic Lucide glyph, and for the Learn/News section
+   marks. Not done: it is a design call about where the mark belongs.
+2. `favicon-mark.svg` and `icon-16.svg` are referenced by NOTHING, not even the assets page.
+   Either wire them up or drop them from `public/brand/`.
+3. The light halo is deliberately faint at 7%. If Auri wants it more present, that number is the
+   single knob.
+
+### Gotchas
+- **A `/* ... */` comment placed directly before JSX inside a `cond ? (...) : (...)` branch is a
+  real JS comment and is fine.** The same comment among JSX *children* would render as text.
+- The brand rule that constrains all of this is in palette.md: pattern is for backgrounds and
+  fills, **never behind body text**. Both uses here respect it by having only chips on top.
+
+### File pointers
+- `src/index.css` · the light `body::before` ambient and `.pattern-fill`, both immediately above
+  the dark halo block that documents why yellow was wrong on cream.
+- `src/components/SessionsGallery.jsx` · the photo-less cover branch.
+- `src/components/LegalPages.jsx` · `Footer`, the 8px band.
+- `public/brand/` · the assets. Check usage with
+  `for f in $(ls public/brand/); do grep -rl "brand/$f" src/ index.html; done`.
+
 ## 2026-09-01, Home: Schedule ahead out, "What we talked about" in
 
 **Current state:** done, audit green (11 suites), not pushed. Home is now hero, photo strip,

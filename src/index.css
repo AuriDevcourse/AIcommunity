@@ -193,6 +193,28 @@ body {
   overflow-x: hidden; /* guard against accidental horizontal scroll on mobile */
 }
 
+/* Light ground had NO ambient at all while dark had a halo, so the cream page was
+   flat card-on-flat-colour. Brand GREEN, not yellow: the note below is right that
+   yellow on cream is 1.57 and simply does not show, but green on cream is 9.07, so
+   at 7% it reads as a faint warmth at the top of the page instead of nothing.
+   Declared on the bare selector so the dark rules below simply override it. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(58% 42% at 50% -6%, color-mix(in oklab, var(--brand-green) 7%, transparent), transparent 70%);
+}
+
+/* The brand ships a tiling pattern (suns, sparkles, squiggles on deep green) and
+   the product never used it: it was downloadable from /#assets and nowhere else.
+   palette.md allows it for "backgrounds and slide fills, never behind body text",
+   so it is a utility here rather than a page background, applied only where the
+   only thing on top is a chip or an icon. */
+.pattern-fill {
+  background-color: var(--brand-deep);
+  background-image: url('/brand/pattern.webp');
+  background-repeat: repeat;
+  background-size: 300px auto;
+}
+
 /* Ambient halo behind everything. DARK ONLY, on purpose.
    This used to be three animated warm-yellow radials painted in every theme,
    with the colours written as raw hsl() literals from when the page was white.

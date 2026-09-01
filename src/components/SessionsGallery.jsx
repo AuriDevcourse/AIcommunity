@@ -245,11 +245,17 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
             className="w-full h-full object-cover object-top"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-muted bg-accent">
-            <MessagesSquare size={26} strokeWidth={1.6} />
-            <span className="text-xs font-semibold text-foreground">View recap</span>
+          /* A session with no photos used to be a flat beige rectangle, which
+             read as a broken image rather than a deliberate state. The brand
+             pattern is exactly what this is for, and nothing sits on it but
+             chips. */
+          <div className="pattern-fill w-full h-full flex flex-col items-center justify-center gap-1.5">
+            <span className="chip-on-media inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold">
+              <MessagesSquare size={13} strokeWidth={2.2} />
+              View recap
+            </span>
             {topicCount > 0 && (
-              <span className="text-[10px] font-medium ">{topicCount} topics</span>
+              <span className="chip-on-media rounded-full px-2 py-0.5 text-[10px] font-medium">{topicCount} topics</span>
             )}
           </div>
         )}
