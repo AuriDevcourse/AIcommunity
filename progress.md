@@ -14,7 +14,7 @@ page (was twice); both calendar options sit together; only **one** boxed notice 
 
 Original audit below; item 1 was a regression I introduced earlier the same day.
 
-### Ranked next steps, none started
+### The ten, as originally found
 
 **1. REGRESSION, mine.** The hero says **"11 days"** and this card says **"in 12 days"**, on the
 same screen about the same date. Two calculations: `formatCountdown` floors elapsed 24h periods
@@ -84,15 +84,26 @@ Fix by having both read one function.
 - The card measures 447px, 25% of a 1810px page, so it is the single largest block on Home.
   Worth remembering before adding anything else to it.
 
-### File pointers
-- `src/components/NextSession.jsx` · `:26` the component, `:59` the hardcoded time, `:66` the
-  premium-card root Auri annotated, `:71-90` the `dl`, `:92` the Lean Coffee box, `:108` the
-  recording box, `:119` `<Rsvp>`, `:121-148` the .ics and Luma row.
-- `src/lib/dates.js:12` `daysBetween`, `:27` `relative`, `:96` `formatCountdown` · the three
-  functions behind finding 1.
-- `src/components/Hero.jsx` · the other half of findings 1, 2 and 10.
-- `src/components/News.jsx:238` · the correct new-tab announcement pattern for finding 6.
+### Next steps
+1. **Write the recordings section of the privacy page.** The card now links to it
+   ("How we handle recordings") and `LegalPages.jsx` does not mention recordings at all, so the
+   link promises more than it delivers. This is the only finding with real GDPR weight.
+2. **Set a `theme` on an upcoming session** and the card will name it. Right now the next one
+   has `number: null` and `theme: ""`, which is why finding 4 could not be fixed in code.
+3. Unchanged: 4 open `/#tools` findings, the two orphaned components, the signed-in
+   verification pass, and **35 commits unpushed**.
 
+### File pointers
+- `src/components/NextSession.jsx` (lines as of `dea5252`) · `:30` the component, `:70` the time
+  line built from shared helpers, `:119` the Lean Coffee box (the one notice still boxed),
+  `:140` the demoted recording line and its privacy link, `:155` `<Rsvp>`, `:161` the two
+  calendar links.
+- `src/lib/dates.js` · `:64` `sessionTimeRange`, `:76` `sessionTzLabel`, `:84` `sessionISO`,
+  `:129` `formatCountdown(ms, dateStr)`. **The session time lives ONLY in the constants above
+  these; never type 12:30 into a component again.**
+- `src/components/LegalPages.jsx` · where the recordings text has to go for next step 1.
+- `src/components/Hero.jsx` · passes `next?.date` into `formatCountdown`; without it the hero and
+  the pill drift apart again.
 ## 2026-09-01, hero rewritten: headline dropped, stats separated, per-thumb hover
 
 **Current state:** done, audit green (11 suites), not pushed. Three fixes from Auri.
