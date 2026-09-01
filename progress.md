@@ -57,6 +57,49 @@ they have teeth** by deleting the quota block: 2 of 8 fail.
 - `api/generate-post.js` · both enforcement points, non-stream and stream.
 - `scripts/guard-check.mjs` · the KV stub pattern, reusable for any other quota test.
 
+## 2026-09-01, domain acquired: aisundays.org, DNS not yet pointed
+
+**Current state:** Auri bought **aisundays.org** at Hostinger. It is **not connected yet** and
+still resolves to Hostinger's parking. The site remains at a-icommunity.vercel.app until the
+records change. No code touched; nothing in the app needs changing for this.
+
+**Where it stands**
+- Nameservers: `aurora.dns-parking.com` / `nebula.dns-parking.com` (Hostinger). Staying there,
+  DNS is managed at the registrar rather than moving NS to Vercel.
+- Existing records are the two parking ones and are exactly the two that need editing, not new
+  records: `A @ -> 2.57.91.91` and `CNAME www -> aisundays.org`.
+- Vercel project is **`a-icommunity`** under team `auridevcourses-projects`. CLI is authenticated
+  as `auridevcourse`; the repo has **no `.vercel/` link**, so `vercel` commands need `--scope` or
+  a `vercel link` first.
+
+### Next steps
+1. **Add the domain in Vercel FIRST**, at
+   https://vercel.com/auridevcourses-projects/a-icommunity/settings/domains — add
+   `aisundays.org` and accept the `www` prompt. This is what generates the values for step 2.
+2. **Then edit the two Hostinger records** to whatever that page shows.
+3. **Update the three hardcoded URLs in `index.html`** (`:20` og:url, `:21` og:image,
+   `:27` twitter:image) once the domain resolves, or shared links keep advertising the old host.
+4. Offered, not done: I can add the domain via the Vercel CLI, but it changes hosting
+   configuration so it waits on an explicit go-ahead.
+
+### Gotchas
+- **The `www` CNAME target is PER-PROJECT now**, e.g. `d1d4fc829fe7bc7c.vercel-dns-017.com`, not
+  the old shared `cname.vercel-dns.com`. Guessing it, or copying a value from an older guide,
+  gives a domain that never verifies. Read it off the Vercel domains page. (Vercel docs,
+  "Adding & Configuring a Custom Domain", last updated 2026-08-11.)
+- **Ignore Hostinger's SSL section entirely.** Vercel issues the certificate once DNS resolves;
+  buying or installing one at the registrar is wasted money and can conflict.
+- **The CSP needs no change**, checked: `vercel.json` uses `default-src 'self'`, which is
+  origin-relative and follows whatever domain serves the app.
+
+### File pointers
+- `vercel.json` · the CSP and headers, domain-agnostic as written.
+- **`index.html:20,21,27` hardcode `https://a-icommunity.vercel.app`** in `og:url`, `og:image`
+  and `twitter:image`. These do NOT follow the domain: after the switch, every LinkedIn and
+  Slack preview of an aisundays.org link would still name the vercel.app host and pull its
+  image. Change all three when the domain goes live. (I first wrote that there were no absolute
+  URLs here; grep proved otherwise.)
+
 ## 2026-09-01, SHIPPED. 49 commits pushed to main, live in production
 
 **Current state:** everything below this line is **live at https://a-icommunity.vercel.app**.
