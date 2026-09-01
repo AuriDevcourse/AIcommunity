@@ -2,6 +2,68 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, Next session card audit. Findings only, NOTHING applied
+
+**Current state:** no code changed. Ten findings on `NextSession.jsx`, measured on the running
+dev server. **Item 1 is a regression I introduced earlier today** and should be fixed first.
+
+### Ranked next steps, none started
+
+**1. REGRESSION, mine.** The hero says **"11 days"** and this card says **"in 12 days"**, on the
+same screen about the same date. Two calculations: `formatCountdown` floors elapsed 24h periods
+from 12:30 on the day; `relative()` uses `daysBetween`, a calendar-day difference. They differed
+before, but "11 days 23 hr" hinted at nearly-twelve and **dropping the hour (my item 4 of the
+landing audit) turned a soft mismatch into a flat contradiction.** `dates.js:32` carries a
+comment from someone fixing an EARLIER version of this same clash, so it has now bitten twice.
+Fix by having both read one function.
+
+**Data that is not data**
+2. **The session time is hardcoded in JSX**: `12:30-14:30 · Copenhagen` at `NextSession.jsx:59`,
+   and the hero hardcodes `12:30` separately. The upcoming record carries `date`, `number`,
+   `theme`, `format`, `presenter`, `venue`, `venueStatus`, `luma`, `roles`, `notes` and **no time
+   field at all**. Move one session and two files lie.
+3. **No `<time>` element anywhere in the card** (verified: 0) and **no timezone**. Nothing is
+   machine-readable; "Copenhagen" implies CET without saying it.
+4. **The card never names the session.** Its biggest line is a date. `theme` is `""` for the next
+   one, so a visitor sees "Sunday, 13 September 2026" and no subject.
+
+**Accessibility**
+5. **Two controls under 24x24**: the venue link at **18px** and "Download .ics" at **20px**. Same
+   WCAG 2.2 section 2.5.8 failure already fixed on the sessions page, unfixed here.
+6. **The venue link opens a new tab silently.** `target="_blank"` with no warning, while
+   `News.jsx` does it correctly with an sr-only "(opens in a new tab)". Copy that.
+
+**Duplication and hierarchy**
+7. **The venue address appears twice within ~400px**: in full here, and again in ScheduleAhead as
+   "All at Matrikel1, Hojbro Pl. 10, 1200 Kobenhavn, Denmark".
+8. **Two info boxes with identical styling stack directly on each other** (Lean Coffee, Sessions
+   are recorded): same border, same `bg-pill`, same 15px icon. They compete instead of ranking.
+9. **"Sessions are recorded" states the fact and none of the consequences.** Nothing on where
+   recordings go, who can see them, or how to opt out. For a first-time visitor it is the most
+   alarming line on the page and the only one with no follow-up. SECURITY.md r6/r18.
+   **Needs an Auri decision, not code.**
+10. **Calendar actions are split across two components.** Hero offers Google "Add to calendar",
+    the card offers "Download .ics", neither mentions the other.
+
+### Gotchas
+- **Two functions computing "how far away is this" WILL drift.** `formatCountdown` (elapsed 24h
+  periods, time-of-day aware) and `relative`/`daysBetween` (calendar days, midnight to midnight)
+  answer different questions and both are rendered on the same screen. Any fix should make one
+  the single source.
+- **Extracting `href` from the card via the browser tool gets BLOCKED**, because the .ics is a
+  `data:` URL and trips a content filter. Read `href.split(':')[0]` for the scheme instead.
+- The card measures 447px, 25% of a 1810px page, so it is the single largest block on Home.
+  Worth remembering before adding anything else to it.
+
+### File pointers
+- `src/components/NextSession.jsx` · `:26` the component, `:59` the hardcoded time, `:66` the
+  premium-card root Auri annotated, `:71-90` the `dl`, `:92` the Lean Coffee box, `:108` the
+  recording box, `:119` `<Rsvp>`, `:121-148` the .ics and Luma row.
+- `src/lib/dates.js:12` `daysBetween`, `:27` `relative`, `:96` `formatCountdown` · the three
+  functions behind finding 1.
+- `src/components/Hero.jsx` · the other half of findings 1, 2 and 10.
+- `src/components/News.jsx:238` · the correct new-tab announcement pattern for finding 6.
+
 ## 2026-09-01, hero rewritten: headline dropped, stats separated, per-thumb hover
 
 **Current state:** done, audit green (11 suites), not pushed. Three fixes from Auri.
