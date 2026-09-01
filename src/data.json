@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T08:54:36.996Z",
+  "generatedAt": "2026-09-01T10:06:57.416Z",
   "sessions": [
     {
       "number": 1,
@@ -766,7 +766,7 @@
     {
       "number": 9,
       "date": "2026-08-30",
-      "title": "",
+      "title": "Session after Summer Break",
       "location": "TBD",
       "attendees": [
         "Auri",
@@ -779,9 +779,27 @@
       "demos": [],
       "actions": [],
       "summary": "",
-      "topics": [],
+      "topics": [
+        {
+          "title": "Agentic workflows",
+          "summary": "The through-line of the session. What people are actually wiring up when an agent runs on its own rather than answering one prompt at a time."
+        },
+        {
+          "title": "Telegram for daily updates",
+          "summary": "Connecting an agent to Telegram so it reports in on a schedule, rather than being something you have to remember to open."
+        },
+        {
+          "title": "A Slack bot for tags and tasks",
+          "summary": "Retrieving where you have been tagged across a workspace, and what is waiting on you, without reading every channel yourself.\n\n<!--\n  INCOMPLETE. Only the attendee list is recorded, because that is all that was\n  reported. Everything else is deliberately absent rather than guessed: an\n  invented topic or demo becomes the permanent record of a real session, and the\n  recap page publishes it.\n\n  Sections left out on purpose. Add any of them and it appears on the site:\n\n  ## About This Session\n  One or two paragraphs. Renders as the summary on the recap page.\n\n  ## Topics\n  ### Topic name\n  A sentence or two under each.\n\n  ## Demos\n  ### Name · What they showed\n  The parser splits the presenter from the topic on the dash.\n\n  ## Tools & products discussed\n  - **Tool name** · what it does\n  - **[Tool name](https://example.com)** · linked version\n\n  ## Action Items\n  - [ ] Something to do\n  - [x] Something done\n\n  A Title field can go above when there is one. It is omitted rather than set to\n  \"TBD\", because the value renders AS the session name; without it the UI says\n  \"Session #9\". Location was probably Matrikel1, left as TBD rather than assumed.\n\n  Do not write the Title field name in bold-with-colon anywhere in this comment.\n  The parser for it is not line-anchored, so it matches inside comments too and\n  the session ended up titled with a sentence from these very instructions.\n-->"
+        }
+      ],
       "tools": [],
-      "photos": []
+      "photos": [
+        "/sessions/2026-08-30/01.jpg",
+        "/sessions/2026-08-30/02.jpg",
+        "/sessions/2026-08-30/03.jpg",
+        "/sessions/2026-08-30/04.jpg"
+      ]
     }
   ],
   "members": [

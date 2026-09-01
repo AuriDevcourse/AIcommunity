@@ -2,6 +2,43 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, session #9 published: Session after Summer Break
+
+**Current state:** session 2026-08-30 now has a title, 3 topics and 4 photos. Audit green
+(11 suites). Committed, **not pushed** (it rides along with the eight audit-fix commits).
+
+**What was done**
+- 4 photos from Auri's phone into `public/sessions/2026-08-30/` as `01-04.jpg`, ordered so the
+  sharp wide room shot is `01` and therefore the cover. `npm run optimize:images` took them
+  from 4.9MB to 0.8MB in place.
+- `content/sessions/#09 SESSION 2026-08-30.md` gained a Title field and a Topics section:
+  agentic workflows, Telegram for daily updates, a Slack bot for tags and tasks.
+- `npm run build:data` picked all of it up: title, 4 photos, 3 topics.
+
+### Gotchas
+- **`build:data` refuses photos that are not git-tracked** and prints the exact `git add` lines
+  to run. It is not an error, it is the guard against `src/data.json` referencing files that
+  never got committed. Run `git add public/sessions/<date>/` then rebuild.
+- **Never write the Title field name in bold-with-colon inside a comment in a session note.**
+  The parser is not line-anchored, so it matches inside HTML comments too, and a session once
+  ended up titled with a sentence from its own instructions. The note file says so itself.
+- Location for #9 is still `TBD` on purpose. The note's comment says it was probably Matrikel1
+  but was left unassumed, and an invented value becomes the permanent public record.
+- The topics were written from ONLY what Auri said. The note file warns against inventing
+  content; three short entries beat three padded ones.
+
+### Next steps
+1. Location for #9 if Auri remembers it, plus an About This Session paragraph, Demos and Tools,
+   all of which the note supports and all of which are currently absent.
+2. **New finding, not yet logged as its own item:** on the recap page the topic names are NOT
+   headings (`main h2, main h3` returns empty), so the same problem the 2026-09-01 heading pass
+   fixed elsewhere still exists there.
+
+### File pointers
+- `content/sessions/#09 SESSION 2026-08-30.md` · the note, with the full format documented in
+  its own HTML comment. `scripts/build-data.js` · `listSessionPhotosForDate` and the
+  tracked-file guard. `scripts/optimize-images.mjs` · in-place, idempotent, manifest-driven.
+
 ## 2026-09-01, /#sessions audit. All 10 applied
 
 **Current state:** **all 10 done.** Seven commits, `a072830` through the one carrying this
