@@ -26,13 +26,27 @@ control now reads "Sign in to ..." and sign-in itself throws.
 1. **Restore or recreate the Supabase project**, then set `VITE_SUPABASE_URL` and
    `VITE_SUPABASE_ANON_KEY` in `.env.local` AND in Vercel, and redeploy (the URL is baked into
    the client bundle at build time, so an env change alone does nothing until a rebuild).
-   `docs/auth-setup.md` has the setup. Creating projects and handling keys is Auri's, not mine.
+   `docs/auth-setup.md` has the setup and its steps 1-4 are still correct. **Also required in
+   the new project:** Authentication > Providers (enable Email; enable Google and paste a Client
+   ID + secret, adding Supabase's callback URL to that Google client), and Authentication >
+   URL Configuration (Site URL = the prod origin; Redirect URLs must list the prod origin AND
+   **both** `http://localhost:5280` and `http://127.0.0.1:5280`, which are different origins,
+   and the app redirects to whichever is in the address bar).
+   Creating projects and handling keys is Auri's, not mine.
 2. **Or run without auth, deliberately and briefly:** unset the two Supabase vars and set
    `ALLOW_ANONYMOUS_WRITES=true`. That makes every write world-writable. Only with eyes open.
 3. **Offered, not yet done:** the sign-in UI surfaces the raw `TypeError: Failed to fetch`. It
    should say sign-in is unavailable instead of leaking a browser internal.
+4. **Offered, not yet done:** `docs/auth-setup.md` ends with a "Known limitation (v1)" section
+   claiming gating is client-side only and the API trusts a `name` from the body. **That is no
+   longer true** and reads as a live security hole to anyone who finds it: `guardMutation` and
+   `requireUser` verify the JWT, and `identityFor` derives identity from the verified session.
+   Rewrite or delete that section.
 
 ### Gotchas
+- **Every existing account dies with the old project.** Anyone who had signed in must sign up
+  again, and any `user.id` recorded against forum posts, polls, RSVPs or session edits will not
+  match the new accounts. Ownership checks key on `user.id` (`api/_identity.js` `ownsRecord`).
 - **A dead host throws, it does not return a status.** `fetch()` rejects with
   `TypeError: Failed to fetch`, so every `catch` that assumes an HTTP error sees nothing useful
   and every `if (!res.ok)` never runs. This is the one failure mode `src/lib/api.js`
