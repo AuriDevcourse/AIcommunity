@@ -122,7 +122,11 @@ try {
   const renderedOrganisers = await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => s.textContent.trim() === 'Organiser').length`);
   check('organiser badges match the data', renderedOrganisers === expectedOrganisers,
     `rendered ${renderedOrganisers}, data says ${expectedOrganisers}`);
-  check('attendance counts render', await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => /^\\d+ sessions?$/.test(s.textContent.trim())).length`) > 0);
+  // Attendance counts were REMOVED from the member cards on 2026-09-01: how often
+  // someone turns up is not a standing worth publishing next to their name. Assert
+  // they are gone, so nobody reinstates them by accident.
+  check('no attendance count is published on a member card',
+    await evalJs(`[...document.querySelectorAll('.grid span')].filter(s => /^\\d+ sessions?$/.test(s.textContent.trim())).length`) === 0);
 
   // Search
   await search('auri');
@@ -146,13 +150,9 @@ try {
   const sortedCopy = [...byName].sort((a, b) => a.localeCompare(b));
   check('Name sorts alphabetically', JSON.stringify(byName) === JSON.stringify(sortedCopy), byName.slice(0, 3).join(', '));
 
-  await clickSort('Sessions');
-  const bySessions = await evalJs(`[...document.querySelectorAll('.grid > div')].map(c => {
-    const m = (c.textContent.match(/(\\d+) sessions?/) || [0, '0'])[1];
-    return Number(m);
-  })`);
-  const descending = bySessions.every((v, i, a) => i === 0 || a[i - 1] >= v);
-  check('Sessions sorts by attendance, descending', descending, bySessions.join(','));
+  // The Sessions sort went with the counts: it ranked people by attendance.
+  check('there is no Sessions sort option',
+    await evalJs(`[...document.querySelectorAll('[role="group"][aria-labelledby="member-sort-label"] button')].map(b => b.textContent.trim()).join(",")`) === 'Featured,Name');
 
   check('the sort control reports which option is pressed',
     await evalJs(`[...document.querySelectorAll('[role="group"][aria-labelledby="member-sort-label"] button')].filter(b => b.getAttribute('aria-pressed') === 'true').length`) === 1);

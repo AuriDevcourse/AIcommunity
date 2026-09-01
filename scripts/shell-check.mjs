@@ -3,7 +3,8 @@
 //
 //   1.3   the sticky header lifts only once the page has scrolled
 //   1.10  the print stylesheet strips app chrome and the cream ground
-//   8.8   the Sessions archive renders a timeline carrying the recorded gaps
+//   8.8   (retired 2026-09-01) the Sessions archive timeline was removed; the
+//         block now asserts the tab renders without it and leaves no stray control
 //
 // It also covers the Download assets footer page: every brand file it advertises
 // has to actually exist and actually download, or the page is worse than absent.
@@ -146,57 +147,22 @@ try {
   const afterPrint = await header();
   check('leaving print restores the header on screen', afterPrint.display !== 'none', `display="${afterPrint.display}"`);
 
-  // ---- 8.8 archive timeline
+  // The archive timeline was REMOVED on 2026-09-01 at Auri's request, so the
+  // three assertions that lived here (toggle renders, expands, a row opens the
+  // recap) are gone with it. The recorded gaps still live in data/schedule.json
+  // and SessionsGallery still accepts the prop, so a rhythm view can come back.
+  // What replaces them: prove the tab renders WITHOUT it, and that nothing is
+  // left behind pointing at a control that no longer exists.
   await send('Page.navigate', { url: `${BASE}/#sessions` });
-  await waitFor(`[...document.querySelectorAll('button')].some((b) => /Timeline/.test(b.textContent) && b.hasAttribute('aria-expanded'))`);
-  const toggle = await evalJs(`(() => {
-    const btn = [...document.querySelectorAll('button')].find((b) => /Timeline/.test(b.textContent) && b.hasAttribute('aria-expanded'));
-    if (!btn) return { found: false };
-    const before = document.querySelectorAll('ol li').length;
-    const summary = btn.textContent.replace(/\\s+/g, ' ').trim();
-    btn.click();
-    return { found: true, summary, before };
-  })()`);
-  check('the Sessions tab renders a Timeline panel', toggle.found, JSON.stringify(toggle));
-  if (!toggle.found) throw new Error('no timeline toggle');
-  check('the collapsed panel summarises the span and the gap count',
-    /\d+ sessions/.test(toggle.summary) && /recorded gap/.test(toggle.summary), `summary="${toggle.summary}"`);
-  check('it is collapsed until asked, so the photo grid stays above the fold',
-    toggle.before === 0, `${toggle.before} rows rendered while collapsed`);
-  await sleep(500);
-  // Read after the render, not in the same tick as the click: React had not yet
-  // written the new attribute when this was asserted inline, and the suite
-  // reported a component bug that did not exist.
-  const expanded = await evalJs(`[...document.querySelectorAll('button')].find((b) => /Timeline/.test(b.textContent) && b.hasAttribute('aria-expanded')).getAttribute('aria-expanded')`);
-  check('the toggle reports its state', expanded === 'true', `aria-expanded="${expanded}"`);
-
-  const rail = await evalJs(`(() => {
-    const lis = [...document.querySelectorAll('ol li')];
-    const text = lis.map((l) => l.textContent.replace(/\\s+/g, ' ').trim());
-    const dates = lis.map((l) => l.querySelector('.num')).map((e) => (e ? e.textContent.trim() : null)).filter(Boolean);
-    return {
-      rows: lis.length,
-      gaps: text.filter((t) => /^Unlogged,/.test(t)),
-      first: text[0] || null,
-      last: text[text.length - 1] || null,
-      dates,
-    };
-  })()`);
-  check('every session is on the rail, plus one row per recorded gap',
-    rail.rows === 10 && rail.gaps.length === 1, `rows=${rail.rows} gaps=${rail.gaps.length}`);
-  check('the gap names its window and its reason',
-    /Unlogged, Feb 2026 to Apr 2026/.test(rail.gaps[0] || '') , `gap="${rail.gaps[0]}"`);
-  check('the rail runs oldest first', /29 Jun/.test(rail.first || '') && /30 Aug/.test(rail.last || ''),
-    `first="${rail.first}" last="${rail.last}"`);
-
-  const opened = await evalJs(`(() => {
-    const li = [...document.querySelectorAll('ol li')].find((l) => l.querySelector('button'));
-    li.querySelector('button').click();
-    return true;
-  })()`);
-  await sleep(900);
-  const routed = await evalJs(`location.hash`);
-  check('a timeline row opens that session recap', opened && /^#recap\/\d{4}-\d{2}-\d{2}$/.test(routed), `hash="${routed}"`);
+  await waitFor(`document.querySelectorAll('main article').length > 0`);
+  const noTimeline = await evalJs(`(() => ({
+    toggles: [...document.querySelectorAll('button')].filter((b) => /Timeline/.test(b.textContent)).length,
+    tiles: document.querySelectorAll('main article').length,
+    heading: document.querySelector('main h1') ? document.querySelector('main h1').textContent.trim() : null,
+  }))()`);
+  check('the Sessions tab renders its tiles', noTimeline.tiles > 0, `tiles=${noTimeline.tiles}`);
+  check('the Sessions tab still titles itself', noTimeline.heading === 'Sessions', `h1="${noTimeline.heading}"`);
+  check('no archive timeline control is left behind', noTimeline.toggles === 0, `${noTimeline.toggles} found`);
 
   // ---- Download assets, the footer page
   await send('Page.navigate', { url: `${BASE}/#home` });

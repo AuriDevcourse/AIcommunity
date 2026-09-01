@@ -53,7 +53,6 @@ function shuffle(arr) {
 const SORTS = [
   ['featured', 'Featured'],
   ['name', 'Name'],
-  ['sessions', 'Sessions'],
 ];
 
 export default function MembersGallery({ members }) {
@@ -83,9 +82,7 @@ export default function MembersGallery({ members }) {
     };
     const base = sortBy === 'featured'
       ? featured
-      : [...merged].sort((a, b) => (sortBy === 'sessions'
-        ? (b.attended || 0) - (a.attended || 0) || getDisplayName(a).localeCompare(getDisplayName(b))
-        : getDisplayName(a).localeCompare(getDisplayName(b))));
+      : [...merged].sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
     return base.filter(matches);
   }, [query, sortBy, featured, merged]);
 
@@ -225,11 +222,6 @@ function MemberCard({ member }) {
         {member.status === 'Organizer' && (
           <span className="pill" style={{ background: 'var(--gold-chip-a)', color: 'var(--gold-chip-fg)', borderColor: 'transparent' }}>
             Organiser
-          </span>
-        )}
-        {member.attended > 0 && (
-          <span className="text-[11px] text-muted">
-            {member.attended} {member.attended === 1 ? 'session' : 'sessions'}
           </span>
         )}
       </div>

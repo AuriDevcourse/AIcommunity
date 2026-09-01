@@ -2,6 +2,43 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, three removals: archive timeline, attendance counts, Sessions sort
+
+**Current state:** done, committed, audit green (11 suites). From Agentation feedback on
+`/#sessions` and `/#members`.
+
+**What was removed**
+1. **`ArchiveTimeline`** from the sessions page: the render block AND the component, plus the
+   now-dead `monthYear` helper, its orphaned comment, and four unused lucide imports
+   (`History`, `ChevronDown`, `ChevronUp`, `CircleSlash`).
+2. **The "N sessions" attendance badge** from every member card.
+3. **The "Sessions" sort option**, which ranked people by attendance and was the only other
+   reader of that number.
+
+`gaps` is still accepted by `SessionsGallery` and still passed by `App.jsx`, deliberately,
+renamed to `_gaps` with a comment. The recorded gaps still live in `data/schedule.json`, so a
+rhythm view can come back later with no plumbing.
+
+**Two suites asserted the removed behaviour and were rewritten to assert its ABSENCE**, which is
+the point: `members` now checks no attendance count is published and that the sort offers
+exactly `Featured,Name`; `shell` replaced its three timeline assertions (8.8) with a check that
+the tab renders its tiles, titles itself, and leaves **no stray Timeline control behind**.
+
+*Verified in the browser:* members shows `[Featured, Name]`, 0 attendance badges, 23 cards;
+sessions shows 0 timeline controls, 9 tiles, h1 "Sessions".
+
+### Gotchas
+- **A suite that asserts a feature exists becomes a suite that fails when you delete it.** That
+  is correct behaviour, not an obstacle: rewrite it to assert the absence, so nobody reinstates
+  the thing by accident. Both rewrites here do that explicitly.
+- `theme` failed ONCE inside the audit ("default is system", "system + OS light renders light")
+  and then passed 3/3 standalone and green on the next full run. **Suspected flake, not
+  investigated.** It has fixed `sleep()` calls at `theme-check.mjs:53,69,87,102,110,119,141,152,161`,
+  the same shape that made `lightbox` and `shell` flaky earlier today. If it recurs, convert it
+  to `waitFor` like those two.
+- Removing a component orphans more than the component: check for now-unused helpers, imports
+  and props. `grep -c` each symbol before assuming.
+
 ## 2026-09-01, RESOLVED: the Supabase project was PAUSED, not gone. Auri reactivated it
 
 **Current state: FIXED, nothing to change.** Auri reactivated the project and it is the SAME

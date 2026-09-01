@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare, ChevronDown, ChevronUp, History, CircleSlash } from 'lucide-react';
+import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { writeJson } from '../lib/api.js';
 import { useAuth } from '../lib/auth.jsx';
@@ -8,7 +8,11 @@ import { useDialog } from '../lib/useDialog.js';
 import PhotoUploader from './PhotoUploader.jsx';
 import { fetchPhotos } from '../lib/photos.js';
 
-export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
+// `gaps` is still accepted and deliberately unused: the archive timeline that read
+// it was removed on 2026-09-01 at Auri's request. App.jsx still passes it, and the
+// recorded gaps still live in data/schedule.json, so restoring a rhythm view later
+// needs no plumbing.
+export default function SessionsGallery({ sessions, gaps: _gaps = [], onOpenRecap }) {
   const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
   const [showUpload, setShowUpload] = useState(false);
 
@@ -173,14 +177,6 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
         />
       )}
 
-      {!loading && sorted.length > 0 && (
-        <ArchiveTimeline
-          sessions={sorted}
-          gaps={gaps}
-          nameOf={displayName}
-          onRecap={onOpenRecap}
-        />
-      )}
 
       {loading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12" aria-hidden="true">
@@ -218,113 +214,6 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
       )}
     </div>
   );
-}
-
-// Plan 8.8. The grid answers "what did we do", in reverse date order, four tiles
-// to a row. It cannot show *rhythm*: that #04 and #05 sit six months apart, or
-// that a stretch of 2026 went unlogged. This does, on one rail, oldest first.
-//
-// The gaps come from data/schedule.json and are the only record that those weeks
-// happened at all. Dropping them would quietly claim the community paused.
-//
-// Collapsed by default. The photo grid is what people come to this tab for, and
-// a timeline unfurled above it would push the tiles below the fold.
-function ArchiveTimeline({ sessions, gaps, nameOf, onRecap }) {
-  const [open, setOpen] = useState(false);
-
-  // Oldest first: a timeline that runs backwards reads as a list, not a span.
-  const asc = [...sessions].sort((a, b) => a.date.localeCompare(b.date));
-  if (asc.length < 2) return null; // one session is not a timeline
-
-  // Sessions and gaps on one chronological rail. A gap sorts by where it starts,
-  // which lands it between the session before it and the one after.
-  const items = [
-    ...asc.map((s) => ({ kind: 'session', key: s.date, at: s.date, session: s })),
-    ...gaps.map((g) => ({ kind: 'gap', key: `gap-${g.from}-${g.to}`, at: g.from, gap: g })),
-  ].sort((a, b) => a.at.localeCompare(b.at));
-
-  const span = `${monthYear(asc[0].date)} to ${monthYear(asc[asc.length - 1].date)}`;
-  const withPhotos = asc.filter((s) => s.photos.length > 0).length;
-
-  return (
-    <section className="card card-pad">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="w-full flex items-center justify-between gap-3 text-left"
-      >
-        <span className="min-w-0">
-          <span className="h-section flex items-center gap-1.5"><History size={11} strokeWidth={2.2} />Timeline</span>
-          <span className="mt-1 block text-sm text-muted">
-            {asc.length} sessions, {span}
-            {gaps.length > 0 && ` · ${gaps.length} recorded ${gaps.length === 1 ? 'gap' : 'gaps'}`}
-          </span>
-        </span>
-        <span className="flex-shrink-0 text-muted">
-          {open ? <ChevronUp size={16} strokeWidth={2.2} /> : <ChevronDown size={16} strokeWidth={2.2} />}
-        </span>
-      </button>
-
-      {open && (
-        <ol className="mt-5 space-y-0">
-          {items.map((item, idx) => {
-            const isLast = idx === items.length - 1;
-            return item.kind === 'gap' ? (
-              <li key={item.key} className="relative pl-6 pb-5">
-                {/* Dashed rail: the break in the record is the point. */}
-                {!isLast && <span aria-hidden className="absolute left-[5px] top-1 bottom-0 w-0 border-l border-dashed border-border" />}
-                <span aria-hidden className="absolute left-0 top-1 grid place-items-center w-[11px] h-[11px] text-muted">
-                  <CircleSlash size={11} strokeWidth={2.2} />
-                </span>
-                <div className="text-xs font-medium text-muted">
-                  Unlogged, {monthYear(item.gap.from)} to {monthYear(item.gap.to)}
-                </div>
-                {item.gap.reason && <div className="mt-0.5 text-[11px] text-muted">{item.gap.reason}</div>}
-              </li>
-            ) : (
-              <li key={item.key} className="relative pl-6 pb-5 last:pb-0">
-                {!isLast && <span aria-hidden className="absolute left-[5px] top-2 bottom-0 w-0 border-l border-border" />}
-                <span aria-hidden className="absolute left-0 top-1.5 w-[11px] h-[11px] rounded-full border-2 border-foreground bg-background" />
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-xs text-muted num tabular-nums">{fmtDate(item.session.date)}</span>
-                  {item.session.number != null && (
-                    <span className="text-[11px] text-muted">#{String(item.session.number).padStart(2, '0')}</span>
-                  )}
-                  {onRecap ? (
-                    <button
-                      type="button"
-                      onClick={() => onRecap(item.session.date)}
-                      className="text-sm font-medium text-foreground hover:underline underline-offset-2 text-left"
-                    >
-                      {nameOf(item.session)}
-                    </button>
-                  ) : (
-                    <span className="text-sm font-medium">{nameOf(item.session)}</span>
-                  )}
-                  {item.session.photos.length > 0 && (
-                    <span className="text-[11px] text-muted num tabular-nums">{item.session.photos.length} photos</span>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-
-      {open && (
-        <p className="mt-1 text-[11px] text-muted">
-          {withPhotos} of {asc.length} sessions have photos.
-        </p>
-      )}
-    </section>
-  );
-}
-
-// "Jun 2025". Short enough to sit inside a sentence, unambiguous across years.
-function monthYear(iso) {
-  const d = new Date(`${iso}T12:00:00`);
-  return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 }
 
 function SessionTile({ session, name, cover, onEdit, onRecap }) {
