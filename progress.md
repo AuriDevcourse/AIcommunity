@@ -81,9 +81,20 @@ opens a PR; a human still copies items into `data/news.json`. So the "Coming soo
 itself" banner removed earlier today was, at best, half true.
 
 ### Next steps
-1. **Add `GEMINI_API_KEY` to repo secrets** (Settings > Secrets and variables > Actions), then
-   run the workflow manually from the Actions tab and confirm it opens a PR. Auri's, not mine:
-   it is his key.
+1. **Add `GEMINI_API_KEY` to repo secrets:**
+   https://github.com/AuriDevcourse/AIcommunity/settings/secrets/actions > New repository secret.
+   Name exactly `GEMINI_API_KEY`, which is what `news.yml:36` reads.
+   **Auri already HAS the key** — it is in his local `.env.local` under the same name, so this
+   is a copy from a file he owns, not a new key to generate. Terminal alternative that keeps the
+   value out of shell history (it prompts):
+   `gh secret set GEMINI_API_KEY --repo AuriDevcourse/AIcommunity`
+   **Then verify properly, because a green run has already proved nothing here:** trigger it
+   from the Actions tab, check the run takes **longer than a minute** (the broken ones finished
+   in 24-45s), and check a **PR actually appears**.
+   *Checked 2026-09-01:* `gh secret list` returns **nothing at all**, so the repo has no Actions
+   secrets. `deploy.yml` also references `HETZNER_DEPLOY_KEY_AIWORKSHOP`, but that workflow is
+   deliberately disabled (its `push` trigger is commented out and it has never run), so it needs
+   no secret until the move off Vercel.
 2. **Check whether the schedule was disabled for inactivity** and re-enable it if so.
 3. **Make the failure loud. OFFERED, NOT DONE:** `draft-news.mjs` exiting 0 on a missing key is
    exactly what hid this for 2.5 months. In CI it should exit non-zero. The same script also
