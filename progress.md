@@ -784,9 +784,13 @@ fixed. `npm run audit` green, 11 suites. Nothing pushed.
 - **5, 6 and the rest of 7** by `8c77b8c`: the action is gated before the work, both error nodes
   announce, and the dropzone is a real button.
 
-**Still open, 4 of 10**
-- **1, 2, 3** the spend set, all in the paid path. Do these together.
-- **8** no deep links.
+**Still open, 1 of 10**
+- **8** no deep links: entering a tool never changes the URL.
+
+**Closed later the same day:** **1, 2, 3** the spend set, in `2b61906`, prompted by Auri asking
+about rate limiting. Input capped at 8000 chars, upstream error text kept server-side, and a
+**daily quota** added because the existing per-minute limit bounded speed and not spend. See the
+"spend protection" entry above.
 
 Everything in the list below was measured signed OUT against the **dev** server (5280) in Chrome
 via the extension, cross-checked against the source, BEFORE any of it was changed.
