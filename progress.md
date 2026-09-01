@@ -68,14 +68,31 @@ missing.
   band is a bright brand illustration and renders fine. Zoom or read `naturalWidth` before
   reporting a broken image.
 
+### Next steps
+1. **Auri must sanity-check the hero copy.** `Hero.jsx:102` is now the public description of his
+   community and I drafted it from session data plus four answers, not from his words. It is the
+   sentence a stranger judges the community on.
+2. **Item 10 is dropped until a channel exists.** No newsletter, LinkedIn, Slack or Luma to
+   point at. The per-session `luma` field already exists and is empty, so that is the hook.
+3. **Item 9 is half done on purpose.** "Free to attend" ships; organisers are not named because
+   Auri said name nobody. No member has `Organizer` status in the data either, so if that ever
+   changes, `MembersGallery` already counts them and the landing page could show them.
+4. Everything from the earlier entries still stands, including the 4 open `/#tools` findings,
+   the signed-in verification pass, and **28 commits still unpushed**.
+
 ### File pointers
-- `src/components/Hero.jsx` · headline, subhead, the stat row and the hero band.
+- `src/components/Hero.jsx` (lines as of `24d886b`) · `:64` the new `recentPhotos` /
+  `onOpenPhotos` props, `:102` the what-and-who paragraph, `:195` the photo strip. `App.jsx`
+  computes `recentPhotos` (committed covers only, newest first, four of them).
 - `src/components/ScheduleAhead.jsx:70` `showHints` is the DEV gate; `:156-160` the gap note,
   which is OUTSIDE it and therefore public. The "Only one date scheduled" line is likewise
   ungated.
 - `src/components/NextSession.jsx:23` the `'tbd'` format label; `:142` the one correctly
   DEV-gated hint, the pattern to copy for items 1.
-- `src/components/Suggestions.jsx` · Top ideas, the component publishing the raw backlog.
+- `src/components/Suggestions.jsx:22` · the `score > 0` filter that keeps downvoted and test
+  rows off the landing page.
+- `src/components/Rsvp.jsx:172` · the walk-ins line, rendered only when signed out.
+- `src/lib/dates.js:106` · the `days > 2` branch that drops the hour from the countdown.
 - `src/App.jsx:344` · the Home-only Hero render, where a photo strip would go.
 
 ## 2026-09-01, three removals: archive timeline, attendance counts, Sessions sort
