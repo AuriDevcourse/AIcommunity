@@ -2,6 +2,55 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, BLOCKER: the Supabase project is GONE. Site is read-only everywhere
+
+**Current state:** `iogwikfvzxfblwuuvtmq.supabase.co` returns **Non-existent domain**. Confirmed
+on the local resolver AND on Cloudflare `1.1.1.1`, so it is not local DNS and not a paused
+project. The subdomain does not exist. **Nobody can sign in, on prod or locally**, and because
+the server cannot reach it either, `verifyToken` fails and EVERY mutating route 401s. Verified:
+`POST https://a-icommunity.vercel.app/api/session-meta` returns 401 right now.
+
+**Prod points at the same dead project.** `VITE_` vars are inlined at build time, so grepping
+the deployed bundle proves what Vercel's env holds: same ref. The ref exists ONLY in the
+untracked `.env.local` and in Vercel env, nowhere in git, so history cannot date the breakage.
+
+**Effect:** the whole site is read-only. No renames, photo uploads, forum posts, polls, RSVPs
+or Post maker. Symptom in the browser is a raw `TypeError: Failed to fetch`, because the host
+does not resolve, so there is no status code to report.
+
+**Not caused by today's work.** Writes were already being refused. The sign-in gating in
+`8233334` / `8c77b8c` turned a confusing late failure into a visible dead end: every write
+control now reads "Sign in to ..." and sign-in itself throws.
+
+### Next steps, needs Auri, not Claude
+1. **Restore or recreate the Supabase project**, then set `VITE_SUPABASE_URL` and
+   `VITE_SUPABASE_ANON_KEY` in `.env.local` AND in Vercel, and redeploy (the URL is baked into
+   the client bundle at build time, so an env change alone does nothing until a rebuild).
+   `docs/auth-setup.md` has the setup. Creating projects and handling keys is Auri's, not mine.
+2. **Or run without auth, deliberately and briefly:** unset the two Supabase vars and set
+   `ALLOW_ANONYMOUS_WRITES=true`. That makes every write world-writable. Only with eyes open.
+3. **Offered, not yet done:** the sign-in UI surfaces the raw `TypeError: Failed to fetch`. It
+   should say sign-in is unavailable instead of leaking a browser internal.
+
+### Gotchas
+- **A dead host throws, it does not return a status.** `fetch()` rejects with
+  `TypeError: Failed to fetch`, so every `catch` that assumes an HTTP error sees nothing useful
+  and every `if (!res.ok)` never runs. This is the one failure mode `src/lib/api.js`
+  `writeJson` handles by returning a sentence instead of throwing.
+- **If you just delete the Supabase env vars, writes now fail CLOSED with 503**, not open. That
+  is `e8d78c4` (audit item 3) working as designed. Set `ALLOW_ANONYMOUS_WRITES=true` if open is
+  actually what you want.
+- Check a suspect host on a PUBLIC resolver (`nslookup host 1.1.1.1`) before blaming the app.
+  A local-only failure and a deleted project look identical from inside the browser.
+
+### File pointers
+- `.env.local` (untracked) and Vercel env · the only two places the project ref lives.
+- `src/lib/supabase.js:8` `authEnabled` is `Boolean(url && anon)`, so it is TRUE for a dead
+  project: the app believes auth is configured and gates everything off.
+- `api/_guard.js` · `verifyToken` returns null when the fetch throws, which is why every route
+  answers 401 rather than 503.
+- `docs/auth-setup.md` · the project setup steps.
+
 ## 2026-09-01, /#tools audit. 10 findings, 6 closed, 4 left
 
 **Current state:** the page is down to **Post maker + Image to link**, and the sign-in story is
