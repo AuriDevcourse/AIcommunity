@@ -90,8 +90,9 @@ deleted). Steps 3 and 4 are still open and still worth doing:
 
 ### File pointers
 - `.env.local` (untracked) and Vercel env · the only two places the project ref lives.
-- `src/lib/supabase.js:8` `authEnabled` is `Boolean(url && anon)`, so it is TRUE for a dead
-  project: the app believes auth is configured and gates everything off.
+- `src/lib/supabase.js:8` `authEnabled` is `Boolean(url && anon)`, so it is TRUE whenever the
+  keys are merely PRESENT, whether or not the project answers. A paused or deleted project
+  therefore leaves the app convinced auth is configured, gating every write off with no way in.
 - `api/_guard.js` · `verifyToken` returns null when the fetch throws, which is why every route
   answers 401 rather than 503.
 - `docs/auth-setup.md` · the project setup steps.
