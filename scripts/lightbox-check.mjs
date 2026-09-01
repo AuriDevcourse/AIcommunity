@@ -54,6 +54,19 @@ const send = (method, params = {}) => new Promise((res, rej) => {
   ws.send(JSON.stringify({ id: n, method, params }));
 });
 
+// Poll for a condition instead of sleeping a fixed amount. The recap hides its
+// thumbnails behind `!loaded`, which waits on two fetches, so a fixed sleep is a
+// race that this suite lost about one run in three once the audit grew an extra
+// suite to contend with.
+async function waitFor(expr, { timeout = 10000, every = 150 } = {}) {
+  const until = Date.now() + timeout;
+  for (;;) {
+    if (await evalJs(expr)) return true;
+    if (Date.now() > until) return false;
+    await sleep(every);
+  }
+}
+
 const evalJs = async (expr) => {
   const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || 'eval failed');
@@ -86,7 +99,7 @@ try {
   await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
 
   await send('Page.navigate', { url: `${BASE}/#recap/${RECAP}` });
-  await sleep(2600);
+  await waitFor(`document.querySelectorAll('button[aria-label^=\"Open photo\"]').length > 0`);
 
   const opened = await evalJs(`(() => {
     const b = [...document.querySelectorAll('button[aria-label^="Open photo"]')];

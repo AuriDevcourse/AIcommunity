@@ -19,6 +19,7 @@
     "smoke": "node scripts/smoke.mjs",
     "theme:check": "node scripts/theme-check.mjs",
     "identity:check": "node scripts/identity-check.mjs",
+    "guard:check": "node scripts/guard-check.mjs",
     "lightbox:check": "node scripts/lightbox-check.mjs",
     "history:check": "node scripts/history-check.mjs",
     "shell:check": "node scripts/shell-check.mjs",

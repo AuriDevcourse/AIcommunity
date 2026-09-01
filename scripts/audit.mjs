@@ -26,6 +26,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const SUITES = [
   { name: 'identity', script: 'identity-check.mjs', needs: null },
+  { name: 'guard', script: 'guard-check.mjs', needs: null },
   { name: 'csp', script: 'csp-check.mjs', needs: 'dist' },
   { name: 'smoke', script: 'smoke.mjs', needs: 'preview' },
   { name: 'theme', script: 'theme-check.mjs', needs: 'preview' },

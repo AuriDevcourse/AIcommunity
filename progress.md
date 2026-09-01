@@ -2,11 +2,11 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. 10 findings, items 1 and 2 applied
+## 2026-09-01, /#sessions audit. 10 findings, the auth pass (1, 2, 3) applied
 
-**Current state:** **items 1 and 2 are done**, the other eight are untouched. Item 2 is
-committed as `a072830`; item 1 is committed alongside this entry. Neither is pushed yet.
-`npx vite build` clean, `npm run audit` PASS all 10 after each.
+**Current state:** **the auth pass (items 1, 2, 3) is done**, the other seven are untouched.
+`a072830` item 2, `8233334` item 1, item 3 committed alongside this entry. **Nothing pushed
+yet.** `npm run audit` is now **11 suites** and passed twice in a row clean.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
 server (5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
 for ten improvements across UX, security and convenience, prompted by "you can edit pictures
@@ -17,7 +17,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps (2 done; 8 to go)
+### Ranked next steps (3 done; 7 to go)
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -60,6 +60,14 @@ below is the UI around that gate.
    auth check, so a missing `VITE_SUPABASE_URL`/anon key makes every mutating route accept
    anonymous writes. Latent today (both envs configured), one missing env var from live.
    SECURITY.md says fail CLOSED if env unset.
+   **DONE.** Typed-name mode is a real supported deployment, so it must be CHOSEN, not inherited
+   from a missing env var. `guardMutation` and `requireUser` now refuse with **503** when auth
+   is unconfigured, unless `ALLOW_ANONYMOUS_WRITES` is exactly the string `"true"` (a strict
+   compare, so `1` or `yes` do not count). Documented in `.env.local.example`. With Supabase
+   configured nothing changes: an anonymous write is still 401 on dev and prod, re-verified.
+   New `scripts/guard-check.mjs` (`npm run guard:check`, wired into the audit as suite 11)
+   covers all four env shapes. **Confirmed the test has teeth** by reverting the fix: it fails
+   with "got null (allowed!)" on exactly the two cases that matter.
 
 **Modal pass (shared fix)**
 4. Edit Session and PhotoUploader are `div.modal-overlay` with **no `role="dialog"`, no
@@ -86,6 +94,13 @@ below is the UI around that gate.
     permanent Edit button on every card. Exactly backwards for touch.
 
 ### Gotchas
+- **Two suites were flaky and it was not my code.** Adding an 11th suite raised the load enough
+  to expose fixed-sleep races: `lightbox` lost about 1 run in 3 on "no photo thumbnails found"
+  (SessionRecap:160 hides thumbnails behind `!loaded`, which waits on two fetches, while the
+  suite slept a flat 2600ms), and `shell` failed on "no timeline toggle" the same way. Both now
+  poll with a `waitFor(expr, {timeout})` helper instead of sleeping. Verified 5 clean lightbox
+  runs, 3 clean shell runs, 2 clean full audits. **If you add a suite and something unrelated
+  starts failing, look for `await sleep(` before you look at your own change.**
 - **Do not trust a programmatic `.focus()` to test focus styles.** Chrome does not set
   `:focus-visible` for scripted focus, so an element with `focus-visible:opacity-100` reads as
   `opacity: 0` and looks like a bug. It cost one wrong finding here; check the class list before

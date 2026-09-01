@@ -60,6 +60,18 @@ const send = (method, params = {}) => new Promise((res, rej) => {
   ws.send(JSON.stringify({ id: n, method, params }));
 });
 
+// Poll for a condition rather than sleeping a fixed amount. These pages render
+// behind lazy chunks and API fetches, so a fixed sleep is a race that shows up
+// as a phantom "element not found" under load.
+async function waitFor(expr, { timeout = 12000, every = 150 } = {}) {
+  const until = Date.now() + timeout;
+  for (;;) {
+    if (await evalJs(expr)) return true;
+    if (Date.now() > until) return false;
+    await sleep(every);
+  }
+}
+
 const evalJs = async (expr) => {
   const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || 'eval failed');
@@ -136,7 +148,7 @@ try {
 
   // ---- 8.8 archive timeline
   await send('Page.navigate', { url: `${BASE}/#sessions` });
-  await sleep(3200);
+  await waitFor(`[...document.querySelectorAll('button')].some((b) => /Timeline/.test(b.textContent) && b.hasAttribute('aria-expanded'))`);
   const toggle = await evalJs(`(() => {
     const btn = [...document.querySelectorAll('button')].find((b) => /Timeline/.test(b.textContent) && b.hasAttribute('aria-expanded'));
     if (!btn) return { found: false };
@@ -188,7 +200,7 @@ try {
 
   // ---- Download assets, the footer page
   await send('Page.navigate', { url: `${BASE}/#home` });
-  await sleep(2600);
+  await waitFor(`[...document.querySelectorAll('footer button')].some((b) => /Download assets/.test(b.textContent))`);
   const fromFooter = await evalJs(`(() => {
     const btn = [...document.querySelectorAll('footer button')].find((b) => /Download assets/.test(b.textContent));
     if (!btn) return { found: false };
@@ -196,7 +208,7 @@ try {
     return { found: true };
   })()`);
   check('the footer carries a Download assets link', fromFooter.found);
-  await sleep(1600);
+  await waitFor(`document.querySelectorAll('a[download]').length >= 13`);
   const assets = await evalJs(`(() => {
     const links = [...document.querySelectorAll('a[download]')];
     const imgs = [...document.querySelectorAll('main img')];
