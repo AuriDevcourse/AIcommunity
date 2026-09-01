@@ -205,9 +205,35 @@ body::before {
 
 /* The brand ships a tiling pattern (suns, sparkles, squiggles on deep green) and
    the product never used it: it was downloadable from /#assets and nowhere else.
-   palette.md allows it for "backgrounds and slide fills, never behind body text",
-   so it is a utility here rather than a page background, applied only where the
-   only thing on top is a chip or an icon. */
+
+   As a full-page OVERLAY, fixed behind everything. palette.md says the pattern is
+   for backgrounds and fills and never behind body text, and that still holds here:
+   every card, panel and notice on this app paints a solid background, so the
+   pattern is only ever visible in the gutters AROUND them. At these opacities it
+   reads as texture on the ground, not as shapes competing with words.
+
+   Two different opacities on purpose. The tile's own ground is deep green, so on
+   the cream page it darkens as much as it decorates and has to stay very low; on
+   the dark page it is nearly the same colour as the ground, so it needs more to
+   register at all. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url('/brand/pattern.webp');
+  background-repeat: repeat;
+  background-size: 460px auto;
+  opacity: 0.035;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::after { opacity: 0.06; }
+}
+:root[data-theme="dark"] body::after { opacity: 0.06; }
+
+/* Kept for anywhere the pattern should read as a real fill rather than texture,
+   such as a session cover with no photo: full strength, chips on top. */
 .pattern-fill {
   background-color: var(--brand-deep);
   background-image: url('/brand/pattern.webp');
@@ -622,7 +648,7 @@ select:focus-visible {
   }
   /* The dark-mode halo is a fixed pseudo-element, which would tile onto every
      printed page. */
-  body::before { display: none !important; }
+  body::before, body::after { display: none !important; }
 
   /* Sticky and fixed positioning both repeat their element on every page. */
   * {

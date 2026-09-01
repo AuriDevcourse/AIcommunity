@@ -179,12 +179,7 @@ export function Footer({ onNavigate }) {
     ['accessibility', 'Accessibility'],
   ];
   return (
-    <footer className="mt-10">
-      {/* A thin band of the brand pattern closes the page. Decorative only, so it
-          is aria-hidden and nothing sits on top of it: palette.md allows the
-          pattern as a background but not behind body text. It also replaces the
-          plain top border the footer used to draw. */}
-      <div className="pattern-fill h-2 w-full" aria-hidden="true" />
+    <footer className="border-t border-border mt-10">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-xs text-muted">AI Sundays · a community for building with AI</p>
         <nav className="flex items-center gap-4">
