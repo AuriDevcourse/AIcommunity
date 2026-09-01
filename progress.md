@@ -2,6 +2,54 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, the news pipeline has been silently dead since June
+
+**Current state:** no code changed, this is a diagnosis. Auri asked whether the roundup updates
+itself. **It does not, and has not since 13 June.**
+
+**What is actually true**
+- `.github/workflows/news.yml` runs every Monday 07:00 UTC and has reported **success** every
+  week. `gh run list` shows green runs on 27 Jul, 3, 10, 17, 24 Aug.
+- The runs finish in **24-45 seconds**, far too fast for an RSS pull plus an LLM curation.
+- The log of the last run says it plainly:
+  `draft-news: GEMINI_API_KEY not set — skipping (no draft written).`
+- **The secret is not set on the repo.** `scripts/draft-news.mjs:124-125` prints that line and
+  `process.exit(0)`, so the job goes green, writes nothing, and `create-pull-request` opens no
+  PR because no watched path changed.
+- Result: `data/news-draft.json` on main is dated **2026-06-13**, and `gh pr list` shows
+  **zero** open PRs. Nothing has reached the site automatically in 2.5 months.
+- **The 31 Aug run is missing entirely** from the run list, which ends at 24 Aug. GitHub
+  disables scheduled workflows on repos idle for 60 days and the timing fits.
+
+**Even fully working, it never publishes.** The workflow only writes `data/news-draft.json` and
+opens a PR; a human still copies items into `data/news.json`. So the "Coming soon: this updates
+itself" banner removed earlier today was, at best, half true.
+
+### Next steps
+1. **Add `GEMINI_API_KEY` to repo secrets** (Settings > Secrets and variables > Actions), then
+   run the workflow manually from the Actions tab and confirm it opens a PR. Auri's, not mine:
+   it is his key.
+2. **Check whether the schedule was disabled for inactivity** and re-enable it if so.
+3. **Make the failure loud. OFFERED, NOT DONE:** `draft-news.mjs` exiting 0 on a missing key is
+   exactly what hid this for 2.5 months. In CI it should exit non-zero. The same script also
+   exits 0 when it finds no candidate articles (`:136-137`), which hides a second failure mode.
+
+### Gotchas
+- **A green CI badge on a scheduled job proves the job RAN, not that it DID anything.** This one
+  succeeded weekly while writing nothing. When a pipeline's output is a PR, check for the PR,
+  or check the artefact's date, not the run status.
+- **`|| true` and `process.exit(0)` on a missing secret are the same bug in two shapes.** The
+  workflow already uses `|| true` on the image step by design; the draft step achieves it
+  accidentally via the script.
+- Run duration is a cheap smoke test: 24s for something that should take minutes is the tell.
+
+### File pointers
+- `.github/workflows/news.yml` · the schedule, the `add-paths` that gate PR creation, and the
+  comment describing the intended human-in-the-loop flow.
+- `scripts/draft-news.mjs:124` · the silent exit. `:136` · the second one.
+- `data/news-draft.json` · dated 2026-06-13; its date is the quickest check that the pipeline
+  is alive.
+
 ## 2026-09-01, /#news audit. 8 of 10 applied, 2 are editorial
 
 **Current state:** **8 of 10 applied**, audit green (11 suites, news now 17 assertions). Items 5
