@@ -2,6 +2,80 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, /#sessions audit. Findings only, NOTHING applied
+
+**Current state:** no code changed by this audit. Measured signed OUT against the **dev** server
+(5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
+for ten improvements across UX, security and convenience, prompted by "you can edit pictures
+even though you are not logged in".
+
+**The headline, and it is not what it looks like:** server-side auth is CORRECT.
+`POST /api/session-meta` with no token returns **401 on both dev and prod** (verified with an
+empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
+below is the UI around that gate.
+
+### Ranked next steps, none started
+
+**Auth pass (do together)**
+1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
+   hover and opens the FULL Edit Session modal: editable name, save, drag-to-reorder, Select
+   all, star-to-feature, delete. "Add photos" is not disabled either (`disabled:false`, no
+   `aria-disabled`). Nothing on screen says you are signed out. Gate the affordance, do not
+   only reject at the API.
+2. **Writes are optimistic and swallow the rejection. This is the real bug and it hits
+   signed-IN users too.** `saveMeta` (SessionsGallery.jsx:48) applies the rename to local state
+   BEFORE the request, then `catch { /* optimistic state already applied */ }`. But
+   `authedFetch` (lib/supabase.js:36) just returns `fetch(...)`, and fetch does NOT throw on
+   401, so that catch is **dead code** and nothing checks `res.ok`. Any failed save looks like a
+   success and reverts on reload. `deletePhotos:98` has the same shape. Fix: check `res.ok`,
+   roll back, surface the error.
+3. **`guardMutation` fails OPEN** (api/_guard.js:84). `if (authConfigured())` wraps the whole
+   auth check, so a missing `VITE_SUPABASE_URL`/anon key makes every mutating route accept
+   anonymous writes. Latent today (both envs configured), one missing env var from live.
+   SECURITY.md says fail CLOSED if env unset.
+
+**Modal pass (shared fix)**
+4. Edit Session and PhotoUploader are `div.modal-overlay` with **no `role="dialog"`, no
+   `aria-modal`, no accessible name**; the page has zero `[role=dialog]`. AuthControls, Learn,
+   PostMaker and SessionRecap all do it right, so this is inconsistency, not ignorance.
+5. **Escape does not close** Edit Session or PhotoUploader. Verified in-browser. The same four
+   components above all bind Escape.
+6. **No focus management.** After opening, `document.activeElement` is still the trigger behind
+   the overlay, the background keeps 85 focusable elements, no trap, no restore on close.
+
+**Keyboard and target size**
+7. Photo reorder / set-cover is HTML5 drag-and-drop only (SessionsGallery.jsx:509-512), **no
+   keyboard path at all**. WCAG 2.1.1.
+8. "Open recap" measures **53x16 CSS px**, under the 24x24 minimum of WCAG 2.2 section 2.5.8.
+   20 controls on the page are under 44x44.
+9. The in-modal select circle (:524) and star (:543) are `sm:opacity-0
+   sm:group-hover/photo:opacity-100` with **no `focus-visible:` variant**, so keyboard users
+   land on invisible controls. The card Edit button (:354) gets this right, copy its pattern.
+
+**UX**
+10. **Mobile gets the worst of both.** Photos are `grayscale` with colour only on
+    `group-hover`, and touch has no hover, so on a phone the whole archive is permanently black
+    and white. Meanwhile Edit is `opacity-100` below `sm`, so every mobile visitor sees a
+    permanent Edit button on every card. Exactly backwards for touch.
+
+### Gotchas
+- **Do not trust a programmatic `.focus()` to test focus styles.** Chrome does not set
+  `:focus-visible` for scripted focus, so an element with `focus-visible:opacity-100` reads as
+  `opacity: 0` and looks like a bug. It cost one wrong finding here; check the class list before
+  reporting a focus defect.
+- Probe writes with a body that CANNOT mutate (`{}` with no date). A 401 vs a 400 then tells you
+  whether auth or validation answered first, without touching prod data.
+- The first screenshot after navigate can be pre-paint: covers looked like blank beige tiles
+  while `naturalWidth` was already 1200. Wait, or read `complete`/`naturalWidth` instead.
+
+### File pointers
+- `src/components/SessionsGallery.jsx` · the whole page. `:48` saveMeta, `:98` deletePhotos,
+  `:354` the card Edit button (correct focus-visible pattern), `:497-543` the edit modal grid,
+  `:509-512` the drag handlers.
+- `api/_guard.js:84` `guardMutation`, `:75` `requireUser`. `api/session-meta.js` · the guarded route.
+- `src/lib/supabase.js:36` `authedFetch`, the reason every `catch` around a write is dead code.
+- `src/components/AuthControls.jsx:110,259` · the Escape + modal pattern to copy.
+
 ## 2026-09-01, heading structure app-wide, three /#assets fixes, photos API made loud
 
 **Current state:** **Shipped and live.** `npm run audit` PASS, all 10 suites. `npx vite build`
