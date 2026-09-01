@@ -4,7 +4,7 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 
 ## 2026-09-01, spend protection on the paid routes (tools findings 1-3)
 
-**Current state:** done, audit green (11 suites, guard now 8 assertions), not pushed.
+**Current state:** done, audit green (11 suites, guard now 8 assertions), pushed.
 
 **First, the answer to what was asked: there is no news API to abuse.**
 `data/news.json` is a **build-time import** compiled into the client bundle
@@ -56,6 +56,44 @@ they have teeth** by deleting the quota block: 2 of 8 fail.
 - `api/_postmaker.js` · `MAX_NOTES_CHARS`, and the catch that now logs instead of leaking.
 - `api/generate-post.js` · both enforcement points, non-stream and stream.
 - `scripts/guard-check.mjs` · the KV stub pattern, reusable for any other quota test.
+
+## 2026-09-01, SHIPPED. 49 commits pushed to main, live in production
+
+**Current state:** everything below this line is **live at https://a-icommunity.vercel.app**.
+Pushed `adbb9b5..a8573c8`; Vercel went `index-CiT62q-H.js` to `index-CLUqyadE.js`. A full build
+and all 11 audit suites ran green immediately before the push.
+
+**Older entries say "not pushed" in places; they were written before this. This entry is the
+authority.**
+
+**Verified ON PRODUCTION after the deploy**, not locally:
+- Home: new h1, 4-photo strip, "What we talked about", pattern overlay, Schedule ahead gone,
+  and **no ops notes leaking** (no "Gap on record", no "Only one date scheduled", no
+  "Format TBD").
+- Countdown: hero and the card pill **both read "12 days"** (they disagreed, 11 vs 12).
+- News: no reading time, no source count, **5 OFFICIAL markers**, no-independent-source notice.
+- Tools: **2 tools**, subtitle "Free to use, sign in to run them."
+- Sessions: h1 present, no timeline, "Sign in to add photos" when signed out.
+- Auth still enforced: `/api/session-meta` and `/api/generate-post` both **401** unauthenticated.
+- Session #9 cover serves **200**.
+
+### Next steps, all needing Auri
+1. **Tick "Allow GitHub Actions to create and approve pull requests"**
+   (https://github.com/AuriDevcourse/AIcommunity/settings/actions). The news pipeline generates
+   drafts again but cannot open the PR.
+2. **Write the recordings section of the privacy page.** The session card now links to "How we
+   handle recordings" and that page does not mention recordings. **This is live**, so the link
+   is currently promising something that is not there. Highest priority of the three.
+3. **Sign in once and do a real write** (rename a session, reorder a photo, run the post maker).
+   Every refusal path is verified; **no successful write has ever been exercised**, and that is
+   now true of production.
+4. Still unreviewed: the hero copy at `Hero.jsx:91`, written by me, now the public first
+   impression. Also open: 3 orphaned components, `/#tools` finding 8 (no deep links), and the
+   two editorial calls on news sourcing.
+
+### Gotchas
+- The 2026-08-31 declutter audit is **still entirely unstarted** and four of its findings were
+  independently rediscovered during the news audit. Worth reading before the next pass.
 
 ## 2026-09-01, news pipeline revived: key added, workflow re-enabled, one blocker left
 
@@ -240,7 +278,7 @@ card, not one.
    dropping the generic one and keeping the Copenhagen one is the cut with the least loss, but
    that is a call about the writing, not the code.
 3. Unchanged: privacy-page recordings section, a `theme` on the next session, three orphaned
-   components, the 4 `/#tools` findings, and **41 commits unpushed**.
+   components, the 4 `/#tools` findings, and 41 commits since shipped.
 
 ### Gotchas
 - **`.tap-target` was a no-op on desktop for its whole life**, wrapped in
@@ -269,7 +307,7 @@ card, not one.
 ## 2026-09-01, backgrounds: brand pattern as an edge-masked overlay
 
 **Current state:** done, audit green (11 suites, theme suite included, so no contrast
-regression), not pushed. **The page ground carries the brand pattern as a fixed overlay masked to
+regression), pushed. **The page ground carries the brand pattern as a fixed overlay masked to
 the EDGES**, 5% on cream and 6% on dark, plus a green ambient halo on light that only dark used
 to have.
 
@@ -337,7 +375,7 @@ and `icon-16.svg` are referenced by nothing at all.
 
 ## 2026-09-01, Home: Schedule ahead out, "What we talked about" in
 
-**Current state:** done, audit green (11 suites), not pushed. Home is now hero, photo strip,
+**Current state:** done, audit green (11 suites), pushed. Home is now hero, photo strip,
 Next session, What we talked about.
 
 **Why the swap works.** Schedule ahead listed **one future date that the Next session card had
@@ -365,7 +403,7 @@ Currently shows: Session after Summer Break (3 topics), AI tools across business
    real job. If the calendar ever holds several dates, the Sessions tab or a revived panel should
    carry them, and `data.schedule.upcoming` still has the data.
 3. Unchanged: the privacy page recordings section, a `theme` on the next session, the 4 `/#tools`
-   findings, and **36 commits unpushed**.
+   findings, and 36 commits since shipped.
 
 ### Gotchas
 - Filtering to sessions **with topics** matters: 2026-05-03 "Ice cream session" has 0 topics and
@@ -377,7 +415,7 @@ Currently shows: Session after Summer Break (3 topics), AI tools across business
 
 ## 2026-09-01, Next session card audit. 9 of 10 applied, 10th needs data
 
-**Current state:** **9 of 10 applied**, audit green (11 suites), not pushed. Item 4 cannot be
+**Current state:** **9 of 10 applied**, audit green (11 suites), pushed. Item 4 cannot be
 fixed in code, see below. Card is now **417px of a 1781px page**, down from 447 of 1810.
 
 **Verified after the work:** hero and pill both read **12 days** (were 11 vs 12); the card has a
@@ -464,7 +502,7 @@ Fix by having both read one function.
 2. **Set a `theme` on an upcoming session** and the card will name it. Right now the next one
    has `number: null` and `theme: ""`, which is why finding 4 could not be fixed in code.
 3. Unchanged: 4 open `/#tools` findings, the two orphaned components, the signed-in
-   verification pass, and **35 commits unpushed**.
+   verification pass, and 35 commits since shipped.
 
 ### File pointers
 - `src/components/NextSession.jsx` (lines as of `dea5252`) · `:30` the component, `:70` the time
@@ -479,7 +517,7 @@ Fix by having both read one function.
   the pill drift apart again.
 ## 2026-09-01, hero rewritten: headline dropped, stats separated, per-thumb hover
 
-**Current state:** done, audit green (11 suites), not pushed. Three fixes from Auri.
+**Current state:** done, audit green (11 suites), pushed. Three fixes from Auri.
 
 1. **"Build with AI. Show what you learned." is gone.** The positioning line under it is now the
    `<h1>` at hero size: "A Copenhagen community that meets every two weeks to build with AI,
@@ -505,8 +543,8 @@ Fix by having both read one function.
 2. **The hero copy is still unreviewed.** `Hero.jsx:91` is now the whole first impression, and
    both the h1 and the paragraph under it were written by me, not by Auri.
 3. Unchanged from earlier entries: 4 open `/#tools` findings, the two orphaned components
-   (`Suggestions.jsx`, `LatestDiscussion.jsx`), the signed-in verification pass, and **32
-   commits unpushed**.
+   (`Suggestions.jsx`, `LatestDiscussion.jsx`), and the signed-in verification pass. (The
+   commit count here is historical; everything shipped, see the top entry.)
 
 ### Gotchas
 - **Tailwind v4 sets the standalone `scale` property, NOT `transform`.** Reading
@@ -528,7 +566,7 @@ Fix by having both read one function.
 
 ## 2026-09-01, Home loses Latest discussion and Top ideas
 
-**Current state:** done, audit green (11 suites), not pushed. Auri asked whether the two panels
+**Current state:** done, audit green (11 suites), pushed. Auri asked whether the two panels
 belonged on the landing page. Measured before touching anything, and they did not.
 
 **The numbers that settled it**
@@ -551,7 +589,7 @@ now **orphaned, imported by nothing**. Kept deliberately because Auri said "not 
 1. **Decide on the two orphaned components** above. They are dead code until then.
 2. Auri still needs to read the hero copy at \`Hero.jsx:102\`, and to sign in once for the
    never-tested successful-write path.
-3. 4 open \`/#tools\` findings, and **30 commits unpushed**.
+3. 4 open \`/#tools\` findings, and 30 commits since shipped.
 
 ### Gotchas
 - **This is the third time a Home panel has been measured rather than argued about**, and each
@@ -569,7 +607,7 @@ now **orphaned, imported by nothing**. Kept deliberately because Auri said "not 
 
 **Current state:** **8 of 10 done** across `3cd3f54` (the four cuts), `f799765` (photos) and
 the commit carrying this entry (what/who/free/walk-ins). **9 is half-done and 10 is dropped**,
-both on Auri's answers, see below. Audit green, 11 suites. Nothing pushed.
+both on Auri's answers, see below. Audit green, 11 suites. Pushed.
 
 **Auri's answers, which decided the last four:** walk-ins are fine with RSVP preferred;
 attending is **free**; **name no organisers**; and there is **no follow channel yet**.
@@ -812,7 +850,7 @@ deleted). Steps 3 and 4 are still open and still worth doing:
 ## 2026-09-01, /#tools audit. 10 findings, 6 closed, 4 left
 
 **Current state:** the page is down to **Post maker + Image to link**, and the sign-in story is
-fixed. `npm run audit` green, 11 suites. Nothing pushed.
+fixed. `npm run audit` green, 11 suites. Pushed.
 
 **Closed, 6 of 10**
 - **4, 9, 10 and most of 7** by Auri's cut (`b221172`): the token estimator, image compressor
@@ -966,8 +1004,8 @@ output anyway. Verified by removing the strip: the build refuses with
 ## 2026-09-01, /#sessions audit. All 10 applied
 
 **Current state:** **all 10 done.** Seven commits, `a072830` through the one carrying this
-entry. **NOTHING PUSHED YET.** `npm run audit` green (11 suites) after every one. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
-4-6 committed alongside this entry. **Nothing pushed yet.** `npm run audit` is **11 suites**
+entry. Pushed (see the deploy entry at the top). `npm run audit` green (11 suites) after every one. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
+4-6 committed alongside this entry. **Pushed.** `npm run audit` is **11 suites**
 and green.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
 server (5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
