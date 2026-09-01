@@ -2,6 +2,65 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, landing page audit vs other communities. Findings only, NOTHING applied
+
+**Current state:** no code changed. Benchmarked `/#home` against **AI Tinkerers Copenhagen**
+(literally the same thing in the same city, https://copenhagen.aitinkerers.org/), the global
+AI Tinkerers page, and general event-landing guidance. **Everything below was verified on
+PRODUCTION**, not dev, because the two things that matter most are DEV-gated differently.
+
+**The pattern behind all ten:** the page is built for AURI, as an operations dashboard, and it
+is serving as a FRONT DOOR. Items 1-4 are the dashboard leaking out; 5-10 are the front door
+missing.
+
+### Ranked next steps, none started
+
+**Cut (verified live on prod)**
+1. **Internal ops notes are public.** `ScheduleAhead` renders "Only one date scheduled. **Add
+   more in the calendar so the schedule stays useful.**" (an instruction to Auri) and "Gap on
+   record: 22 Feb 2026 to 19 Apr 2026. Protocol paused. Sessions in this window went unlogged."
+   Neither is DEV-gated; only the Luma hint is. Reads as "this is neglected".
+2. **Test data on the landing page.** Top ideas publishes the raw backlog including an entry by
+   **"TEst Powerplant"** and an idea at **-1**.
+3. **The next session leads with what is NOT decided:** "Format TBD", "Presenter: Open slot".
+   The comparable frames identical uncertainty as "+50 AI builders, slide-free demos".
+4. **"11 days 23 hr"** is false precision for a fortnightly meetup.
+
+**Add**
+5. **Session photos above the fold.** 9 sessions, ~70 photos, and Home renders **zero** (only
+   the two hero band images). Strongest asset, entirely unused.
+6. **Who it is for.** The comparable names roles and topics; ours names nobody, so a designer or
+   a beginner cannot tell if they would be out of place.
+7. **What a session is like IN GENERAL**, not just this one's logistics: how long, what happens,
+   whether watching is fine.
+8. **A way in that is not an account.** The only CTA is "Sign in to RSVP"; the guidance is that
+   forced registration costs 30-40% of signups.
+9. **Say it is free, and name the organisers.** Cost is never stated and no organiser appears.
+10. **A follow path for people who cannot come.** No newsletter, LinkedIn or Slack anywhere.
+
+### Gotchas
+- **`vite preview` (5281) CANNOT test what the public sees on Home.** No API means NextSession
+  and ScheduleAhead render empty states, so the ops notes vanish and you conclude they are
+  fine. They are not: check **prod**. This is the third time the preview server has produced a
+  false read today.
+- **A scripted content check produced a false positive and needed verifying.** A regex for
+  `/free|dkk|kr/` reported the page states its price. It does not: the only "free" on the
+  page is inside a member's idea about a podcast app. Always print the MATCH, not just the
+  boolean.
+- **The blank hero band in the first screenshot was pre-paint again** (fourth time today). The
+  band is a bright brand illustration and renders fine. Zoom or read `naturalWidth` before
+  reporting a broken image.
+
+### File pointers
+- `src/components/Hero.jsx` · headline, subhead, the stat row and the hero band.
+- `src/components/ScheduleAhead.jsx:70` `showHints` is the DEV gate; `:156-160` the gap note,
+  which is OUTSIDE it and therefore public. The "Only one date scheduled" line is likewise
+  ungated.
+- `src/components/NextSession.jsx:23` the `'tbd'` format label; `:142` the one correctly
+  DEV-gated hint, the pattern to copy for items 1.
+- `src/components/Suggestions.jsx` · Top ideas, the component publishing the raw backlog.
+- `src/App.jsx:344` · the Home-only Hero render, where a photo strip would go.
+
 ## 2026-09-01, three removals: archive timeline, attendance counts, Sessions sort
 
 **Current state:** done, committed, audit green (11 suites). From Agentation feedback on
