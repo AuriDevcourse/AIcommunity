@@ -2,22 +2,27 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#tools audit. 10 findings; 4 retired by the cut, sign-in fixed, 3 left
+## 2026-09-01, /#tools audit. 10 findings, 6 closed, 4 left
 
-**Current state:** **Auri cut the page to Post maker + Image to link.** The token estimator,
-image compressor and JSON formatter are deleted (components and all), which **retires findings
-7, 9 and 10 and half of 4**. **Items 5, 6 and 7 are now DONE too.** Only **1, 2, 3** (the spend set) and **8** (deep links)
-remain. The subtitle
-was fixed in the same commit: both remaining tools call auth-gated routes, so "Free, no
-sign-up" was not merely misleading, it was false. It now reads "Free to use, sign in to run
-them", and the h1 is "Tools for the community" rather than "Free tools for builders".
-Audit green, 11 suites.
+**Current state:** the page is down to **Post maker + Image to link**, and the sign-in story is
+fixed. `npm run audit` green, 11 suites. Nothing pushed.
 
-Everything below was measured BEFORE the cut: Measured signed OUT against the **dev** server
-(5280) in Chrome via the extension, cross-checked against the source. Ten findings, grouped by
-the fix they share.
+**Closed, 6 of 10**
+- **4, 9, 10 and most of 7** by Auri's cut (`b221172`): the token estimator, image compressor
+  and JSON formatter are DELETED, components and all. The subtitle went with them, because both
+  survivors call auth-gated routes, so "Free, no sign-up" was not merely misleading, it was
+  false. Now "Free to use, sign in to run them", under "Tools for the community".
+- **5, 6 and the rest of 7** by `8c77b8c`: the action is gated before the work, both error nodes
+  announce, and the dropzone is a real button.
 
-### Ranked next steps, none started
+**Still open, 4 of 10**
+- **1, 2, 3** the spend set, all in the paid path. Do these together.
+- **8** no deep links.
+
+Everything in the list below was measured signed OUT against the **dev** server (5280) in Chrome
+via the extension, cross-checked against the source, BEFORE any of it was changed.
+
+### The ten as originally found
 
 **Spend and secrets (one commit, all in the paid path)**
 1. **No input cap before a paid LLM call.** `api/_postmaker.js:253` is
@@ -86,8 +91,13 @@ the fix they share.
 - `api/_postmaker.js` · `:251` `handleGeneratePost`, `:263` the leaked message, `:151/196`
   `max_tokens`. `api/generate-post.js` · guarded, `limit: 10`.
 - `api/_imgbb.js:8` `handleImageUpload`, size cap at `:15`, leaked message at `:30`.
-- `src/lib/api.js` `writeJson` already exists from the sessions pass; items 5 and 6 should use
-  it rather than inventing a second error path.
+- The auth gates (line numbers as of `8c77b8c`): `PostMaker.jsx:361` `canGenerate`,
+  `ImageToLink.jsx:22` `canUpload`. Both are the same expression as `SessionsGallery.jsx`
+  `canEdit`; **three copies now, worth extracting to a `useCanWrite()` hook** the next time a
+  fourth appears.
+- `src/lib/api.js` `writeJson` from the sessions pass is still NOT used here: PostMaker reads an
+  SSE stream so it cannot use it as-is, and ImageToLink parses its own JSON. Worth revisiting if
+  item 2 changes those error shapes.
 
 ## 2026-09-01, session #9 published: Session after Summer Break
 
