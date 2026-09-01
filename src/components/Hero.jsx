@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarPlus, TriangleAlert, X, ArrowRight } from 'lucide-react';
-import { TODAY, fmtDate, fmtToday, formatCountdown, sessionStart } from '../lib/dates.js';
-import { googleCalendarUrl } from '../lib/calendar.js';
+import { TriangleAlert, X, ArrowRight } from 'lucide-react';
+import { TODAY, fmtDate, fmtToday, formatCountdown, sessionStart, sessionTimeRange } from '../lib/dates.js';
 
 const DISMISS_KEY = 'aiw.staleScheduleDismissed';
 
@@ -74,7 +73,9 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
   }, [next?.date, next?.startsAt]);
 
   const remaining = useCountdown(startsAtMs);
-  const parts = formatCountdown(remaining);
+  // The date matters: beyond two days out formatCountdown defers to the calendar-day
+  // count, which is what the next-session pill shows. Without it the two disagree.
+  const parts = formatCountdown(remaining, next?.date);
   const live = remaining !== null && remaining <= 0 && remaining > -LIVE_WINDOW_MS;
 
   const dismiss = () => {
@@ -159,7 +160,7 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
                         : fmtDate(next.date)
                     }
                     label={live ? 'Session in progress' : 'Until the next session'}
-                    sub={`${fmtDate(next.date)}, 12:30`}
+                    sub={`${fmtDate(next.date)}, ${sessionTimeRange()}`}
                   />
                 ) : (
                   <Stat value="None" label="Next session" sub="Nothing scheduled yet" />
@@ -168,17 +169,10 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
                 <Stat value={memberCount} label="Members" />
               </dl>
 
-              {next && (
-                <a
-                  href={googleCalendarUrl(next)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-primary tap-target"
-                >
-                  <CalendarPlus size={16} strokeWidth={2} aria-hidden />
-                  Add to calendar
-                </a>
-              )}
+              {/* The Add-to-calendar button used to live here while the session card
+                  offered a .ics link, so the same intent was answered twice in two
+                  places and neither mentioned the other. Both options now sit on the
+                  card, next to the session they add. */}
             </div>
           </div>
         </>

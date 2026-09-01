@@ -84,7 +84,10 @@ export default function ScheduleAhead({ schedule }) {
     <div className="card card-pad">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
         <h2 className="h-section">Schedule ahead</h2>
-        {commonVenue && (
+        {/* "All at X" earns its place only when it saves repeating the venue on
+            several rows. With one date it is the same address the session card
+            printed in full a few hundred pixels above. */}
+        {commonVenue && all.length > 1 && (
           <div className="text-[11px] text-muted min-w-0">
             All at{' '}
             {venueMapUrl(commonVenue)

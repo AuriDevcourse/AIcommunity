@@ -51,7 +51,40 @@ export function fridayBefore(sundayIso) {
 // a session carries a real `startsAt`.
 export const SESSION_START_HOUR = 12;
 export const SESSION_START_MINUTE = 30;
+export const SESSION_DURATION_HOURS = 2;
 export const SESSION_TZ = 'Europe/Copenhagen';
+
+const pad = (n) => String(n).padStart(2, '0');
+
+/**
+ * "12:30-14:30", built from the constants above rather than typed into a
+ * component. NextSession and the hero each used to carry their own literal, so
+ * moving a session meant editing two files and the .ics builder separately.
+ */
+export function sessionTimeRange() {
+  const startM = SESSION_START_HOUR * 60 + SESSION_START_MINUTE;
+  const endM = startM + SESSION_DURATION_HOURS * 60;
+  const hhmm = (m) => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`;
+  return `${hhmm(startM)}–${hhmm(endM)}`;
+}
+
+/**
+ * "CEST" or "CET" for the session's own date, from Intl, so the summer/winter
+ * switch takes care of itself. The card said "Copenhagen" and left the offset to
+ * be guessed, which is no help to anyone remote or travelling.
+ */
+export function sessionTzLabel(dateStr) {
+  const d = sessionStart({ date: dateStr }) || new Date();
+  const part = new Intl.DateTimeFormat('en-GB', { timeZone: SESSION_TZ, timeZoneName: 'short' })
+    .formatToParts(d).find((x) => x.type === 'timeZoneName');
+  return part ? part.value : 'CET';
+}
+
+/** ISO instant for a `<time dateTime>` attribute, or '' when the date is unusable. */
+export function sessionISO(dateStr) {
+  const d = sessionStart({ date: dateStr });
+  return d ? d.toISOString() : '';
+}
 
 // Minutes that `tz` is ahead of UTC at the given instant. Derived from Intl
 // rather than hardcoded, so CEST/CET switches take care of themselves.
@@ -93,7 +126,7 @@ export function sessionStart(session) {
  * Returns null once the start has passed, which is the caller's cue to switch
  * to a "happening now" state instead.
  */
-export function formatCountdown(ms) {
+export function formatCountdown(ms, dateStr) {
   if (!Number.isFinite(ms) || ms <= 0) return null;
   const total = Math.floor(ms / 1000);
   const days = Math.floor(total / 86400);
@@ -103,7 +136,13 @@ export function formatCountdown(ms) {
   // Past a couple of days the hour is false precision: nobody plans a fortnightly
   // meetup to the hour eleven days out, and "11 days 23 hr" reads like a launch
   // timer. Inside 48 hours the hour genuinely helps, so keep it there.
-  if (days > 2) return [{ n: days, u: 'days' }];
+  //
+  // `dateStr` matters: this counts elapsed 24h periods from the START TIME, while
+  // `relative()` counts calendar days. For a 12:30 session those differ by one, so
+  // the hero read "11 days" beside a pill reading "in 12 days", about the same
+  // date, on the same screen. Beyond two days out, defer to the calendar-day
+  // number, which is also the one a human means.
+  if (days > 2) return [{ n: dateStr ? daysBetween(TODAY, dateStr) : days, u: 'days' }];
   if (days > 0) return [{ n: days, u: days === 1 ? 'day' : 'days' }, { n: hours, u: 'hr' }];
   if (hours > 0) return [{ n: hours, u: hours === 1 ? 'hr' : 'hrs' }, { n: minutes, u: 'min' }];
   if (minutes > 0) return [{ n: minutes, u: 'min' }, { n: seconds, u: 'sec' }];

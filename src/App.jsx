@@ -371,7 +371,7 @@ export default function App() {
             {tab === 'home' && (
               <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-12">
-                  <NextSession session={next} />
+                  <NextSession session={next} onNavigate={goTo} />
                 </div>
                 <div className="col-span-12">
                   <ScheduleAhead schedule={futureSchedule} />

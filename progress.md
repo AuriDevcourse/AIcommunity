@@ -2,10 +2,17 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, Next session card audit. Findings only, NOTHING applied
+## 2026-09-01, Next session card audit. 9 of 10 applied, 10th needs data
 
-**Current state:** no code changed. Ten findings on `NextSession.jsx`, measured on the running
-dev server. **Item 1 is a regression I introduced earlier today** and should be fixed first.
+**Current state:** **9 of 10 applied**, audit green (11 suites), not pushed. Item 4 cannot be
+fixed in code, see below. Card is now **417px of a 1781px page**, down from 447 of 1810.
+
+**Verified after the work:** hero and pill both read **12 days** (were 11 vs 12); the card has a
+real `<time datetime>`; the time line reads `12:30-14:30 CEST · Copenhagen` from the shared
+constants; **zero controls under 24x24** in the card; the venue address appears **once** on the
+page (was twice); both calendar options sit together; only **one** boxed notice remains.
+
+Original audit below; item 1 was a regression I introduced earlier the same day.
 
 ### Ranked next steps, none started
 
@@ -16,34 +23,56 @@ before, but "11 days 23 hr" hinted at nearly-twelve and **dropping the hour (my 
 landing audit) turned a soft mismatch into a flat contradiction.** `dates.js:32` carries a
 comment from someone fixing an EARLIER version of this same clash, so it has now bitten twice.
 Fix by having both read one function.
+   **DONE.** `formatCountdown(ms, dateStr)` now takes the date and, beyond two days out, returns
+   `daysBetween(TODAY, dateStr)`: the same number `relative()` uses, and the one a human means.
+   Inside 48h it still counts real time.
 
 **Data that is not data**
 2. **The session time is hardcoded in JSX**: `12:30-14:30 · Copenhagen` at `NextSession.jsx:59`,
    and the hero hardcodes `12:30` separately. The upcoming record carries `date`, `number`,
    `theme`, `format`, `presenter`, `venue`, `venueStatus`, `luma`, `roles`, `notes` and **no time
    field at all**. Move one session and two files lie.
+   **DONE.** `dates.js` already had `SESSION_START_HOUR/MINUTE/TZ` as a single source; nothing
+   used them for display. Added `SESSION_DURATION_HOURS`, `sessionTimeRange()`, `sessionTzLabel()`
+   and `sessionISO()`, and both the card and the hero now render from those.
 3. **No `<time>` element anywhere in the card** (verified: 0) and **no timezone**. Nothing is
    machine-readable; "Copenhagen" implies CET without saying it.
+   **DONE.** The date is wrapped in `<time dateTime={sessionISO(...)}>` and the line reads
+   `12:30-14:30 CEST · Copenhagen`, the zone derived from Intl so the CEST/CET switch is automatic.
 4. **The card never names the session.** Its biggest line is a date. `theme` is `""` for the next
    one, so a visitor sees "Sunday, 13 September 2026" and no subject.
+   **NOT FIXABLE IN CODE.** The card now prefixes `Session #N · ` when a number exists, but the
+   next upcoming record has `number: null` AND `theme: ""`, so there is genuinely nothing to
+   name it with. **Auri: set a theme on an upcoming session and it will show.**
 
 **Accessibility**
 5. **Two controls under 24x24**: the venue link at **18px** and "Download .ics" at **20px**. Same
    WCAG 2.2 section 2.5.8 failure already fixed on the sessions page, unfixed here.
+   **DONE** with the same `min-h-6 -my-1 py-1` trick. Card now reports **0 controls under 24x24**.
 6. **The venue link opens a new tab silently.** `target="_blank"` with no warning, while
    `News.jsx` does it correctly with an sr-only "(opens in a new tab)". Copy that.
+   **DONE**, on the venue link and the new Google Calendar link.
 
 **Duplication and hierarchy**
 7. **The venue address appears twice within ~400px**: in full here, and again in ScheduleAhead as
    "All at Matrikel1, Hojbro Pl. 10, 1200 Kobenhavn, Denmark".
+   **DONE.** ScheduleAhead shows "All at X" only when there is more than one date; with a single
+   date it was repeating the address the card printed in full just above.
 8. **Two info boxes with identical styling stack directly on each other** (Lean Coffee, Sessions
    are recorded): same border, same `bg-pill`, same 15px icon. They compete instead of ranking.
+   **DONE.** Lean Coffee is about THIS session and keeps the box; the recording notice is standing
+   and became a quiet 12px line. One boxed notice left.
 9. **"Sessions are recorded" states the fact and none of the consequences.** Nothing on where
    recordings go, who can see them, or how to opt out. For a first-time visitor it is the most
    alarming line on the page and the only one with no follow-up. SECURITY.md r6/r18.
-   **Needs an Auri decision, not code.**
+   **PARTLY DONE.** It now says what to do and links to "How we handle recordings" on the
+   privacy page. **The privacy page does not actually mention recordings yet** (checked: no match
+   for /record/ in LegalPages.jsx), so the link currently promises more than it delivers.
+   **Auri still needs to write that section.**
 10. **Calendar actions are split across two components.** Hero offers Google "Add to calendar",
     the card offers "Download .ics", neither mentions the other.
+    **DONE.** Both live on the card now, as "Google Calendar" and "Apple, Outlook (.ics)". The
+    hero's button is gone; the glance bar is for stats, not actions.
 
 ### Gotchas
 - **Two functions computing "how far away is this" WILL drift.** `formatCountdown` (elapsed 24h

@@ -1,8 +1,12 @@
-import { fmtDateLong, relative, daysBetween, TODAY } from '../lib/dates.js';
-import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video, Download, Coffee } from 'lucide-react';
+import {
+  fmtDateLong, relative, daysBetween, TODAY,
+  sessionTimeRange, sessionTzLabel, sessionISO,
+} from '../lib/dates.js';
+import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video, Download, Coffee, CalendarPlus } from 'lucide-react';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
 import { icsHref, icsFilename } from '../lib/ics.js';
+import { googleCalendarUrl } from '../lib/calendar.js';
 
 // Every role a session can carry. Only filled ones render: an empty
 // "Timekeeper —" line is noise, and the data usually has one or two set.
@@ -23,7 +27,7 @@ const FORMATS = {
   'tbd':          { label: 'Open format' },
 };
 
-export default function NextSession({ session }) {
+export default function NextSession({ session, onNavigate }) {
   if (!session) {
     return <div className="card card-pad"><h2 className="h-section">Next session</h2><div className="mt-3 text-muted">No upcoming session scheduled.</div></div>;
   }
@@ -54,9 +58,17 @@ export default function NextSession({ session }) {
             </h2>
             <span className={`pill ${soon ? 'pill-acc' : thisWeek ? 'pill-warn' : 'pill-mute'}`}>{relative(session.date)}</span>
           </div>
-          <div className="text-xl sm:text-2xl font-semibold mt-2 tracking-tight">{fmtDateLong(session.date)}</div>
+          <div className="text-xl sm:text-2xl font-semibold mt-2 tracking-tight">
+            {session.number ? `Session #${session.number} · ` : ''}
+            <time dateTime={sessionISO(session.date)}>{fmtDateLong(session.date)}</time>
+          </div>
+          {/* Time from the shared constants, never a literal, and the zone spelled
+              out: "Copenhagen" alone leaves the offset to be guessed by anyone
+              remote or travelling. */}
           <div className="mt-0.5">
-            <span className="text-sm font-medium text-muted">12:30–14:30 · Copenhagen</span>
+            <span className="text-sm font-medium text-muted">
+              {sessionTimeRange()} {sessionTzLabel(session.date)} · Copenhagen
+            </span>
           </div>
           {session.theme && (
             <div className="mt-3 text-base sm:text-lg font-medium leading-snug tracking-tight text-foreground">{session.theme}</div>
@@ -80,7 +92,17 @@ export default function NextSession({ session }) {
           label="Location"
           value={session.venue
             ? (venueMapUrl(session.venue)
-              ? <a href={venueMapUrl(session.venue)} target="_blank" rel="noreferrer" className="underline underline-offset-2 decoration-border hover:decoration-foreground">{session.venue}</a>
+              ? (
+                <a
+                  href={venueMapUrl(session.venue)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center min-h-6 -my-1 py-1 underline underline-offset-2 decoration-border hover:decoration-foreground"
+                >
+                  {session.venue}
+                  <span className="sr-only"> (opens a map in a new tab)</span>
+                </a>
+              )
               : session.venue)
             : 'TBD'}
           muted={!session.venue}
@@ -105,12 +127,27 @@ export default function NextSession({ session }) {
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
 
-      {/* Standing reminder: sessions are recorded; everyone names themselves before speaking. */}
-      <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-pill px-3.5 py-3">
-        <Video size={15} strokeWidth={2} className="text-foreground mt-0.5 flex-shrink-0" />
-        <p className="text-sm leading-snug text-foreground">
-          <span className="font-medium">Sessions are recorded.</span>{' '}
-          <span className="text-muted">Before you speak, say your name (about 10 seconds), then carry on.</span>
+      {/* Standing reminder, so it is deliberately QUIETER than the Lean Coffee note
+          above: that one is about this session, this one is true every time. They
+          used to share a box style and competed for the same attention.
+
+          It also carries the consequence, not only the fact. "Sessions are
+          recorded" with nothing after it is the most alarming line on the page for
+          a first-time visitor, and the only one that answered nothing. */}
+      <div className="mt-4 flex items-start gap-2 text-xs text-muted">
+        <Video size={13} strokeWidth={2} className="mt-0.5 flex-shrink-0" aria-hidden />
+        <p className="leading-relaxed">
+          <span className="font-medium text-foreground">Sessions are recorded.</span>{' '}
+          Say your name before you speak, about ten seconds, then carry on.{' '}
+          {onNavigate && (
+            <button
+              type="button"
+              onClick={() => onNavigate('privacy')}
+              className="inline-flex items-center min-h-6 -my-1 py-1 underline underline-offset-2 decoration-border hover:decoration-foreground hover:text-foreground transition-colors"
+            >
+              How we handle recordings
+            </button>
+          )}
         </p>
       </div>
 
@@ -121,13 +158,25 @@ export default function NextSession({ session }) {
         {/* The hero offers Google Calendar. This is the same event for everyone
             else: Apple Calendar, Outlook, Thunderbird, anything reading .ics.
             Built in the browser as a data: URL, so it needs no endpoint. */}
+        {googleCalendarUrl(session) && (
+          <a
+            href={googleCalendarUrl(session)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 min-h-6 -my-1 py-1 text-sm font-medium text-muted hover:text-foreground transition-colors"
+          >
+            <CalendarPlus size={14} strokeWidth={2.2} />
+            Google Calendar
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        )}
         <a
           href={icsHref(session)}
           download={icsFilename(session)}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 min-h-6 -my-1 py-1 text-sm font-medium text-muted hover:text-foreground transition-colors"
         >
           <Download size={14} strokeWidth={2.2} />
-          Download .ics
+          Apple, Outlook (.ics)
         </a>
         {lumaUrl ? (
           <a
