@@ -4,6 +4,7 @@ import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 import PhotoUploader from './PhotoUploader.jsx';
+import { fetchPhotos } from '../lib/photos.js';
 
 export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
   const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
@@ -17,13 +18,18 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
   const [metaLoaded, setMetaLoaded] = useState(false);
   const loading = !photosLoaded || !metaLoaded;
 
+  // A failure here empties only the sessions whose photos live in Blob, which
+  // reads as data loss rather than as a missing API. Say so on the page.
+  const [uploadsError, setUploadsError] = useState('');
   const loadUploads = useCallback(async () => {
     try {
-      const r = await fetch('/api/photos');
-      const j = await r.json();
-      setUploads(j.byDate || {});
-    } catch {
+      const { byDate } = await fetchPhotos();
+      setUploads(byDate);
+      setUploadsError('');
+    } catch (e) {
       setUploads({});
+      setUploadsError(e?.message || 'Uploaded photos could not be loaded.');
+      console.warn('[photos]', e?.message || e);
     } finally {
       setPhotosLoaded(true);
     }
@@ -126,6 +132,13 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
           Add photos
         </button>
       </div>
+
+      {uploadsError && !loading && (
+        <div role="status" data-print="hide" className="rounded-lg bg-warn/10 px-3 py-2 text-xs text-warn">
+          Uploaded photos could not be loaded, so any session whose photos are uploads only looks
+          empty. Photos committed to the repo are unaffected. {uploadsError}
+        </div>
+      )}
 
       {showUpload && (
         <PhotoUploader

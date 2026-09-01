@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Upload, Trash2, ImagePlus, Check, ArrowRight } from 'lucide-react';
 import { authedFetch, accessToken } from '../lib/supabase.js';
 import { TODAY } from '../lib/dates.js';
+import { fetchPhotos } from '../lib/photos.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -89,10 +90,9 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
   // whole standing gallery (it shows just what you uploaded this session).
   useEffect(() => {
     let active = true;
-    fetch('/api/photos')
-      .then((r) => r.json())
-      .then((j) => { if (active) setConfigured(j.configured !== false); })
-      .catch(() => {});
+    fetchPhotos()
+      .then((j) => { if (active) setConfigured(j.configured); })
+      .catch((e) => { if (active) { setConfigured(false); console.warn('[photos]', e?.message || e); } });
     return () => { active = false; };
   }, []);
 
@@ -295,11 +295,11 @@ function MovePhotos({ dates, configured, onChanged }) {
   const load = async (d) => {
     setPhotos(null); setSelected(new Set());
     try {
-      const r = await fetch('/api/photos');
-      const j = await r.json();
-      setPhotos((j.byDate && j.byDate[d]) || []);
-    } catch {
+      const { byDate } = await fetchPhotos();
+      setPhotos(byDate[d] || []);
+    } catch (e) {
       setPhotos([]);
+      console.warn('[photos]', e?.message || e);
     }
   };
   useEffect(() => { if (source) load(source); }, [source]);

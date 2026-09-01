@@ -75,8 +75,10 @@ before, because Tailwind v4 preflight resets heading font-size, weight and margi
   with no signal. Diagnosed 2026-09-01 from exactly this symptom. The tell that it is the API
   and not the data: 2026-05-03 drops from 12 photos to 11, because it has 11 committed plus one
   Blob upload. Verified prod is fine (both covers load at naturalWidth 1200, counts 21 and 5).
-  **Use 5280.** Worth fixing: check `r.ok` plus the content-type and log a DEV warning, so a
-  non-JSON 200 stops being indistinguishable from "no uploads yet".
+  **Use 5280.** **Fixed the same day:** `src/lib/photos.js` is now the single reader for the
+  endpoint. It checks the content-type, throws a typed `PhotosUnavailable` instead of a bare
+  SyntaxError, and SessionsGallery renders a warn notice naming the cause rather than showing a
+  silently short gallery. All five callers go through it.
 
 ### File pointers
 - `src/App.jsx:338` · why the masthead is Home-only, the reason the other tabs had no h1.

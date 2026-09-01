@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Link2, Check, PenLine, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare, ExternalLink, Info, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
+import { fetchPhotosByDate } from '../lib/photos.js';
 
 // Public, shareable recap of a single past session: cover, who came, what was
 // demoed, the photo gallery. Reached via the hash route #recap/<date> (no auth to
@@ -15,7 +16,7 @@ export default function SessionRecap({ date, sessions, onBack }) {
   useEffect(() => {
     let alive = true;
     Promise.all([
-      fetch('/api/photos').then((r) => r.json()).catch(() => ({})),
+      fetchPhotosByDate().then((byDate) => ({ byDate })),
       fetch('/api/session-meta').then((r) => r.json()).catch(() => ({})),
     ]).then(([photos, meta]) => {
       if (!alive) return;

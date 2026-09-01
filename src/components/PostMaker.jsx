@@ -3,6 +3,7 @@ import { PenLine, Sparkles, Copy, Check, Linkedin, Instagram, Globe, ThumbsUp, M
 import { fmtDate } from '../lib/dates.js';
 import { authedFetch } from '../lib/supabase.js';
 import { useAuth } from '../lib/auth.jsx';
+import { fetchPhotosByDate } from '../lib/photos.js';
 
 const LI_BLUE = '#0a66c2';
 // Where each platform hides the rest behind "…more" (approx, matches real apps).
@@ -326,9 +327,9 @@ export default function PostMaker({ sessions = [] }) {
   const [uploadsByDate, setUploadsByDate] = useState({});
   useEffect(() => {
     let alive = true;
-    fetch('/api/photos').then((r) => r.json()).then((j) => {
-      if (alive) setUploadsByDate(j?.byDate || {});
-    }).catch(() => { /* keep committed photos only */ });
+    fetchPhotosByDate().then((byDate) => {
+      if (alive) setUploadsByDate(byDate); // {} on failure, committed photos still render
+    });
     return () => { alive = false; };
   }, []);
 
