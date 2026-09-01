@@ -59,9 +59,20 @@ they have teeth** by deleting the quota block: 2 of 8 fail.
 
 ## 2026-09-01, domain acquired: aisundays.org, DNS not yet pointed
 
-**Current state:** Auri bought **aisundays.org** at Hostinger. It is **not connected yet** and
-still resolves to Hostinger's parking. The site remains at a-icommunity.vercel.app until the
-records change. No code touched; nothing in the app needs changing for this.
+**Current state:** Auri bought **aisundays.org** at Hostinger, added it in Vercel, and **both
+DNS records are saved and verified correct**. The site is still served from
+a-icommunity.vercel.app because the domain is **not yet delegated at the `.org` registry** —
+that is the only thing outstanding and it is a waiting game, not a task.
+
+**Verified 2026-09-01 by querying the authoritative server directly** (`nslookup <name>
+aurora.dns-parking.com`):
+- `aisundays.org` -> **216.198.79.1** correct
+- `www.aisundays.org` -> **4e3684994c86da63.vercel-dns-017.com** correct, no trailing dot needed
+
+**But** `nslookup -type=NS aisundays.org` against Cloudflare AND against the `.org` servers
+(`a0.org.afilias-nst.info`) both return **NXDOMAIN**: the registry has not published the
+delegation to Hostinger's nameservers. Until it does, nobody can reach those records however
+correct they are, and **Vercel will keep saying "Invalid Configuration". That is expected.**
 
 **Where it stands**
 - Nameservers: `aurora.dns-parking.com` / `nebula.dns-parking.com` (Hostinger). Staying there,
@@ -73,11 +84,11 @@ records change. No code touched; nothing in the app needs changing for this.
   a `vercel link` first.
 
 ### Next steps
-1. **Add the domain in Vercel FIRST**, at
+1. ~~Add the domain in Vercel.~~ **DONE.** Was: add it at
    https://vercel.com/auridevcourses-projects/a-icommunity/settings/domains — add
    `aisundays.org` and accept the `www` prompt. This is what generates the values for step 2.
-2. **Then edit the two Hostinger records.** Vercel issued these on 2026-09-01, both still
-   pending at time of writing:
+2. ~~Edit the two Hostinger records.~~ **DONE and verified.** For the record, in case they are
+   ever reset:
 
    | Type | Name | From (Hostinger parking) | To (Vercel) |
    |---|---|---|---|
@@ -90,16 +101,24 @@ records change. No code touched; nothing in the app needs changing for this.
    but is not what it recommends.
    The dashboard shows **308** beside the apex: that is correct, not an error. The bare domain
    permanently redirects to `www.aisundays.org`, which is the Production host.
-3. **Update the three hardcoded URLs in `index.html`** (`:20` og:url, `:21` og:image,
+3. **WAIT for registry delegation.** Re-check with `nslookup aisundays.org 1.1.1.1`; when that
+   answers `216.198.79.1` instead of NXDOMAIN it is live, and Vercel usually verifies and issues
+   the certificate within minutes after. Hostinger quoted 15 min to 24 h from registration.
+4. **Update the three hardcoded URLs in `index.html`** (`:20` og:url, `:21` og:image,
    `:27` twitter:image) once the domain resolves, or shared links keep advertising the old host.
-4. Offered, not done: I can add the domain via the Vercel CLI, but it changes hosting
-   configuration so it waits on an explicit go-ahead.
+5. ~~Offered: add the domain via CLI.~~ Moot, Auri did it in the dashboard.
 
 ### Gotchas
 - **The `www` CNAME target is PER-PROJECT now**, e.g. `d1d4fc829fe7bc7c.vercel-dns-017.com`, not
   the old shared `cname.vercel-dns.com`. Guessing it, or copying a value from an older guide,
   gives a domain that never verifies. Read it off the Vercel domains page. (Vercel docs,
   "Adding & Configuring a Custom Domain", last updated 2026-08-11.)
+- **NXDOMAIN is not the same as "no record".** When a brand-new domain fails to resolve, check
+  whether the REGISTRY has published the NS delegation (`nslookup -type=NS <domain>` against a
+  `.org` server) before touching the records. Querying the authoritative nameserver directly
+  (`nslookup <name> aurora.dns-parking.com`) proves whether your records are right independently
+  of whether the world can see them yet. That split is what separated "records wrong" from
+  "domain not published" here in one command.
 - **Ignore Hostinger's SSL section entirely.** Vercel issues the certificate once DNS resolves;
   buying or installing one at the registrar is wasted money and can conflict.
 - **The CSP needs no change**, checked: `vercel.json` uses `default-src 'self'`, which is
