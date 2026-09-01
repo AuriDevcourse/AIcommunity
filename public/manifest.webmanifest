@@ -1,7 +1,7 @@
 {
   "name": "AI Sundays",
   "short_name": "AI Sundays",
-  "description": "Build with AI. Show what you learned.",
+  "description": "A Copenhagen community that meets every two weeks to build with AI, then shows the work.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8F0E4",

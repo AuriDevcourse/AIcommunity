@@ -2,6 +2,41 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, hero rewritten: headline dropped, stats separated, per-thumb hover
+
+**Current state:** done, audit green (11 suites), not pushed. Three fixes from Auri.
+
+1. **"Build with AI. Show what you learned." is gone.** The positioning line under it is now the
+   `<h1>` at hero size: "A Copenhagen community that meets every two weeks to build with AI,
+   then shows the work." Still exactly one h1 on the page. **The old headline also lived in
+   three metadata slots** and was updated in all of them: `index.html` og:description and
+   twitter:description (what LinkedIn and Slack show for a shared link, arguably where the
+   headline mattered most) and `public/manifest.webmanifest` description.
+2. **Photo strip hover no longer zooms all four at once.** The strip had ONE `group` on the whole
+   button, so `group-hover:scale` fired on every thumbnail together. Each thumbnail is now its
+   own named group (`group/thumb` + `group-hover/thumb:scale-[1.04]`).
+3. **The three stats ran together as one line of numbers**, worse because the first is three
+   lines tall and the others are two. They now carry a rule between them via
+   `[&>*+*]:border-l` with symmetric padding.
+
+### Gotchas
+- **Tailwind v4 sets the standalone `scale` property, NOT `transform`.** Reading
+  `getComputedStyle(el).transform` on a `scale-[1.04]` element returns `none` and looks like the
+  class is broken. Read `.scale`. This cost several probes.
+- **The dev server's Tailwind did NOT pick up the new `group-hover/thumb` utility.** The rule was
+  absent from the dev CSS while present in `dist`, so the hover looked broken on 5280 and worked
+  in the build. **Restart `npm run dev` after adding a novel arbitrary/named-group utility**, or
+  verify against the build.
+- Hover state ends the moment a probe does anything else, so sampling a transition after a
+  `hover` call usually catches the value on its way back. Prove scoping by which elements have
+  the property AT ALL (`none` vs a value), not by catching the peak.
+
+### File pointers
+- `src/components/Hero.jsx` · `:91` the h1, `:152` the stat row with the divider utilities,
+  `:195` the strip, thumbnails carrying `group/thumb`.
+- `index.html:19,26` and `public/manifest.webmanifest:4` · the share/PWA copy, which has to be
+  changed with the headline or the old one keeps showing up in link previews.
+
 ## 2026-09-01, Home loses Latest discussion and Top ideas
 
 **Current state:** done, audit green (11 suites), not pushed. Auri asked whether the two panels

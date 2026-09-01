@@ -88,12 +88,9 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
 
   return (
     <section className="mb-8 sm:mb-10">
-      <h1 className="hero-title font-semibold tracking-tight">
-        Build with AI. Show what you learned.
-      </h1>
-      <p className="mt-3 text-sm sm:text-base text-muted max-w-3xl leading-relaxed">
+      <h1 className="hero-title font-semibold tracking-tight max-w-4xl">
         A Copenhagen community that meets every two weeks to build with AI, then shows the work.
-      </p>
+      </h1>
       {/* What a session IS, and who it is for. The page described the logistics of
           the NEXT session but never the recurring shape, so a first-time visitor
           could not tell what they would walk into or whether they would be out of
@@ -153,7 +150,7 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
             <p className="text-xs text-muted">Today is {fmtToday(TODAY)}</p>
 
             <div className="mt-4 flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-              <dl className="flex flex-wrap items-start gap-x-8 sm:gap-x-12 gap-y-5">
+              <dl className="flex flex-wrap items-start gap-y-5 [&>*+*]:border-l [&>*+*]:border-border [&>*+*]:pl-6 sm:[&>*+*]:pl-10 [&>*]:pr-6 sm:[&>*]:pr-10 [&>*:last-child]:pr-0">
                 {next ? (
                   <Stat
                     value={
@@ -205,14 +202,14 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
                 key={src}
                 /* Two on a phone, four from sm up: a fifth thumbnail on a narrow
                    screen makes every face too small to read. */
-                className={`relative block flex-1 aspect-[4/3] overflow-hidden rounded-lg bg-accent ${i > 1 ? 'hidden sm:block' : ''}`}
+                className={`group/thumb relative block flex-1 aspect-[4/3] overflow-hidden rounded-lg bg-accent ${i > 1 ? 'hidden sm:block' : ''}`}
               >
                 <img
                   src={src}
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover/thumb:scale-[1.04]"
                 />
               </span>
             ))}
