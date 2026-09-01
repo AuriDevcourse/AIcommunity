@@ -2,10 +2,10 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. 10 findings, items 1-6 applied
+## 2026-09-01, /#sessions audit. 10 findings, 1-9 applied, 10 needs a decision
 
-**Current state:** **items 1-6 are done** (the auth pass and the modal pass); 7, 8, 9, 10 are
-untouched. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
+**Current state:** **items 1-9 are done.** Only 10 is left and it is a DESIGN CALL for Auri,
+not a bug. `a072830` item 2, `8233334` item 1, `e8d78c4` item 3, `8e001d8` pointers, items
 4-6 committed alongside this entry. **Nothing pushed yet.** `npm run audit` is **11 suites**
 and green.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
@@ -18,7 +18,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps (6 done; 4 to go)
+### Ranked next steps (9 done; 1 needs an Auri decision)
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -93,13 +93,23 @@ below is the UI around that gate.
    returns to the trigger.
 
 **Keyboard and target size**
-7. Photo reorder / set-cover is HTML5 drag-and-drop only (SessionsGallery.jsx:509-512), **no
-   keyboard path at all**. WCAG 2.1.1.
+7. Photo reorder / set-cover is HTML5 drag-and-drop only, **no keyboard path at all**.
+   WCAG 2.1.1.
+   **DONE.** Each photo tile is now `tabIndex={0}` with an aria-label saying its position and
+   the keys. Bare left/right arrows move focus between tiles (clamped at both ends, they do not
+   wrap); **Alt** with left/right moves the photo; **Alt+Home** makes it the cover. An sr-only
+   `aria-live` region announces the new position, and only on a real success.
+   *Verified:* focus walks 0 to 1 to 2 and back, clamps at both ends; a refused move shows the
+   error and makes NO announcement. A SUCCESSFUL move still needs a signed-in click, same gap
+   as item 2.
 8. "Open recap" measures **53x16 CSS px**, under the 24x24 minimum of WCAG 2.2 section 2.5.8.
-   20 controls on the page are under 44x44.
-9. The in-modal select circle (:524) and star (:543) are `sm:opacity-0
-   sm:group-hover/photo:opacity-100` with **no `focus-visible:` variant**, so keyboard users
-   land on invisible controls. The card Edit button (:354) gets this right, copy its pattern.
+   **DONE.** `-my-1 py-1 min-h-6` grows the hit area to 53x24 without opening a gap in the row:
+   the padding is cancelled by the negative margin. The select circle went 20x20 to 24x24 too.
+   *Verified:* **0 controls under 24x24 on the page, was 20.**
+9. The in-modal select circle and star are `sm:opacity-0 sm:group-hover/photo:opacity-100` with
+   **no `focus-visible:` variant**, so keyboard users land on invisible controls.
+   **DONE.** Both carry `focus-visible:opacity-100` now, copying the card Edit button.
+   *Verified in the DOM on both.*
 
 **UX**
 10. **Mobile gets the worst of both.** Photos are `grayscale` with colour only on
@@ -108,6 +118,14 @@ below is the UI around that gate.
     permanent Edit button on every card. Exactly backwards for touch.
 
 ### Gotchas
+- **`requestAnimationFrame` never fires in a hidden tab.** The first keyboard-reorder build used
+  rAF to move focus after the re-render and it silently did nothing under the browser extension,
+  which drives a background tab. Focus after a state change belongs in a `useEffect` keyed on
+  the new data, never in rAF. Same family as the `:focus-visible` and programmatic-`.click()`
+  artifacts below: **three separate times a browser probe reported a bug that was really the
+  probe.** Check `document.hidden` and how you dispatched the event before believing a failure.
+- A programmatic `.click()` does NOT move focus, so a focus-restore test opened with `.click()`
+  will always report failure. Use `el.focus()` then `el.click()`.
 - **Two suites were flaky and it was not my code.** Adding an 11th suite raised the load enough
   to expose fixed-sleep races: `lightbox` lost about 1 run in 3 on "no photo thumbnails found"
   (SessionRecap:160 hides thumbnails behind `!loaded`, which waits on two fetches, while the

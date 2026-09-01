@@ -388,10 +388,13 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
 
       <div className="mt-4 flex items-start justify-between gap-2">
         <span className="text-base font-semibold leading-snug tracking-tight line-clamp-2 min-w-0">{name}</span>
+        {/* -my-1 py-1 buys the 24x24 minimum target (WCAG 2.2, 2.5.8) without
+            opening a visible gap in the row: the padding is cancelled by the
+            negative margin, so only the hit area grows. */}
         {onRecap && (
           <button
             onClick={onRecap}
-            className="inline-flex items-center gap-1 text-xs font-medium text-muted hover:text-foreground transition-colors flex-shrink-0"
+            className="inline-flex items-center gap-1 -my-1 py-1 min-h-6 text-xs font-medium text-muted hover:text-foreground transition-colors flex-shrink-0"
             aria-label={`Open recap for ${name}`}
           >
             Recap <ArrowUpRight size={13} strokeWidth={2.2} />
@@ -425,6 +428,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
   const [overUrl, setOverUrl] = useState(null);
   const panelRef = useDialog(onClose);
   const titleId = useId();
+  const gridRef = useRef(null);
   const [savedFlash, setSavedFlash] = useState(false);
   // Whatever the server said when it refused. Cleared on the next attempt.
   const [actionError, setActionError] = useState('');
@@ -469,6 +473,50 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
     setActionError('');
     const r = await onReorder([...rest.slice(0, toIdx), url, ...rest.slice(toIdx)]);
     if (r && r.ok === false) setActionError(r.error);
+    return r;
+  };
+
+  // Keyboard equivalent of the drag. Reordering was mouse-only, so a keyboard user
+  // could not set a cover at all (WCAG 2.1.1). Alt is the modifier because the bare
+  // arrows have to keep moving focus between tiles.
+  const [moveMsg, setMoveMsg] = useState('');
+  // Where focus should land once a reorder has re-rendered. Deliberately NOT
+  // requestAnimationFrame: rAF does not fire in a hidden tab, so the focus would
+  // silently never move. An effect keyed on the new order always runs.
+  const [pendingFocus, setPendingFocus] = useState(null);
+  useEffect(() => {
+    if (pendingFocus == null) return;
+    gridRef.current?.querySelectorAll('[data-photo-tile]')[pendingFocus]?.focus();
+    setPendingFocus(null);
+  }, [photos, pendingFocus]);
+
+  const onPhotoKeyDown = async (e, url, idx) => {
+    const last = photos.length - 1;
+    // Navigation does not change the DOM, so focus can move straight away.
+    const focusNow = (i) => gridRef.current?.querySelectorAll('[data-photo-tile]')[i]?.focus();
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.altKey) {
+      e.preventDefault();
+      focusNow(e.key === 'ArrowLeft' ? Math.max(0, idx - 1) : Math.min(last, idx + 1));
+      return;
+    }
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.altKey) {
+      e.preventDefault();
+      const to = e.key === 'ArrowLeft' ? idx - 1 : idx + 1;
+      if (to < 0 || to > last) return;
+      const r = await moveTo(url, to);
+      if (r && r.ok === false) return;
+      setMoveMsg(`Photo moved to position ${to + 1} of ${photos.length}${to === 0 ? ', now the cover' : ''}.`);
+      setPendingFocus(to);
+      return;
+    }
+    if (e.key === 'Home' && e.altKey) {
+      e.preventDefault();
+      if (idx === 0) return;
+      const r = await moveTo(url, 0);
+      if (r && r.ok === false) return;
+      setMoveMsg(`Photo moved to position 1 of ${photos.length}, now the cover.`);
+      setPendingFocus(0);
+    }
   };
   const onDrop = (targetUrl) => {
     if (dragUrl && dragUrl !== targetUrl) moveTo(dragUrl, photos.indexOf(targetUrl));
@@ -551,8 +599,13 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
             <p className="text-xs text-muted">No photos in this session.</p>
           ) : (
             <>
-              <p className="text-[11px] text-muted mb-2">Drag to reorder. The first photo becomes the cover. Tap the circle to select, the star to feature.</p>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 grid-flow-dense">
+              <p className="text-[11px] text-muted mb-2">
+                Drag to reorder, or focus a photo and press Alt with the left and right arrows.
+                The first photo becomes the cover. Use the circle to select, the star to feature.
+              </p>
+              {/* Announces a keyboard move; a drag is already visible to whoever did it. */}
+              <span aria-live="polite" className="sr-only">{moveMsg}</span>
+              <div ref={gridRef} className="grid grid-cols-3 sm:grid-cols-4 gap-2 grid-flow-dense">
                 {photos.map((url, idx) => {
                   const featured = idx === 0;
                   const deletable = url.startsWith('http'); // committed repo photos aren't deletable at runtime
@@ -564,6 +617,11 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
                     <div
                       key={url}
                       draggable
+                      data-photo-tile=""
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Photo ${idx + 1} of ${photos.length}${featured ? ', the cover' : ''}. Alt with left or right arrow moves it, Alt and Home makes it the cover.`}
+                      onKeyDown={(e) => onPhotoKeyDown(e, url, idx)}
                       onDragStart={() => setDragUrl(url)}
                       onDragOver={(e) => { e.preventDefault(); if (overUrl !== url) setOverUrl(url); }}
                       onDrop={() => onDrop(url)}
@@ -578,7 +636,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
                           onClick={(e) => { e.stopPropagation(); toggle(url); }}
                           aria-label={on ? 'Deselect photo' : 'Select photo'}
                           aria-pressed={on}
-                          className={`absolute left-1 top-1 grid place-items-center w-5 h-5 rounded-full border transition-colors ${on ? 'bg-err border-err text-background' : 'bg-background/80 border-border text-transparent hover:text-muted opacity-100 sm:opacity-0 sm:group-hover/photo:opacity-100'}`}
+                          className={`absolute left-1 top-1 grid place-items-center w-6 h-6 rounded-full border transition-colors focus-visible:opacity-100 ${on ? 'bg-err border-err text-background' : 'bg-background/80 border-border text-transparent hover:text-muted focus-visible:text-muted opacity-100 sm:opacity-0 sm:group-hover/photo:opacity-100'}`}
                         >
                           <Check size={12} strokeWidth={3} />
                         </button>
@@ -597,7 +655,7 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
                           onClick={(e) => { e.stopPropagation(); moveTo(url, 0); }}
                           title="Make featured"
                           aria-label="Make featured"
-                          className="absolute right-1 top-1 grid place-items-center w-6 h-6 rounded-full bg-background/90 border border-border text-muted hover:text-foreground transition-colors opacity-100 sm:opacity-0 sm:group-hover/photo:opacity-100"
+                          className="absolute right-1 top-1 grid place-items-center w-6 h-6 rounded-full bg-background/90 border border-border text-muted hover:text-foreground transition-colors opacity-100 sm:opacity-0 sm:group-hover/photo:opacity-100 focus-visible:opacity-100"
                         >
                           <Star size={12} strokeWidth={2.2} />
                         </button>
