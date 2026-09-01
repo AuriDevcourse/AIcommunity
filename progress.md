@@ -5,10 +5,15 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
 ## 2026-09-01, backgrounds: brand pattern is now a full-page overlay
 
 **Current state:** done, audit green (11 suites, theme suite included, so no contrast
-regression), not pushed. **The page ground now carries the brand pattern as a fixed overlay**
-behind everything, 3.5% on cream and 6% on dark, plus a green ambient halo on light that only
-dark used to have. A first attempt put the pattern in an 8px footer band instead; Auri rejected
-it and item 4 below records that.
+regression), not pushed. **The page ground carries the brand pattern as a fixed overlay masked to
+the EDGES**, 5% on cream and 6% on dark, plus a green ambient halo on light that only dark used
+to have.
+
+**Two rejected attempts before this landed**, both recorded so nobody retries them:
+an 8px pattern band across the footer ("I dont like this random line in the bottom"), then a
+full-bleed overlay covering the whole viewport, which put tile behind the hero copy. The hero is
+the one block of text on the page with no card under it, and palette.md puts the pattern
+anywhere EXCEPT behind body text.
 
 **The finding behind it.** Cross-checked every file in `public/brand/` against the code.
 **`pattern.webp` and `icon.svg` were referenced ONLY by `BrandAssets.jsx`**, the download page.
@@ -28,19 +33,22 @@ and `icon-16.svg` are referenced by nothing at all.
 4. ~~An 8px pattern band closes the footer.~~ **REVERTED.** Auri: "I dont like this random line
    in the bottom." He meant a background OVERLAY, not a strip. The footer's plain top border is
    back.
-5. **The pattern is now a full-page fixed OVERLAY** behind everything, `body::after`, which is
-   what he was actually asking for. **Two opacities on purpose:** 3.5% on cream, 6% on dark. The
+5. **The pattern is a fixed overlay masked to the edges and corners**, `body::after`. Full-bleed
+   first, then masked once Auri asked for it off the reading column. **Two opacities on purpose:** 3.5% on cream, 6% on dark. The
    tile's own ground is deep green, so on the cream page it darkens as much as it decorates and
    has to stay very low; on the dark page it is nearly the ground colour and needs more to
    register at all. Hidden in print alongside the halo.
-   *On the "never behind body text" rule:* every card, panel and notice paints a solid
-   background, so the pattern only shows in the gutters around them. The hero copy does sit on
-   the bare ground, which is why the light value is 3.5% and why this was checked rather than
-   assumed: **the theme suite, which measures real computed contrast, passes.**
+   **The mask is a radial in PERCENTAGES, not a fixed content width**, so it scales with the
+   viewport and needs no breakpoint: the middle stays clean at 390px and at 2560px alike. Centred
+   at 38% high because the reading column starts at the top and trails off before the footer.
+   With the centre cleared, light could go from 3.5% to 5% and still read as texture.
+   *On the "never behind body text" rule:* cards paint solid backgrounds so they were never the
+   problem; the mask is what actually satisfies it, by keeping tile off the hero copy.
 
 ### Next steps
-0. **The two overlay opacities are the knobs**, `body::after` in index.css: 3.5% light, 6% dark.
-   If the texture is too loud or too faint, that is the one place to change.
+0. **Three knobs, all on `body::after` in index.css:** opacity (5% light, 6% dark),
+   `--edge-mask` (how much of the centre stays clear), and `background-size: 460px` (tile scale).
+   Widening the transparent stop in `--edge-mask` pushes the texture further out.
 1. **`icon.svg` (the sunrise mark) is still unused in the product.** It is the obvious candidate
    for empty states that currently use a generic Lucide glyph, and for the Learn/News section
    marks. Not done: it is a design call about where the mark belongs.

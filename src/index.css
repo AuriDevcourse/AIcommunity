@@ -225,7 +225,18 @@ body::after {
   background-image: url('/brand/pattern.webp');
   background-repeat: repeat;
   background-size: 460px auto;
-  opacity: 0.035;
+  opacity: 0.05;
+  /* Edges and corners only. A full-bleed tile sat under the hero copy, which is
+     the one block of text on this page with no card beneath it, and palette.md
+     puts the pattern anywhere EXCEPT behind body text.
+
+     The mask is a radial in percentages rather than a fixed content width, so it
+     scales with the viewport instead of needing a breakpoint: the middle stays
+     clean at 390px and at 2560px alike. Centred slightly high because the reading
+     column starts at the top of the page and trails off before the footer. */
+  --edge-mask: radial-gradient(115% 85% at 50% 38%, transparent 0%, transparent 52%, #000 92%);
+  -webkit-mask-image: var(--edge-mask);
+  mask-image: var(--edge-mask);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) body::after { opacity: 0.06; }
