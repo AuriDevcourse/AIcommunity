@@ -2,10 +2,13 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, backgrounds: brand pattern put to work, light ground given an ambient
+## 2026-09-01, backgrounds: brand pattern is now a full-page overlay
 
 **Current state:** done, audit green (11 suites, theme suite included, so no contrast
-regression), not pushed.
+regression), not pushed. **The page ground now carries the brand pattern as a fixed overlay**
+behind everything, 3.5% on cream and 6% on dark, plus a green ambient halo on light that only
+dark used to have. A first attempt put the pattern in an 8px footer band instead; Auri rejected
+it and item 4 below records that.
 
 **The finding behind it.** Cross-checked every file in `public/brand/` against the code.
 **`pattern.webp` and `icon.svg` were referenced ONLY by `BrandAssets.jsx`**, the download page.
