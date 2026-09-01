@@ -20,8 +20,13 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
    `[&>*+*]:border-l` with symmetric padding.
 
 ### Next steps
-1. **Auri must restart `npm run dev`** to see the hover fix locally; the dev CSS is stale (see
-   the gotcha below). The production build already has it.
+1. ~~Restart `npm run dev`.~~ **DONE.** The original dev server (PID 37060, running since the
+   start of the session) was still holding 5280 and serving stale CSS, which is why Auri's own
+   restart kept failing with "Port 5280 is already in use". Killed it, started a fresh one, and
+   confirmed the `group-hover/thumb` rule is now present in the dev stylesheet.
+   **The zoom itself was never confirmed visually:** CSS `:hover` does not survive between
+   separate browser tool calls, so every sample landed after the cursor left. Auri can settle it
+   in one second by hovering a thumbnail.
 2. **The hero copy is still unreviewed.** `Hero.jsx:91` is now the whole first impression, and
    both the h1 and the paragraph under it were written by me, not by Auri.
 3. Unchanged from earlier entries: 4 open `/#tools` findings, the two orphaned components
