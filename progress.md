@@ -122,6 +122,23 @@ below is the UI around that gate.
     hover, so a control that only appears on hover would be unreachable. Item 1 already removed
     it for signed-out visitors, which was the actual complaint.
 
+### Next steps
+1. **Push.** Seven commits sit local: `a072830`, `8233334`, `e8d78c4`, `8e001d8`, `c47ec2c`,
+   `5298edd`, `ad5971a`. `main` auto-deploys to prod, so this ships the auth fixes.
+2. **One signed-in pass, the gap I could not close.** Every REFUSAL path is verified; no
+   SUCCESSFUL write was ever exercised, because there is no way to log in as Auri from here.
+   Worth one minute: rename a session, drag a photo, and press Alt with an arrow on a focused
+   photo. If `saveMeta` returns something unexpected the branch is
+   `if (r && r.ok === false) error else flashSaved()`, so a wrong shape shows a false success.
+3. **Four components still bind Escape by hand with no focus trap:** AuthControls, Learn,
+   PostMaker, SessionRecap. Move them onto `src/lib/useDialog.js`. Mechanical, and it deletes
+   code.
+4. **Other components still call `authedFetch` raw** and swallow failures the way SessionsGallery
+   did before item 2. `grep -rn authedFetch src/` to find them; route each through
+   `writeJson`. PhotoUploader's delete and move paths are the ones users touch most.
+5. The 2026-08-31 declutter audit is still entirely unstarted, including its own next-step 6
+   which wants several `h-section` eyebrows deleted.
+
 ### Gotchas
 - **`requestAnimationFrame` never fires in a hidden tab.** The first keyboard-reorder build used
   rAF to move focus after the re-render and it silently did nothing under the browser extension,
