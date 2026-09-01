@@ -6,8 +6,9 @@ import data from './data.json';
 import NextSession from './components/NextSession.jsx';
 import Hero from './components/Hero.jsx';
 import ScheduleAhead from './components/ScheduleAhead.jsx';
-import Suggestions from './components/Suggestions.jsx';
-import LatestDiscussion from './components/LatestDiscussion.jsx';
+// Suggestions and LatestDiscussion are no longer rendered anywhere. The files are
+// kept for now in case the panels come back once the forum has real traffic; if
+// they do not, delete both components.
 import TopicsForTheDay from './components/TopicsForTheDay.jsx';
 import AuthControls from './components/AuthControls.jsx';
 
@@ -375,12 +376,13 @@ export default function App() {
                 <div className="col-span-12">
                   <ScheduleAhead schedule={futureSchedule} />
                 </div>
-                <div className="col-span-12 md:col-span-6">
-                  <LatestDiscussion onOpenForum={openForum} />
-                </div>
-                <div className="col-span-12 md:col-span-6">
-                  <Suggestions onOpenForum={openForum} />
-                </div>
+                {/* Latest discussion and Top ideas were REMOVED from Home on
+                    2026-09-01. Measured before removal: 312px each, 624px of a
+                    2081px page, 30%, to show "No discussions yet" and two ideas
+                    both posted by Auri. On a landing page an empty forum panel
+                    argues the community is dead, which is the opposite of what
+                    the rest of the page is for. Both live one nav click away in
+                    Forum, which is where a member goes looking for them. */}
               </div>
             )}
 

@@ -2,6 +2,45 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, Home loses Latest discussion and Top ideas
+
+**Current state:** done, audit green (11 suites), not pushed. Auri asked whether the two panels
+belonged on the landing page. Measured before touching anything, and they did not.
+
+**The numbers that settled it**
+- Latest discussion: **312px to say "No discussions yet."**
+- Top ideas: **312px** showing **two** ideas, **both posted by Auri**, one of which reads as a
+  scratch note ("notipon has free listening as well, try it maybe with podcasts").
+- Together **624px of a 2081px page, 30%**. Page is now **1745px**.
+
+An empty forum panel on a landing page argues the community is dead, which is the exact opposite
+of what the rest of that page is now doing. Both live one nav click away under Forum, which is
+where a member goes looking for them. The 2026-08-31 declutter audit found the same thing
+independently (its next-step 1, "collapse LatestDiscussion when empty, 534px") and it had sat
+open since.
+
+**Not deleted:** \`src/components/Suggestions.jsx\` and \`src/components/LatestDiscussion.jsx\` are
+now **orphaned, imported by nothing**. Kept deliberately because Auri said "not sure", not
+"remove". Delete both if the panels are not coming back.
+
+### Next steps
+1. **Decide on the two orphaned components** above. They are dead code until then.
+2. Auri still needs to read the hero copy at \`Hero.jsx:102\`, and to sign in once for the
+   never-tested successful-write path.
+3. 4 open \`/#tools\` findings, and **30 commits unpushed**.
+
+### Gotchas
+- **This is the third time a Home panel has been measured rather than argued about**, and each
+  time the measurement decided it instantly. \`getBoundingClientRect().height\` on a panel versus
+  \`document.body.scrollHeight\` turns "I am not sure this belongs" into "312px to say nothing".
+- Removing the last render of a component leaves its FILE orphaned but the build still passes,
+  because nothing imports it and nothing errors. \`grep -rn '<ComponentName'\` after any removal.
+
+### File pointers
+- \`src/App.jsx\` · the Home grid, now NextSession + ScheduleAhead only, with a comment recording
+  the measurements. The two imports are gone, replaced by a note about the orphaned files.
+- \`src/components/Discussions.jsx\` · where discussions and ideas actually live, on the Forum tab.
+
 ## 2026-09-01, landing page audit vs other communities. 8 of 10 applied
 
 **Current state:** **8 of 10 done** across `3cd3f54` (the four cuts), `f799765` (photos) and
