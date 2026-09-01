@@ -2,6 +2,68 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## 2026-09-01, /#news audit. Findings only, NOTHING applied
+
+**Current state:** no code changed. Ten findings, measured on the running page and on
+`data/news.json`. **Four of them (3, 4, 7, 9) were already found by the 2026-08-31 declutter
+audit and have sat open since** — that audit is still entirely unstarted.
+
+### Ranked next steps, none started
+
+**Freshness and logic**
+1. **The roundup is stale and only whispers it.** `curatedAt: 2026-08-29`, window
+   "Aug 15 - Aug 29", newest story 27 Aug, today 1 Sept. The rule is 12 items from the past 14
+   days; the oldest here (20 Aug) is already 12 days old, so the window closes on itself within
+   days. Only signal is "Last reviewed 29 August 2026" in 11px grey.
+2. **"Coming soon: this updates itself"** is a roadmap promise published to visitors, telling a
+   reader the page is hand-maintained and may not be current. Same class as the Home ops notes.
+3. **The `#N` badge is an id, not a rank.** Renders **#3 #6 #7 #1 #2 #4 #5 #11 #10 #12 #8 #9**
+   down the page, in the most prominent corner of each cover. *(Also found 2026-08-31.)*
+4. **"1 min" on all twelve cards, always.** `News.jsx:7` `readingMinutes` is
+   `max(1, round(words/200))` and the longest item is ~190 words, so it is **mathematically
+   incapable of returning anything else**. *(Also found 2026-08-31.)*
+
+**Sources**
+5. **Half the items are single-sourced.** 6 of 12 have one source; exactly one has three.
+   Counts per item: 2,2,1,3,2,1,1,1,2,2,1,1.
+6. **Several "sources" are the subject's own press office** and are styled identically to CNBC or
+   Reuters: "Anthropic" / "Anthropic Newsroom" on Anthropic stories, "University of Copenhagen"
+   on the Copenhagen story, "Danish AI Safety Conference" on the conference.
+7. **"N sources" is printed right next to the source names it counts.** *(Also found
+   2026-08-31.)*
+
+**Amount of text**
+8. **~2,900 words if everything is expanded.** 3,932 chars collapsed, each card reveals another
+   **874**. Every item carries three prose blocks (`summary`, `whyItMatters`, `whyForUs`)
+   whether or not it earns three. Total prose in the data: 9,816 chars across 12 items.
+9. **6 of 12 covers have the title burned into the image** (`*-card.png`) with the same title as
+   text directly beneath. The burned-in copy cannot be selected, searched, translated or
+   resized. *(Also found 2026-08-31, which called it "a generation decision, not a code fix".)*
+
+**UI**
+10. **40 controls under 24x24, the worst page on the site.** "Read more"/"Show less" and every
+    source link render 16px high. Separately **12 of 43 external links do not announce the new
+    tab** while 31 do, so the pattern is applied inconsistently.
+
+### Checked and NOT findings, do not re-audit
+- Search and the Global/Europe filters work.
+- The 6 global / 6 europe split matches the rule exactly.
+- The two theme paragraphs are the strongest writing on the site. Leave them.
+- All 12 images have empty `alt`, which is CORRECT here: the covers are decorative and every
+  title is already adjacent as real text.
+
+### Gotchas
+- **A "reading time" derived from a word count can be a constant in disguise.** Check the range
+  the formula can actually produce against the real data before shipping it as information.
+- The same is true of `#N`: it came from `item.n`, a stable id, rendered where a rank belongs.
+
+### File pointers
+- `data/news.json` · `curatedAt`, `windowLabel`, `themes`, and the 12 `items`, each with
+  `summary` / `whyItMatters` / `whyForUs` / `sources[]` / `image`.
+- `src/components/News.jsx` · `:7` `readingMinutes`, `:15` the search haystack, `:115` the
+  header and window label, `:238` the card title, `:279` the "N min · N sources" meta row.
+- `scripts/fetch-news-images.js`, `scripts/draft-news.mjs` · the pipeline behind the data.
+
 ## 2026-09-01, backgrounds: brand pattern as an edge-masked overlay
 
 **Current state:** done, audit green (11 suites, theme suite included, so no contrast
