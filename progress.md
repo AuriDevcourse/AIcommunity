@@ -68,8 +68,10 @@ the fix they share.
   removes the key on mount. One-shot, works as intended.
 
 ### File pointers
-- `src/components/Tools.jsx` · the list, the `active` tool state, and the false "Free, no
-  sign-up" line at `:48`. Sub-tools render in place of the list, which is why there is no URL.
+- `src/components/Tools.jsx` (line numbers as of `b221172`) · `:14` the `TOOLS` array, now two
+  entries, with a comment recording what was removed and why. `:21` the `active` state: a
+  sub-tool renders IN PLACE OF the list and never touches the URL, which is the whole of finding
+  8. `:46/:50` the heading and subtitle, both rewritten because each remaining tool needs auth.
 - `api/_postmaker.js` · `:251` `handleGeneratePost`, `:263` the leaked message, `:151/196`
   `max_tokens`. `api/generate-post.js` · guarded, `limit: 10`.
 - `api/_imgbb.js:8` `handleImageUpload`, size cap at `:15`, leaked message at `:30`.
