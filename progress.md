@@ -19,6 +19,15 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
    lines tall and the others are two. They now carry a rule between them via
    `[&>*+*]:border-l` with symmetric padding.
 
+### Next steps
+1. **Auri must restart `npm run dev`** to see the hover fix locally; the dev CSS is stale (see
+   the gotcha below). The production build already has it.
+2. **The hero copy is still unreviewed.** `Hero.jsx:91` is now the whole first impression, and
+   both the h1 and the paragraph under it were written by me, not by Auri.
+3. Unchanged from earlier entries: 4 open `/#tools` findings, the two orphaned components
+   (`Suggestions.jsx`, `LatestDiscussion.jsx`), the signed-in verification pass, and **32
+   commits unpushed**.
+
 ### Gotchas
 - **Tailwind v4 sets the standalone `scale` property, NOT `transform`.** Reading
   `getComputedStyle(el).transform` on a `scale-[1.04]` element returns `none` and looks like the
@@ -32,8 +41,8 @@ A running log of what's built, what needs setup, and what's planned. Live at htt
   the property AT ALL (`none` vs a value), not by catching the peak.
 
 ### File pointers
-- `src/components/Hero.jsx` · `:91` the h1, `:152` the stat row with the divider utilities,
-  `:195` the strip, thumbnails carrying `group/thumb`.
+- `src/components/Hero.jsx` (lines as of `95044a8`) · `:91` the h1, `:153` the stat row and its
+  divider utilities, `:205` the thumbnail carrying `group/thumb`.
 - `index.html:19,26` and `public/manifest.webmanifest:4` · the share/PWA copy, which has to be
   changed with the headline or the old one keeps showing up in link previews.
 
