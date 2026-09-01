@@ -2,10 +2,13 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. Findings only, NOTHING applied
+## 2026-09-01, /#sessions audit. 10 findings, item 2 applied
 
-**Current state:** no code changed by this audit. Measured signed OUT against the **dev** server
-(5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
+**Current state:** **item 2 is IMPLEMENTED and UNCOMMITTED**, waiting on Auri's review; the
+other nine are untouched. Working tree dirty: new `src/lib/api.js`, edited
+`src/components/SessionsGallery.jsx`. `npx vite build` clean, `npm run audit` PASS all 10.
+Everything below was found before any of it changed, measured signed OUT against the **dev**
+server (5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
 for ten improvements across UX, security and convenience, prompted by "you can edit pictures
 even though you are not logged in".
 
@@ -14,7 +17,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps, none started
+### Ranked next steps (1 done, uncommitted; 9 to go)
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -29,6 +32,20 @@ below is the UI around that gate.
    401, so that catch is **dead code** and nothing checks `res.ok`. Any failed save looks like a
    success and reverts on reload. `deletePhotos:98` has the same shape. Fix: check `res.ok`,
    roll back, surface the error.
+   **DONE, uncommitted.** New `src/lib/api.js` exports `writeJson()`, which inspects the
+   response instead of ignoring it: a non-OK status, or a 200 carrying `{ok:false}`, both come
+   back as `{ok:false, status, error}` with the server's own sentence. `saveMeta` snapshots
+   **just that date** before the optimistic update and restores it on refusal (per-date, so a
+   rollback cannot clobber an unrelated edit that landed in between). `deletePhotos` returns the
+   first refusal; `loadUploads()` was already the rollback. `saveName` / `moveTo` /
+   `deleteSelected` await the result, and `flashSaved()` fires only on a real success. A
+   `role="alert"` banner in the modal carries the message.
+   *Verified signed out:* renaming to "HACKED BY ANON" now shows "Please sign in to do that.",
+   the Saved flash stays at opacity 0, and the field reverts. Before, the rename appeared to
+   stick and flashed Saved.
+   *Not verified:* the signed-IN success path, no way to log in as Auri. The branch is
+   `if (r && r.ok === false) error else flashSaved()`, so an undefined return still flashes
+   success, which is the safe default. **Auri should click one rename while signed in.**
 3. **`guardMutation` fails OPEN** (api/_guard.js:84). `if (authConfigured())` wraps the whole
    auth check, so a missing `VITE_SUPABASE_URL`/anon key makes every mutating route accept
    anonymous writes. Latent today (both envs configured), one missing env var from live.
@@ -73,7 +90,10 @@ below is the UI around that gate.
   `:354` the card Edit button (correct focus-visible pattern), `:497-543` the edit modal grid,
   `:509-512` the drag handlers.
 - `api/_guard.js:84` `guardMutation`, `:75` `requireUser`. `api/session-meta.js` · the guarded route.
-- `src/lib/supabase.js:36` `authedFetch`, the reason every `catch` around a write is dead code.
+- `src/lib/supabase.js:36` `authedFetch`, the reason every `catch` around a write was dead code.
+- `src/lib/api.js` · `writeJson`, the fix. **Any new write goes through it**, never through
+  `authedFetch` directly. Other components still call `authedFetch` raw and have the same
+  swallowed-failure shape: `grep -rn authedFetch src/` to find them.
 - `src/components/AuthControls.jsx:110,259` · the Escape + modal pattern to copy.
 
 ## 2026-09-01, heading structure app-wide, three /#assets fixes, photos API made loud

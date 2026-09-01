@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare, ChevronDown, ChevronUp, History, CircleSlash } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
-import { authedFetch } from '../lib/supabase.js';
+import { writeJson } from '../lib/api.js';
 import PhotoUploader from './PhotoUploader.jsx';
 import { fetchPhotos } from '../lib/photos.js';
 
@@ -45,7 +45,10 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
   }, []);
   const metaFor = (date) => { const m = meta[date]; return typeof m === 'string' ? { name: m } : (m || {}); };
 
+  // Optimistic, but only until the server disagrees. Snapshot just this date so a
+  // rollback cannot clobber an unrelated edit that landed in between.
   async function saveMeta(date, patch) {
+    const before = meta[date];
     setMeta((m) => {
       const cur = typeof m[date] === 'string' ? { name: m[date] } : { ...(m[date] || {}) };
       for (const [k, v] of Object.entries(patch)) { if (v) cur[k] = v; else delete cur[k]; }
@@ -53,12 +56,18 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
       if (Object.keys(cur).length) next[date] = cur; else delete next[date];
       return next;
     });
-    try {
-      await authedFetch('/api/session-meta', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, ...patch }),
+    const r = await writeJson('/api/session-meta', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, ...patch }),
+    });
+    if (!r.ok) {
+      setMeta((m) => {
+        const next = { ...m };
+        if (before === undefined) delete next[date]; else next[date] = before;
+        return next;
       });
-    } catch { /* optimistic state already applied */ }
+    }
+    return r;
   }
   const fallbackName = (s) => (s.number != null ? `Session #${s.number}` : fmtDate(s.date));
   // Display name priority: a REAL custom rename (one that differs from the generic
@@ -103,10 +112,13 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
 
   async function deletePhotos(date, urls) {
     const list = urls.filter((u) => u.startsWith('http')); // only runtime uploads are deletable
+    let failure = null;
     for (const url of list) {
-      try { await authedFetch(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' }); } catch { /* reload reflects reality */ }
+      const r = await writeJson(`/api/photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' });
+      if (!r.ok && !failure) failure = r; // report the first refusal, keep trying the rest
     }
-    await loadUploads();
+    await loadUploads(); // the reload is the rollback: whatever survived comes back
+    return failure || { ok: true };
   }
 
   return (
@@ -395,6 +407,8 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
   const [dragUrl, setDragUrl] = useState(null);
   const [overUrl, setOverUrl] = useState(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  // Whatever the server said when it refused. Cleared on the next attempt.
+  const [actionError, setActionError] = useState('');
   const savedTimer = useRef(null);
   useEffect(() => () => savedTimer.current && clearTimeout(savedTimer.current), []);
   const flashSaved = () => {
@@ -413,11 +427,17 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
     });
   }, [photos]);
 
-  const saveName = () => {
+  const saveName = async () => {
     const t = val.trim();
     const next = t && t !== defaultName ? t : ''; // empty / default clears the override
     if ((next || defaultName) === name) return; // no change → no flash
-    onRename(next);
+    setActionError('');
+    const r = await onRename(next);
+    if (r && r.ok === false) {
+      setActionError(r.error);
+      setVal(name); // the parent rolled the name back; put the field back with it
+      return;
+    }
     flashSaved();
   };
   const toggle = (url) => setSelected((s) => { const n = new Set(s); n.has(url) ? n.delete(url) : n.add(url); return n; });
@@ -425,9 +445,11 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
   const toggleAll = () => setSelected(allSelected ? new Set() : new Set(deletableUrls));
 
   // Move a photo to a given index and persist the whole order (first = featured).
-  const moveTo = (url, toIdx) => {
+  const moveTo = async (url, toIdx) => {
     const rest = photos.filter((u) => u !== url);
-    onReorder([...rest.slice(0, toIdx), url, ...rest.slice(toIdx)]);
+    setActionError('');
+    const r = await onReorder([...rest.slice(0, toIdx), url, ...rest.slice(toIdx)]);
+    if (r && r.ok === false) setActionError(r.error);
   };
   const onDrop = (targetUrl) => {
     if (dragUrl && dragUrl !== targetUrl) moveTo(dragUrl, photos.indexOf(targetUrl));
@@ -439,7 +461,9 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
     if (!selected.size || busy) return;
     if (!confirm(`Delete ${selected.size} photo${selected.size > 1 ? 's' : ''}? This cannot be undone.`)) return;
     setBusy(true);
-    await onDelete([...selected]);
+    setActionError('');
+    const r = await onDelete([...selected]);
+    if (r && r.ok === false) setActionError(r.error);
     setSelected(new Set());
     setBusy(false);
   }
@@ -451,6 +475,12 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
           <div className="flex items-center gap-1.5 h-section"><Pencil size={12} strokeWidth={2.2} /><span>Edit session</span></div>
           <button onClick={onClose} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
+
+        {actionError && (
+          <div role="alert" className="mb-4 rounded-lg bg-err/10 px-3 py-2 text-xs text-err">
+            {actionError}
+          </div>
+        )}
 
         <label className="block relative">
           <span className="text-[11px] font-medium text-muted">Session name</span>
