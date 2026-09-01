@@ -65,7 +65,18 @@ before, because Tailwind v4 preflight resets heading font-size, weight and margi
   of these swaps becomes a visible size change.
 - `npm run audit` starts its own dev server on 5280 and fails to bind if one is already running
   from `npm run dev`; it still passes because it reuses the live one, but the log line
-  "dev up at" then refers to the server you started.
+  "dev up at" then refers to the server you started. **It also leaves a preview server on 5281
+  behind**, which is the trap in the next bullet.
+- **On preview, exactly the 2026-05-31 and 2026-06-14 sessions lose every photo, and it looks
+  like data loss.** They are the only two whose photos live entirely in Vercel Blob as runtime
+  uploads; every other session has committed files in `public/sessions/<date>/`. `vite preview`
+  serves `dist/` with no functions, so `/api/photos` returns **200 with index.html**,
+  `r.json()` throws, and `SessionsGallery.jsx:24` catches it and falls back to `setUploads({})`
+  with no signal. Diagnosed 2026-09-01 from exactly this symptom. The tell that it is the API
+  and not the data: 2026-05-03 drops from 12 photos to 11, because it has 11 committed plus one
+  Blob upload. Verified prod is fine (both covers load at naturalWidth 1200, counts 21 and 5).
+  **Use 5280.** Worth fixing: check `r.ok` plus the content-type and log a DEV warning, so a
+  non-JSON 200 stops being indistinguishable from "no uploads yet".
 
 ### File pointers
 - `src/App.jsx:338` · why the masthead is Home-only, the reason the other tabs had no h1.
