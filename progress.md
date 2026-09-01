@@ -2,11 +2,11 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, /#sessions audit. 10 findings, item 2 applied
+## 2026-09-01, /#sessions audit. 10 findings, items 1 and 2 applied
 
-**Current state:** **item 2 is IMPLEMENTED and UNCOMMITTED**, waiting on Auri's review; the
-other nine are untouched. Working tree dirty: new `src/lib/api.js`, edited
-`src/components/SessionsGallery.jsx`. `npx vite build` clean, `npm run audit` PASS all 10.
+**Current state:** **items 1 and 2 are done**, the other eight are untouched. Item 2 is
+committed as `a072830`; item 1 is committed alongside this entry. Neither is pushed yet.
+`npx vite build` clean, `npm run audit` PASS all 10 after each.
 Everything below was found before any of it changed, measured signed OUT against the **dev**
 server (5280) at 1280 wide, in Chrome via the extension, cross-checked against the source. Auri asked
 for ten improvements across UX, security and convenience, prompted by "you can edit pictures
@@ -17,7 +17,7 @@ even though you are not logged in".
 empty body, which cannot mutate anything). The archive is not writable by strangers. Everything
 below is the UI around that gate.
 
-### Ranked next steps (1 done, uncommitted; 9 to go)
+### Ranked next steps (2 done; 8 to go)
 
 **Auth pass (do together)**
 1. **Every write control is shown to signed-out visitors.** The per-card Edit button appears on
@@ -25,6 +25,16 @@ below is the UI around that gate.
    all, star-to-feature, delete. "Add photos" is not disabled either (`disabled:false`, no
    `aria-disabled`). Nothing on screen says you are signed out. Gate the affordance, do not
    only reject at the API.
+   **DONE.** `canEdit` in SessionsGallery mirrors `guardMutation` exactly:
+   `authEnabled ? (!authLoading && Boolean(user)) : true`. Without Supabase the server allows
+   the write, so the UI must too; while auth resolves it stays false, or every visitor gets a
+   flash of Edit buttons that then vanish. The per-card Edit button is **absent, not disabled**
+   (`onEdit` is null, the button does not render), because the server refuses that write anyway.
+   "Add photos" stays visible but becomes **"Sign in to add photos"** and calls `openAuth()`:
+   contributing photos is the point of the page, so a visitor should still see the invitation.
+   *Verified signed out:* 0 Edit buttons, the label reads "Sign in to add photos", clicking it
+   opens the real auth modal. *Verified the render path is intact* by forcing `canEdit = true`
+   on the dev server: 9 Edit buttons, label back to "Add photos", editor opens. Probe reverted.
 2. **Writes are optimistic and swallow the rejection. This is the real bug and it hits
    signed-IN users too.** `saveMeta` (SessionsGallery.jsx:48) applies the rename to local state
    BEFORE the request, then `catch { /* optimistic state already applied */ }`. But

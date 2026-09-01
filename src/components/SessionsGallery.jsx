@@ -3,12 +3,21 @@ import { createPortal } from 'react-dom';
 import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare, ChevronDown, ChevronUp, History, CircleSlash } from 'lucide-react';
 import { fmtDate } from '../lib/dates.js';
 import { writeJson } from '../lib/api.js';
+import { useAuth } from '../lib/auth.jsx';
 import PhotoUploader from './PhotoUploader.jsx';
 import { fetchPhotos } from '../lib/photos.js';
 
 export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
   const [uploads, setUploads] = useState({}); // { date: [{url, uploader}] }
   const [showUpload, setShowUpload] = useState(false);
+
+  // Who is allowed to change anything. This mirrors guardMutation on the server
+  // exactly: with Supabase configured a write needs a signed-in user, without it
+  // the app is in its typed-name fallback mode and the server allows the write,
+  // so the UI has to allow it too. While auth is still resolving, assume NOT
+  // allowed, or every visitor gets a flash of Edit buttons that then vanish.
+  const { enabled: authEnabled, user, loading: authLoading, openAuth } = useAuth();
+  const canEdit = authEnabled ? (!authLoading && Boolean(user)) : true;
 
   // Sessions come from two sources: photos baked into the build (instant) and
   // runtime Blob uploads via /api/photos (async). Hold the grid behind skeletons
@@ -135,13 +144,16 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
                 : `${sorted.length} sessions.`}
           </p>
         </div>
+        {/* Contributing photos is the point of this page, so a signed-out visitor
+            still sees the invitation, it just routes to sign-in instead of to an
+            uploader whose every request would come back 401. */}
         <button
-          onClick={() => setShowUpload(true)}
+          onClick={() => (canEdit ? setShowUpload(true) : openAuth())}
           data-print="hide"
           className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-border bg-pill px-4 py-2 text-sm font-medium text-foreground hover:bg-foreground hover:text-background transition-colors"
         >
           <ImagePlus size={14} strokeWidth={2.2} />
-          Add photos
+          {canEdit ? 'Add photos' : 'Sign in to add photos'}
         </button>
       </div>
 
@@ -185,7 +197,7 @@ export default function SessionsGallery({ sessions, gaps = [], onOpenRecap }) {
               session={session}
               name={displayName(session)}
               cover={session.photos[0]}
-              onEdit={() => setEditDate(session.date)}
+              onEdit={canEdit ? () => setEditDate(session.date) : null}
               onRecap={onOpenRecap ? () => onOpenRecap(session.date) : null}
             />
           ))}
@@ -359,15 +371,19 @@ function SessionTile({ session, name, cover, onEdit, onRecap }) {
       </button>
 
       {/* Edit overlays the cover's top-right. Sibling (not nested) so it doesn't
-          conflict with the cover button; lifts on hover/focus. */}
-      <button
-        onClick={onEdit}
-        data-print="hide"
-        className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full chip-on-media px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
-        aria-label={`Edit ${name}`}
-      >
-        <Pencil size={12} strokeWidth={2.4} /> Edit
-      </button>
+          conflict with the cover button; lifts on hover/focus. Absent, not
+          disabled, for anyone who cannot use it: the server refuses their write
+          anyway, so offering the control only wastes their time. */}
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          data-print="hide"
+          className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full chip-on-media px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+          aria-label={`Edit ${name}`}
+        >
+          <Pencil size={12} strokeWidth={2.4} /> Edit
+        </button>
+      )}
 
       <div className="mt-4 flex items-start justify-between gap-2">
         <span className="text-base font-semibold leading-snug tracking-tight line-clamp-2 min-w-0">{name}</span>
