@@ -39,6 +39,25 @@ sessions shows 0 timeline controls, 9 tiles, h1 "Sessions".
 - Removing a component orphans more than the component: check for now-unused helpers, imports
   and props. `grep -c` each symbol before assuming.
 
+### Next steps
+1. `member.attended` is still computed in `scripts/build-data.js` and still shipped in
+   `src/data.json`, it is just no longer rendered. Left alone on purpose: it is cheap, and
+   deleting it would need a data rebuild plus a members-check change for no visible gain.
+   Remove it if the field is ever confusing rather than merely unused.
+2. If `theme` flakes again, convert its fixed sleeps to `waitFor` (see the gotcha above).
+3. Everything from the earlier entries still stands: the 4 open `/#tools` findings, the
+   signed-in verification pass, and **21 commits still unpushed**.
+
+### File pointers
+- `src/components/SessionsGallery.jsx:15` · `gaps: _gaps`, the deliberately-unused prop, with
+  the comment explaining why it is still accepted.
+- `src/components/MembersGallery.jsx:53` · `SORTS`, now two entries. The sort logic below it no
+  longer branches on `sortBy`, it is a plain name sort for anything that is not Featured.
+- `scripts/members-check.mjs` · the two inverted assertions.
+  `scripts/shell-check.mjs` · the replaced 8.8 block, and the header comment at the top of the
+  file that records what 8.8 used to cover.
+- `data/schedule.json` · still holds the recorded gaps, the only record those weeks happened.
+
 ## 2026-09-01, RESOLVED: the Supabase project was PAUSED, not gone. Auri reactivated it
 
 **Current state: FIXED, nothing to change.** Auri reactivated the project and it is the SAME
