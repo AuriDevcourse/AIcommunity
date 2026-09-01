@@ -2,9 +2,25 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
-## 2026-09-01, BLOCKER: the Supabase project is GONE. Site is read-only everywhere
+## 2026-09-01, RESOLVED: the Supabase project was PAUSED, not gone. Auri reactivated it
 
-**Current state:** `iogwikfvzxfblwuuvtmq.supabase.co` returns **Non-existent domain**. Confirmed
+**Current state: FIXED, nothing to change.** Auri reactivated the project and it is the SAME
+ref, so **no env var, no Vercel setting and no redeploy was needed**. Supabase free-tier pauses
+an idle project and, while paused, its subdomain stops resolving entirely, which is
+indistinguishable from a deleted project from the outside. Reactivation restored DNS, both
+providers (google: true, email: true) and every account.
+
+Verified after reactivation: DNS resolves (Cloudflare IPs), `/auth/v1/settings` returns 200 with
+the anon key, the PAGE can reach Supabase again (the exact call that threw `Failed to fetch`
+now answers), and an unauthenticated write returns a clean **401 "Please sign in to do that."**
+on both local and prod, meaning `verifyToken` can reach the auth server again.
+
+**It takes a couple of minutes.** Immediately after reactivation `/auth/v1/settings` answered
+**502** for about 90 seconds (6 polls) before flipping to 200. Do not conclude it failed.
+
+The original diagnosis, kept because the symptom will recur every time the project idles:
+
+`iogwikfvzxfblwuuvtmq.supabase.co` returned **Non-existent domain**. Confirmed
 on the local resolver AND on Cloudflare `1.1.1.1`, so it is not local DNS and not a paused
 project. The subdomain does not exist. **Nobody can sign in, on prod or locally**, and because
 the server cannot reach it either, `verifyToken` fails and EVERY mutating route 401s. Verified:
@@ -22,7 +38,13 @@ does not resolve, so there is no status code to report.
 `8233334` / `8c77b8c` turned a confusing late failure into a visible dead end: every write
 control now reads "Sign in to ..." and sign-in itself throws.
 
-### Next steps, needs Auri, not Claude
+### Next steps
+0. **Auri can now do the signed-in verification pass** that has been blocked all session: rename
+   a session, drag a photo, press Alt+arrow on a focused photo, and run the Post maker once.
+   Every REFUSAL path is verified; no SUCCESSFUL write has ever been exercised.
+
+**Steps 1 and 2 below are NO LONGER NEEDED** (kept only in case the project is ever really
+deleted). Steps 3 and 4 are still open and still worth doing:
 1. **Restore or recreate the Supabase project**, then set `VITE_SUPABASE_URL` and
    `VITE_SUPABASE_ANON_KEY` in `.env.local` AND in Vercel, and redeploy (the URL is baked into
    the client bundle at build time, so an env change alone does nothing until a rebuild).
@@ -44,7 +66,16 @@ control now reads "Sign in to ..." and sign-in itself throws.
    Rewrite or delete that section.
 
 ### Gotchas
-- **Every existing account dies with the old project.** Anyone who had signed in must sign up
+- **A paused Supabase project looks EXACTLY like a deleted one from outside.** The subdomain
+  stops resolving, so a public resolver says "Non-existent domain" and `fetch` throws
+  `Failed to fetch`. Before concluding a project is gone, check the Supabase dashboard for a
+  paused state. Free-tier projects pause when idle, so **this will happen again** to a community
+  site with quiet weeks.
+- After reactivation the auth endpoint answered **502 for ~90 seconds** before 200. Poll, do not
+  conclude failure.
+- Reactivation kept the same ref, both providers and all accounts, so nothing below about
+  recreating the project applied. The next bullet only matters for a genuine delete.
+- **If a project is ever really deleted, every existing account dies with it.** Anyone who had signed in must sign up
   again, and any `user.id` recorded against forum posts, polls, RSVPs or session edits will not
   match the new accounts. Ownership checks key on `user.id` (`api/_identity.js` `ownsRecord`).
 - **A dead host throws, it does not return a status.** `fetch()` rejects with
