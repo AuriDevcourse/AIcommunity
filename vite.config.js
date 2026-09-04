@@ -41,6 +41,7 @@ function pollsPlugin() {
         { handleMembers },
         { isOrganizer, ORGANIZER_ONLY },
         { handleProjects },
+        { handleShowcase },
       ] = await Promise.all([
         import('./api/_polls-core.js'),
         import('./api/_gcal.js'),
@@ -56,6 +57,7 @@ function pollsPlugin() {
         import('./api/_members.js'),
         import('./api/_roles.js'),
         import('./api/_projects.js'),
+        import('./api/_showcase.js'),
       ]);
       // Gate mutating requests (auth + rate limit) before running the handler.
       const gate = async (req, res, bucket, limit, dailyLimit = 0) => {
@@ -104,6 +106,26 @@ function pollsPlugin() {
           if (who.sent) return;
           const body = await readJsonBody(req);
           const { status, json } = await handleProjects({ method: req.method, body, user: who.user });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      // Public project showcase (the Projects tab), mirrors api/showcase.js.
+      server.middlewares.use('/api/showcase', async (req, res) => {
+        try {
+          if (req.method === 'GET') {
+            // Public read: soft-detect the caller only to mark their own cards.
+            const u = await requireUser(req);
+            const viewer = u.blocked ? null : (u.user || null);
+            const { status, json } = await handleShowcase({ method: 'GET', user: viewer });
+            return sendJson(res, status, json);
+          }
+          if (await gate(req, res, 'showcase', 15, 60)) return;
+          const who = await whoFor(req, res);
+          if (who.sent) return;
+          const body = await readJsonBody(req);
+          const { status, json } = await handleShowcase({ method: req.method, body, user: who.user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
