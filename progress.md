@@ -2,6 +2,30 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## Where things stand (2026-09-04, end of session)
+
+**Pushed the whole `feat/members-only-and-avatar-upload` branch to `main` today** (commit `1ae955f`, `bf09726..1ae955f`), Vercel auto-deploying. Per Auri's call, that shipped the members-only boundary + avatar upload + a new **Projects tab** + the **Learn security deck** together. Build was green before push.
+
+**New, still UNCOMMITTED on `feat`:** members-only tabs changed from the old "lock icon + sign-in wall" to **fully hidden + unreachable** when signed out. Forum/Members/Photos are filtered out of both the desktop and mobile menus while `!authUser`, and a signed-out visitor who hits `#members` / `#discussions` / `#sessions` by URL is redirected to Home. The `MembersOnly` wall component + `WALL_COPY` are removed; unused `Lock` / `LogIn` / `openAuth` cleaned. Build green; redirect verified for all three tabs; nav shows only Home, Learn, Projects, News, Tools when signed out.
+
+**Just done this session:**
+- Projects tab, `src/components/Projects.jsx` + `data/projects.json`. Per-project `public` flag hides login-gated links; `by` field credits the builder; `thumb` field shows a card thumbnail. First card is Breach Protocol (a security-learning game), links to https://breach-protocol-rho.vercel.app (its own static site at `Desktop/SideProjects/breach-protocol`), thumbnail at `public/projects/breach-protocol.svg` (on-brand SVG).
+- Learn, security deck added to `data/learn.json` (diagrams + a safe interactive XSS demo) and edge-click slide navigation in `src/components/Learn.jsx`.
+- Members-only gating rewrite in `src/App.jsx` (hidden + redirect, replacing lock + wall).
+- Forum switched OFF for now via a `hidden: true` flag on the discussions TAB. Hidden from both menus for everyone and `#discussions` bounces to Home. Re-enable by deleting the flag. (Build green, verified.)
+
+**Next steps:**
+1. Push the gating rewrite to main, prod still has the old lock+wall behavior. On `feat`: `git add -A && git commit`, then `git checkout main && git merge --ff-only feat/... && git push origin main`.
+2. Signed-in smoke test still pending (see the 2026-09-02 entry), nothing on this branch has been seen signed in.
+3. Optional: custom domain `breach.auridev.com` for the Breach Protocol link (add domain in Vercel + one CNAME on auridev.com).
+
+**Gotchas:**
+- The obvious `goTo('home')` redirect silently reverted (the hash-sync machinery re-set the tab from the URL); the redirect uses `window.location.replace('#home')` instead, which drives the app's own hashchange handler.
+- The gated-tab redirect only fires once auth resolves to no-member, or after a 3s grace if the auth check stalls, so a real member's deep-link survives a reload.
+- Local dev: `supabase.auth.getSession()` can hang in a headless browser, leaving auth `loading` stuck true; prod resolves fast.
+
+**File pointers:** `src/App.jsx` (TABS `gated` flags, `hiddenTab`/`visibleTabs`, redirect effect ~line 236), `src/components/Projects.jsx`, `data/projects.json`, `src/components/Learn.jsx`, `data/learn.json`.
+
 ## Where things stand (2026-09-02, end of session)
 
 **Branch `feat/members-only-and-avatar-upload`, everything below is UNCOMMITTED.** One day of

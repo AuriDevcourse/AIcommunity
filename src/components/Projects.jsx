@@ -31,8 +31,14 @@ export default function Projects() {
               href={p.url}
               target="_blank"
               rel="noreferrer"
-              className="warm-card card-interactive p-5 text-left flex flex-col h-full"
+              className="warm-card card-interactive text-left flex flex-col h-full overflow-hidden"
             >
+              {p.thumb && (
+                <div className="aspect-[16/9] bg-pill border-b border-border overflow-hidden">
+                  <img src={p.thumb} alt="" loading="lazy" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="p-5 flex flex-col flex-1">
               <div className="flex items-center gap-2">
                 <span className={`pill ${STATUS_PILL[p.status] || 'pill-mute'}`}>{STATUS_LABEL[p.status] || p.status}</span>
               </div>
@@ -51,6 +57,7 @@ export default function Projects() {
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold flex-none">
                   {p.cta || 'Open'} <ArrowUpRight size={13} strokeWidth={2.5} />
                 </span>
+              </div>
               </div>
             </a>
           ))}

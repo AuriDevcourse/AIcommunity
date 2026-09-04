@@ -25,7 +25,7 @@ const BrandAssets = lazy(() => import('./components/BrandAssets.jsx'));
 import ThemeToggle from './components/ThemeToggle.jsx';
 import LegalPage, { Footer, LEGAL_KEYS, FOOTER_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Rocket, Menu, X, Check, Lock, LogIn } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Rocket, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 import { useSchedule } from './lib/schedule.js';
 import { useAuth } from './lib/auth.jsx';
@@ -37,7 +37,7 @@ import { useAuth } from './lib/auth.jsx';
 // When Supabase is not configured there is no sign-in, so nothing is gated.
 const TABS = [
   { key: 'home',        label: 'Home',     icon: LayoutDashboard },
-  { key: 'discussions', label: 'Forum',    icon: MessagesSquare, gated: true },
+  { key: 'discussions', label: 'Forum',    icon: MessagesSquare, gated: true, hidden: true },
   { key: 'learn',       label: 'Learn',    icon: GraduationCap },
   { key: 'projects',    label: 'Projects', icon: Rocket },
   { key: 'news',        label: 'News',     icon: Newspaper },
@@ -225,11 +225,35 @@ export default function App() {
   // scheduled" because an API blinked.
   const { upcoming: liveUpcoming, status: scheduleStatus } = useSchedule(data.schedule.upcoming, data.schedule.rhythm);
 
-  // Members-only tabs. `locked` is what the nav shows (a small lock next to the
-  // label); the wall itself renders in place of the tab content below.
-  const { enabled: authEnabled, user: authUser, loading: authLoading, openAuth } = useAuth();
+  // Members-only tabs (Forum, Members, Photos) are fully hidden from the menu
+  // whenever there is no signed-in member, including while auth is still
+  // resolving, so an anonymous visitor never even sees them. They are also
+  // unreachable: a signed-out visitor who lands on one by URL is bounced to Home.
+  const { enabled: authEnabled, user: authUser, loading: authLoading } = useAuth();
   const isGated = (key) => authEnabled && Boolean(TABS.find((t) => t.key === key)?.gated);
-  const locked = (key) => isGated(key) && !authUser && !authLoading;
+  const hiddenTab = (key) => isGated(key) && !authUser;
+  // A tab is off the menu if it is switched off entirely (`hidden`) or gated to
+  // a signed-out visitor.
+  const visibleTabs = TABS.filter((t) => !t.hidden && !hiddenTab(t.key));
+  // Bounce a visitor off a gated tab unless they are a signed-in member. Redirect
+  // at once when auth has resolved to no member; if the auth check is still
+  // pending, wait a short grace period (so a real member's session can load)
+  // and then leave. A member arriving mid-wait cancels the redirect.
+  useEffect(() => {
+    if (!authEnabled || authUser || !isGated(tab)) return;
+    // Replace (not push) the URL fragment so Back does not walk back onto the
+    // gated tab, and drive it through the app's own hashchange handler.
+    const bounce = () => { if (typeof window !== 'undefined') window.location.replace('#home'); };
+    if (!authLoading) { bounce(); return; }
+    const t = setTimeout(bounce, 3000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, authEnabled, authLoading, authUser]);
+  // A `hidden` tab is switched off for everyone: never in the menu, and any
+  // direct URL to it bounces to Home.
+  useEffect(() => {
+    if (TABS.find((t) => t.key === tab)?.hidden && typeof window !== 'undefined') window.location.replace('#home');
+  }, [tab]);
   const todayIso = TODAY.toISOString().slice(0, 10);
   // Google Calendar only carries date/theme/venue/startsAt. Everything else a
   // session knows (topics, who is presenting, whether the venue is actually
@@ -302,7 +326,7 @@ export default function App() {
             </a>
             {/* Desktop / tablet: top menu. Mobile uses the fixed bottom bar below. */}
             <nav className="hidden sm:flex items-center gap-0.5">
-              {TABS.map((t) => {
+              {visibleTabs.map((t) => {
                 const active = tab === t.key;
                 return (
                   <button
@@ -313,10 +337,7 @@ export default function App() {
                       active ? 'text-foreground' : 'text-muted hover:text-foreground'
                     }`}
                   >
-                    <span className="inline-flex items-center gap-1">
-                      {t.label}
-                      {locked(t.key) && <Lock size={11} strokeWidth={2.2} aria-label="members only" className="opacity-70" />}
-                    </span>
+                    {t.label}
                     {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-foreground" aria-hidden />}
                   </button>
                 );
@@ -387,8 +408,8 @@ export default function App() {
         <TabErrorBoundary key={`eb-${tab}`}>
         <Suspense fallback={<TabFallback />}>
           <div key={tab} className="tab-enter">
-            {isGated(tab) && !authUser ? (
-              authLoading ? <TabFallback /> : <MembersOnly tab={tab} onSignIn={openAuth} />
+            {(isGated(tab) && !authUser) || TABS.find((t) => t.key === tab)?.hidden ? (
+              <TabFallback />
             ) : (
             <>
             {tab === 'home' && (
@@ -456,7 +477,7 @@ export default function App() {
               </button>
             </div>
             <div className="p-2 grid gap-0.5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
-              {TABS.map((t) => {
+              {visibleTabs.map((t) => {
                 const Icon = t.icon;
                 const active = tab === t.key;
                 return (
@@ -470,7 +491,6 @@ export default function App() {
                   >
                     <Icon size={18} strokeWidth={2} />
                     <span className="flex-1 text-left">{t.label}</span>
-                    {locked(t.key) && !active && <Lock size={14} strokeWidth={2} aria-label="members only" className="opacity-60" />}
                     {active && <Check size={16} strokeWidth={2.5} />}
                   </button>
                 );
@@ -485,48 +505,6 @@ export default function App() {
 
       {import.meta.env.DEV && <Agentation />}
     </div>
-  );
-}
-
-// What a signed-out visitor sees on a members-only tab. Says what is behind the
-// door, then offers the one action. Home, Learn and News stay open, and the copy
-// says so, because the point is to invite, not to shut out.
-//
-// This is a real boundary, not only a wall: the read routes behind these tabs
-// (/api/members, /api/photos, /api/polls, /api/topics, /api/threads) require a
-// signed-in member, RSVP and calendar reads return counts without names, and
-// the bundle carries member and attendee COUNTS, never names. What stays public
-// on purpose: the committed highlight photos on Home and in session recaps, and
-// demo presenter first names in recaps (they are the point of a recap).
-const WALL_COPY = {
-  members: {
-    title: 'Sign in to see who is in the room',
-    body: 'The member directory shows real names and faces, so it stays inside the community.',
-  },
-  sessions: {
-    title: 'Sign in to browse the photo archive',
-    body: 'Every session, every photo. A few highlights stay on Home and in the session recaps.',
-  },
-  discussions: {
-    title: 'Sign in to join the forum',
-    body: 'Topics, ideas and polls are where members plan the next Sunday together.',
-  },
-};
-
-function MembersOnly({ tab, onSignIn }) {
-  const copy = WALL_COPY[tab] || { title: 'Sign in to open this page', body: 'This page is for members of the community.' };
-  return (
-    <section className="card card-pad mx-auto max-w-md text-center py-10" aria-labelledby="members-only-title">
-      <span className="mx-auto grid place-items-center w-11 h-11 rounded-full bg-pill text-foreground" aria-hidden>
-        <Lock size={18} strokeWidth={2} />
-      </span>
-      <h2 id="members-only-title" className="mt-4 text-lg font-semibold tracking-tight">{copy.title}</h2>
-      <p className="mt-2 text-sm text-muted leading-relaxed">{copy.body}</p>
-      <button onClick={onSignIn} className="btn btn-primary mt-5">
-        <LogIn size={14} strokeWidth={2.2} /> Sign in or create an account
-      </button>
-      <p className="mt-4 text-xs text-muted">Free, and takes a minute. Home, Learn and News stay open to everyone.</p>
-    </section>
   );
 }
 
