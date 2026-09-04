@@ -146,14 +146,17 @@ export default function App() {
     // Don't rewrite the hash while it carries an auth callback (e.g. an
     // implicit-flow #access_token=...), or we'd wipe it before Supabase reads it.
     if (/access_token=|provider_token=|[?&]?error=/.test(current)) return;
-    if (current === tab) {
+    // Home is the bare URL (no #home); every other tab is a #hash.
+    const want = tab === 'home' ? '' : tab;
+    if (current === want) {
       didInitialHashSync.current = true;
       return;
     }
+    const url = want ? `#${want}` : `${window.location.pathname}${window.location.search}`;
     if (didInitialHashSync.current) {
-      window.history.pushState(null, '', `#${tab}`);
+      window.history.pushState(null, '', url);
     } else {
-      window.history.replaceState(null, '', `#${tab}`);
+      window.history.replaceState(null, '', url);
       didInitialHashSync.current = true;
     }
   }, [tab, recapDate, present]);
