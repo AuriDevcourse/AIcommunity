@@ -27,12 +27,9 @@ function pollsPlugin() {
     async configureServer(server) {
       // Loaded here (post-loadEnv) so the modules' top-level env reads succeed.
       const [
-        { handlePolls },
         { handleAttendees, listUpcomingSessions },
         { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured },
         { handleGeneratePost, streamPostToRes, postmakerConfigured },
-        { handleThreads },
-        { handleTopics },
         { handleImageUpload },
         { handleSessionMeta },
         { handleRsvpGet, handleRsvpPost },
@@ -43,12 +40,9 @@ function pollsPlugin() {
         { handleProjects },
         { handleShowcase },
       ] = await Promise.all([
-        import('./api/_polls-core.js'),
         import('./api/_gcal.js'),
         import('./api/_photos.js'),
         import('./api/_postmaker.js'),
-        import('./api/_threads.js'),
-        import('./api/_topics.js'),
         import('./api/_imgbb.js'),
         import('./api/_session-meta.js'),
         import('./api/_rsvp.js'),
@@ -131,25 +125,6 @@ function pollsPlugin() {
           sendJson(res, 500, { ok: false, error: e.message });
         }
       });
-      server.middlewares.use('/api/polls', async (req, res) => {
-        try {
-          if (await gate(req, res, 'polls', 60)) return;
-          let user = null;
-          if (req.method === 'GET') {
-            const rd = await readerFor(req, res);
-            if (rd.sent) return;
-          } else {
-            const who = await whoFor(req, res);
-            if (who.sent) return;
-            user = who.user;
-          }
-          const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handlePolls({ method: req.method, body, user });
-          sendJson(res, status, json);
-        } catch (e) {
-          sendJson(res, 500, { ok: false, error: e.message });
-        }
-      });
       server.middlewares.use('/api/attendees', async (req, res) => {
         try {
           const url = new URL(req.url, 'http://localhost');
@@ -157,46 +132,6 @@ function pollsPlugin() {
           const u = await requireReader(req);
           const user = u.blocked ? null : (u.user || (u.open ? { open: true } : null));
           const { status, json } = await handleAttendees({ query, user });
-          sendJson(res, status, json);
-        } catch (e) {
-          sendJson(res, 500, { ok: false, error: e.message });
-        }
-      });
-      server.middlewares.use('/api/threads', async (req, res) => {
-        try {
-          if (await gate(req, res, 'threads', 60)) return;
-          let user = null;
-          if (req.method === 'GET') {
-            const rd = await readerFor(req, res);
-            if (rd.sent) return;
-          } else {
-            const who = await whoFor(req, res);
-            if (who.sent) return;
-            user = who.user;
-          }
-          const url = new URL(req.url, 'http://localhost');
-          const query = Object.fromEntries(url.searchParams);
-          const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleThreads({ method: req.method, body, query, user });
-          sendJson(res, status, json);
-        } catch (e) {
-          sendJson(res, 500, { ok: false, error: e.message });
-        }
-      });
-      server.middlewares.use('/api/topics', async (req, res) => {
-        try {
-          if (await gate(req, res, 'topics', 30)) return;
-          let user = null;
-          if (req.method === 'GET') {
-            const rd = await readerFor(req, res);
-            if (rd.sent) return;
-          } else {
-            const who = await whoFor(req, res);
-            if (who.sent) return;
-            user = who.user;
-          }
-          const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleTopics({ method: req.method, body, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });

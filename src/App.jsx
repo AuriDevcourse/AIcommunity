@@ -6,17 +6,12 @@ import data from './data.json';
 import NextSession from './components/NextSession.jsx';
 import Hero from './components/Hero.jsx';
 import RecentSessions from './components/RecentSessions.jsx';
-// Suggestions and LatestDiscussion are no longer rendered anywhere. The files are
-// kept for now in case the panels come back once the forum has real traffic; if
-// they do not, delete both components.
-import TopicsForTheDay from './components/TopicsForTheDay.jsx';
 import AuthControls from './components/AuthControls.jsx';
 
 const MembersGallery = lazy(() => import('./components/MembersGallery.jsx'));
 const SessionsGallery = lazy(() => import('./components/SessionsGallery.jsx'));
 const News = lazy(() => import('./components/News.jsx'));
 const Tools = lazy(() => import('./components/Tools.jsx'));
-const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
 const Projects = lazy(() => import('./components/Projects.jsx'));
 const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
@@ -25,7 +20,7 @@ const BrandAssets = lazy(() => import('./components/BrandAssets.jsx'));
 import ThemeToggle from './components/ThemeToggle.jsx';
 import LegalPage, { Footer, LEGAL_KEYS, FOOTER_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Rocket, Menu, X, Check } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, Wrench, Images, GraduationCap, Rocket, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 import { useSchedule } from './lib/schedule.js';
 import { useAuth } from './lib/auth.jsx';
@@ -37,7 +32,6 @@ import { useAuth } from './lib/auth.jsx';
 // When Supabase is not configured there is no sign-in, so nothing is gated.
 const TABS = [
   { key: 'home',        label: 'Home',     icon: LayoutDashboard },
-  { key: 'discussions', label: 'Forum',    icon: MessagesSquare, gated: true, hidden: true },
   { key: 'learn',       label: 'Learn',    icon: GraduationCap },
   { key: 'projects',    label: 'Projects', icon: Rocket },
   { key: 'news',        label: 'News',     icon: Newspaper },
@@ -49,10 +43,6 @@ const TAB_KEYS = TABS.map((t) => t.key);
 
 function readTabFromHash() {
   const h = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
-  if (h === 'polls') return 'discussions'; // polls moved into the Forum
-  // A shared poll link. Polls live inside the Forum, so route there and let
-  // Polls.jsx scroll to the one named in the hash.
-  if (h.startsWith('poll/')) return 'discussions';
   if (h === 'cockpit') return 'home';      // renamed
   return (TAB_KEYS.includes(h) || FOOTER_KEYS.includes(h)) ? h : 'home';
 }
@@ -189,13 +179,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [menuOpen]);
 
-  // Jump to the Forum tab, optionally deep-linking to a specific topic (the
-  // Discussions component reads this on mount and expands it).
-  const openForum = (topicId) => {
-    if (topicId) { try { sessionStorage.setItem('forum_open_topic', topicId); } catch { /* ignore */ } }
-    setTab('discussions');
-  };
-
   // Navigate to a tab or legal page and jump to the top (used by the footer + back).
   const goTo = (key) => {
     if (typeof window !== 'undefined' && readRecapDate()) window.location.hash = key; // leave a recap route cleanly
@@ -299,7 +282,7 @@ export default function App() {
   if (present) {
     return (
       <Suspense fallback={<TabFallback />}>
-        <TopicsPresentation session={next} onClose={() => { window.location.hash = 'discussions'; }} />
+        <TopicsPresentation session={next} onClose={() => { window.location.hash = ''; }} />
       </Suspense>
     );
   }
@@ -435,16 +418,6 @@ export default function App() {
 
             {tab === 'learn' && <Learn />}
             {tab === 'projects' && <Projects />}
-            {tab === 'discussions' && (
-              <div className="grid grid-cols-12 gap-6 items-start">
-                <div className="col-span-12 lg:col-span-5 xl:col-span-4">
-                  <TopicsForTheDay session={next} />
-                </div>
-                <div className="col-span-12 lg:col-span-7 xl:col-span-8">
-                  <Discussions />
-                </div>
-              </div>
-            )}
             {tab === 'news' && <News />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
             {tab === 'members' && <MembersGallery />}
