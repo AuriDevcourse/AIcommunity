@@ -15,6 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { identityFor, normName as normIdentity } from './_identity.js';
+import { isOrganizer, ORGANIZER_ONLY } from './_roles.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LIST_KEY = 'aiworkshop:polls';
@@ -209,9 +210,21 @@ export async function handlePolls({ method, body, user = null, store = createSto
     return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
   }
 
-  // close + delete are intentionally NOT exposed via the API, manage polls
-  // (close/lock, delete) directly in the Upstash database. Set a poll's
-  // "closed": true there and the UI will disable voting on it.
+  // Close, reopen and delete: organizer only (api/_roles.js). Until 2026-09-02
+  // these were not exposed at all and Auri edited Upstash by hand.
+  if (action === 'close' || action === 'delete') {
+    if (!isOrganizer(user)) return ORGANIZER_ONLY;
+    const polls = await store.listPolls();
+    const poll = polls.find((p) => p.id === body.pollId);
+    if (!poll) return { status: 404, json: { ok: false, error: 'poll not found' } };
+    if (action === 'delete') {
+      await store.deletePoll(poll.id);
+      return { status: 200, json: { ok: true, deleted: poll.id } };
+    }
+    poll.closed = body.closed === undefined ? true : Boolean(body.closed);
+    await store.savePolls(polls);
+    return { status: 200, json: { ok: true, poll: withResults(poll, await store.getVotes(poll.id)) } };
+  }
 
   return { status: 400, json: { ok: false, error: 'unknown action' } };
 }

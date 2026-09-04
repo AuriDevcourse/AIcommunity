@@ -2,10 +2,9 @@ import {
   fmtDateLong, relative, daysBetween, TODAY,
   sessionTimeRange, sessionTzLabel, sessionISO,
 } from '../lib/dates.js';
-import { Mic, MapPin, Ticket, CalendarClock, UserCheck, Video, Download, Coffee, CalendarPlus } from 'lucide-react';
+import { Mic, MapPin, CalendarClock, UserCheck, Video, Coffee, CalendarPlus } from 'lucide-react';
 import Rsvp from './Rsvp.jsx';
 import { venueMapUrl } from '../lib/venues.js';
-import { icsHref, icsFilename } from '../lib/ics.js';
 import { googleCalendarUrl } from '../lib/calendar.js';
 
 // Every role a session can carry. Only filled ones render: an empty
@@ -35,7 +34,6 @@ export default function NextSession({ session, onNavigate }) {
   const days = daysBetween(TODAY, session.date);
   const soon = days <= 1;              // today / tomorrow → strong pill
   const thisWeek = days > 1 && days < 7;
-  const lumaUrl = /^https?:\/\//i.test(session.luma || '') ? session.luma : null;
   const roles = Object.entries(ROLE_LABELS)
     .map(([key, label]) => [label, session.roles?.[key]])
     .filter(([, who]) => Boolean(who));
@@ -70,6 +68,13 @@ export default function NextSession({ session, onNavigate }) {
               {sessionTimeRange()} {sessionTzLabel(session.date)} · Copenhagen
             </span>
           </div>
+          {/* The date came from the rhythm rule, not the calendar or the reviewed
+              snapshot. Say so: it is the usual slot, and it is not confirmed. */}
+          {session.source === 'rhythm' && (
+            <p className="mt-1.5 text-xs text-muted">
+              Usual rhythm, every second Sunday. Not yet confirmed in the calendar.
+            </p>
+          )}
           {session.theme && (
             <div className="mt-3 text-base sm:text-lg font-medium leading-snug tracking-tight text-foreground">{session.theme}</div>
           )}
@@ -127,37 +132,12 @@ export default function NextSession({ session, onNavigate }) {
         <div className="mt-4 text-sm text-muted border-l-2 border-border pl-3 italic">{session.notes}</div>
       )}
 
-      {/* Standing reminder, so it is deliberately QUIETER than the Lean Coffee note
-          above: that one is about this session, this one is true every time. They
-          used to share a box style and competed for the same attention.
-
-          It also carries the consequence, not only the fact. "Sessions are
-          recorded" with nothing after it is the most alarming line on the page for
-          a first-time visitor, and the only one that answered nothing. */}
-      <div className="mt-4 flex items-start gap-2 text-xs text-muted">
-        <Video size={13} strokeWidth={2} className="mt-0.5 flex-shrink-0" aria-hidden />
-        <p className="leading-relaxed">
-          <span className="font-medium text-foreground">Sessions are recorded.</span>{' '}
-          Say your name before you speak, about ten seconds, then carry on.{' '}
-          {onNavigate && (
-            <button
-              type="button"
-              onClick={() => onNavigate('privacy')}
-              className="inline-flex items-center min-h-6 -my-1 py-1 underline underline-offset-2 decoration-border hover:decoration-foreground hover:text-foreground transition-colors"
-            >
-              How we handle recordings
-            </button>
-          )}
-        </p>
-      </div>
-
       {/* One RSVP control + unified "Coming" list (in-app RSVPs + calendar accepts). */}
       <Rsvp date={session.date} />
 
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-        {/* The hero offers Google Calendar. This is the same event for everyone
-            else: Apple Calendar, Outlook, Thunderbird, anything reading .ics.
-            Built in the browser as a data: URL, so it needs no endpoint. */}
+        {/* Google Calendar only (Auri, 2026-09-02). The .ics download and the
+            Luma link were removed: one calendar action, no menu of formats. */}
         {googleCalendarUrl(session) && (
           <a
             href={googleCalendarUrl(session)}
@@ -170,33 +150,20 @@ export default function NextSession({ session, onNavigate }) {
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         )}
-        <a
-          href={icsHref(session)}
-          download={icsFilename(session)}
-          className="inline-flex items-center gap-1.5 min-h-6 -my-1 py-1 text-sm font-medium text-muted hover:text-foreground transition-colors"
+        {/* Recording notice, short and to the side (Auri, 2026-09-02). The
+            three-line version competed with the session details. The hover title
+            and the link carry the rest: the privacy page says how recordings
+            are handled. */}
+        <button
+          type="button"
+          onClick={() => onNavigate?.('privacy')}
+          title="How we handle recordings"
+          aria-label="Sessions may be recorded. How we handle recordings"
+          className="ml-auto inline-flex items-center gap-1.5 min-h-6 -my-1 py-1 text-xs text-muted hover:text-foreground underline-offset-2 hover:underline transition-colors"
         >
-          <Download size={14} strokeWidth={2.2} />
-          Apple, Outlook (.ics)
-        </a>
-        {lumaUrl ? (
-          <a
-            href={lumaUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground transition-colors"
-          >
-            <Ticket size={14} strokeWidth={2.2} />
-            Also on Luma
-          </a>
-        ) : import.meta.env.DEV ? (
-          /* Maintainer nudge only. A member does not need to know a Luma page is
-             missing, and import.meta.env.DEV is false in every build. */
-          <span className="inline-flex items-center gap-1.5 text-sm text-muted">
-            <Ticket size={14} strokeWidth={2.2} />
-            <span className="font-mono text-[10px] uppercase tracking-wider">dev</span>
-            no Luma link set for this session
-          </span>
-        ) : null}
+          <Video size={13} strokeWidth={2} aria-hidden />
+          Sessions may be recorded
+        </button>
       </div>
     </div>
   );

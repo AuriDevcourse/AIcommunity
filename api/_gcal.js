@@ -192,12 +192,20 @@ export async function listUpcomingSessions({ calendarId, match, max = 8, now } =
   return { configured: true, upcoming };
 }
 
-export async function handleAttendees({ query }) {
+// `user` is the verified reader (or { open: true } when auth is unconfigured).
+// A signed-out caller gets counts only: guest names are for members.
+export async function handleAttendees({ query, user = null }) {
   try {
     if (!gcalConfigured()) return { status: 200, json: { configured: false } };
+    if (!query?.date) return { status: 400, json: { ok: false, configured: true, error: 'date required' } };
     const data = await getSessionAttendees({ date: query?.date, match: query?.title });
+    if (!user && data.found) {
+      const { guests, accepted, tentative, ...rest } = data;
+      return { status: 200, json: { ...rest, guests: [], accepted: [], tentative: [], namesHidden: true, ok: true } };
+    }
     return { status: 200, json: { ...data, ok: true } };
   } catch (e) {
-    return { status: 500, json: { ok: false, configured: true, error: e.message } };
+    console.error('[attendees]', e);
+    return { status: 502, json: { ok: false, configured: true, error: 'Could not reach the calendar.' } };
   }
 }

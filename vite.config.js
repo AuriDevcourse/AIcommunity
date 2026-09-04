@@ -36,7 +36,11 @@ function pollsPlugin() {
         { handleImageUpload },
         { handleSessionMeta },
         { handleRsvpGet, handleRsvpPost },
-        { guardMutation, requireUser },
+        { guardMutation, requireUser, requireReader },
+        { handleAvatar },
+        { handleMembers },
+        { isOrganizer, ORGANIZER_ONLY },
+        { handleProjects },
       ] = await Promise.all([
         import('./api/_polls-core.js'),
         import('./api/_gcal.js'),
@@ -48,11 +52,15 @@ function pollsPlugin() {
         import('./api/_session-meta.js'),
         import('./api/_rsvp.js'),
         import('./api/_guard.js'),
+        import('./api/_avatar.js'),
+        import('./api/_members.js'),
+        import('./api/_roles.js'),
+        import('./api/_projects.js'),
       ]);
       // Gate mutating requests (auth + rate limit) before running the handler.
-      const gate = async (req, res, bucket, limit) => {
+      const gate = async (req, res, bucket, limit, dailyLimit = 0) => {
         if (req.method === 'GET') return false;
-        const blocked = await guardMutation(req, { bucket, limit });
+        const blocked = await guardMutation(req, { bucket, limit, dailyLimit });
         if (blocked) { sendJson(res, blocked.status, blocked.json); return true; }
         return false;
       };
@@ -64,11 +72,51 @@ function pollsPlugin() {
         if (u.blocked) { sendJson(res, u.blocked.status, u.blocked.json); return { sent: true }; }
         return { user: u.user || null };
       };
+      // The verified READER for a members-only GET, mirroring requireReader in
+      // api/*.js. { sent: true } when it already answered (401); otherwise the
+      // user, or { open: true } when Supabase is unconfigured and reads are open.
+      const readerFor = async (req, res) => {
+        const u = await requireReader(req);
+        if (u.blocked) { sendJson(res, u.blocked.status, u.blocked.json); return { sent: true }; }
+        return { user: u.user || (u.open ? { open: true } : null) };
+      };
+      server.middlewares.use('/api/members', async (req, res) => {
+        try {
+          const rd = await readerFor(req, res);
+          if (rd.sent) return;
+          const { status, json } = await handleMembers({ method: req.method, user: rd.user?.id ? rd.user : null });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
+      // Member project cards, mirrors api/projects.js.
+      server.middlewares.use('/api/projects', async (req, res) => {
+        try {
+          if (req.method === 'GET') {
+            const rd = await readerFor(req, res);
+            if (rd.sent) return;
+            const { status, json } = await handleProjects({ method: 'GET', user: rd.user?.id ? rd.user : null });
+            return sendJson(res, status, json);
+          }
+          if (await gate(req, res, 'projects', 20, 100)) return;
+          const who = await whoFor(req, res);
+          if (who.sent) return;
+          const body = await readJsonBody(req);
+          const { status, json } = await handleProjects({ method: req.method, body, user: who.user });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
       server.middlewares.use('/api/polls', async (req, res) => {
         try {
           if (await gate(req, res, 'polls', 60)) return;
           let user = null;
-          if (req.method !== 'GET') {
+          if (req.method === 'GET') {
+            const rd = await readerFor(req, res);
+            if (rd.sent) return;
+          } else {
             const who = await whoFor(req, res);
             if (who.sent) return;
             user = who.user;
@@ -84,7 +132,9 @@ function pollsPlugin() {
         try {
           const url = new URL(req.url, 'http://localhost');
           const query = Object.fromEntries(url.searchParams);
-          const { status, json } = await handleAttendees({ query });
+          const u = await requireReader(req);
+          const user = u.blocked ? null : (u.user || (u.open ? { open: true } : null));
+          const { status, json } = await handleAttendees({ query, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -94,7 +144,10 @@ function pollsPlugin() {
         try {
           if (await gate(req, res, 'threads', 60)) return;
           let user = null;
-          if (req.method !== 'GET') {
+          if (req.method === 'GET') {
+            const rd = await readerFor(req, res);
+            if (rd.sent) return;
+          } else {
             const who = await whoFor(req, res);
             if (who.sent) return;
             user = who.user;
@@ -112,7 +165,10 @@ function pollsPlugin() {
         try {
           if (await gate(req, res, 'topics', 30)) return;
           let user = null;
-          if (req.method !== 'GET') {
+          if (req.method === 'GET') {
+            const rd = await readerFor(req, res);
+            if (rd.sent) return;
+          } else {
             const who = await whoFor(req, res);
             if (who.sent) return;
             user = who.user;
@@ -129,7 +185,9 @@ function pollsPlugin() {
           if (req.method === 'GET') {
             const url = new URL(req.url, 'http://localhost');
             const query = Object.fromEntries(url.searchParams);
-            const { status, json } = await handleRsvpGet({ query });
+            const u = await requireReader(req);
+            const user = u.blocked ? null : (u.user || (u.open ? { open: true } : null));
+            const { status, json } = await handleRsvpGet({ query, user });
             return sendJson(res, status, json);
           }
           if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method not allowed' });
@@ -156,8 +214,13 @@ function pollsPlugin() {
       server.middlewares.use('/api/session-meta', async (req, res) => {
         try {
           if (await gate(req, res, 'session-meta', 60)) return;
+          let user = null;
+          if (req.method === 'GET') {
+            const u = await requireReader(req);
+            user = u.blocked ? null : (u.user || (u.open ? { open: true } : null));
+          }
           const body = req.method === 'POST' ? await readJsonBody(req) : {};
-          const { status, json } = await handleSessionMeta({ method: req.method, body });
+          const { status, json } = await handleSessionMeta({ method: req.method, body, user });
           sendJson(res, status, json);
         } catch (e) {
           sendJson(res, 500, { ok: false, error: e.message });
@@ -190,9 +253,26 @@ function pollsPlugin() {
           sendJson(res, 500, { ok: false, error: e.message });
         }
       });
+      // Profile avatar upload, mirrors api/avatar.js.
+      server.middlewares.use('/api/avatar', async (req, res) => {
+        try {
+          if (await gate(req, res, 'avatar', 10, 30)) return;
+          const who = await whoFor(req, res);
+          if (who.sent) return;
+          const body = req.method === 'POST' ? await readJsonBody(req) : {};
+          const { status, json } = await handleAvatar({ method: req.method, body, user: who.user });
+          sendJson(res, status, json);
+        } catch (e) {
+          sendJson(res, 500, { ok: false, error: e.message });
+        }
+      });
       server.middlewares.use('/api/photos', async (req, res) => {
         try {
-          if (req.method === 'GET') return sendJson(res, 200, await listPhotos());
+          if (req.method === 'GET') {
+            const rd = await readerFor(req, res);
+            if (rd.sent) return;
+            return sendJson(res, 200, await listPhotos());
+          }
           if (await gate(req, res, 'photos', 40)) return;
           if (!blobConfigured()) return sendJson(res, 200, { ok: false, configured: false, error: 'uploads not configured' });
           if (req.method === 'POST') {
@@ -201,6 +281,9 @@ function pollsPlugin() {
             return sendJson(res, 200, { ok: true, ...r });
           }
           if (req.method === 'DELETE') {
+            const who = await whoFor(req, res);
+            if (who.sent) return;
+            if (!isOrganizer(who.user)) return sendJson(res, ORGANIZER_ONLY.status, ORGANIZER_ONLY.json);
             const url = new URL(req.url, 'http://localhost');
             await deletePhoto(url.searchParams.get('url') || '');
             return sendJson(res, 200, { ok: true });

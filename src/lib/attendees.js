@@ -1,4 +1,3 @@
-import profiles from '../../data/members-profile.json';
 
 const prettify = (s) => String(s || '').replace(/[._]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 // Split a name/email into meaningful tokens (drop initials & noise, keep >=3 chars).
@@ -12,8 +11,10 @@ const nameTokens = (s) => String(s || '').toLowerCase().split(/[\s._-]+/).filter
 // addresses were stored in members-profile.json and shipped to every browser in
 // the bundle. The addresses are gone; `name` already carries the email local part
 // when the calendar has no display name, so token matching still resolves those.
-// Returns { label, photo } where label is the person's first name.
-export function resolveGuest({ name }) {
+// Returns { label, photo } where label is the person's first name. `profiles` is
+// the map from /api/members (empty for a signed-out visitor, who never sees
+// names anyway).
+export function resolveGuest({ name }, profiles = {}) {
   // 1) exact display-name key
   if (profiles[name]?.photo) return { label: name.split(/\s+/)[0], photo: profiles[name].photo };
 

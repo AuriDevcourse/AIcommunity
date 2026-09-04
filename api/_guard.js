@@ -137,3 +137,24 @@ export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec
   }
   return null;
 }
+
+// Gate a READ. Members, Photos and Forum are members-only, and the client wall
+// alone was cosmetic: three curls returned every photo URL, poll and name. So the
+// routes behind those tabs now ask who is reading.
+//
+// Mirrors the client rule in App.jsx: when Supabase is not configured there is
+// no sign-in, so nothing is gated and reads stay open. When it is configured, a
+// missing or invalid token is a 401. Returns one of:
+//   { open: true, user: null }     → auth unconfigured, serve everything
+//   { blocked: {status,json} }     → send this response
+//   { user }                       → the verified reader
+export async function requireReader(req) {
+  if (!authConfigured()) return { open: true, user: null };
+  const user = await verifyToken(bearer(req));
+  if (!user) return { blocked: { status: 401, json: { ok: false, error: 'Sign in to see this.' } } };
+  return { user };
+}
+
+// Responses that depend on the Authorization header must never sit in a shared
+// edge cache, or one member's reply is served to the next stranger.
+export const PRIVATE_CACHE = 'private, no-store';

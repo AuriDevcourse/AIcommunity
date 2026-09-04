@@ -1,4 +1,4 @@
-import { SESSION_START_HOUR, SESSION_START_MINUTE, SESSION_TZ } from './dates.js';
+import { SESSION_START_HOUR, SESSION_START_MINUTE, SESSION_DURATION_HOURS, SESSION_TZ } from './dates.js';
 
 /**
  * Google Calendar "add event" template URL for a session.
@@ -11,7 +11,9 @@ export function googleCalendarUrl(session) {
   const dateStr = session.date.replace(/-/g, '');
   const pad = (n) => String(n).padStart(2, '0');
   const start = `${dateStr}T${pad(SESSION_START_HOUR)}${pad(SESSION_START_MINUTE)}00`;
-  const end = `${dateStr}T${pad(SESSION_START_HOUR + 2)}${pad(SESSION_START_MINUTE)}00`;
+  // End from the shared duration, in minutes, so a half-hour length works.
+  const endM = SESSION_START_HOUR * 60 + SESSION_START_MINUTE + Math.round(SESSION_DURATION_HOURS * 60);
+  const end = `${dateStr}T${pad(Math.floor(endM / 60) % 24)}${pad(endM % 60)}00`;
   const title = session.theme ? `AI Sundays: ${session.theme}` : 'AI Sundays Session';
   const params = new URLSearchParams({
     action: 'TEMPLATE',

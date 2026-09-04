@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { supabase, authEnabled } from './supabase.js';
+import { clearMembersCache } from './members.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const AuthCtx = createContext(null);
@@ -31,6 +32,9 @@ export function AuthProvider({ children }) {
       if (active) { setUser(data.session?.user ?? null); setLoading(false); }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      // Session gone by any route (expiry, sign-out in another tab, revoked):
+      // drop the cached member directory with it.
+      if (!session?.user) clearMembersCache();
       setUser(session?.user ?? null);
       if (session?.user) setModalOpen(false);
     });
@@ -58,7 +62,9 @@ export function AuthProvider({ children }) {
     signInWithEmail: (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signUpWithEmail: (email, password, fullName) =>
       supabase.auth.signUp({ email, password, options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin } }),
-    signOut: () => supabase.auth.signOut(),
+    // Drop the in-memory member directory with the session, so the next person
+    // on this browser does not inherit it.
+    signOut: () => { clearMembersCache(); return supabase.auth.signOut(); },
   };
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

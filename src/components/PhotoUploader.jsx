@@ -5,6 +5,7 @@ import { authedFetch, accessToken } from '../lib/supabase.js';
 import { TODAY } from '../lib/dates.js';
 import { fetchPhotos } from '../lib/photos.js';
 import { useDialog } from '../lib/useDialog.js';
+import { useIsOrganizer } from '../lib/members.js';
 
 const NAME_KEY = 'aiworkshop_voter_name';
 const fmtDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -77,6 +78,7 @@ function nextSessionDate(dates) {
 }
 
 export default function PhotoUploader({ dates, onClose, onChanged }) {
+  const organizer = useIsOrganizer(); // only the organizer may remove an upload
   const panelRef = useDialog(onClose);
   const titleId = useId();
   const [mode, setMode] = useState('upload'); // 'upload' | 'move'
@@ -271,13 +273,13 @@ export default function PhotoUploader({ dates, onClose, onChanged }) {
               {uploadedItems.map((p) => (
                 <div key={p.url} className="relative group aspect-square">
                   <img src={p.url} alt="" className="w-full h-full object-cover rounded-md border border-border" />
-                  <button
+                  {organizer && <button
                     onClick={() => removeUploaded(p.url)}
                     className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-1 text-muted hover:text-err opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                     aria-label="Remove"
                   >
                     <Trash2 size={11} />
-                  </button>
+                  </button>}
                 </div>
               ))}
             </div>

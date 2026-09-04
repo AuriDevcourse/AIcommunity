@@ -1,0 +1,16 @@
+{
+  "projects": [
+    {
+      "id": "breach-protocol",
+      "name": "Breach Protocol",
+      "tagline": "Learn security by breaking things",
+      "desc": "A hands-on hacking game. Play the attacker on a deliberately broken shop, find all five flaws every quick-built site ships with, and learn the one fix for each. Beginner mode walks you through it, and every technical word is hover-to-explain. Built at AI Sundays.",
+      "url": "https://breach-protocol-rho.vercel.app",
+      "cta": "Play the game",
+      "by": "Auri",
+      "tags": ["security", "game", "learn"],
+      "status": "live",
+      "public": true
+    }
+  ]
+}

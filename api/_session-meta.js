@@ -48,9 +48,22 @@ function fileStore() {
 const createStore = () => (KV_URL ? upstashStore() : fileStore());
 const storageReady = () => Boolean(KV_URL) || !process.env.VERCEL;
 
-export async function handleSessionMeta({ method, body, store = createStore() }) {
+// GET: `user` is the verified reader (or { open: true } when auth is unconfigured).
+// Session display names are public (the recap page shows them), but `cover` and
+// `order` are Blob photo URLs, i.e. the members-only archive by another route.
+// A signed-out caller gets names only.
+export async function handleSessionMeta({ method, body, user = null, store = createStore() }) {
   if (method === 'GET') {
-    return { status: 200, json: { names: await store.get(), configured: storageReady() } };
+    const names = await store.get();
+    if (!user) {
+      const publicNames = {};
+      for (const [date, entry] of Object.entries(names || {})) {
+        const name = typeof entry === 'string' ? entry : entry?.name;
+        if (name) publicNames[date] = { name };
+      }
+      return { status: 200, json: { names: publicNames, configured: storageReady(), photosHidden: true } };
+    }
+    return { status: 200, json: { names, configured: storageReady() } };
   }
   if (method !== 'POST') return { status: 405, json: { ok: false, error: 'method not allowed' } };
   if (!storageReady()) return { status: 200, json: { ok: false, configured: false, error: 'Editing needs a Redis store. Connect Upstash and redeploy.' } };

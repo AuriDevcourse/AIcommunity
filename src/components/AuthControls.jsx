@@ -1,7 +1,9 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LogIn, LogOut, X, Loader2, Mail, Lock, User, Pencil } from 'lucide-react';
+import { LogIn, LogOut, X, Loader2, Mail, Lock, User, Pencil, Upload } from 'lucide-react';
 import { useAuth } from '../lib/auth.jsx';
+import { authedFetch } from '../lib/supabase.js';
+import { compressImage } from '../lib/compressImage.js';
 
 function GoogleG({ size = 16 }) {
   return (
@@ -140,7 +142,7 @@ export function AuthModal() {
           <h2 className="text-lg font-semibold tracking-tight">{mode === 'signup' ? 'Create account' : 'Sign in'}</h2>
           <button onClick={closeAuth} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
-        <p className="text-xs text-muted mb-4">Sign in to post and vote. Browsing stays open to everyone.</p>
+        <p className="text-xs text-muted mb-4">Sign in to open Members, Photos and the Forum, and to post and vote. Home, Learn and News stay open to everyone.</p>
 
         {googleEnabled && (
           <>
@@ -245,9 +247,42 @@ function ProfileModal({ open, onClose }) {
   const [description, setDescription] = useState('');
   const [avatar, setAvatar] = useState('');
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const fileRef = useRef(null);
 
   const googlePhoto = user?.user_metadata?.picture || '';
+
+  // Upload a photo from disk. The browser squares nothing and crops nothing: it
+  // downscales to 256px on the long edge (compressImage), which is plenty for a
+  // 24-64px circle, and posts base64 to /api/avatar. The returned Blob URL
+  // becomes the pending avatar; Save writes it to the profile like any other.
+  async function pickFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    setError('');
+    if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+      setError('Use a JPG, PNG or WebP image.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const { data, contentType } = await compressImage(file, { maxDim: 256, quality: 0.85 });
+      const r = await authedFetch('/api/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentType, data }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok || !j.url) throw new Error(j.error || 'Could not upload the photo.');
+      setAvatar(j.url);
+    } catch (err) {
+      setError(err?.message || 'Could not upload the photo.');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   useEffect(() => {
     if (open) { setName(currentName || ''); setDescription(currentDesc || ''); setAvatar(currentAvatar || ''); setError(''); }
@@ -287,7 +322,19 @@ function ProfileModal({ open, onClose }) {
 
         <div className="flex items-center gap-4">
           <Avatar url={avatar} initial={(name.trim() || 'M').charAt(0).toUpperCase()} size={64} />
-          <p className="text-xs text-muted leading-relaxed">Pick a generated avatar{googlePhoto ? ', use your Google photo,' : ''} or paste an image URL.</p>
+          <div className="min-w-0">
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={pickFile} tabIndex={-1} />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="btn btn-ghost text-xs"
+            >
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              {uploading ? 'Uploading' : 'Upload a photo'}
+            </button>
+            <p className="mt-1.5 text-xs text-muted leading-relaxed">JPG, PNG or WebP. Or pick a generated avatar{googlePhoto ? ', use your Google photo,' : ''} or paste an image URL below.</p>
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
@@ -324,7 +371,7 @@ function ProfileModal({ open, onClose }) {
 
         <div className="mt-5 flex items-center justify-end gap-2">
           <button onClick={onClose} className="btn btn-ghost">Cancel</button>
-          <button onClick={save} disabled={busy || !name.trim()} className="btn btn-primary">
+          <button onClick={save} disabled={busy || uploading || !name.trim()} className="btn btn-primary">
             {busy && <Loader2 size={14} className="animate-spin" />} Save
           </button>
         </div>

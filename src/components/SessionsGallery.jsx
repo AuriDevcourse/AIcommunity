@@ -4,6 +4,8 @@ import { X, ImagePlus, Pencil, Check, Star, Trash2, ArrowUpRight, MessagesSquare
 import { fmtDate } from '../lib/dates.js';
 import { writeJson } from '../lib/api.js';
 import { useAuth } from '../lib/auth.jsx';
+import { authedFetch } from '../lib/supabase.js';
+import { useIsOrganizer } from '../lib/members.js';
 import { useDialog } from '../lib/useDialog.js';
 import PhotoUploader from './PhotoUploader.jsx';
 import { fetchPhotos } from '../lib/photos.js';
@@ -22,6 +24,9 @@ export default function SessionsGallery({ sessions, gaps: _gaps = [], onOpenReca
   // so the UI has to allow it too. While auth is still resolving, assume NOT
   // allowed, or every visitor gets a flash of Edit buttons that then vanish.
   const { enabled: authEnabled, user, loading: authLoading, openAuth } = useAuth();
+  // Only the organizer deletes photos (Auri, 2026-09-02). Members rename, reorder,
+  // add and move. The server enforces it; this hides the control.
+  const organizer = useIsOrganizer();
   const canEdit = authEnabled ? (!authLoading && Boolean(user)) : true;
 
   // Sessions come from two sources: photos baked into the build (instant) and
@@ -55,7 +60,8 @@ export default function SessionsGallery({ sessions, gaps: _gaps = [], onOpenReca
   // (first photo = featured cover).
   const [meta, setMeta] = useState({});
   useEffect(() => {
-    fetch('/api/session-meta').then((r) => r.json()).then((j) => setMeta(j.names || {})).catch(() => {}).finally(() => setMetaLoaded(true));
+    // Carries the session token: cover/order (Blob URLs) come back only for members.
+    authedFetch('/api/session-meta').then((r) => r.json()).then((j) => setMeta(j.names || {})).catch(() => {}).finally(() => setMetaLoaded(true));
   }, []);
   const metaFor = (date) => { const m = meta[date]; return typeof m === 'string' ? { name: m } : (m || {}); };
 
@@ -208,7 +214,7 @@ export default function SessionsGallery({ sessions, gaps: _gaps = [], onOpenReca
           defaultName={defaultName(editing)}
           onRename={(val) => saveMeta(editing.date, { name: val })}
           onReorder={(urls) => saveMeta(editing.date, { order: urls })}
-          onDelete={(urls) => deletePhotos(editing.date, urls)}
+          onDelete={organizer ? (urls) => deletePhotos(editing.date, urls) : null}
           onClose={() => setEditDate(null)}
         />
       )}
@@ -574,13 +580,17 @@ function SessionEditor({ session, name, defaultName, onRename, onReorder, onDele
               <button onClick={() => setSelected(new Set())} className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted hover:text-foreground transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={deleteSelected}
-                disabled={busy}
-                className="inline-flex items-center gap-1.5 rounded-full bg-err text-background px-4 py-1.5 text-xs font-semibold transition-transform enabled:hover:scale-[1.03] disabled:opacity-50"
-              >
-                <Trash2 size={13} /> {busy ? 'Deleting…' : `Delete ${selected.size}`}
-              </button>
+              {onDelete ? (
+                <button
+                  onClick={deleteSelected}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-err text-background px-4 py-1.5 text-xs font-semibold transition-transform enabled:hover:scale-[1.03] disabled:opacity-50"
+                >
+                  <Trash2 size={13} /> {busy ? 'Deleting…' : `Delete ${selected.size}`}
+                </button>
+              ) : (
+                <span className="text-xs text-muted">Only an organizer can delete photos.</span>
+              )}
             </div>
           </div>
         )}

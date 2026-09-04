@@ -45,19 +45,19 @@ export function fridayBefore(sundayIso) {
   return d;
 }
 
-// The community meets 12:30–14:30 Europe/Copenhagen. That is hardcoded in the
+// The community meets 12:30–15:00 Europe/Copenhagen. That is hardcoded in the
 // calendar-link builder too; the Google Calendar feed drops the time (api/_gcal.js
 // keeps only the date), so this is the app's single source of truth for it until
 // a session carries a real `startsAt`.
 export const SESSION_START_HOUR = 12;
 export const SESSION_START_MINUTE = 30;
-export const SESSION_DURATION_HOURS = 2;
+export const SESSION_DURATION_HOURS = 2.5; // 12:30 to 15:00 (Auri, 2026-09-02)
 export const SESSION_TZ = 'Europe/Copenhagen';
 
 const pad = (n) => String(n).padStart(2, '0');
 
 /**
- * "12:30-14:30", built from the constants above rather than typed into a
+ * "12:30-15:00", built from the constants above rather than typed into a
  * component. NextSession and the hero each used to carry their own literal, so
  * moving a session meant editing two files and the .ics builder separately.
  */

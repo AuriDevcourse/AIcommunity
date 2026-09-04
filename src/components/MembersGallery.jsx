@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Search, X, ArrowDownWideNarrow } from 'lucide-react';
 import { getMemberProfile, getInitials, getDisplayName, mergeMembersWithProfiles } from '../lib/members-profile.js';
+import { useMembersData } from '../lib/members.js';
+import ProjectsBoard from './ProjectsBoard.jsx';
 
 // DiceBear avataaars: free, keyless, deterministic SVG avatars seeded by name.
 // DiceBear has no gender flag, so we lock the hair (and facial hair) to a
@@ -55,8 +57,12 @@ const SORTS = [
   ['name', 'Name'],
 ];
 
-export default function MembersGallery({ members }) {
-  const merged = mergeMembersWithProfiles(members);
+// The directory comes from the signed-in /api/members route, not from props: the
+// names used to ride along in src/data.json and so in the public bundle.
+export default function MembersGallery() {
+  const { data, loading, error } = useMembersData();
+  const profiles = data.profiles;
+  const merged = useMemo(() => mergeMembersWithProfiles(profiles, data.members), [profiles, data.members]);
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
 
@@ -65,11 +71,10 @@ export default function MembersGallery({ members }) {
   // a list that reorders itself on every mount is the opposite of a sort control,
   // and there was no way to find a specific person in it.
   const featured = useMemo(() => {
-    const withPhoto = merged.filter((m) => getMemberProfile(m.name).photo);
-    const without = merged.filter((m) => !getMemberProfile(m.name).photo);
+    const withPhoto = merged.filter((m) => getMemberProfile(profiles, m.name).photo);
+    const without = merged.filter((m) => !getMemberProfile(profiles, m.name).photo);
     return [...shuffle(withPhoto), ...shuffle(without)];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [merged, profiles]);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -77,14 +82,14 @@ export default function MembersGallery({ members }) {
     // "Perednyte" finds Dovile.
     const matches = (m) => {
       if (!q) return true;
-      const hay = [m.name, getDisplayName(m), ...(m.aliases || [])].join(' ').toLowerCase();
+      const hay = [m.name, getDisplayName(profiles, m), ...(m.aliases || [])].join(' ').toLowerCase();
       return hay.includes(q);
     };
     const base = sortBy === 'featured'
       ? featured
-      : [...merged].sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
+      : [...merged].sort((a, b) => getDisplayName(profiles, a).localeCompare(getDisplayName(profiles, b)));
     return base.filter(matches);
-  }, [query, sortBy, featured, merged]);
+  }, [query, sortBy, featured, merged, profiles]);
 
   const organisers = merged.filter((m) => m.status === 'Organizer').length;
 
@@ -98,6 +103,12 @@ export default function MembersGallery({ members }) {
           {organisers > 0 && `, ${organisers} running it`}.
         </p>
       </div>
+
+      {/* Roadmap item 1: the board members write themselves. Above the directory,
+          because what people are building is the point; who they are is context. */}
+      <ProjectsBoard />
+
+      <div className="h-section pt-2">Directory</div>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
@@ -147,7 +158,20 @@ export default function MembersGallery({ members }) {
         {query ? `${shown.length} of ${merged.length} members match ${query}.` : ''}
       </p>
 
-      {merged.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10" aria-busy="true" aria-label="Loading members">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="aspect-square w-full rounded-2xl bg-accent animate-pulse" />
+              <div className="mt-3 h-3.5 w-24 rounded bg-accent animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="card card-pad text-sm text-muted">
+          {error.status === 401 ? 'Sign in to see the members.' : 'Could not load the members right now. Try again in a moment.'}
+        </div>
+      ) : merged.length === 0 ? (
         <div className="card card-pad text-sm text-muted">No members yet.</div>
       ) : shown.length === 0 ? (
         <div className="card card-pad text-sm text-muted">
@@ -156,7 +180,7 @@ export default function MembersGallery({ members }) {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
           {shown.map((m) => (
-            <MemberCard key={m.name} member={m} />
+            <MemberCard key={m.name} member={m} profile={getMemberProfile(profiles, m.name)} displayName={getDisplayName(profiles, m)} />
           ))}
         </div>
       )}
@@ -169,9 +193,7 @@ export default function MembersGallery({ members }) {
   );
 }
 
-function MemberCard({ member }) {
-  const profile = getMemberProfile(member.name);
-  const displayName = getDisplayName(member);
+function MemberCard({ member, profile, displayName }) {
   const hasPhoto = Boolean(profile.photo);
   const hasLinkedin = Boolean(profile.linkedin);
   const bugSrc = profile.linkedinBug === 'black' ? '/linkedin-bug-black.png' : '/linkedin-bug-white.png';

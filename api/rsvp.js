@@ -1,16 +1,18 @@
 // Vercel serverless function → /api/rsvp
-//   GET  ?date=YYYY-MM-DD  → { going, maybe, counts } (public, edge-cached)
+//   GET  ?date=YYYY-MM-DD  → { going, maybe, counts }. Names only for signed-in
+//                            members; a signed-out visitor gets counts.
 //   POST { date, status }  → upsert the caller's RSVP (auth required; identity
 //                            comes from the verified Supabase session, not body)
 import { handleRsvpGet, handleRsvpPost } from './_rsvp.js';
-import { guardMutation, requireUser } from './_guard.js';
+import { guardMutation, requireUser, requireReader, PRIVATE_CACHE } from './_guard.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const { status, json } = await handleRsvpGet({ query: req.query || {} });
-      // RSVPs change slowly; cache briefly at the edge with background refresh.
-      if (status === 200) res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=120');
+      res.setHeader('Cache-Control', PRIVATE_CACHE);
+      const who = await requireReader(req);
+      const user = who.blocked ? null : (who.user || (who.open ? { open: true } : null));
+      const { status, json } = await handleRsvpGet({ query: req.query || {}, user });
       return res.status(status).json(json);
     }
     if (req.method === 'POST') {

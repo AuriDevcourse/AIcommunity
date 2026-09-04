@@ -5,6 +5,7 @@ const MAX_IMG_BYTES = 3 * 1024 * 1024; // ~3MB, stays under serverless payload l
 
 import { compressImage } from '../lib/compressImage.js';
 import { useMemberName } from '../lib/auth.jsx';
+import { useIsOrganizer } from '../lib/members.js';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 
@@ -63,11 +64,15 @@ export default function SessionThread({
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState('');
   const fileRef = useRef(null);
+  const votesInFlight = useRef(0); // optimistic votes awaiting the server, see vote()
 
   const load = useCallback(async () => {
     if (!ch) return;
+    // A poll landing mid-vote would paint the old count over the optimistic one
+    // for a frame. Skip this tick; the vote's own response carries fresh data.
+    if (votesInFlight.current > 0) return;
     try {
-      const r = await fetch(`/api/threads?key=${encodeURIComponent(ch)}`);
+      const r = await authedFetch(`/api/threads?key=${encodeURIComponent(ch)}`);
       const j = await r.json();
       setComments(j.comments || []);
       setConfigured(j.configured !== false);
@@ -141,10 +146,36 @@ export default function SessionThread({
     }
   }
 
+  // Optimistic vote (Auri, 2026-09-02): the arrow and the count change the
+  // instant you click, then the server confirms. The local rule mirrors
+  // api/_threads.js: the same arrow again undoes, the other arrow switches.
+  // On a failed request the comment snaps back to what it was.
+  function applyVoteLocally(c, dir) {
+    const n = ci(name);
+    const up = (c.voters?.up || []).filter((v) => ci(v) !== n);
+    const down = (c.voters?.down || []).filter((v) => ci(v) !== n);
+    const had = myVote(c, name);
+    if (had !== dir) (dir === 'up' ? up : down).push(name);
+    return { ...c, voters: { up, down }, up: up.length, down: down.length, score: up.length - down.length };
+  }
   async function vote(id, dir) {
     if (!named) return;
-    const j = await post({ action: 'vote', id, dir });
-    if (j.ok) setComments((c) => (c || []).map((x) => (x.id === id ? j.comment : x)));
+    let previous = null;
+    setComments((c) => (c || []).map((x) => {
+      if (x.id !== id) return x;
+      previous = x;
+      return applyVoteLocally(x, dir);
+    }));
+    votesInFlight.current += 1;
+    try {
+      const j = await post({ action: 'vote', id, dir });
+      if (j.ok) setComments((c) => (c || []).map((x) => (x.id === id ? j.comment : x)));
+      else if (previous) setComments((c) => (c || []).map((x) => (x.id === id ? previous : x)));
+    } catch {
+      if (previous) setComments((c) => (c || []).map((x) => (x.id === id ? previous : x)));
+    } finally {
+      votesInFlight.current -= 1;
+    }
   }
 
   async function remove(id) {
@@ -316,6 +347,7 @@ export default function SessionThread({
 function Comment({ c, isReply, name, named, onVote, onRemove, replyTo, setReplyTo, onReply }) {
   const mine = myVote(c, name);
   const own = named && ci(c.name) === ci(name);
+  const organizer = useIsOrganizer(); // may delete any comment; the server re-checks
   const replying = replyTo === c.id;
   const [replyText, setReplyText] = useState('');
 
@@ -361,7 +393,7 @@ function Comment({ c, isReply, name, named, onVote, onRemove, replyTo, setReplyT
               className="ml-1 inline-flex items-center gap-1 rounded-md px-2 h-7 text-xs hover:text-foreground hover:bg-accent transition-colors disabled:opacity-40"
             ><Reply size={13} /> Reply</button>
           )}
-          {own && (
+          {(own || organizer) && (
             <button
               onClick={() => onRemove(c.id)}
               className="ml-auto grid place-items-center w-7 h-7 rounded-md hover:text-err hover:bg-accent transition-colors"

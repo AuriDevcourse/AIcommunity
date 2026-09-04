@@ -137,5 +137,5 @@ app.all('/api/*', (req, res) => {
 app.get('*', (_req, res) => res.sendFile(join(DIST_DIR, 'index.html')));
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`aiworkshop listening on :${PORT}`);
+  console.log(`ai-sundays listening on :${PORT}`);
 });

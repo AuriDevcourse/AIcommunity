@@ -38,7 +38,7 @@ const esc = (v) => String(v || '')
 export function icsText(session) {
   if (!session?.date) return '';
   const start = sessionStart(session);
-  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // sessions run two hours
+  const end = new Date(start.getTime() + 2.5 * 60 * 60 * 1000); // sessions run 12:30 to 15:00
   const title = session.theme ? `AI Sundays: ${session.theme}` : 'AI Sundays';
   const body = session.notes || 'AI Sundays bi-weekly meetup · Copenhagen';
 
@@ -51,7 +51,7 @@ export function icsText(session) {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:ai-sundays-${session.date}@a-icommunity.vercel.app`,
+    `UID:ai-sundays-${session.date}@aisundays.org`,
     `DTSTAMP:${stamp(new Date())}`,
     `DTSTART:${stamp(start)}`,
     `DTEND:${stamp(end)}`,

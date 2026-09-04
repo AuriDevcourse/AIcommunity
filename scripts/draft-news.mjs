@@ -32,7 +32,7 @@ const FEEDS = [
 ];
 
 const DAYS = 14; // rule: news must be from the past two weeks
-const UA = 'Mozilla/5.0 (compatible; AIWorkshopNewsBot/1.0; +https://a-icommunity.vercel.app)';
+const UA = 'Mozilla/5.0 (compatible; AISundaysNewsBot/1.0; +https://www.aisundays.org)';
 
 const strip = (s) => String(s || '')
   .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')

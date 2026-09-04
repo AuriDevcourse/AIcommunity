@@ -1,6 +1,6 @@
 # AI Sundays · Cockpit
 
-Personal dashboard for running the **AI Workshop** Copenhagen meetup, a single place to see what's happening, plan ahead, and capture signals.
+Site and dashboard for **AI Sundays**, the Copenhagen meetup (formerly AI Workshop), a single place to see what's happening, plan ahead, and capture signals.
 
 Built with Vite + React + Tailwind. Reads markdown session notes and JSON planning files, and renders the dashboard: home, forum, learn decks, news, members, session photos and tools.
 

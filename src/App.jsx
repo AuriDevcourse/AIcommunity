@@ -18,23 +18,31 @@ const News = lazy(() => import('./components/News.jsx'));
 const Tools = lazy(() => import('./components/Tools.jsx'));
 const Discussions = lazy(() => import('./components/Discussions.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
+const Projects = lazy(() => import('./components/Projects.jsx'));
 const SessionRecap = lazy(() => import('./components/SessionRecap.jsx'));
 const TopicsPresentation = lazy(() => import('./components/TopicsPresentation.jsx'));
 const BrandAssets = lazy(() => import('./components/BrandAssets.jsx'));
 import ThemeToggle from './components/ThemeToggle.jsx';
 import LegalPage, { Footer, LEGAL_KEYS, FOOTER_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Menu, X, Check } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, Wrench, Images, MessagesSquare, GraduationCap, Rocket, Menu, X, Check, Lock, LogIn } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 import { useSchedule } from './lib/schedule.js';
+import { useAuth } from './lib/auth.jsx';
 
+// `gated` tabs open only for signed-in members. Members and Photos show real
+// names and faces; the Forum is where the group plans its Sundays. All three are
+// for people in the room, so they sit behind sign-in. Home, Learn, News and
+// Tools stay public: a stranger can learn what this is and when it happens.
+// When Supabase is not configured there is no sign-in, so nothing is gated.
 const TABS = [
   { key: 'home',        label: 'Home',     icon: LayoutDashboard },
-  { key: 'discussions', label: 'Forum',    icon: MessagesSquare },
+  { key: 'discussions', label: 'Forum',    icon: MessagesSquare, gated: true },
   { key: 'learn',       label: 'Learn',    icon: GraduationCap },
+  { key: 'projects',    label: 'Projects', icon: Rocket },
   { key: 'news',        label: 'News',     icon: Newspaper },
-  { key: 'members',     label: 'Members', icon: Users },
-  { key: 'sessions',    label: 'Photos',   icon: Images },
+  { key: 'members',     label: 'Members', icon: Users, gated: true },
+  { key: 'sessions',    label: 'Photos',   icon: Images, gated: true },
   { key: 'tools',       label: 'Tools',    icon: Wrench },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
@@ -212,7 +220,16 @@ export default function App() {
 
   // Upcoming sessions come live from Google Calendar when configured, else from
   // the static build-time snapshot (see useSchedule).
-  const { upcoming: liveUpcoming, status: scheduleStatus } = useSchedule(data.schedule.upcoming);
+  // Calendar first, then the reviewed snapshot, then the rhythm rule (every
+  // second Sunday), so `next` is never undefined and Home never says "Nothing
+  // scheduled" because an API blinked.
+  const { upcoming: liveUpcoming, status: scheduleStatus } = useSchedule(data.schedule.upcoming, data.schedule.rhythm);
+
+  // Members-only tabs. `locked` is what the nav shows (a small lock next to the
+  // label); the wall itself renders in place of the tab content below.
+  const { enabled: authEnabled, user: authUser, loading: authLoading, openAuth } = useAuth();
+  const isGated = (key) => authEnabled && Boolean(TABS.find((t) => t.key === key)?.gated);
+  const locked = (key) => isGated(key) && !authUser && !authLoading;
   const todayIso = TODAY.toISOString().slice(0, 10);
   // Google Calendar only carries date/theme/venue/startsAt. Everything else a
   // session knows (topics, who is presenting, whether the venue is actually
@@ -296,7 +313,10 @@ export default function App() {
                       active ? 'text-foreground' : 'text-muted hover:text-foreground'
                     }`}
                   >
-                    {t.label}
+                    <span className="inline-flex items-center gap-1">
+                      {t.label}
+                      {locked(t.key) && <Lock size={11} strokeWidth={2.2} aria-label="members only" className="opacity-70" />}
+                    </span>
                     {active && <span className="absolute inset-x-2.5 -bottom-1 h-0.5 rounded-full bg-foreground" aria-hidden />}
                   </button>
                 );
@@ -357,7 +377,7 @@ export default function App() {
             showGlance
             next={next}
             sessionCount={data.sessions.length}
-            memberCount={data.members.length}
+            memberCount={data.memberCount || 0}
             scheduleStatus={scheduleStatus}
             recentPhotos={recentPhotos}
             onOpenPhotos={() => goTo('sessions')}
@@ -367,6 +387,10 @@ export default function App() {
         <TabErrorBoundary key={`eb-${tab}`}>
         <Suspense fallback={<TabFallback />}>
           <div key={tab} className="tab-enter">
+            {isGated(tab) && !authUser ? (
+              authLoading ? <TabFallback /> : <MembersOnly tab={tab} onSignIn={openAuth} />
+            ) : (
+            <>
             {tab === 'home' && (
               <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-12">
@@ -386,6 +410,7 @@ export default function App() {
             )}
 
             {tab === 'learn' && <Learn />}
+            {tab === 'projects' && <Projects />}
             {tab === 'discussions' && (
               <div className="grid grid-cols-12 gap-6 items-start">
                 <div className="col-span-12 lg:col-span-5 xl:col-span-4">
@@ -398,8 +423,10 @@ export default function App() {
             )}
             {tab === 'news' && <News />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
-            {tab === 'members' && <MembersGallery members={data.members} />}
+            {tab === 'members' && <MembersGallery />}
             {tab === 'sessions' && <SessionsGallery sessions={data.sessions} gaps={data.schedule?.gaps || []} onOpenRecap={openRecap} />}
+            </>
+            )}
           </div>
         </Suspense>
         </TabErrorBoundary>
@@ -443,6 +470,7 @@ export default function App() {
                   >
                     <Icon size={18} strokeWidth={2} />
                     <span className="flex-1 text-left">{t.label}</span>
+                    {locked(t.key) && !active && <Lock size={14} strokeWidth={2} aria-label="members only" className="opacity-60" />}
                     {active && <Check size={16} strokeWidth={2.5} />}
                   </button>
                 );
@@ -457,6 +485,48 @@ export default function App() {
 
       {import.meta.env.DEV && <Agentation />}
     </div>
+  );
+}
+
+// What a signed-out visitor sees on a members-only tab. Says what is behind the
+// door, then offers the one action. Home, Learn and News stay open, and the copy
+// says so, because the point is to invite, not to shut out.
+//
+// This is a real boundary, not only a wall: the read routes behind these tabs
+// (/api/members, /api/photos, /api/polls, /api/topics, /api/threads) require a
+// signed-in member, RSVP and calendar reads return counts without names, and
+// the bundle carries member and attendee COUNTS, never names. What stays public
+// on purpose: the committed highlight photos on Home and in session recaps, and
+// demo presenter first names in recaps (they are the point of a recap).
+const WALL_COPY = {
+  members: {
+    title: 'Sign in to see who is in the room',
+    body: 'The member directory shows real names and faces, so it stays inside the community.',
+  },
+  sessions: {
+    title: 'Sign in to browse the photo archive',
+    body: 'Every session, every photo. A few highlights stay on Home and in the session recaps.',
+  },
+  discussions: {
+    title: 'Sign in to join the forum',
+    body: 'Topics, ideas and polls are where members plan the next Sunday together.',
+  },
+};
+
+function MembersOnly({ tab, onSignIn }) {
+  const copy = WALL_COPY[tab] || { title: 'Sign in to open this page', body: 'This page is for members of the community.' };
+  return (
+    <section className="card card-pad mx-auto max-w-md text-center py-10" aria-labelledby="members-only-title">
+      <span className="mx-auto grid place-items-center w-11 h-11 rounded-full bg-pill text-foreground" aria-hidden>
+        <Lock size={18} strokeWidth={2} />
+      </span>
+      <h2 id="members-only-title" className="mt-4 text-lg font-semibold tracking-tight">{copy.title}</h2>
+      <p className="mt-2 text-sm text-muted leading-relaxed">{copy.body}</p>
+      <button onClick={onSignIn} className="btn btn-primary mt-5">
+        <LogIn size={14} strokeWidth={2.2} /> Sign in or create an account
+      </button>
+      <p className="mt-4 text-xs text-muted">Free, and takes a minute. Home, Learn and News stay open to everyone.</p>
+    </section>
   );
 }
 

@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { identityFor, ownsRecord } from './_identity.js';
+import { isOrganizer } from './_roles.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
@@ -149,7 +150,8 @@ export async function handleThreads({ method, body, user = null, query, store = 
     // Ownership is checked against the VERIFIED session. Checking it against a
     // name in the body let any signed-in member delete anyone's comment (and,
     // for a top-level one, every reply under it).
-    if (!ownsRecord(target, user)) return { status: 403, json: { ok: false, error: 'not your comment' } };
+    // The author may remove their own comment; the organizer may remove any.
+    if (!ownsRecord(target, user) && !isOrganizer(user)) return { status: 403, json: { ok: false, error: 'not your comment' } };
 
     // Deleting a top-level comment also removes its replies.
     const removeIds = new Set([id, ...comments.filter((c) => c.parentId === id).map((c) => c.id)]);

@@ -1,4 +1,4 @@
-# AI Sundays · https://a-icommunity.vercel.app
+# AI Sundays · https://www.aisundays.org
 User-agent: *
 Allow: /
 
@@ -6,4 +6,4 @@ Allow: /
 # GET is edge-cached, so crawling it only burns cache.
 Disallow: /api/
 
-Sitemap: https://a-icommunity.vercel.app/sitemap.xml
+Sitemap: https://www.aisundays.org/sitemap.xml

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Check, HelpCircle, CalendarCheck, LogIn, Users } from 'lucide-react';
+import { Check, HelpCircle, CalendarCheck, Users } from 'lucide-react';
 import { useAuth } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { getInitials } from '../lib/members-profile.js';
 import { resolveGuest } from '../lib/attendees.js';
+import { useMembersData } from '../lib/members.js';
 
 const ci = (s) => String(s || '').trim().toLowerCase();
 const firstNameOf = (s) => String(s || '').trim().split(/\s+/)[0];
@@ -37,7 +38,7 @@ function PersonAvatar({ person, tentative }) {
 // Going here AND accepted the invite shows once; "coming" beats "maybe". Keyed by
 // first name (the calendar often only exposes a first name), good enough for a
 // small meetup.
-function mergeAttendees(rsvp, cal) {
+function mergeAttendees(rsvp, cal, profiles = {}) {
   const map = new Map(); // ci(firstName) -> { name, avatar, status }
   const add = (rawName, avatar, status) => {
     const name = firstNameOf(rawName);
@@ -50,8 +51,8 @@ function mergeAttendees(rsvp, cal) {
   };
   for (const p of rsvp?.going || []) add(p.name, p.avatar, 'coming');
   for (const p of rsvp?.maybe || []) add(p.name, p.avatar, 'maybe');
-  for (const g of cal?.accepted || []) { const r = resolveGuest(g); add(r.label, r.photo, 'coming'); }
-  for (const g of cal?.tentative || []) { const r = resolveGuest(g); add(r.label, r.photo, 'maybe'); }
+  for (const g of cal?.accepted || []) { const r = resolveGuest(g, profiles); add(r.label, r.photo, 'coming'); }
+  for (const g of cal?.tentative || []) { const r = resolveGuest(g, profiles); add(r.label, r.photo, 'maybe'); }
   const all = [...map.values()];
   return {
     coming: all.filter((p) => p.status === 'coming'),
@@ -64,6 +65,10 @@ function mergeAttendees(rsvp, cal) {
 // accepts so there is a single source of truth on screen.
 export default function Rsvp({ date }) {
   const { enabled, user, name, openAuth } = useAuth();
+  // Member photos for the calendar guests. Only fetched when signed in; a
+  // signed-out visitor gets counts from the API and never sees names.
+  const { data: membersData } = useMembersData(Boolean(user));
+  const profiles = membersData.profiles;
   const [rsvp, setRsvp] = useState(() => (date ? readCache(RSVP_CK(date)) : null)); // { going, maybe, ... }
   const [cal, setCal] = useState(() => (date ? readCache(CAL_CK(date)) : null));    // { accepted, tentative, ... }
   const [mine, setMine] = useState(null);  // 'going' | 'maybe' | null
@@ -86,15 +91,18 @@ export default function Rsvp({ date }) {
     const cr = readCache(RSVP_CK(date)); if (cr) setRsvp(cr);
     const cc = readCache(CAL_CK(date)); if (cc) setCal(cc);
     // 2) revalidate in the background, apply only the diff
+    // Both reads carry the session token: names come back only for members.
     const [r, a] = await Promise.all([
-      fetch(`/api/rsvp?date=${date}`).then((x) => x.json()).catch(() => null),
-      fetch(`/api/attendees?date=${date}`).then((x) => x.json()).catch(() => null),
+      authedFetch(`/api/rsvp?date=${date}`).then((x) => x.json()).catch(() => null),
+      authedFetch(`/api/attendees?date=${date}`).then((x) => x.json()).catch(() => null),
     ]);
     reconcile(setRsvp, RSVP_CK(date), r);
     reconcile(setCal, CAL_CK(date), a);
   }, [date]);
 
-  useEffect(() => { load(); }, [load]);
+  // Reload when sign-in state changes: the same URL answers with names for a
+  // member and with counts for a visitor.
+  useEffect(() => { load(); }, [load, user]);
 
   // Derive "my" status by matching my display name against the in-app lists (the
   // API exposes no user IDs, so name-match is how the client recognises itself).
@@ -106,7 +114,10 @@ export default function Rsvp({ date }) {
     else setMine(null);
   }, [rsvp, user, name]);
 
-  if (!enabled || !date) return null;
+  // Signed out there is nothing to show: an RSVP is a confirmation, and a visitor
+  // has not confirmed anything. The Next Session card already says walk-ins are
+  // welcome, so the control and the "coming" list appear once you are in.
+  if (!enabled || !date || !user) return null;
 
   async function choose(status) {
     if (!user) { openAuth(); return; }
@@ -130,15 +141,13 @@ export default function Rsvp({ date }) {
     }
   }
 
-  const { coming, maybe } = mergeAttendees(rsvp, cal);
+  const { coming, maybe } = mergeAttendees(rsvp, cal, profiles);
   const hasAny = coming.length > 0 || maybe.length > 0;
 
   return (
     <div className="mt-6">
       {/* RSVP control */}
       <div className="flex flex-wrap items-center gap-2">
-        {user ? (
-          <>
             <button
               onClick={() => choose('going')}
               disabled={busy}
@@ -155,23 +164,7 @@ export default function Rsvp({ date }) {
             >
               <HelpCircle size={14} strokeWidth={2.2} /> Maybe
             </button>
-          </>
-        ) : (
-          <button onClick={openAuth} className="btn btn-sm btn-ghost">
-            <LogIn size={14} strokeWidth={2.2} /> Sign in to RSVP
-          </button>
-        )}
       </div>
-
-      {/* Signing in was the ONLY visible way in, which reads as a door with a lock
-          on it. It is not one: RSVP helps plan the room, walk-ins are welcome, and
-          it costs nothing. Say that to the people who are not signed in, since
-          they are the ones deciding whether to come at all. */}
-      {!user && (
-        <p className="mt-2 text-xs text-muted">
-          An RSVP helps us plan the room, but you are welcome to just turn up.
-        </p>
-      )}
 
       {/* One unified "Coming" list (in-app RSVPs + calendar accepts, deduped) */}
       {hasAny && (

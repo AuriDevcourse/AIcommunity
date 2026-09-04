@@ -4,14 +4,19 @@
 //   DELETE → remove an uploaded photo (?url=...)
 //   PATCH  → move an uploaded photo to another session ({ url, toDate })
 import { listPhotos, uploadPhoto, deletePhoto, movePhoto, blobConfigured } from './_photos.js';
-import { guardMutation } from './_guard.js';
+import { guardMutation, requireReader, requireUser, PRIVATE_CACHE } from './_guard.js';
+import { isOrganizer, ORGANIZER_ONLY } from './_roles.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      // Edge-cache the listing: served instantly on repeat loads, revalidated in
-      // the background. Uploads are rare, so 60s of staleness is fine.
-      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      // The photo archive is members-only, so the listing is no longer public
+      // or edge-cached: a shared cache would hand one member's reply to the next
+      // stranger. Committed photos under public/sessions/ are static files and
+      // stay reachable by URL; this gates the Blob uploads and the index.
+      res.setHeader('Cache-Control', PRIVATE_CACHE);
+      const who = await requireReader(req);
+      if (who.blocked) return res.status(who.blocked.status).json(who.blocked.json);
       return res.status(200).json(await listPhotos());
     }
     // Upload / move / delete are gated: signed-in + rate-limited.
@@ -26,6 +31,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, ...r });
     }
     if (req.method === 'DELETE') {
+      // Deleting is the organizer's alone (Auri, 2026-09-02). Members add and
+      // move photos; nothing a member does removes one.
+      const u = await requireUser(req);
+      if (u.blocked) return res.status(u.blocked.status).json(u.blocked.json);
+      if (!isOrganizer(u.user)) return res.status(ORGANIZER_ONLY.status).json(ORGANIZER_ONLY.json);
       await deletePhoto(req.query?.url || '');
       return res.status(200).json({ ok: true });
     }

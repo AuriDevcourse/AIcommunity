@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MessagesSquare, Plus, ChevronDown, Trash2, Lightbulb, Sparkles, BarChart3 } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
+import { useIsOrganizer } from '../lib/members.js';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 import SessionThread from './SessionThread.jsx';
@@ -29,13 +30,14 @@ export default function Discussions() {
   const [topics, setTopics] = useState(null);
   const [configured, setConfigured] = useState(true);
   const { authMode, name, isReady: named } = useMemberName();
+  const organizer = useIsOrganizer(); // may delete any topic; the server re-checks
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null); // expanded topic id
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch('/api/topics');
+      const r = await authedFetch('/api/topics');
       const j = await r.json();
       setTopics(j.topics || []);
       setConfigured(j.configured !== false);
@@ -142,7 +144,7 @@ export default function Discussions() {
               title="Ideas"
               subtitle=""
               bare
-              sortBy="score"
+              sortBy="time" /* Auri, 2026-09-02: votes must not move an idea; order stays by time */
               initialLimit={3}
               composerPlaceholder="What should we build or do next?"
               postLabel="Suggest idea"
@@ -195,7 +197,7 @@ export default function Discussions() {
               {isOpen && (
                 <div className="border-t border-border p-4">
                   <SessionThread channel={t.id} title="Replies" subtitle="" bare />
-                  {own && (
+                  {(own || organizer) && (
                     <button onClick={() => remove(t.id)} className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted hover:text-err transition-colors">
                       <Trash2 size={13} /> Delete topic
                     </button>

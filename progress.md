@@ -2,6 +2,312 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## Where things stand (2026-09-02, end of session)
+
+**Branch `feat/members-only-and-avatar-upload`, everything below is UNCOMMITTED.** One day of
+work on one branch: members-only boundary, avatar upload, next-date fallback, organizer role,
+rename/domain close-out, Member Projects board, plus the Next Session card feedback, optimistic
+forum votes, time-ordered Ideas, 12:30–15:00 session length. Vite build green at every step;
+nine anonymous-route probes 401; auditor GO on the boundary.
+
+**Before merging, Auri does the signed-in smoke test** (nothing here has been seen signed in):
+1. Members: the directory loads with photos/LinkedIn; "Add my card" → Save → card appears
+   outlined in gold, whole card opens the link, Edit, Remove.
+2. Home: RSVP buttons + "Coming" list with names and photos.
+3. Forum: topics and polls load; upvote is instant; Close/Delete visible on a poll (organizer).
+4. Photos: archive shows Blob uploads; editor shows Delete for you only.
+5. Edit profile → Upload a photo → Save → header avatar changes.
+Then `git add -A && git commit` and merge to main (Vercel auto-deploys main). Delete
+`probe.html` / `probe.jsx` first, they are untracked leftovers.
+
+**Auri's side, outside the repo:** move the 13 Sept calendar event to 12:30–15:00; delete the
+three test items in the Forum (poll "What erv", posts "Powerplant" and the cut-off "we can.
+have what tools"), the buttons are yours now.
+
+**Dev server gotcha:** after any `vite.config.js` or `api/_*.js` change, kill the process on
+:5280 and `npm run dev` again. Vite kept serving the old middleware twice today.
+
+## Roadmap (10 improvements, set 2026-09-02)
+
+Ranked by how much each closes the gap between what the site is (an organizer cockpit) and
+what it serves as (the front door of a portfolio-accelerator community). Update the status
+column here when an item ships; details go in a dated entry below.
+
+| # | Item | Status |
+|---|---|---|
+| 3 | Rule-based next-date fallback (every second Sunday, 12:30, Matrikel1); set `GCAL_CALENDAR_ID` in Vercel | done 2026-09-02 (`GCAL_CALENDAR_ID` already present in Vercel production) |
+| 6 | Organizer role; deletes are organizer-only; poll close/delete in UI; purge test forum data | code done 2026-09-02; test-data purge pending Auri's confirmation |
+| 9 | Finish rename, og:url to aisundays.org, dark hero | done 2026-09-02 (most of it had already landed; see entry) |
+| 1 | Member Projects board: self-edited "what I'm building" card, opt-in | code done 2026-09-02; needs signed-in smoke test |
+| 2 | NEXT · Demo sign-up on the Next Session card | todo |
+| 4 | No-account join path: reminder email + group-chat invite | todo |
+| 5 | Path routing + SPA rewrite + branded 404 + per-recap OG images | todo |
+| 7 | Split front door from cockpit: Tools and Assets behind organizer role, declutter Home | partly done (Members, Photos, Forum are members-only; 2026-09-02) |
+| 8 | Archive honesty: years on dates, backfill ~4 sessions, true session count | todo |
+| 10 | News pipeline: fix Actions PR permission + fail loud, or cut the tab | todo |
+
+Order: 3, 6, 9 (cheap, stop bleeding) → 1, 2, 4 (the product) → 5, 7, 8, 10.
+Done outside the list: members-only boundary + avatar upload (2026-09-02).
+
+## 2026-09-02, roadmap item 1: the Member Projects board
+
+**Current state:** built, handler unit-tested, vite build green, same branch, not committed.
+Not yet seen signed-in in a browser (needs Auri's login).
+
+**What it is.** At the top of the Members page, above the directory: "What we are building",
+one card per member, written by the member. Three lines: what I am building, the last thing I
+shipped, one link. Add/Edit my card opens a small modal; your own card is outlined in gold.
+Remove is yours for your card, the organizer's for any. This is the community's purpose
+(ship, show) made visible between Sundays, and members opt in by writing a card, so the
+consent problem of the static directory does not apply here.
+
+**How.** No Supabase table: same Upstash-or-file store as topics/polls, key
+`aisundays:projects` = `{ [verifiedUserId]: card }`, so a member can only ever write their own.
+`api/_projects.js` (`handleProjects`: GET list, POST `save` upsert, POST `delete` own or
+organizer), `api/projects.js` (GET behind `requireReader`, POST behind `guardMutation` 20/min
+100/day + `requireUser`), dev middleware mirrors it. Text fields capped at 160 chars,
+whitespace collapsed; link must be http(s) (`javascript:` and `data:` refused with 422, a bare
+domain gets `https://`). The public shape carries no user ids: cards are addressed by an
+8-char prefix and the caller's own card is flagged `mine`. `src/components/ProjectsBoard.jsx`
+renders it; `MembersGallery` mounts it and labels the old grid "Directory".
+
+**Whole card is the link (Auri, same day):** when a card has a link, a stretched anchor covers
+the card (hover lift, focus ring) and opens it in a new tab; the Remove button sits above it
+with its own z-index so no button nests inside a link. Cards without a link stay plain. The
+footer hostname line is decorative (`aria-hidden`); the anchor carries one label per card.
+
+**Auri's own card (suggested):** building = aisundays.org (this site); shipped = toneofv
+(toneofv.vercel.app); link = auridev.com. Update the "shipped" line every second Sunday.
+
+**Verified (handler, file store):** javascript: link → 422; empty card → 422; save → link
+normalised, `mine: true`; another member sees `mine: false`, no `userId` in the payload,
+cannot delete it (403); organizer can (200); anonymous save → 401.
+
+### Next steps
+1. Signed-in smoke test: Members → Add my card → Save → card appears outlined; Edit; Remove.
+2. If the board takes off, a "shipped" entry could become a timeline per member. Not now.
+
+## 2026-09-02, roadmap item 9: the rename and the domain, closed out
+
+**Current state:** done, vite build green, same branch, not committed.
+
+**Smaller than the audit said.** Three of the four listed breakages had already been fixed by
+the time this was picked up: `api/_gcal.js` `DEFAULT_EVENT_MATCH` already accepts both "AI
+Sundays" and "AI Workshop" event titles; `api/_postmaker.js` already writes in the AI Sundays
+voice; `Hero.jsx` already swaps `hero-light.webp` / `hero-dark.webp` by theme and the
+`invert(1) hue-rotate(180deg)` filter is gone. **And aisundays.org is live**: the apex 308s to
+`https://www.aisundays.org/`, which serves the site (200, title "AI Sundays").
+
+**What was actually left, now done:**
+- `index.html`: `og:url`, `og:image`, `twitter:image` → `https://www.aisundays.org/…`, plus a
+  `<link rel="canonical">` to the www host (that is where the apex redirects, so it is the
+  canonical). Shared links preview under the real domain.
+- `public/robots.txt` and `public/sitemap.xml` → the new host.
+- `scripts/draft-news.mjs` user agent → `AISundaysNewsBot/1.0; +https://www.aisundays.org`.
+- `src/lib/ics.js` UID domain → `@aisundays.org` (file is currently unused, kept consistent).
+- `package.json` name → `ai-sundays`; README first line; a comment in build-data; the
+  server.js log line.
+
+**Left alone on purpose:** Upstash key prefixes `aiworkshop:*` (renaming them would orphan
+every poll, RSVP, thread and session name; a data migration for a cosmetic gain), the
+localStorage keys `aiworkshop_*` (same reason, client side), the `AI_WORKSHOP_*` env var names
+in build-data (local-only), the disabled Hetzner `deploy.yml` secret name, historical text in
+session notes and `src/data.json`. Zero `a-icommunity.vercel.app` references remain in
+shipped code; the vercel.app host keeps working as a Vercel alias.
+
+**Calendar renamed by Auri (2026-09-02).** The event was already titled "AI Sundays"; the
+calendar itself now is too. The stored Google token is `calendar.events.readonly`, so the site
+can never write to the calendar, which is the right shape.
+
+**Sessions run 12:30–15:00 (Auri, 2026-09-02), two and a half hours.** `SESSION_DURATION_HOURS
+= 2.5` in `src/lib/dates.js` (the range renders "12:30–15:00"), `rhythm.end = "15:00"` in
+`data/schedule.json`, `lib/ics.js` 2.5h, Hero copy "Two and a half hours on a Sunday". The
+13 Sept calendar event is entered as 13:00 and should be moved to 12:30–15:00 in Google
+Calendar (the site's token is read-only). Until then the hero countdown, which follows the
+event, runs 30 minutes behind the card text.
+
+**Test data purge: blocked, hand to Auri.** Deleting the "What erv" poll and the two test
+Ideas posts from the production store via a CLI script was refused by the permission
+classifier (production data deletion). Auri can do it in the Forum: sign in, Delete on the
+poll, the trash icon on the "Powerplant" post and on the cut-off "we can. have what tools"
+post. Organizer-only controls exist as of today.
+
+## 2026-09-02, roadmap item 6: organizer role, deletes are Auri's alone
+
+**Current state:** built, vite build green, role helper unit-tested, anonymous/bogus deletes
+401, same branch, not committed. `ORGANIZER_EMAILS` set in `.env.local` and in Vercel
+production + preview (`vercel env add`, value = Auri's Google sign-in address).
+
+**Rule (Auri, 2026-09-02):** only the organizer deletes. Members add and edit: post, vote,
+RSVP, add photos, move photos, rename sessions. Judgment call kept: a member may still delete
+their OWN topic or comment (their words); the organizer may delete anyone's.
+
+**How.** `api/_roles.js` `isOrganizer(user)`: the verified session email, lower-cased, must be
+in `ORGANIZER_EMAILS` (comma-separated) AND the address must be confirmed by Supabase
+(`email_confirmed_at`), because anyone can type the organizer's email into the sign-up form.
+No table, no admin UI. `ORGANIZER_ONLY` is the shared 403.
+- `/api/photos` DELETE → organizer only (Vercel route + dev middleware). PATCH (move) stays
+  member-level. `PhotoUploader`'s "remove what I just uploaded" is hidden for members, since
+  the server would refuse it.
+- `/api/polls` gained `action: 'close'` (`closed: true|false`, so also reopen) and
+  `action: 'delete'`, organizer only. Until now these did not exist and Auri edited Upstash by
+  hand. `Polls.jsx` shows Close/Reopen and Delete next to Share for the organizer.
+- `/api/topics` and `/api/threads` delete: owner OR organizer. Client shows the delete button
+  for either (`Discussions.jsx`, `SessionThread.jsx`).
+- `/api/members` now returns `you: { organizer }` from the verified session; the client hook
+  `useIsOrganizer()` (lib/members.js) reads it. It only shows/hides controls; every route
+  re-checks the role itself.
+- `SessionsGallery` passes `onDelete` only to the organizer; the editor's action bar says
+  "Only an organizer can delete photos." for everyone else.
+
+**Also (Auri, same day): optimistic votes in the forum.** `SessionThread.jsx` `vote()` now
+changes the arrow and the count the instant you click (same arrow again undoes, the other
+arrow switches, mirroring `api/_threads.js`), then posts; the server's comment replaces the
+guess, or on a failed request the comment snaps back. The 6-second poll skips a tick while a
+vote is in flight (`votesInFlight` ref) so it cannot paint the old count over the new one.
+
+**Ideas board order is stable (Auri, same day):** `Discussions.jsx` passes `sortBy="time"` to the
+pinned Ideas thread instead of `"score"`. Votes change the number, never the position.
+
+**Not done yet:** purging the test data (poll "What erv", the cut-off Ideas post). Listed
+below; delete only on Auri's explicit go, it is production data.
+
+## 2026-09-02, roadmap item 3: the site always knows the next Sunday
+
+**Current state:** built, resolver unit-tested, vite build green, same branch, not committed.
+
+**Problem.** Home trusted Google Calendar. When the API failed, or in any deploy where
+`GCAL_CALENDAR_ID` is unset and `primary` runs dry, it fell back to `data/schedule.json`, whose
+`upcoming` ended 2026-07-12. `App.jsx` filters to dates from today, so `next` was undefined and
+the hero said "Nothing scheduled yet", the RSVP and calendar links vanished.
+
+**Fix: a third source under the other two.** `data/schedule.json` gained a `rhythm` block
+(`anchor: 2026-08-30, everyDays: 14, start 12:30, end 14:30, venue Matrikel1…, timeZone
+Europe/Copenhagen`). `src/lib/rhythm.js` turns it into sessions (`rhythmSessions`), with a
+DST-correct `startsAt` (`zonedIso`: 10:30Z in summer, 11:30Z in winter, checked). `src/lib/
+schedule.js` `resolveUpcoming(static, rhythm, today)` picks the snapshot if it still has a
+future date, else three rhythm dates; `useSchedule` starts from that, so there is no empty
+frame while the calendar loads, and keeps it when the calendar is unconfigured or fails. Live
+calendar data still wins the moment it arrives. Sessions from the rule carry `source: 'rhythm'`
+and `NextSession` adds one line under the time: "Usual rhythm, every second Sunday. Not yet
+confirmed in the calendar." A venue or time change is a JSON edit, not code.
+
+**Verified:** `resolveUpcoming` with a stale snapshot → rhythm 2026-09-13, 09-27, 10-11; with a
+fresh snapshot → static; with nothing → empty (the old "No upcoming session" card remains the
+last resort). Live Home unchanged (calendar answers 13 Sept).
+
+### Next steps
+1. `vercel env ls production` shows `GCAL_CALENDAR_ID` IS set (the older "not set in Vercel"
+   note further down is stale). Left to do on the calendar side: rename the dedicated
+   calendar's event from "AI Workshops" to "AI Sundays" once item 9 lands.
+2. The stale `upcoming` entries in `data/schedule.json` (May to July) are now harmless but still
+   misleading to read; item 8 can prune them.
+
+## 2026-09-02, members-only tabs + avatar upload (branch `feat/members-only-and-avatar-upload`)
+
+**Current state:** built, vite build green, verified signed-out in the browser. NOT committed,
+NOT pushed. Auri asked for two things: some pages behind sign-in, and a small profile editor
+(avatar image + name).
+
+**1. Members-only tabs.** `App.jsx` `TABS` carry `gated: true` on `discussions`, `members`,
+`sessions`. When Supabase is configured and nobody is signed in, the tab body renders
+`MembersOnly` (a card with the reason and one sign-in button) instead of the component, and the
+nav shows a small Lock next to the label (desktop + mobile menu). While auth is still loading
+the tab shows `TabFallback`, so a signed-in member never sees the wall flash. With Supabase
+unconfigured nothing is gated. Sign-in modal copy updated to name the gated pages.
+
+**It is a real boundary (second pass, same day).** The completion-auditor blocked the first
+version: the wall was client-side only, all 23 names shipped in the bundle, and three curls
+returned every photo URL, poll and name. Auri chose "boundary". What changed:
+- **`requireReader` in `api/_guard.js`.** Auth unconfigured → reads stay open (matches the
+  client, which gates nothing then). Configured → no/invalid token is 401 "Sign in to see this."
+  `PRIVATE_CACHE = 'private, no-store'` replaces every public edge-cache header on these
+  routes, because an auth-dependent response in a shared cache is served to the next stranger.
+- **Gated GETs:** `/api/photos` (Blob index), `/api/polls`, `/api/threads`, `/api/topics`,
+  and the new **`/api/members`**. Mirrored in the Vite dev middleware (`readerFor`).
+- **Counts without names:** `/api/rsvp` GET and `/api/attendees` take the reader; signed out
+  they return `going: [], maybe: []` + `counts` + `namesHidden: true`. `Rsvp.jsx` renders
+  "6 coming, 2 maybe. Sign in to see who." (a sum of two overlapping sources, so an upper
+  bound). `handleAttendees` also stopped returning 500 on a missing date (now 400) and no
+  longer echoes upstream error text (502, SECURITY r20).
+- **Names out of the bundle.** `scripts/build-data.js` writes two things: `src/data.json` with
+  `memberCount` and per-session `attendeeCount` (no `members`, no `attendees`), and
+  **`api/_members-data.js`**, a generated server-only module with members, the profile map
+  (`data/members-profile.json`) and `attendeesByDate`. Both are committed; Vercel skips
+  build-data and ships them as-is, so **re-run `npm run build:data` and commit both after any
+  change to `content/members.md`, a session note, or members-profile.json.**
+- **Client:** `src/lib/members.js` (`useMembersData`, one shared fetch, cache cleared on
+  sign-out), `lib/members-profile.js` helpers now take `profiles` as the first argument,
+  `lib/attendees.js` `resolveGuest(guest, profiles)`, `lib/photos.js` uses `authedFetch` and
+  treats 401 as expected (no console warning). `MembersGallery` takes no props (skeleton while
+  loading). `SessionRecap` shows "N people came" publicly, names only when signed in.
+  `PostMaker` uses `attendeeCount`. Polls/Discussions/SessionThread GETs use `authedFetch`.
+- **`/api/session-meta` was the half-applied fix** (auditor, second pass): its GET returned
+  `cover` and `order`, i.e. every Blob photo URL, publicly and edge-cached, while `/api/photos`
+  401'd on the same data. Now: names for everyone (the public recap title needs them), `cover`
+  and `order` only for a verified reader, `PRIVATE_CACHE`. `SessionsGallery` fetches it with
+  `authedFetch`; `SessionRecap` keeps a bare fetch (it only reads the name).
+- **Verified:** fresh bundle grep finds no surnames (Auri's own name in the privacy page is the
+  GDPR data-controller line), no LinkedIn URLs, no attendee arrays. Six FIRST names still ship
+  (Aiza, Dovile, Eividas, Ignas, Sany, Tady) from demo `presenter` fields and session
+  `summary` prose, which stay public on purpose. Anonymous curls:
+  polls/photos/members/topics/threads 401, bogus token 401, rsvp 200 counts-only, attendees 400
+  without a date.
+- **Still public, on purpose:** committed photos under `public/sessions/` and member portraits
+  under `public/members/` are static files, reachable by URL if you know it. Vercel cannot
+  gate static assets; moving portraits into Blob behind `/api` is the next step if that matters.
+  Demo presenter first names in recaps. Session titles and summaries.
+
+**2. Avatar upload.** The profile editor (`AuthControls.jsx` `ProfileModal`) already had
+generated avatars, Google photo and paste-a-URL. Added "Upload a photo": `compressImage` to
+256px JPEG, `authedFetch` POST to **`/api/avatar`**, the returned Blob URL becomes the pending
+avatar and Save writes it to `user_metadata.avatar_url` as before.
+- `api/_avatar.js`: path is `avatars/<verified userId>/avatar.<ext>` (id sanitised to
+  `[a-zA-Z0-9-]`, body can only supply `contentType` + `data`), JPG/PNG/WebP only, 600KB cap,
+  random suffix for cache busting, stale blobs for that user deleted best-effort.
+  `handleAvatar` returns 405/401/503/422/500 with member-safe messages.
+- `api/avatar.js`: `guardMutation` bucket `avatar` 10/min + 30/day, then `requireUser`.
+- `vite.config.js`: same route in dev middleware; `gate()` gained a `dailyLimit` arg so dev
+  matches prod. `server.js` (parked self-host runtime) has NO `/api/avatar` route.
+- `vercel.json` CSP `img-src` gained `https://*.googleusercontent.com` so the existing
+  "use your Google photo" option actually renders in production.
+
+**Verified:** signed-out `#members` renders the wall with no member names in the DOM; nav locks
+present; sign-in modal opens from the wall; Home unchanged; 0 console errors. `POST/GET/PUT
+/api/avatar` without a token and with a bogus token all return 401. `npx vite build` green.
+**Not verified:** a real signed-in upload end to end (needs Auri's credentials + Blob token
+in `.env.local`). Test: sign in, Edit profile, Upload a photo, Save, header avatar changes.
+
+**Next Session card, Agentation feedback (Auri, same day):** (1) calendar row keeps Google
+Calendar only, the .ics download and the Luma link/dev nudge are gone (`lib/ics.js` is now
+unused, kept). (2) `Rsvp.jsx` renders nothing when signed out: no "Sign in to RSVP", no
+walk-in line, no counts. An RSVP is a confirmation and a visitor has not confirmed anything.
+The counts-only API path still exists and is harmless. (3) The three-line recording notice is
+one short line at the right end of the calendar row, "Sessions may be recorded", with a hover
+title and a click through to the privacy page.
+
+### Next steps
+1. **Signed-in smoke test** (needs Auri's login): Members grid loads from `/api/members`
+   with photos and LinkedIn; Home "Coming" list shows names + photos; a recap shows "Who came"
+   pills; Forum topics/polls load; Photos archive shows Blob uploads; Edit profile → Upload a
+   photo → Save changes the header avatar. Then commit.
+2. Member portraits (`public/members/*.png`) are still static files. Move them to Blob behind
+   `/api` if "stays inside the community" should cover the images too, not only the names.
+3. `server.js` (parked self-host runtime) has none of this: no `/api/avatar`, `/api/members`,
+   no reader gate. Port it before any Hetzner deploy.
+4. `probe.html` / `probe.jsx` are untracked leftovers in the repo root; delete or gitignore.
+
+### Gotchas
+- Avatar and session photos share one Blob store; `avatars/` and `sessions/` prefixes keep
+  them apart. `listPhotos` only lists `sessions/`, so avatars never appear in galleries.
+- **Vite does not always pick up a `vite.config.js` change.** The middleware kept serving the
+  old routes after the edit (unknown `/api/*` fell through to index.html with a 200, which
+  looked like a leak). Kill the process on :5280 and `npm run dev` again after touching it.
+- `Rsvp.jsx` caches the last lists in localStorage per date. A signed-out visitor on a shared
+  browser can paint a previous member's cached names for one frame before the counts-only
+  response replaces them. Small, noted.
+- `api/avatar.js` verifies the token twice (guard, then requireUser). Cached 60s, harmless.
+
 ## 2026-09-01, spend protection on the paid routes (tools findings 1-3)
 
 **Current state:** done, audit green (11 suites, guard now 8 assertions), pushed.
@@ -3232,7 +3538,7 @@ Outstanding before merge: manual browser smoke (RSVP toggle, recap page, modals)
 - **Sessions**, committed + uploaded photos, lightbox, and the **session editor** (rename / featured cover / reorder / bulk delete; move + create-by-date in the uploader).
 
 ### Auth (Supabase)
-- Google + email/password. **Public read, login required to interact.** Profile editing (name, avatar, bio).
+- Google + email/password. **Public read on Home, Learn, News, Tools. Members, Photos and Forum tabs sit behind a client-side sign-in wall (see 2026-09-02 entry); their read APIs are still public.** Profile editing (name, avatar, bio).
 - **Server-side enforced:** mutating API routes verify the Supabase JWT + rate-limit (see hardening above). Degrades to typed-name mode if Supabase isn't configured.
 
 ### Cross-cutting

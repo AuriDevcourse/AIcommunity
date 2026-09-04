@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BarChart3, Plus, X, Check, RefreshCw, Users, ArrowDownWideNarrow, Link2 } from 'lucide-react';
+import { BarChart3, Plus, X, Check, RefreshCw, Users, ArrowDownWideNarrow, Link2, Lock, LockOpen, Trash2 } from 'lucide-react';
 import { useMemberName } from '../lib/auth.jsx';
+import { useIsOrganizer } from '../lib/members.js';
 import { authedFetch } from '../lib/supabase.js';
 import { SignInGate } from './AuthControls.jsx';
 const ci = (s) => String(s || '').trim().toLowerCase();
@@ -45,6 +46,7 @@ function applyVoteLocally(poll, name, optionIds) {
 export default function Polls({ embedded = false, initialLimit = 0 }) {
   const [polls, setPolls] = useState(null);
   const { authMode, name, setName } = useMemberName();
+  const organizer = useIsOrganizer();
   const [drafts, setDrafts] = useState({}); // pollId -> optionId[] (in-progress, unsaved)
   const [busy, setBusy] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -59,7 +61,7 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch('/api/polls');
+      const r = await authedFetch('/api/polls');
       const j = await r.json();
       setPolls(j.polls || []);
       setConfigured(j.configured !== false);
@@ -340,6 +342,30 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
                     {poll.closed && <span className="pill pill-warn">closed</span>}
                   </div>
                 </div>
+                <div className="flex-shrink-0 flex items-center gap-1">
+                {/* Organizer only: close/reopen and delete. The server enforces
+                    the role; these just stay out of everyone else's way. */}
+                {organizer && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => act({ action: 'close', pollId: poll.id, closed: !poll.closed })}
+                      disabled={busy === poll.id}
+                      className="tap-target inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-muted hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50"
+                    >
+                      {poll.closed ? (<><LockOpen size={13} /> Reopen</>) : (<><Lock size={13} /> Close</>)}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if (confirm(`Delete the poll "${poll.question}" and its votes? This cannot be undone.`)) act({ action: 'delete', pollId: poll.id }); }}
+                      disabled={busy === poll.id}
+                      aria-label={`Delete the poll: ${poll.question}`}
+                      className="tap-target inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-muted hover:text-err hover:bg-accent transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={() => copyPollLink(poll)}
@@ -351,6 +377,7 @@ export default function Polls({ embedded = false, initialLimit = 0 }) {
                     ? (<><Check size={13} strokeWidth={2.5} /> Copied</>)
                     : (<><Link2 size={13} /> Share</>)}
                 </button>
+                </div>
               </div>
 
               <div

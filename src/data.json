@@ -1,17 +1,11 @@
 {
-  "generatedAt": "2026-09-01T13:03:13.912Z",
+  "generatedAt": "2026-09-04T14:01:45.929Z",
   "sessions": [
     {
       "number": 1,
       "date": "2025-06-29",
       "title": "First meetup & format",
       "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Aiza"
-      ],
       "demos": [
         {
           "presenter": "Auri",
@@ -82,22 +76,14 @@
         "/sessions/2025-06-29/2.jpg",
         "/sessions/2025-06-29/3.jpg",
         "/sessions/2025-06-29/4.jpg"
-      ]
+      ],
+      "attendeeCount": 4
     },
     {
       "number": 2,
       "date": "2025-07-12",
       "title": "AI automations with Make.com",
       "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Aiza",
-        "Eividas",
-        "Valentin",
-        "Mari"
-      ],
       "demos": [
         {
           "presenter": "Auri",
@@ -149,20 +135,14 @@
         "/sessions/2025-07-12/3.jpg",
         "/sessions/2025-07-12/4.jpg",
         "/sessions/2025-07-12/5.jpg"
-      ]
+      ],
+      "attendeeCount": 7
     },
     {
       "number": 3,
       "date": "2025-07-27",
       "title": "AI in game design",
       "location": "In-person",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Eividas",
-        "Dovile"
-      ],
       "demos": [
         {
           "presenter": "Auri",
@@ -198,21 +178,14 @@
         "/sessions/2025-07-27/IMG_4559.jpg",
         "/sessions/2025-07-27/Screenshot 2025-09-19 110139.png",
         "/sessions/2025-07-27/Screenshot 2025-09-19 110140.png"
-      ]
+      ],
+      "attendeeCount": 5
     },
     {
       "number": 4,
       "date": "2025-09-14",
       "title": "International guests",
       "location": "In-person + Online",
-      "attendees": [
-        "Auri",
-        "Eividas",
-        "Ignas",
-        "Martin",
-        "Tady",
-        "Cristina"
-      ],
       "demos": [
         {
           "presenter": "Ignas",
@@ -245,14 +218,14 @@
         "/sessions/2025-09-14/IMG_5147.jpg",
         "/sessions/2025-09-14/IMG_5148.jpg",
         "/sessions/2025-09-14/IMG_5153.jpg"
-      ]
+      ],
+      "attendeeCount": 6
     },
     {
       "number": 5,
       "date": "2026-03-08",
       "title": "Image-to-3D demos",
       "location": "Matrikel1",
-      "attendees": [],
       "demos": [],
       "actions": [],
       "summary": "In-person session at Matrikel1. Photos show an image-to-3D / model-generation tool being demoed (a 3D mesh on the big screen) and a short stand-up presentation. Fill in attendees and demo details below.",
@@ -263,14 +236,14 @@
         "/sessions/2026-03-08/2.jpg",
         "/sessions/2026-03-08/3.jpg",
         "/sessions/2026-03-08/4.jpg"
-      ]
+      ],
+      "attendeeCount": 0
     },
     {
       "number": 6,
       "date": "2026-05-03",
       "title": "Ice cream session",
       "location": "TBD",
-      "attendees": [],
       "demos": [],
       "actions": [],
       "summary": "",
@@ -288,22 +261,14 @@
         "/sessions/2026-05-03/03052026_09.jpeg",
         "/sessions/2026-05-03/03052026_10.jpeg",
         "/sessions/2026-05-03/03052026_11.jpeg"
-      ]
+      ],
+      "attendeeCount": 0
     },
     {
       "number": 7,
       "date": "2026-05-31",
       "title": "How we build with AI",
       "location": "Matrikel1",
-      "attendees": [
-        "Auri",
-        "Yogi",
-        "Eividas",
-        "Justas",
-        "Sany",
-        "Frederik",
-        "Ignas"
-      ],
       "demos": [
         {
           "presenter": "Auri",
@@ -511,20 +476,14 @@
           "url": ""
         }
       ],
-      "photos": []
+      "photos": [],
+      "attendeeCount": 7
     },
     {
       "number": 8,
       "date": "2026-06-14",
       "title": "AI tools across business & creativity",
       "location": "TBD",
-      "attendees": [
-        "Auri",
-        "Andrei",
-        "Sany",
-        "Eividas",
-        "Ignas"
-      ],
       "demos": [
         {
           "presenter": "Auri",
@@ -761,21 +720,14 @@
           "url": ""
         }
       ],
-      "photos": []
+      "photos": [],
+      "attendeeCount": 5
     },
     {
       "number": 9,
       "date": "2026-08-30",
       "title": "Session after Summer Break",
       "location": "TBD",
-      "attendees": [
-        "Auri",
-        "Ignas",
-        "Sany",
-        "Andrei",
-        "Aiza",
-        "Roman"
-      ],
       "demos": [],
       "actions": [],
       "summary": "",
@@ -799,171 +751,11 @@
         "/sessions/2026-08-30/02.jpg",
         "/sessions/2026-08-30/03.jpg",
         "/sessions/2026-08-30/04.jpg"
-      ]
+      ],
+      "attendeeCount": 6
     }
   ],
-  "members": [
-    {
-      "name": "Aurimas Baciauskas",
-      "status": "Active",
-      "aliases": [
-        "Auri"
-      ],
-      "attended": 7
-    },
-    {
-      "name": "Aiza Watzlawek",
-      "status": "Active",
-      "aliases": [],
-      "attended": 3
-    },
-    {
-      "name": "Andrei Prusu",
-      "status": "Active",
-      "aliases": [],
-      "attended": 2
-    },
-    {
-      "name": "Cristina Bodnari",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Dovile",
-      "status": "Active",
-      "aliases": [
-        "Dovile Perednyte"
-      ],
-      "attended": 1
-    },
-    {
-      "name": "Dovydas Vinickis",
-      "status": "Active",
-      "aliases": [],
-      "attended": 0
-    },
-    {
-      "name": "Eividas Maciulis",
-      "status": "Active",
-      "aliases": [],
-      "attended": 5
-    },
-    {
-      "name": "Ernestas Sažinas",
-      "status": "Active",
-      "aliases": [
-        "Ernestas"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Ignas Valavicius",
-      "status": "Active",
-      "aliases": [],
-      "attended": 7
-    },
-    {
-      "name": "Inigo Casillas",
-      "status": "Active",
-      "aliases": [
-        "Inigo"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Justas Petrauskas",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Kernius Savickas",
-      "status": "Active",
-      "aliases": [
-        "Kernius"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Kristina Juozapaviciute",
-      "status": "Active",
-      "aliases": [
-        "Kristina"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Maria Krupa",
-      "status": "Active",
-      "aliases": [
-        "Maria"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Marlu Adamczyk",
-      "status": "Active",
-      "aliases": [
-        "Marlu"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Martin Windsor",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Pavel Kucera",
-      "status": "Active",
-      "aliases": [
-        "Pavel"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Prachi Abhyankar",
-      "status": "Active",
-      "aliases": [
-        "Prachi"
-      ],
-      "attended": 0
-    },
-    {
-      "name": "Roman Novosad",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Sany Ivanova",
-      "status": "Active",
-      "aliases": [],
-      "attended": 6
-    },
-    {
-      "name": "Tady Kapic",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Valentin",
-      "status": "Active",
-      "aliases": [],
-      "attended": 1
-    },
-    {
-      "name": "Vasare Liutkeviciute",
-      "status": "Active",
-      "aliases": [
-        "Vasare"
-      ],
-      "attended": 0
-    }
-  ],
+  "memberCount": 23,
   "schedule": {
     "upcoming": [
       {
@@ -1271,7 +1063,15 @@
         "to": "2026-04-19",
         "reason": "Protocol paused. Sessions in this window went unlogged."
       }
-    ]
+    ],
+    "rhythm": {
+      "anchor": "2026-08-30",
+      "everyDays": 14,
+      "start": "12:30",
+      "end": "15:00",
+      "venue": "Matrikel1, Højbro Pl. 10, 1200 København, Denmark",
+      "timeZone": "Europe/Copenhagen"
+    }
   },
   "backlog": [],
   "openActions": [

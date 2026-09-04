@@ -97,7 +97,7 @@ export default function Hero({ showGlance = false, next, sessionCount = 0, membe
           could not tell what they would walk into or whether they would be out of
           place. Every comparable community answers both in its first screen. */}
       <p className="mt-2 text-sm text-muted max-w-3xl leading-relaxed">
-        Two hours on a Sunday. Someone shows what they built, or we pick topics on the day and
+        Two and a half hours on a Sunday. Someone shows what they built, or we pick topics on the day and
         work through them together. Engineers, designers, founders and students, anyone building
         with AI. Free to attend, and you never have to present.
       </p>

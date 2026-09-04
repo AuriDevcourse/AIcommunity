@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { identityFor, ownsRecord } from './_identity.js';
+import { isOrganizer } from './_roles.js';
 import { purgeThread } from './_threads.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -80,7 +81,8 @@ export async function handleTopics({ method, body, user = null, store = createSt
     // Verified session, not the body. This delete cascades into purgeThread(),
     // so trusting body.name let any signed-in member wipe someone else's topic
     // along with every comment and vote under it.
-    if (!ownsRecord(target, user, 'createdBy')) return { status: 403, json: { ok: false, error: 'not your topic' } };
+    // The author may remove their own topic; the organizer may remove any.
+    if (!ownsRecord(target, user, 'createdBy') && !isOrganizer(user)) return { status: 403, json: { ok: false, error: 'not your topic' } };
     await store.save(topics.filter((t) => t.id !== id));
     await purgeThread(id).catch(() => {}); // cascade: drop the topic's thread + votes
     return { status: 200, json: { ok: true } };

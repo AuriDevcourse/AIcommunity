@@ -54,21 +54,57 @@
         {
           "title": "How our sessions run",
           "flow": [
-            { "icon": "Mic", "label": "Welcome", "detail": "I open and say hello to everyone" },
-            { "icon": "Newspaper", "label": "AI news", "detail": "What you heard, plus what's on our platform" },
-            { "icon": "Presentation", "label": "Show & tell", "detail": "Anyone who wants to present, then a feedback round" },
-            { "icon": "MessagesSquare", "label": "Open floor", "detail": "Tools you tried, opinions, anything goes" }
+            {
+              "icon": "Mic",
+              "label": "Welcome",
+              "detail": "I open and say hello to everyone"
+            },
+            {
+              "icon": "Newspaper",
+              "label": "AI news",
+              "detail": "What you heard, plus what's on our platform"
+            },
+            {
+              "icon": "Presentation",
+              "label": "Show & tell",
+              "detail": "Anyone who wants to present, then a feedback round"
+            },
+            {
+              "icon": "MessagesSquare",
+              "label": "Open floor",
+              "detail": "Tools you tried, opinions, anything goes"
+            }
           ],
           "note": "This is a proposal, not set in stone. Let's talk it through and adjust it together."
         },
         {
           "title": "We now record sessions",
           "flow": [
-            { "icon": "Video", "label": "We record", "detail": "The session is captured on the spot" },
-            { "icon": "Laptop", "label": "Stays on my laptop", "detail": "The file lives locally, not in any cloud" },
-            { "icon": "AudioLines", "label": "Transcribed locally", "detail": "Whisper turns the speech into text on-device" },
-            { "icon": "Users", "label": "Who said what", "detail": "Speaker labels, that's why you say your name first" },
-            { "icon": "Megaphone", "label": "Posts and recaps", "detail": "The transcript feeds our social posts and session recap" }
+            {
+              "icon": "Video",
+              "label": "We record",
+              "detail": "The session is captured on the spot"
+            },
+            {
+              "icon": "Laptop",
+              "label": "Stays on my laptop",
+              "detail": "The file lives locally, not in any cloud"
+            },
+            {
+              "icon": "AudioLines",
+              "label": "Transcribed locally",
+              "detail": "Whisper turns the speech into text on-device"
+            },
+            {
+              "icon": "Users",
+              "label": "Who said what",
+              "detail": "Speaker labels, that's why you say your name first"
+            },
+            {
+              "icon": "Megaphone",
+              "label": "Posts and recaps",
+              "detail": "The transcript feeds our social posts and session recap"
+            }
           ],
           "note": "Prefer to stay off the recording? Tell me and we'll work around it."
         },
@@ -82,20 +118,48 @@
         {
           "title": "How I steer my AI: one CLAUDE.md",
           "flow": [
-            { "icon": "FileText", "label": "Write the rules once", "detail": "Three files: WORKFLOW, SECURITY and DESIGN" },
-            { "icon": "Bot", "label": "Point CLAUDE.md at them", "detail": "A short global file that links the three" },
-            { "icon": "Sparkles", "label": "Read on every session", "detail": "The AI loads them before it touches any project" },
-            { "icon": "Wand2", "label": "Standards enforced", "detail": "Security, git flow and design stay consistent" }
+            {
+              "icon": "FileText",
+              "label": "Write the rules once",
+              "detail": "Three files: WORKFLOW, SECURITY and DESIGN"
+            },
+            {
+              "icon": "Bot",
+              "label": "Point CLAUDE.md at them",
+              "detail": "A short global file that links the three"
+            },
+            {
+              "icon": "Sparkles",
+              "label": "Read on every session",
+              "detail": "The AI loads them before it touches any project"
+            },
+            {
+              "icon": "Wand2",
+              "label": "Standards enforced",
+              "detail": "Security, git flow and design stay consistent"
+            }
           ],
           "files": [
             {
               "name": "CLAUDE.md",
               "does": "The index the AI reads first. A short global file that points to the other three.",
               "rules": [
-                { "rule": "Who I am and how to talk to me: be direct, recommend, keep it short", "without": "Generic, long-winded answers that miss how I work" },
-                { "rule": "My defaults: TypeScript, Next.js, check the lockfile, no auto-commit", "without": "It picks random tools and commits without asking" },
-                { "rule": "Where my projects live and what each one is", "without": "It can't find or understand my work" },
-                { "rule": "Links out to WORKFLOW, SECURITY and DESIGN", "without": "None of the rules load and the standards are ignored" }
+                {
+                  "rule": "Who I am and how to talk to me: be direct, recommend, keep it short",
+                  "without": "Generic, long-winded answers that miss how I work"
+                },
+                {
+                  "rule": "My defaults: TypeScript, Next.js, check the lockfile, no auto-commit",
+                  "without": "It picks random tools and commits without asking"
+                },
+                {
+                  "rule": "Where my projects live and what each one is",
+                  "without": "It can't find or understand my work"
+                },
+                {
+                  "rule": "Links out to WORKFLOW, SECURITY and DESIGN",
+                  "without": "None of the rules load and the standards are ignored"
+                }
               ],
               "risk": "the AI starts every project blind and ignores your standards."
             },
@@ -103,11 +167,26 @@
               "name": "SECURITY.md",
               "does": "21 rules so the AI builds safely by default.",
               "rules": [
-                { "rule": "Rate-limit every endpoint (login: 5 tries per 15 minutes)", "without": "Bots brute-force logins and hammer your API" },
-                { "rule": "Never hardcode secrets, rotate them if one leaks", "without": "Your API key sits in Git for anyone to grab and use" },
-                { "rule": "Validate and sanitize all input (Zod or Pydantic)", "without": "Malformed or malicious input crashes the app or injects code" },
-                { "rule": "Protect every paid-API route: sign in, rate limit, cap usage", "without": "A stranger runs up your AI bill on an open URL" },
-                { "rule": "Sessions in signed httpOnly cookies, re-checked server-side", "without": "A copied link or forged cookie logs someone in as you" }
+                {
+                  "rule": "Rate-limit every endpoint (login: 5 tries per 15 minutes)",
+                  "without": "Bots brute-force logins and hammer your API"
+                },
+                {
+                  "rule": "Never hardcode secrets, rotate them if one leaks",
+                  "without": "Your API key sits in Git for anyone to grab and use"
+                },
+                {
+                  "rule": "Validate and sanitize all input (Zod or Pydantic)",
+                  "without": "Malformed or malicious input crashes the app or injects code"
+                },
+                {
+                  "rule": "Protect every paid-API route: sign in, rate limit, cap usage",
+                  "without": "A stranger runs up your AI bill on an open URL"
+                },
+                {
+                  "rule": "Sessions in signed httpOnly cookies, re-checked server-side",
+                  "without": "A copied link or forged cookie logs someone in as you"
+                }
               ],
               "risk": "leaked API keys, abused endpoints, surprise bills, data leaks."
             },
@@ -115,11 +194,26 @@
               "name": "WORKFLOW.md",
               "does": "How the AI should work on my projects.",
               "rules": [
-                { "rule": "Branch off main, never edit main directly", "without": "A half-finished change auto-deploys straight to production" },
-                { "rule": "Read the project's docs before touching anything", "without": "It re-breaks things the docs already warned about" },
-                { "rule": "Run React Doctor on React apps before shipping", "without": "AI-introduced state and effect bugs ship unnoticed" },
-                { "rule": "Leave a handoff in progress.md before any restart", "without": "You lose all context and re-derive everything next time" },
-                { "rule": "Safe deploys: health-check first, instant rollback", "without": "One bad build takes the live site down with no quick way back" }
+                {
+                  "rule": "Branch off main, never edit main directly",
+                  "without": "A half-finished change auto-deploys straight to production"
+                },
+                {
+                  "rule": "Read the project's docs before touching anything",
+                  "without": "It re-breaks things the docs already warned about"
+                },
+                {
+                  "rule": "Run React Doctor on React apps before shipping",
+                  "without": "AI-introduced state and effect bugs ship unnoticed"
+                },
+                {
+                  "rule": "Leave a handoff in progress.md before any restart",
+                  "without": "You lose all context and re-derive everything next time"
+                },
+                {
+                  "rule": "Safe deploys: health-check first, instant rollback",
+                  "without": "One bad build takes the live site down with no quick way back"
+                }
               ],
               "risk": "agents edit main, break auto-deploys, lose context between sessions."
             },
@@ -127,11 +221,26 @@
               "name": "DESIGN.md",
               "does": "How everything should look and feel.",
               "rules": [
-                { "rule": "No emojis in the UI, use Lucide icons instead", "without": "The UI looks AI-generated and unprofessional" },
-                { "rule": "No text dashes or arrows, use a middot or an icon", "without": "Small tells that cheapen the interface" },
-                { "rule": "Design UI-first, toward one clear feeling", "without": "A backend-shaped UI with no real experience" },
-                { "rule": "Stream AI text token-by-token", "without": "Users stare at a 10 to 30 second spinner" },
-                { "rule": "Accessibility: contrast, visible focus, full keyboard use", "without": "People with low vision or no mouse can't use it" }
+                {
+                  "rule": "No emojis in the UI, use Lucide icons instead",
+                  "without": "The UI looks AI-generated and unprofessional"
+                },
+                {
+                  "rule": "No text dashes or arrows, use a middot or an icon",
+                  "without": "Small tells that cheapen the interface"
+                },
+                {
+                  "rule": "Design UI-first, toward one clear feeling",
+                  "without": "A backend-shaped UI with no real experience"
+                },
+                {
+                  "rule": "Stream AI text token-by-token",
+                  "without": "Users stare at a 10 to 30 second spinner"
+                },
+                {
+                  "rule": "Accessibility: contrast, visible focus, full keyboard use",
+                  "without": "People with low vision or no mouse can't use it"
+                }
               ],
               "risk": "amateur-looking, inaccessible UI."
             }
@@ -141,9 +250,21 @@
         {
           "title": "Project updates & feedback",
           "flow": [
-            { "icon": "Megaphone", "label": "Share an update", "detail": "Tell us what you're building right now" },
-            { "icon": "MessagesSquare", "label": "Ask for feedback", "detail": "Bring something and we'll dig into it together" },
-            { "icon": "Sparkles", "label": "Rough is fine", "detail": "Work-in-progress is welcome, no need to polish" }
+            {
+              "icon": "Megaphone",
+              "label": "Share an update",
+              "detail": "Tell us what you're building right now"
+            },
+            {
+              "icon": "MessagesSquare",
+              "label": "Ask for feedback",
+              "detail": "Bring something and we'll dig into it together"
+            },
+            {
+              "icon": "Sparkles",
+              "label": "Rough is fine",
+              "detail": "Work-in-progress is welcome, no need to polish"
+            }
           ]
         },
         {
@@ -184,5 +305,13 @@
       "to": "2026-04-19",
       "reason": "Protocol paused. Sessions in this window went unlogged."
     }
-  ]
+  ],
+  "rhythm": {
+    "anchor": "2026-08-30",
+    "everyDays": 14,
+    "start": "12:30",
+    "end": "15:00",
+    "venue": "Matrikel1, Højbro Pl. 10, 1200 København, Denmark",
+    "timeZone": "Europe/Copenhagen"
+  }
 }

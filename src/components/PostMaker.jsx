@@ -77,7 +77,7 @@ function sessionBrief(s, extra, authorName) {
       lines.push(`- ${who}${d.topic ? `: ${d.topic}` : ''}`);
     }
   }
-  if (s.attendees?.length) lines.push(`People there: ${s.attendees.length}.`);
+  if (s.attendeeCount) lines.push(`People there: ${s.attendeeCount}.`);
   if (extra.trim()) lines.push(`\nMy own angle to weave in: ${extra.trim()}`);
   return lines.join('\n');
 }
@@ -340,7 +340,7 @@ export default function PostMaker({ sessions = [] }) {
   }), [sessions, uploadsByDate]);
 
   const withContent = useMemo(() => [...merged]
-    .filter((s) => s.summary || s.demos?.length || s.attendees?.length || s.photos?.length)
+    .filter((s) => s.summary || s.demos?.length || s.attendeeCount || s.photos?.length)
     .sort((a, b) => b.date.localeCompare(a.date)), [merged]);
 
   const [mode, setMode] = useState('guided'); // 'guided' | 'free'

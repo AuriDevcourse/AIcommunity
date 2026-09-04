@@ -3,12 +3,21 @@ import { createPortal } from 'react-dom';
 import { ArrowLeft, Link2, Check, PenLine, Users, Mic, MapPin, CalendarDays, ImageOff, Wrench, MessagesSquare, ExternalLink, Info, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { fmtDateLong, fmtDate } from '../lib/dates.js';
 import { fetchPhotosByDate } from '../lib/photos.js';
+import { useAuth } from '../lib/auth.jsx';
+import { useMembersData } from '../lib/members.js';
 
 // Public, shareable recap of a single past session: cover, who came, what was
 // demoed, the photo gallery. Reached via the hash route #recap/<date> (no auth to
 // view). Post creation is handed off to the Post maker tool, not drafted inline.
 export default function SessionRecap({ date, sessions, onBack }) {
   const committed = useMemo(() => (sessions || []).find((s) => s.date === date) || null, [sessions, date]);
+  // The recap is public (it is what gets shared on LinkedIn), but who came is
+  // members' business. The bundle carries only the count; the names come from
+  // the signed-in members route.
+  const { enabled: authEnabled, user, openAuth } = useAuth();
+  const { data: membersData } = useMembersData(!authEnabled || Boolean(user));
+  const attendees = membersData.attendeesByDate?.[date] || [];
+  const attendeeCount = committed?.attendeeCount ?? attendees.length;
   const [uploads, setUploads] = useState([]); // runtime Blob photos for this date
   const [name, setName] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -129,15 +138,24 @@ export default function SessionRecap({ date, sessions, onBack }) {
       )}
 
       {/* Attendees */}
-      {committed?.attendees?.length > 0 && (
+      {attendeeCount > 0 && (
         <section className="mt-8">
           <div className="flex items-center gap-1.5 h-section">
             <Users size={11} strokeWidth={2.2} /><span>Who came</span>
-            <span className="pill pill-mute ml-1">{committed.attendees.length}</span>
+            <span className="pill pill-mute ml-1">{attendeeCount}</span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {committed.attendees.map((a) => <span key={a} className="pill">{a}</span>)}
-          </div>
+          {attendees.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {attendees.map((a) => <span key={a} className="pill">{a}</span>)}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted">
+              {attendeeCount === 1 ? 'One person' : `${attendeeCount} people`} came.
+              {authEnabled && !user && (
+                <> <button onClick={openAuth} className="underline underline-offset-2 hover:text-foreground">Sign in to see who</button>.</>
+              )}
+            </p>
+          )}
         </section>
       )}
 

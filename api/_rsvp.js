@@ -71,12 +71,17 @@ function listFor(map, date) {
   return { going, maybe, counts: { going: going.length, maybe: maybe.length } };
 }
 
-export async function handleRsvpGet({ query, store = createStore() }) {
+// `user` is the verified reader (or { open: true } when auth is unconfigured).
+// Without one, the names are withheld and only the counts go out: who is coming
+// is members' business, how many is fine for the public Home page.
+export async function handleRsvpGet({ query, user = null, store = createStore() }) {
   const date = String(query?.date || '');
   if (!isDate(date)) return { status: 400, json: { ok: false, error: 'valid session date required' } };
   if (!storageReady()) return { status: 200, json: { configured: false, going: [], maybe: [], counts: { going: 0, maybe: 0 } } };
   const map = await store.get();
-  return { status: 200, json: { configured: true, date, ...listFor(map, date) } };
+  const lists = listFor(map, date);
+  if (!user) return { status: 200, json: { configured: true, date, going: [], maybe: [], counts: lists.counts, namesHidden: true } };
+  return { status: 200, json: { configured: true, date, ...lists } };
 }
 
 export async function handleRsvpPost({ body, user, store = createStore() }) {

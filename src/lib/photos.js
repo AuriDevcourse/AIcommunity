@@ -11,22 +11,28 @@
 //
 // So: name that case, and let the caller decide whether to show it.
 
+import { authedFetch, accessToken, authEnabled } from './supabase.js';
+
 export const PHOTOS_ENDPOINT = '/api/photos';
 
 export class PhotosUnavailable extends Error {
   constructor(reason, detail) {
     super(detail);
     this.name = 'PhotosUnavailable';
-    this.reason = reason; // 'no-api' | 'http' | 'bad-json'
+    this.reason = reason; // 'no-api' | 'http' | 'bad-json' | 'auth'
   }
 }
 
 // Resolves to { configured, byDate }. Throws PhotosUnavailable, never a bare
 // SyntaxError, so a caller can tell "no uploads yet" from "the API is not here".
 export async function fetchPhotos(signal) {
+  // The archive is members-only. Signed out (with auth configured) the answer is
+  // a 401 every time, so skip the round trip and the red line in the console.
+  if (authEnabled && !(await accessToken())) throw new PhotosUnavailable('auth', 'photos API needs a signed-in member');
   let r;
   try {
-    r = await fetch(PHOTOS_ENDPOINT, { signal });
+    // The request carries the session token.
+    r = await authedFetch(PHOTOS_ENDPOINT, { signal });
   } catch (e) {
     if (e?.name === 'AbortError') throw e;
     throw new PhotosUnavailable('no-api', `photos request failed: ${e?.message || e}`);
@@ -37,6 +43,7 @@ export async function fetchPhotos(signal) {
     throw new PhotosUnavailable('no-api',
       `photos API returned ${type || 'no content-type'} (HTTP ${r.status}). On \`vite preview\` there are no serverless functions; use \`npm run dev\` instead.`);
   }
+  if (r.status === 401) throw new PhotosUnavailable('auth', 'photos API needs a signed-in member');
   if (!r.ok) throw new PhotosUnavailable('http', `photos API returned HTTP ${r.status}`);
   let j;
   try {
@@ -55,7 +62,7 @@ export async function fetchPhotosByDate(signal) {
     return (await fetchPhotos(signal)).byDate;
   } catch (e) {
     if (e?.name === 'AbortError') throw e;
-    console.warn('[photos]', e.message);
+    if (e?.reason !== 'auth') console.warn('[photos]', e.message); // signed out is expected, not a fault
     return {};
   }
 }

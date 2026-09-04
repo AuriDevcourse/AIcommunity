@@ -1,22 +1,184 @@
 {
   "tutorials": [
     {
+      "id": "vibe-code-security",
+      "title": "Five ways your quick site gets hacked",
+      "summary": "You built a site in a weekend. Here are the five doors that get opened most, how to test your own site for each in a minute, and how to close them.",
+      "level": "Beginner",
+      "minutes": 20,
+      "tags": [
+        "security",
+        "build"
+      ],
+      "slides": "",
+      "steps": [
+        {
+          "title": "One idea to hold onto",
+          "body": "Everything your site sends to a visitor lives in their browser now. They can read every line of it, change any value, and replay any request a thousand times. Security is just deciding what your server does when someone abuses that freedom. All five problems below are the same mistake in different clothes: trusting the browser too much. Test only sites you own or have written permission to probe."
+        },
+        {
+          "title": "1 · The API key hiding in your page",
+          "body": "When your app calls OpenAI or Supabase straight from the front-end, the secret key has to travel to every visitor's browser to make that call. Anyone can open it. A hackathon team once wired their OpenAI key into the React app so the chatbot would work. Within a day a stranger found it in the page, copied it, and burned through the credits on their account before the bill got cut off.",
+          "code": "// BAD: this key ships to every visitor's browser\nconst key = \"sk-proj-abc123...\";\nfetch(\"https://api.openai.com/v1/chat\", {\n  headers: { Authorization: `Bearer ${key}` }\n});"
+        },
+        {
+          "title": "1 · Test it: read your own page",
+          "body": "Open your live site, right-click, choose View Page Source, then press Ctrl+F. Search the page and the loaded scripts for the shape of a key. Then type your domain followed by /.env into the address bar: it should return a 404, never show text. If you find a key or the .env file loads, it is public to the whole internet.",
+          "code": "# search the page + bundle for these prefixes:\nsk-      # OpenAI\nAIza     # Google\neyJ      # Supabase / JWT tokens\n\n# then open in the browser:\nhttps://yoursite.com/.env   ->  must be 404"
+        },
+        {
+          "title": "1 · Fix it: keep secrets on the server",
+          "body": "The browser should never hold a secret. Instead it calls your own small API route, and that route, running on the server, holds the key and talks to OpenAI for it. Never put a secret behind a NEXT_PUBLIC_ name, that prefix ships it to everyone. And if a key was ever public or pushed to GitHub, rotate it now: deleting the line later does not un-leak it.",
+          "code": "// browser -> your server -> OpenAI\n// file: /api/chat.js  (runs on the server only)\nconst key = process.env.OPENAI_API_KEY; // stays server-side\n// the browser just calls /api/chat, never OpenAI directly",
+          "diagram": "flow-keys"
+        },
+        {
+          "title": "2 · The endpoint anyone can call in a loop",
+          "body": "Your chatbot talks to a route like /api/chat that costs you money on every call. There is no login and no limit on it. You feel safe because the URL is not published, but it is sitting right there in the browser's Network tab for anyone to copy. Someone finds it, writes five lines that call it ten thousand times overnight, and by morning your AI bill or your server has fallen over. 'Nobody knows the URL' has never been security.",
+          "diagram": "open-endpoint"
+        },
+        {
+          "title": "2 · Test it: copy your own request",
+          "body": "Use your app once with DevTools open on the Network tab. Find the request your button fired, right-click it, and choose Copy as cURL. Paste that into a terminal and run it. If it answers with no login and you can run it again and again, so can anyone on the internet.",
+          "code": "# does it still answer with no session? then it is wide open\ncurl -X POST https://yoursite.com/api/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\":\"hi\"}'\n\n# now imagine this line inside a loop that runs 10,000 times"
+        },
+        {
+          "title": "2 · Fix it: a login, a limit, a cap",
+          "body": "Every route that costs you money should check who is calling and how often. Require a login for it, add a per-user daily cap, and rate-limit by IP so one visitor cannot hammer it. Return a 429 status when the limit is hit. On Vercel, an Upstash rate limiter is a few lines. Also cap the input size so nobody sends a giant payload to burn your tokens.",
+          "code": "// pseudo-code at the top of the route\nif (!session) return res.status(401);        // must be logged in\nif (await tooManyRequests(ip)) return res.status(429);\nif (body.message.length > 2000) return res.status(413); // cap size"
+        },
+        {
+          "title": "3 · Change the number, see someone else's data",
+          "body": "Your order page is /order/1042. A curious visitor changes it to 1043 and sees a stranger's name, email, and address. The server answered because it trusted the id in the URL instead of checking who is logged in. This is the single most common serious bug in fast-built apps. The same hole opens when your 'admin' button is only hidden in the interface, but the /admin route still answers anyone who visits it directly.",
+          "diagram": "idor"
+        },
+        {
+          "title": "3 · Test it: bump the id by one",
+          "body": "Log in as one test user. Find an id in a URL or in a network request. Change it by one and reload the page. If you can read or edit data that is not yours, the ownership check is missing. A safe app returns 403 Forbidden, not the record.",
+          "code": "# logged in as user A, ask for user B's record:\nGET /api/orders/1043\n\n# safe response:   403 Forbidden\n# unsafe response: 200 OK  + someone else's order"
+        },
+        {
+          "title": "3 · Fix it: scope every query to the user",
+          "body": "Do not just look up the id. Look up the id that belongs to the person logged in. Re-check permission on the server for every protected route, because hiding a button in the interface is not access control. If you use Supabase, turn on Row Level Security, without it the public key can read every row in the table.",
+          "code": "// BAD: trusts whatever id the browser sent\ndb.orders.find({ id: params.id })\n\n// GOOD: tied to the logged-in user\ndb.orders.find({ id: params.id, userId: session.userId })"
+        },
+        {
+          "title": "4 · Whatever the visitor types, the app trusts",
+          "body": "A comment box that saves text and shows it back without cleaning it lets someone save a script tag that then runs inside the next visitor's browser. That is called XSS. A search box glued straight into a database query lets someone rewrite the query itself, called SQL injection. For AI apps there is a third flavour: a user message crafted to override your system prompt and make the model ignore its rules."
+        },
+        {
+          "title": "4 · Test it: send a harmless probe",
+          "body": "In one of your own form fields, submit a small probe and watch what happens. If a bold tag comes back as actual bold text, the field is rendering markup instead of escaping it. Try the classic SQL probe in a search box. Then paste a very long string: if the server chokes or the page breaks, there is no size cap.",
+          "code": "# XSS probe: should show as plain text, not render:\n<b>test</b>\n\n# SQL probe in a search box:\ntest' OR '1'='1\n\n# and paste 50,000 characters to check the size cap"
+        },
+        {
+          "title": "4 · See it happen",
+          "body": "Here is the same comment box built two ways. Type a tag, or hit an example, and compare. On the left the site trusts your input and the browser acts on it. On the right the site treats it as plain text, so nothing runs. That one difference is the whole fix.",
+          "demo": "xss"
+        },
+        {
+          "title": "4 · Fix it: validate, escape, parameterise",
+          "body": "Check every input against a strict schema (Zod in JavaScript, Pydantic in Python), cap its length and size, and reject anything that does not fit. Use parameterised queries so user text is treated as data, never glued into the SQL string. And never hand raw user content to dangerouslySetInnerHTML, that is the front door for XSS.",
+          "code": "// validate first\nconst schema = z.object({ message: z.string().max(2000) });\nconst { message } = schema.parse(body); // throws on junk\n\n// parameterised query: the ? is filled safely\ndb.query(\"SELECT * FROM notes WHERE title = ?\", [message]);"
+        },
+        {
+          "title": "5 · The site that tells you how it's built",
+          "body": "Two quiet leaks. First, a deployed /.git folder lets a stranger download your entire source code, secrets and all. Second, an error page that prints the full stack trace hands an attacker your database structure, file paths, and library versions, which is a map of exactly where to push next. Neither looks dangerous until someone reads it.",
+          "diagram": "paths"
+        },
+        {
+          "title": "5 · Test it: knock on the quiet doors",
+          "body": "Try these paths on your own domain. Each should return a 404 or a clean error page, never real content. Then force an error on purpose, send a bad or missing field, and read the response. If it shows a stack trace or a database detail, that information is leaking to the public.",
+          "code": "# all of these should be closed (404):\nyoursite.com/.git/config\nyoursite.com/.env\n\n# break a route on purpose and read the reply:\nyoursite.com/api/orders/notanumber"
+        },
+        {
+          "title": "5 · Fix it: say less when things break",
+          "body": "Never deploy the .git folder. Managed hosts like Vercel handle this for you; on your own server, block it in the nginx config. Show users a clean message with a reference id, and send the full detail to your logs only, never to the screen. Add the basic security headers (a Content-Security-Policy, X-Frame-Options, and nosniff) so the browser refuses the most obvious abuse.",
+          "code": "// return this to the user\nres.status(500).json({\n  error: \"Something went wrong\",\n  ref: \"err_8f2a\"   // you look this up in the logs\n});\n// the stack trace goes to the log, not the response"
+        },
+        {
+          "title": "Your five-minute pre-ship check",
+          "body": "Before you share any link, run these five. No key shows up in the browser and /.env is a 404. Every route that costs you money needs a login and a rate limit, so the copied cURL fails without a session. Changing an id in a URL returns 403. Markup submitted in a form comes back as plain text and long strings are rejected. Errors and /.git reveal nothing. Pass all five and you have closed the doors that get opened most."
+        },
+        {
+          "title": "Practice on safe targets, never live sites",
+          "body": "The golden rule: only test sites you own or have written permission to touch. Poking at someone else's live site is illegal, even if you mean well. To practise the moves above, use sites that are built to be broken. OWASP Juice Shop is a full shop with every bug baked in. PortSwigger's Web Security Academy has free guided labs for each attack. Google's XSS Game teaches the input attack in six levels. Break those all you like, then bring the same eyes back to your own project."
+        },
+        {
+          "title": "A drill for your next build",
+          "body": "Turn this into a habit. Take the last thing you shipped, or a friend's project with their okay, and give it fifteen minutes: view source and hunt for a key, copy one request as cURL and replay it, bump an id in a URL, paste a bold tag into a form, and open /.env and /.git/config. Write down what you find. Most quick builds fail at least one of these, and now you know how to fix each. Do this before every launch and you are ahead of most vibe-coded sites on the internet."
+        }
+      ],
+      "resources": [
+        {
+          "label": "OWASP Juice Shop (a whole app built to be hacked)",
+          "url": "https://owasp.org/www-project-juice-shop/"
+        },
+        {
+          "label": "PortSwigger Web Security Academy (free guided labs)",
+          "url": "https://portswigger.net/web-security"
+        },
+        {
+          "label": "Google XSS Game (learn the input attack)",
+          "url": "https://xss-game.appspot.com/"
+        },
+        {
+          "label": "OWASP Top 10 (the classic risk list)",
+          "url": "https://owasp.org/www-project-top-ten/"
+        },
+        {
+          "label": "Upstash rate limiting for Vercel",
+          "url": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview"
+        },
+        {
+          "label": "Supabase Row Level Security",
+          "url": "https://supabase.com/docs/guides/database/postgres/row-level-security"
+        },
+        {
+          "label": "Zod input validation",
+          "url": "https://zod.dev"
+        }
+      ]
+    },
+    {
       "id": "local-llm",
       "title": "Run your own local LLM",
       "summary": "Install a model on your laptop and compare it to a paid API. No GPU farm required.",
       "level": "Beginner",
       "minutes": 20,
-      "tags": ["local", "tools"],
+      "tags": [
+        "local",
+        "tools"
+      ],
       "slides": "",
       "steps": [
-        { "title": "Pick a runner", "body": "Install Ollama (terminal) or LM Studio (a friendly GUI). Both are free and download models for you. On 16GB RAM, stick to 7-8B models." },
-        { "title": "Pull a model", "body": "In Ollama, one command downloads and runs a model. In LM Studio, search a model and click download. Qwen2.5 7B and Llama 3.1 8B are strong all-rounders for code and chat.", "code": "ollama run llama3.1:8b" },
-        { "title": "Talk to it", "body": "Ask it the same prompt you'd send to a paid API. Notice the speed on your hardware and where quality drops off (long context, niche knowledge)." },
-        { "title": "Compare honestly", "body": "Run one real task (refactor a function, summarise a doc) on local vs a paid model. Local wins on cost and privacy; paid wins on hard reasoning. Pick per task, not per religion." }
+        {
+          "title": "Pick a runner",
+          "body": "Install Ollama (terminal) or LM Studio (a friendly GUI). Both are free and download models for you. On 16GB RAM, stick to 7-8B models."
+        },
+        {
+          "title": "Pull a model",
+          "body": "In Ollama, one command downloads and runs a model. In LM Studio, search a model and click download. Qwen2.5 7B and Llama 3.1 8B are strong all-rounders for code and chat.",
+          "code": "ollama run llama3.1:8b"
+        },
+        {
+          "title": "Talk to it",
+          "body": "Ask it the same prompt you'd send to a paid API. Notice the speed on your hardware and where quality drops off (long context, niche knowledge)."
+        },
+        {
+          "title": "Compare honestly",
+          "body": "Run one real task (refactor a function, summarise a doc) on local vs a paid model. Local wins on cost and privacy; paid wins on hard reasoning. Pick per task, not per religion."
+        }
       ],
       "resources": [
-        { "label": "Ollama", "url": "https://ollama.com" },
-        { "label": "LM Studio", "url": "https://lmstudio.ai" }
+        {
+          "label": "Ollama",
+          "url": "https://ollama.com"
+        },
+        {
+          "label": "LM Studio",
+          "url": "https://lmstudio.ai"
+        }
       ]
     },
     {
@@ -25,16 +187,34 @@
       "summary": "Go from a single prompt to a loop that uses tools and finishes a real task.",
       "level": "Intermediate",
       "minutes": 30,
-      "tags": ["agents", "build"],
+      "tags": [
+        "agents",
+        "build"
+      ],
       "slides": "",
       "steps": [
-        { "title": "Understand the loop", "body": "An agent is a model in a loop: it reads a goal, decides on an action (often calling a tool), runs it, reads the result, and repeats until done. That's the whole trick." },
-        { "title": "Give it tools", "body": "Start with one or two tools the model can call (a web search, a file reader, a calculator). Describe each tool clearly. The model picks when to use them." },
-        { "title": "Add a stop condition", "body": "Decide when the agent is finished (goal met, or a step budget reached). Without a stop condition agents loop forever or wander." },
-        { "title": "Watch it work", "body": "Log every step: the action, the tool result, the next decision. Most agent bugs are obvious once you can see the trace." }
+        {
+          "title": "Understand the loop",
+          "body": "An agent is a model in a loop: it reads a goal, decides on an action (often calling a tool), runs it, reads the result, and repeats until done. That's the whole trick."
+        },
+        {
+          "title": "Give it tools",
+          "body": "Start with one or two tools the model can call (a web search, a file reader, a calculator). Describe each tool clearly. The model picks when to use them."
+        },
+        {
+          "title": "Add a stop condition",
+          "body": "Decide when the agent is finished (goal met, or a step budget reached). Without a stop condition agents loop forever or wander."
+        },
+        {
+          "title": "Watch it work",
+          "body": "Log every step: the action, the tool result, the next decision. Most agent bugs are obvious once you can see the trace."
+        }
       ],
       "resources": [
-        { "label": "Anthropic: building agents", "url": "https://www.anthropic.com/engineering/building-effective-agents" }
+        {
+          "label": "Anthropic: building agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
       ]
     },
     {
@@ -43,17 +223,39 @@
       "summary": "From idea to a deployed app, using an AI agent in your terminal as the pair programmer.",
       "level": "Beginner",
       "minutes": 25,
-      "tags": ["build", "tools"],
+      "tags": [
+        "build",
+        "tools"
+      ],
       "slides": "",
       "steps": [
-        { "title": "Scaffold", "body": "Pick a stack you can deploy easily (Next.js or Vite + a serverless backend). Ask the agent to set it up and run it, then confirm it builds before adding features.", "code": "npm create vite@latest my-app" },
-        { "title": "Work in small steps", "body": "Ask for one feature at a time, build after each, and read the diff. Small steps keep the agent on track and make bugs easy to spot." },
-        { "title": "Verify before you trust", "body": "Have the agent test what it built (run it, hit the endpoints) instead of assuming. A second pass catches the silent breakages." },
-        { "title": "Deploy", "body": "Push to Vercel (static or serverless) or a small VPS with systemd. Add your env keys, redeploy, and share the link." }
+        {
+          "title": "Scaffold",
+          "body": "Pick a stack you can deploy easily (Next.js or Vite + a serverless backend). Ask the agent to set it up and run it, then confirm it builds before adding features.",
+          "code": "npm create vite@latest my-app"
+        },
+        {
+          "title": "Work in small steps",
+          "body": "Ask for one feature at a time, build after each, and read the diff. Small steps keep the agent on track and make bugs easy to spot."
+        },
+        {
+          "title": "Verify before you trust",
+          "body": "Have the agent test what it built (run it, hit the endpoints) instead of assuming. A second pass catches the silent breakages."
+        },
+        {
+          "title": "Deploy",
+          "body": "Push to Vercel (static or serverless) or a small VPS with systemd. Add your env keys, redeploy, and share the link."
+        }
       ],
       "resources": [
-        { "label": "Claude Code docs", "url": "https://docs.claude.com/en/docs/claude-code/overview" },
-        { "label": "Vercel", "url": "https://vercel.com" }
+        {
+          "label": "Claude Code docs",
+          "url": "https://docs.claude.com/en/docs/claude-code/overview"
+        },
+        {
+          "label": "Vercel",
+          "url": "https://vercel.com"
+        }
       ]
     },
     {
@@ -62,16 +264,33 @@
       "summary": "Practical habits that get better output from any model, with no jargon.",
       "level": "Beginner",
       "minutes": 12,
-      "tags": ["prompting"],
+      "tags": [
+        "prompting"
+      ],
       "slides": "",
       "steps": [
-        { "title": "Say what good looks like", "body": "Show one example of the output you want. One concrete example beats three paragraphs of description." },
-        { "title": "Give the role and the constraints", "body": "Who is it (a senior reviewer, a copy editor), what must it avoid, what format do you want back. Constraints reduce rambling." },
-        { "title": "Let it think before answering", "body": "For hard tasks, ask it to reason step by step or draft then critique. For simple tasks, ask for the answer directly to save time and tokens." },
-        { "title": "Iterate on the prompt, not the output", "body": "When the answer is wrong, fix the instruction that caused it rather than hand-editing the result. The fixed prompt pays off every next time." }
+        {
+          "title": "Say what good looks like",
+          "body": "Show one example of the output you want. One concrete example beats three paragraphs of description."
+        },
+        {
+          "title": "Give the role and the constraints",
+          "body": "Who is it (a senior reviewer, a copy editor), what must it avoid, what format do you want back. Constraints reduce rambling."
+        },
+        {
+          "title": "Let it think before answering",
+          "body": "For hard tasks, ask it to reason step by step or draft then critique. For simple tasks, ask for the answer directly to save time and tokens."
+        },
+        {
+          "title": "Iterate on the prompt, not the output",
+          "body": "When the answer is wrong, fix the instruction that caused it rather than hand-editing the result. The fixed prompt pays off every next time."
+        }
       ],
       "resources": [
-        { "label": "Anthropic prompt library", "url": "https://docs.claude.com/en/resources/prompt-library/library" }
+        {
+          "label": "Anthropic prompt library",
+          "url": "https://docs.claude.com/en/resources/prompt-library/library"
+        }
       ]
     }
   ]
