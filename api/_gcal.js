@@ -198,7 +198,13 @@ export async function handleAttendees({ query, user = null }) {
   try {
     if (!gcalConfigured()) return { status: 200, json: { configured: false } };
     if (!query?.date) return { status: 400, json: { ok: false, configured: true, error: 'date required' } };
-    const data = await getSessionAttendees({ date: query?.date, match: query?.title });
+    // The title filter is NOT taken from the query. Letting a caller choose the
+    // needle re-opens, through the front door, exactly what the fallback removal
+    // in findEvent closed: `?title=e` matches a personal event on `primary` and
+    // publishes its guest list. Which events count is an ops decision, so it
+    // lives in GCAL_EVENT_MATCH / GCAL_CALENDAR_ID and nowhere else. No client
+    // has ever sent this parameter.
+    const data = await getSessionAttendees({ date: query?.date });
     if (!user && data.found) {
       const { guests, accepted, tentative, ...rest } = data;
       return { status: 200, json: { ...rest, guests: [], accepted: [], tentative: [], namesHidden: true, ok: true } };

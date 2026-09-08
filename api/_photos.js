@@ -7,8 +7,25 @@
 // small and well under the function body limit), and we write them with put().
 // Needs BLOB_READ_WRITE_TOKEN (auto-injected on Vercel; .env.local for dev).
 import { list, del, put, copy } from '@vercel/blob';
+import { SESSION_DATES } from './_sessions-data.js';
 
 const PREFIX = 'sessions/';
+
+// Is `date` a session that actually exists? Two sources, because neither alone
+// is complete: the generated list covers sessions with notes or a slot on the
+// schedule, and the Blob store covers a session created by uploading to it since
+// the last build. A date in neither is not a session.
+export async function isKnownSessionDate(date) {
+  if (SESSION_DATES.includes(date)) return true;
+  try {
+    const { byDate } = await listPhotos();
+    return Object.prototype.hasOwnProperty.call(byDate || {}, date);
+  } catch {
+    // The Blob listing is a fallback, not the gate. If it is unreachable, trust
+    // the generated list rather than failing a legitimate move open.
+    return false;
+  }
+}
 const deslug = (s) => s.replace(/[-_]+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
 const slug = (s) => String(s || 'guest').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'guest';
 const safeFile = (s) => String(s || 'photo.jpg').replace(/[^a-zA-Z0-9.]+/g, '-').slice(-40);
@@ -64,6 +81,11 @@ export async function movePhoto(url, toDate) {
   if (!blobConfigured()) throw new Error('uploads not configured');
   if (!url) throw new Error('url required');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(toDate || '')) throw new Error('valid target date required');
+  // A move is copy-then-delete, so the shape of the date is not enough: a
+  // well-formed but non-existent date (1900-01-01) is a hiding place no view
+  // renders, which turns this member-facing route into the delete that only an
+  // organizer is supposed to have. The target has to be a session that exists.
+  if (!(await isKnownSessionDate(toDate))) throw new Error('no such session');
   const path = new URL(url).pathname.replace(/^\/+/, '').split('/'); // sessions/<date>/<file...>
   const file = path.slice(2).join('/');
   if (path[0] !== 'sessions' || !file) throw new Error('not a session photo');

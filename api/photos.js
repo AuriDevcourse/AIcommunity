@@ -40,9 +40,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
     if (req.method === 'PATCH') {
+      // Moving is a member's to do, unlike deleting — but it is copy-then-delete
+      // underneath, so the target is validated against the real session list in
+      // movePhoto. A bad target is the caller's mistake, not a server error.
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const r = await movePhoto(body.url, body.toDate);
-      return res.status(200).json({ ok: true, ...r });
+      try {
+        const r = await movePhoto(body.url, body.toDate);
+        return res.status(200).json({ ok: true, ...r });
+      } catch (e) {
+        const msg = e?.message || '';
+        if (/no such session|target date|url required|not a session photo/.test(msg)) {
+          return res.status(400).json({ ok: false, error: msg });
+        }
+        throw e;
+      }
     }
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {

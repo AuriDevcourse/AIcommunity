@@ -1,12 +1,13 @@
 // Server-side gate for mutating API routes: (1) verify the caller's Supabase
 // access token, (2) rate-limit per user/IP. Both reuse env already present
-// (Supabase + Upstash). Reads stay open; only POST/PATCH/DELETE call guardMutation.
+// (Supabase + Upstash). POST/PATCH/DELETE call guardMutation; the members-only
+// reads call requireReader.
 //
 // Typed-name mode (no Supabase) is a real supported deployment, but it must be
 // CHOSEN, not inherited from a missing env var. So: when auth is unconfigured,
-// mutations are refused unless ALLOW_ANONYMOUS_WRITES=true says that is intended.
-// A key that silently drops out of the environment now closes the door instead of
-// opening it (SECURITY.md: fail closed if env unset).
+// mutations are refused unless ALLOW_ANONYMOUS_WRITES=true, and members-only
+// reads are refused unless ALLOW_ANONYMOUS_READS=true. A key that silently drops
+// out of the environment closes the door instead of opening it.
 //
 // If Upstash isn't configured the limiter is skipped, which is a availability
 // tradeoff, not an auth one.
@@ -19,10 +20,20 @@ const authConfigured = () => Boolean(SUPA_URL && SUPA_ANON);
 // The only way to run writes without auth. Deliberately a strict string compare:
 // an unset, empty or typo'd value means "no".
 const anonWritesAllowed = () => process.env.ALLOW_ANONYMOUS_WRITES === 'true';
+// Same rule for the members-only READS. Typed-name mode genuinely has no sign-in,
+// so those tabs have to be readable by everyone — but that has to be CHOSEN too.
+// Without this, losing the Supabase env vars silently republishes every member
+// name, photo and RSVP, which is the opposite of what dropping a key should do.
+const anonReadsAllowed = () => process.env.ALLOW_ANONYMOUS_READS === 'true';
 
 const NO_AUTH = {
   status: 503,
   json: { ok: false, error: 'Sign-in is not configured on this deployment, so changes are disabled.' },
+};
+
+const NO_AUTH_READ = {
+  status: 503,
+  json: { ok: false, error: 'Sign-in is not configured on this deployment, so members-only pages are unavailable.' },
 };
 
 export function bearer(req) {
@@ -143,13 +154,21 @@ export async function guardMutation(req, { bucket = 'api', limit = 60, windowSec
 // routes behind those tabs now ask who is reading.
 //
 // Mirrors the client rule in App.jsx: when Supabase is not configured there is
-// no sign-in, so nothing is gated and reads stay open. When it is configured, a
-// missing or invalid token is a 401. Returns one of:
-//   { open: true, user: null }     → auth unconfigured, serve everything
+// no sign-in, so nothing is gated and reads stay open — but, exactly as on the
+// write side, that has to be declared with ALLOW_ANONYMOUS_READS rather than
+// inherited from a missing env var. When auth IS configured, a missing or
+// invalid token is a 401. Returns one of:
+//   { open: true, user: null }     → auth unconfigured AND opened deliberately
 //   { blocked: {status,json} }     → send this response
 //   { user }                       → the verified reader
 export async function requireReader(req) {
-  if (!authConfigured()) return { open: true, user: null };
+  if (!authConfigured()) {
+    if (!anonReadsAllowed()) {
+      console.error('[guard] refusing a members-only read: Supabase auth is unconfigured and ALLOW_ANONYMOUS_READS is not "true"');
+      return { blocked: NO_AUTH_READ };
+    }
+    return { open: true, user: null };
+  }
   const user = await verifyToken(bearer(req));
   if (!user) return { blocked: { status: 401, json: { ok: false, error: 'Sign in to see this.' } } };
   return { user };

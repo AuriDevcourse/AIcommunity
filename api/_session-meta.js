@@ -7,12 +7,29 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isKnownSessionDate } from './_photos.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
 const KEY = 'aiworkshop:sessionnames';
 const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s || ''));
+
+// A photo of THIS session, in either of the two shapes an order can hold: a
+// committed photo ("/sessions/<date>/<file>", baked in at build time) or a Blob
+// upload ("https://<store>.public.blob.vercel-storage.com/sessions/<date>/<file>").
+// Both carry the same path prefix, which is what is actually checked.
+function isSessionPhotoUrl(u, date) {
+  if (typeof u !== 'string' || u.length > 500) return false;
+  const prefix = `/sessions/${date}/`;
+  if (u.startsWith(prefix)) return true;
+  if (!/^https?:\/\//i.test(u)) return false;
+  try {
+    return new URL(u).pathname.startsWith(prefix);
+  } catch {
+    return false;
+  }
+}
 
 function upstashStore() {
   const cmd = async (command) => {
@@ -70,6 +87,15 @@ export async function handleSessionMeta({ method, body, user = null, store = cre
 
   const date = String(body?.date || '');
   if (!isDate(date)) return { status: 400, json: { ok: false, error: 'valid session date required' } };
+  // Renaming and reordering are deliberately open to any member, so the limit
+  // cannot be on WHO writes — it has to be on WHAT. The whole map lives under one
+  // Upstash key that every page load reads in full, and a well-formed date is not
+  // the same thing as a session: without this, a member could mint entries for
+  // arbitrary dates (year 0001 through 9999) and grow that key without bound.
+  // Bounding dates to real sessions caps the map at the number of sessions.
+  if (!(await isKnownSessionDate(date))) {
+    return { status: 400, json: { ok: false, error: 'no such session' } };
+  }
 
   const map = await store.get();
   // Migrate any legacy string entries ("name") to the object shape.
@@ -81,8 +107,13 @@ export async function handleSessionMeta({ method, body, user = null, store = cre
     if (v) entry.name = v; else delete entry.name;
   }
   if ('order' in body) {
+    // An ordering is a list of THIS session's photo URLs, so anything else is
+    // either a mistake or someone using the field as free storage. Previously any
+    // 500 strings of 500 chars were accepted (~250 KB per session); now the
+    // entries have to look like a photo of this session, which also keeps a
+    // reorder from silently adopting another session's photos.
     const arr = Array.isArray(body.order)
-      ? body.order.filter((u) => typeof u === 'string' && u.length <= 500).slice(0, 500)
+      ? body.order.filter((u) => isSessionPhotoUrl(u, date)).slice(0, 500)
       : [];
     if (arr.length) entry.order = arr; else delete entry.order;
   }
