@@ -23,12 +23,21 @@ const OUT = join(ROOT, 'data', 'news-draft.json');
 const MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
 const KEY = process.env.GEMINI_API_KEY || '';
 
+// The rule asks for six European stories out of twelve, and for a long time
+// every feed here was American. The curator met the quota the only way it could:
+// by filing Hugging Face posts under "europe" because the founders are French.
+// It also meant the single biggest European story of a fortnight could be missed
+// outright (Mistral's EUR 3bn round, 8 Sep 2026, appeared in none of the top
+// five). The last three feeds exist so the European half is actually European.
 const FEEDS = [
   { name: 'TechCrunch', url: 'https://techcrunch.com/category/artificial-intelligence/feed/' },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml' },
   { name: 'Ars Technica', url: 'https://arstechnica.com/ai/feed/' },
   { name: 'VentureBeat', url: 'https://venturebeat.com/category/ai/feed/' },
   { name: 'Hugging Face', url: 'https://huggingface.co/blog/feed.xml' },
+  { name: 'Sifted', url: 'https://sifted.eu/feed' },
+  { name: 'Tech.eu', url: 'https://tech.eu/feed/' },
+  { name: 'EU-Startups', url: 'https://www.eu-startups.com/feed/' },
 ];
 
 const DAYS = 14; // rule: news must be from the past two weeks
@@ -99,7 +108,7 @@ Return STRICT JSON only (no markdown fences), shape:
     }
   ]
 }
-Rules: return exactly 12 items with at least 6 of each category. Write your OWN summaries (never copy article text). Use "europe" for any Europe-related AI/tech story (European companies, models, launches, funding, events, OR EU/Denmark policy/regulation), else "global". Plain text, no emojis, never the em dash character.`;
+Rules: return exactly 12 items with at least 6 of each category. Write your OWN summaries (never copy article text). Use "europe" only when the story is genuinely European: a company headquartered in Europe, a launch or funding round or event that happened in Europe, or EU/Danish policy. The founders' nationality is not enough, and neither is a European office of an American company. If you cannot find six genuinely European stories in the candidates, return fewer and say so in the last item's whyForUs rather than filing a global story under "europe". Plain text, no emojis, never the em dash character.`;
 
 async function curate(candidates) {
   const list = candidates.map((c, i) => `${i + 1}. [${c.source}] ${c.title} (${c.date})\n   ${c.desc}\n   ${c.url}`).join('\n');
