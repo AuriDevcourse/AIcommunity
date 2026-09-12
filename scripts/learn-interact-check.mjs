@@ -169,6 +169,24 @@ check('guesses: four blanks, four picks', (g2.match(/what it went with/g) || [])
 await clickText('Start over'); await sleep(350);
 check('guesses: start over clears every blank', !/what it went with/.test(await panel()));
 
+// --- 7. one turn at a time, in the agent deck ---------------------------------
+// The lesson is authorship: two of the four lines are the reader's own code. A
+// block that showed all four at once, or labelled them all "the model", would
+// still look like a transcript and teach the opposite of the slide.
+await openStep('The model never runs anything', 'Build your first AI agent');
+const t0 = await panel();
+check('loop: opens on the first turn only', /What should I wear/.test(t0) && !/end_turn/.test(t0));
+await clickText('Run the next turn'); await sleep(350);
+const t1 = await panel();
+check('loop: the model asks for a tool rather than running it', /tool_use/.test(t1) && /it asked, nothing ran/.test(t1));
+await clickText('Run the next turn'); await sleep(350);
+check('loop: the result is attributed to your code', /your function ran, not the model/.test(await panel()));
+await clickText('Run the next turn'); await sleep(350);
+const t3 = await panel();
+check('loop: the last turn ends the loop', /end_turn/.test(t3) && /Two of those four lines are yours/.test(t3));
+await clickText('Start over'); await sleep(350);
+check('loop: start over returns to one turn', !/end_turn/.test(await panel()));
+
 check('no console exceptions', errs.length === 0, errs.slice(0, 2).join(' | '));
 
 console.log(pass.concat(fail).join('\n'));

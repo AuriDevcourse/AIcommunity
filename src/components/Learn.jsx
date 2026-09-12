@@ -946,6 +946,7 @@ function Scene({ kind }) {
 
 function TryIt({ kind }) {
   if (kind === 'guesses') return <TryGuesses />;
+  if (kind === 'loop') return <TryLoop />;
   if (kind === 'escape') return <TryEscape />;
   if (kind === 'scorer') return <TryScorer />;
   if (kind === 'board') return <TryBoard />;
@@ -1083,6 +1084,63 @@ function TryGuesses() {
             </div>
           ))}
         </div>
+      )}
+    </TryShell>
+  );
+}
+
+/**
+ * One agent turn at a time, with a label on every line saying who produced it.
+ *
+ * The agent-loop diagram two slides up shows the cycle; this shows the artefact
+ * the cycle actually leaves behind, which is a `messages` array that grows by
+ * two entries per pass. The alternating authorship is the lesson: the model
+ * never runs the tool, it asks, and the line that runs it is yours.
+ */
+const TURNS = [
+  { who: 'you', label: 'you', text: 'What should I wear in Copenhagen?', note: 'role: user' },
+  { who: 'model', label: 'the model', text: 'get_weather({ city: "Copenhagen" })', note: 'stop_reason: tool_use · it asked, nothing ran' },
+  { who: 'code', label: 'your code', text: '4C, rain', note: 'tool_result · your function ran, not the model' },
+  { who: 'model', label: 'the model', text: 'Take a waterproof jacket. It is 4C and raining.', note: 'stop_reason: end_turn · the loop exits here' },
+];
+
+function TryLoop() {
+  const [shown, setShown] = useState(1);
+  const done = shown >= TURNS.length;
+
+  return (
+    <TryShell
+      title="One turn at a time"
+      lede="This is the whole conversation an agent has. Step through it and watch who produces each line."
+      onReset={shown > 1 ? () => setShown(1) : null}
+      result={done
+        ? 'Two of those four lines are yours. The model asked for the weather and read the answer; it never called anything.'
+        : `Turn ${shown} of ${TURNS.length}. Every turn resends the whole list above, which is why a long agent run costs more each pass.`}
+    >
+      <ol className="space-y-2">
+        {TURNS.slice(0, shown).map((t, n) => (
+          <li
+            key={t.text}
+            className={`rounded-lg border bg-background p-3 ${t.who === 'model' ? 'border-border' : 'border-ok/50'}`}
+          >
+            <div className="flex items-center gap-1.5 text-[11px] font-medium">
+              {t.who === 'model'
+                ? <Bot size={13} strokeWidth={2} className="flex-shrink-0" aria-hidden="true" />
+                : <Terminal size={13} strokeWidth={2} className="flex-shrink-0 text-ok" aria-hidden="true" />}
+              <span className={t.who === 'model' ? '' : 'text-ok'}>{t.label}</span>
+              <span className="ml-auto num text-[10px] text-muted">{n + 1}</span>
+            </div>
+            <p className="mt-1 num text-xs">{t.text}</p>
+            <p className="mt-1 text-[10px] text-muted">{t.note}</p>
+          </li>
+        ))}
+      </ol>
+
+      {!done && (
+        <button onClick={() => setShown((s) => s + 1)} className={`mt-3 ${tryBtn(false)}`}>
+          <Play size={12} strokeWidth={2.2} className="inline-block -mt-0.5 mr-1" aria-hidden="true" />
+          Run the next turn
+        </button>
       )}
     </TryShell>
   );

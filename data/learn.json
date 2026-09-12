@@ -863,42 +863,248 @@
     {
       "id": "first-agent",
       "title": "Build your first AI agent",
-      "summary": "Go from a single prompt to a loop that uses tools and finishes a real task.",
+      "summary": "A model in a loop with tools. What the loop is, what the SDK now writes for you, and the three ways it quietly stops early.",
       "level": "Intermediate",
       "tags": [
         "agents",
         "build"
       ],
-      "slides": "",
       "steps": [
         {
-          "title": "Understand the loop",
-          "body": "An agent is a model in a loop. It reads a goal, picks an action, you run that action for real, and it reads the result and decides again. That is the whole trick. Everything else is plumbing around those four boxes.",
+          "section": "What an agent actually is",
+          "title": "A model in a loop",
+          "body": "It reads a goal, picks an action, your code runs that action, and it reads the result and decides again.",
           "diagram": "agent-loop"
         },
         {
-          "title": "Describe one tool",
-          "body": "A tool is three things: a name, a sentence saying when to use it, and a schema for its arguments. The description is the part people rush and the part the model actually reads. Write it for a new colleague who cannot see your code.",
-          "lang": "ts",
-          "code": "const tools = [{\n  name: \"get_weather\",\n  description:\n    \"Current weather for a city. Use when asked about \" +\n    \"conditions or temperature right now.\",\n  input_schema: {\n    type: \"object\",\n    properties: { city: { type: \"string\" } },\n    required: [\"city\"],\n    additionalProperties: false,\n  },\n  // arguments are guaranteed to match the schema\n  strict: true,\n}];"
+          "title": "Four boxes, and the rest is plumbing",
+          "body": "Everything people call an agent framework is **scaffolding around those four boxes**."
         },
         {
-          "title": "The loop, in twenty lines",
-          "body": "Call the model. If it stopped because it wants a tool, run the tool, hand back every result in one message, and call again. When it stops with end_turn it is finished. Read it once and the diagram stops being abstract.",
-          "lang": "ts",
-          "code": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\n\nconst goal = \"What should I wear in Copenhagen?\";\nlet messages = [{ role: \"user\", content: goal }];\n\nwhile (true) {\n  const res = await client.messages.create({\n    model: \"claude-opus-5\",\n    max_tokens: 4096,\n    tools,\n    messages,\n  });\n  if (res.stop_reason === \"end_turn\") break;  // done\n\n  messages.push({ role: \"assistant\", content: res.content });\n\n  const calls = res.content\n    .filter((b) => b.type === \"tool_use\");\n\n  const results = await Promise.all(\n    calls.map(async (c) => ({\n      type: \"tool_result\",\n      tool_use_id: c.id,\n      content: await runTool(c.name, c.input),\n    })),\n  );\n\n  // every result, in one message\n  messages.push({ role: \"user\", content: results });\n}"
+          "title": "The model never runs anything",
+          "body": "It sends back **a request to call your function**, and your code decides whether to obey.",
+          "try": "loop"
         },
         {
-          "title": "Add a stop condition before you run it",
-          "body": "Without a ceiling an agent that misreads a tool result will try the same thing until your bill says stop. A step budget is two lines and it is the difference between a bug and an incident. Add it before the first run, not after the first surprise.",
-          "lang": "ts",
-          "code": "let steps = 0;\nwhile (steps < 10) {      // the ceiling\n  steps += 1;\n  // ... the loop above ...\n}\n\nif (steps >= 10) {\n  // Out of budget, not finished.\n  // Say so instead of pretending.\n  console.warn(\"hit the step budget, goal unconfirmed\");\n}"
+          "title": "That gap is the whole safety story",
+          "body": "The model asking and your code executing are two separate steps, which is **where approval, limits and logging go**."
         },
         {
-          "title": "Watch it work",
-          "body": "Log the action, the arguments and the result on every pass. Nearly every agent bug is obvious in the trace and invisible in the final answer. The trace below shows the two failures you will actually hit: a tool called with the wrong argument, and a loop that never noticed.",
-          "lang": "sh",
-          "code": "step 1  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 2  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 3  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\n\n# The same call three times means it never saw\n# the result. Check you are pushing tool_result\n# back with the matching tool_use_id."
+          "title": "It is a conversation, not a session",
+          "body": "The API remembers nothing, so **you resend the whole history every turn**, which is why an agent gets more expensive as it runs.",
+          "source": {
+            "label": "Anthropic · tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+          }
+        },
+        {
+          "section": "Describe one tool",
+          "title": "A tool is three things",
+          "body": "A name, a sentence saying when to use it, and **a schema for the arguments**.",
+          "code": "const tools = [{\n  name: \"get_weather\",\n  description:\n    \"Current weather for a city. Use when asked about \" +\n    \"conditions or temperature right now.\",\n  input_schema: {\n    type: \"object\",\n    properties: { city: { type: \"string\" } },\n    required: [\"city\"],\n    additionalProperties: false,\n  },\n  // arguments are then guaranteed to match the schema\n  strict: true,\n}];",
+          "lang": "ts",
+          "source": {
+            "label": "Anthropic · tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+          }
+        },
+        {
+          "title": "The description is the part it reads",
+          "body": "People rush the sentence and tune the prompt, when **the sentence is the prompt** as far as the tool is concerned."
+        },
+        {
+          "title": "Write it for someone who cannot see your code",
+          "body": "Say when to reach for it, not what the function is called internally.",
+          "checklist": [
+            {
+              "label": "When to use it",
+              "detail": "The trigger, in the words a user would say."
+            },
+            {
+              "label": "When not to",
+              "detail": "The neighbouring tool it keeps getting confused with."
+            },
+            {
+              "label": "What comes back",
+              "detail": "So the model can tell an empty result from a failure."
+            }
+          ]
+        },
+        {
+          "title": "Missing arguments get invented",
+          "body": "Ask for the weather with no city and a model may **fill the gap with a plausible one**, so mark what is required.",
+          "source": {
+            "label": "Anthropic · tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+          }
+        },
+        {
+          "title": "Tools are not free",
+          "body": "Turning tool use on adds about **~~286~~ tokens** of system prompt on Opus 5 before a single schema of yours is counted.",
+          "source": {
+            "label": "Anthropic · tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+          }
+        },
+        {
+          "section": "The loop you no longer write",
+          "title": "The SDK runs it for you",
+          "body": "Write the function, hand it over, and **the loop, the results and the stopping are handled**.",
+          "code": "import { betaZodTool } from \"@anthropic-ai/sdk/helpers/beta/zod\";\nimport { z } from \"zod\";\n\nconst getWeather = betaZodTool({\n  name: \"get_weather\",\n  description: \"Current weather for a city.\",\n  inputSchema: z.object({ city: z.string() }),\n  run: async ({ city }) => lookUp(city),\n});\n\nconst final = await client.beta.messages.toolRunner({\n  model: \"claude-opus-5\",\n  max_tokens: 16000,\n  tools: [getWeather],\n  messages: [{ role: \"user\", content: goal }],\n});",
+          "lang": "ts",
+          "source": {
+            "label": "Anthropic · Tool Runner",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+          }
+        },
+        {
+          "title": "This is the recommended way now",
+          "body": "Hand-writing the loop used to be the only option, and for most custom-tool agents it is **no longer the advice**.",
+          "source": {
+            "label": "Anthropic · Tool Runner",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+          }
+        },
+        {
+          "title": "Write it by hand when you need the control",
+          "body": "There are four honest reasons, and none of them is that the loop looks simple.",
+          "checklist": [
+            {
+              "label": "A transport the SDK cannot build",
+              "detail": "Your own proxy, gateway or request shape."
+            },
+            {
+              "label": "No beta dependency",
+              "detail": "The runner is still in beta."
+            },
+            {
+              "label": "Control between turns",
+              "detail": "Something the runner’s per-turn hooks do not reach."
+            },
+            {
+              "label": "Resuming a paused turn yourself",
+              "detail": "See two slides on."
+            }
+          ],
+          "source": {
+            "label": "Anthropic · Tool Runner",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+          }
+        },
+        {
+          "title": "The loop, by hand",
+          "body": "Call, check why it stopped, run what it asked for, hand every result back, call again.",
+          "code": "while (steps < 10) {\n  steps += 1;\n  const res = await client.messages.create({\n    model: \"claude-opus-5\",\n    max_tokens: 16000,\n    tools,\n    messages,\n  });\n\n  if (res.stop_reason !== \"tool_use\") break;   // see the next section\n\n  messages.push({ role: \"assistant\", content: res.content });\n\n  const calls = res.content.filter((b) => b.type === \"tool_use\");\n  const results = await Promise.all(calls.map(async (c) => ({\n    type: \"tool_result\",\n    tool_use_id: c.id,\n    content: await runTool(c.name, c.input),\n  })));\n\n  // every result, in one message\n  messages.push({ role: \"user\", content: results });\n}",
+          "lang": "ts",
+          "source": {
+            "label": "Anthropic · handling tool calls",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+          }
+        },
+        {
+          "section": "Why it stopped",
+          "title": "Six ways a turn ends",
+          "body": "Only one of them means carry on, and **two of them look like a finished answer**.",
+          "checklist": [
+            {
+              "label": "tool_use",
+              "detail": "It wants a tool. This is the only one that continues the loop."
+            },
+            {
+              "label": "end_turn",
+              "detail": "Finished properly."
+            },
+            {
+              "label": "max_tokens",
+              "detail": "Cut off mid-sentence. Not an answer, however complete it reads."
+            },
+            {
+              "label": "pause_turn",
+              "detail": "A long server-tool turn paused. Push it back to resume."
+            },
+            {
+              "label": "refusal",
+              "detail": "Declined on safety grounds. Check stop_details."
+            },
+            {
+              "label": "stop_sequence",
+              "detail": "Hit a string you asked it to stop at."
+            }
+          ],
+          "source": {
+            "label": "Anthropic · handling tool calls",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+          }
+        },
+        {
+          "title": "Breaking on end_turn is the bug",
+          "body": "Write the exit as **continue only on tool_use**, or a refusal and a truncation both leave the loop looking successful."
+        },
+        {
+          "title": "pause_turn stops the runner silently",
+          "body": "A paused turn ends the run with **no error and no warning**, and you get a truncated answer that reads fine.",
+          "code": "for await (const message of runner) {\n  if (message.stop_reason === \"pause_turn\") {\n    runner.pushMessages({\n      role: \"assistant\",\n      content: message.content,\n    });\n  }\n}",
+          "lang": "ts",
+          "source": {
+            "label": "Anthropic · Tool Runner",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+          }
+        },
+        {
+          "section": "Handing results back",
+          "title": "It can ask for several at once",
+          "body": "One reply can carry **three tool calls**, and running them in parallel is the point of that.",
+          "source": {
+            "label": "Anthropic · parallel tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+          }
+        },
+        {
+          "title": "Send them back in one message",
+          "body": "Splitting the results across messages **teaches it to stop asking for parallel calls**.",
+          "source": {
+            "label": "Anthropic · parallel tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+          }
+        },
+        {
+          "title": "A failed tool still needs a result",
+          "body": "Drop it and the conversation has a question with no answer in it, so send the failure **as a result with is_error set**.",
+          "code": "{\n  type: \"tool_result\",\n  tool_use_id: c.id,\n  content: \"Timed out after 5s\",\n  is_error: true,\n}",
+          "lang": "ts",
+          "source": {
+            "label": "Anthropic · handling tool calls",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+          }
+        },
+        {
+          "title": "Guarantee the arguments instead of validating them",
+          "body": "**strict: true** on the tool means the arguments always match your schema, so the parsing branch you were about to write is dead code.",
+          "source": {
+            "label": "Anthropic · strict tool use",
+            "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use"
+          }
+        },
+        {
+          "section": "Before you run it",
+          "title": "Put the ceiling in first",
+          "body": "An agent that misreads a result will try the same thing **until your bill says stop**.",
+          "code": "let steps = 0;\nwhile (steps < 10) {      // the ceiling\n  steps += 1;\n  // ... the loop ...\n}\n\nif (steps >= 10) {\n  // Out of budget, not finished.\n  console.warn(\"hit the step budget, goal unconfirmed\");\n}",
+          "lang": "ts"
+        },
+        {
+          "title": "Say it ran out, do not pretend",
+          "body": "An agent that hits its ceiling and returns its last guess **is worse than one that fails loudly**."
+        },
+        {
+          "title": "Log the action, the arguments and the result",
+          "body": "Nearly every agent bug is obvious in the trace and **invisible in the final answer**.",
+          "code": "step 1  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 2  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 3  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\n\n# The same call three times means it never saw the\n# result. Check the tool_result is going back with\n# the matching tool_use_id.",
+          "lang": "sh"
+        },
+        {
+          "title": "Start with one tool",
+          "body": "A loop with one tool that works beats five tools it **cannot tell apart**."
         }
       ],
       "resources": [
@@ -907,8 +1113,12 @@
           "url": "https://www.anthropic.com/engineering/building-effective-agents"
         },
         {
-          "label": "Tool use documentation",
-          "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+          "label": "Anthropic · tool use",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+        },
+        {
+          "label": "Anthropic · Tool Runner",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
         }
       ],
       "handsOn": 30,
