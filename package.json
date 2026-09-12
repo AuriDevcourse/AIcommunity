@@ -13,6 +13,7 @@
     "google:auth": "node scripts/google-auth.js",
     "gen:icons": "node scripts/gen-icons.mjs",
     "fetch:learn-logos": "node scripts/fetch-learn-logos.mjs",
+    "radar:banners": "node scripts/build-radar-banners.mjs",
     "dev": "npm run build:data && vite",
     "build": "npm run optimize:images && npm run build:data && vite build",
     "preview": "vite preview",
