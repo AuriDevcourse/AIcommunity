@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T17:32:00.324Z",
+  "generatedAt": "2026-09-12T19:11:05.833Z",
   "sessions": [
     {
       "number": 1,
@@ -1055,6 +1055,50 @@
         "venueStatus": "confirmed",
         "luma": "",
         "notes": ""
+      },
+      {
+        "date": "2026-09-13",
+        "number": null,
+        "theme": "",
+        "format": "tbd",
+        "presenter": "",
+        "venue": "Matrikel1",
+        "venueStatus": "confirmed",
+        "luma": "",
+        "notes": "",
+        "topics": [
+          {
+            "title": "Should AI Sundays be a real community?",
+            "flow": [
+              {
+                "icon": "Users",
+                "label": "Where we are",
+                "detail": "A room, a rhythm and a group of regulars, with nothing official behind any of it."
+              },
+              {
+                "icon": "FileText",
+                "label": "What formalising means",
+                "detail": "A Danish forening: statutes, a board, a founding meeting, and a CVR number."
+              },
+              {
+                "icon": "Sparkles",
+                "label": "What it would open up",
+                "detail": "A bank account, sponsors, venue agreements and grant applications all need an entity to sign."
+              },
+              {
+                "icon": "ListChecks",
+                "label": "What it would cost",
+                "detail": "A board, a yearly general assembly, minutes, and somebody actually doing the admin."
+              },
+              {
+                "icon": "Share2",
+                "label": "Tonight’s decision only",
+                "detail": "Not whether to register. Only whether anyone wants to draft statutes before the next session."
+              }
+            ],
+            "note": "A question for the room rather than an announcement. Nothing gets registered without a vote, and staying informal is a real answer."
+          }
+        ]
       }
     ],
     "gaps": [
