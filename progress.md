@@ -2,6 +2,56 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## Where things stand (2026-09-12, every deck brought up to the breach-deck standard)
+
+**The standard is a number now, not a memory.** `npm run read:check` (`scripts/read-check.mjs`) measures every deck the way agent-breach was measured by hand: Flesch-Kincaid per slide, sentences per body, the longest run of slides with nothing to look at, and where the emphasis sits. It gates at FK 12 per slide, FK 9 per deck, 4 text-only slides in a row, 12 steps minimum. Slides under 12 words are reported but cannot fail a deck, because FK is noise on "Nobody attacked anyone." (which scores 13.1).
+
+**It immediately found a regression the hand pass could not see.** Splitting agent-breach step 38 into four short slides cured the hard sentence and created the deck's longest text-only run: 8 slides, 36 to 43. The same trap as the step 16 fix, one layer down. Closed this session with a timeline on the week it took to notice (the dates were already sitting in the body doing nothing) and a new `unscramble` diagram of the refusal chain. Longest run is now 3.
+
+**All four stub decks rebuilt, and the security deck restyled. 5, 5, 5, 5 and 18 steps became 27, 25, 24, 25 and 37.**
+
+| deck | steps | deck FK | visuals | longest text run |
+|---|---|---|---|---|
+| agent-breach | 47 | 7.3 | 27/47 | 3 |
+| vibe-code-security | 37 | 5.6 | 17/37 | 4 |
+| prompting-basics | 27 | 6.5 | 14/27 | 2 |
+| first-agent | 25 | 7.4 | 12/25 | 2 |
+| ship-with-claude-code | 25 | 6.6 | 11/25 | 4 |
+| local-llm | 24 | 7.6 | 9/24 | 4 |
+
+**Checking the content against live docs changed it, which is the point of checking.** Seven corrections that would not have surfaced from memory:
+
+- **"Think step by step" is obsolete advice.** Current Claude models use adaptive thinking and pick the depth themselves, answering an easy question directly. The prompting deck now teaches steering the amount rather than switching it on.
+- **Three to five examples, not one.**
+- **The hand-written agent loop is no longer the recommended way.** The docs call the SDK tool runner the default and the manual loop the fallback, so `first-agent` teaches the runner first and names the four honest reasons to write the loop yourself.
+- **Breaking on `end_turn` is a bug.** There are six stop reasons; `max_tokens` and `refusal` both leave a loop looking successful. The exit is "continue only on `tool_use`".
+- **`pause_turn` ends a tool runner silently**, no error, and returns a truncated answer that reads fine.
+- **The Claude Code install command was wrong.** `npm install -g @anthropic-ai/claude-code` is not how you get it any more; the native installer is, with winget and brew for anyone who does not pipe a script into a shell. Docs also moved to code.claude.com.
+- **Two Ollama tags from the May session brief do not exist** (llama3.3 has no 8B; qwen3 is 8B, not 7B). The deck now uses `llama3.2:3b` and `qwen3:8b`, both checked against the live library.
+
+**Four new interactives**, one per rebuilt deck, each asserting the slide's own claim rather than decorating it:
+- **Four blanks** (prompting): opening each gap in a four-word request reaches 81 readings of the same sentence.
+- **One turn at a time** (agent): four lines of an agent conversation with the author of each labelled, because two of them are the reader's own code and the model never ran anything.
+- **Will it fit** (local): you pick your memory and the rows are computed from the rule of thumb the deck teaches two slides earlier. The row that does not fit says "still answers, about a word a second", which is the deck's actual claim.
+- **Five files changed** (Claude Code): one sentence asked for, five files changed, three of them not what you asked for. The summary that opens it, "added the signup form, all tests passing", is true.
+
+**Two slides failed the measure and both were real defects.** The security deck's headers slide listed Content-Security-Policy, X-Frame-Options and nosniff in one line and explained none of them (FK 15.6, the same "three unexplained things at once" shape as the old step 38); it now says what each one refuses. A local-llm closing line hit FK 12.6 on abstract nouns.
+
+**A knife-edge caught by a check, not by looking.** The fit calculator's spill threshold was 1.6x free memory, and a 14B model at 8 GB missed it by 0.05 GB, so no row ever showed the "still answers slowly" state the slide exists to teach. Widened to 2.5x, where disk spill genuinely still answers.
+
+**Verified:** `read:check` all six decks OK, `learn:check` 26/26 across **190 slides**, `interact:check` 46/46 (19 new), `smoke`, `csp:check` 5/5, `shell:check` 18/18, `theme:check` PASS, build green.
+
+**Next steps:**
+1. **Push and merge.** `feat/members-only-and-avatar-upload` is 9 commits ahead of `origin/main` and nothing is pushed.
+2. Look at the four new interactives on a phone before the next session; they are asserted for content, not for layout at 390px.
+3. Optional: `local-llm` and `ship-with-claude-code` still have a 4-slide text-only run each, at the gate rather than under it.
+
+**Gotchas:**
+- `theme:check` needs a **production preview**, not the dev server: `npm run build && npx vite preview --port 5281`. Against a dev server on 5281 it fails two assertions, because it proves the no-flash script by blocking `/assets/index-*.js`, and dev serves `/src/main.jsx`. That failure is the harness, not the app.
+- `learn:check` and `interact:check` need Learn reachable, and Learn is now **gated**, so run them against a Vite instance with Supabase unset: `VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= npx vite --port 5281`.
+- `npm run build` rewrites the `generatedAt` timestamps in `src/data.json` and `api/_members-data.js`. Build artifacts, revert them rather than committing.
+- `openStep()` in `learn-interact-check.mjs` now takes a deck name as its second argument, defaulting to the breach deck.
+
 ## Where things stand (2026-09-12, the fall-off point is gone)
 
 **Second readability audit on the rebuilt deck, and the verdict moved from "no" to "yes, with one break".** Then the break was fixed.
