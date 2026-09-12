@@ -23,6 +23,9 @@ const TARGETS = [
   { dir: 'sessions',    maxW: 1600, quality: 78 },
   { dir: 'news-images', maxW: 1280, quality: 80 },
   { dir: 'members',     maxW: 640, quality: 82 },
+  // Projects cards render a 16/9 thumb, never wider than ~600px on a desktop
+  // grid, so 1200px covers retina with room to spare.
+  { dir: 'projects',    maxW: 1200, quality: 80 },
 ];
 
 const RASTER = /\.(jpe?g|png|webp)$/i;

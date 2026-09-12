@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LogIn, LogOut, X, Loader2, Mail, Lock, User, Pencil, Upload } from 'lucide-react';
+import { LogIn, LogOut, X, Loader2, Mail, Lock, User, Pencil, Upload, Linkedin } from 'lucide-react';
 import { useAuth } from '../lib/auth.jsx';
 import { authedFetch } from '../lib/supabase.js';
 import { compressImage } from '../lib/compressImage.js';
@@ -16,6 +16,26 @@ function GoogleG({ size = 16 }) {
   );
 }
 
+// Joining is a human step, not a form: you message Auri on LinkedIn and he adds
+// you. So "Become a member" is an outbound link, deliberately separate from
+// "Sign in", which is for people who are already in.
+export const JOIN_URL = 'https://www.linkedin.com/in/auribaci/';
+
+export function BecomeMember({ className = '', full = false }) {
+  const { enabled, loading, user } = useAuth();
+  if (enabled && (loading || user)) return null; // already in, or still resolving
+  return (
+    <a
+      href={JOIN_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-pill px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-accent transition-colors ${full ? 'w-full justify-center' : ''} ${className}`}
+    >
+      <Linkedin size={13} strokeWidth={2.2} /> Become a member
+    </a>
+  );
+}
+
 export default function AuthControls() {
   const { enabled, loading, user, name, avatarUrl, signOut, openAuth } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,6 +47,9 @@ export default function AuthControls() {
   if (!user) {
     return (
       <>
+        {/* Hidden on phones, where it would crowd the header; the mobile menu
+            carries it instead. */}
+        <BecomeMember className="hidden sm:inline-flex" />
         <button
           onClick={openAuth}
           className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3.5 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.03]"
@@ -142,7 +165,7 @@ export function AuthModal() {
           <h2 className="text-lg font-semibold tracking-tight">{mode === 'signup' ? 'Create account' : 'Sign in'}</h2>
           <button onClick={closeAuth} className="text-muted hover:text-foreground" aria-label="Close"><X size={18} /></button>
         </div>
-        <p className="text-xs text-muted mb-4">Sign in to open Members, Photos and the Forum, and to post and vote. Home, Learn and News stay open to everyone.</p>
+        <p className="text-xs text-muted mb-4">Sign in to open Learn and Tools, and to post your own projects, RSVP and add your member card. Not a member yet? <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:underline underline-offset-2">Message Auri on LinkedIn</a>.</p>
 
         {googleEnabled && (
           <>

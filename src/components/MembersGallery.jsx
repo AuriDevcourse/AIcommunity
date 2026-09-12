@@ -3,6 +3,7 @@ import { Search, X, ArrowDownWideNarrow } from 'lucide-react';
 import { getMemberProfile, getInitials, getDisplayName, mergeMembersWithProfiles } from '../lib/members-profile.js';
 import { useMembersData } from '../lib/members.js';
 import ProjectsBoard from './ProjectsBoard.jsx';
+import { SignInGate, BecomeMember } from './AuthControls.jsx';
 
 // DiceBear avataaars: free, keyless, deterministic SVG avatars seeded by name.
 // DiceBear has no gender flag, so we lock the hair (and facial hair) to a
@@ -168,9 +169,20 @@ export default function MembersGallery() {
           ))}
         </div>
       ) : error ? (
-        <div className="card card-pad text-sm text-muted">
-          {error.status === 401 ? 'Sign in to see the members.' : 'Could not load the members right now. Try again in a moment.'}
-        </div>
+        error.status === 401 ? (
+          // The tab itself is public, the directory is not: real names, faces
+          // and LinkedIn profiles are for the room. So a visitor gets the two
+          // doors in instead of a dead end.
+          <div className="card card-pad">
+            <p className="text-sm text-muted">The member directory is for people in the group. Sign in to see it, or say hello and join.</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <SignInGate label="Sign in" />
+              <BecomeMember />
+            </div>
+          </div>
+        ) : (
+          <div className="card card-pad text-sm text-muted">Could not load the members right now. Try again in a moment.</div>
+        )
       ) : merged.length === 0 ? (
         <div className="card card-pad text-sm text-muted">No members yet.</div>
       ) : shown.length === 0 ? (

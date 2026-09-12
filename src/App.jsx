@@ -6,11 +6,12 @@ import data from './data.json';
 import NextSession from './components/NextSession.jsx';
 import Hero from './components/Hero.jsx';
 import RecentSessions from './components/RecentSessions.jsx';
-import AuthControls from './components/AuthControls.jsx';
+import AuthControls, { BecomeMember } from './components/AuthControls.jsx';
 
 const MembersGallery = lazy(() => import('./components/MembersGallery.jsx'));
 const SessionsGallery = lazy(() => import('./components/SessionsGallery.jsx'));
 const News = lazy(() => import('./components/News.jsx'));
+const Radar = lazy(() => import('./components/Radar.jsx'));
 const Tools = lazy(() => import('./components/Tools.jsx'));
 const Learn = lazy(() => import('./components/Learn.jsx'));
 const Projects = lazy(() => import('./components/Projects.jsx'));
@@ -20,24 +21,27 @@ const BrandAssets = lazy(() => import('./components/BrandAssets.jsx'));
 import ThemeToggle from './components/ThemeToggle.jsx';
 import LegalPage, { Footer, LEGAL_KEYS, FOOTER_KEYS } from './components/LegalPages.jsx';
 import { Agentation } from 'agentation';
-import { Users, LayoutDashboard, Newspaper, Wrench, Images, GraduationCap, Rocket, Menu, X, Check } from 'lucide-react';
+import { Users, LayoutDashboard, Newspaper, Wrench, Images, GraduationCap, Rocket, Radar as RadarIcon, Menu, X, Check } from 'lucide-react';
 import { TODAY } from './lib/dates.js';
 import { useSchedule } from './lib/schedule.js';
 import { useAuth } from './lib/auth.jsx';
 
-// `gated` tabs open only for signed-in members. Members and Photos show real
-// names and faces; the Forum is where the group plans its Sundays. All three are
-// for people in the room, so they sit behind sign-in. Home, Learn, News and
-// Tools stay public: a stranger can learn what this is and when it happens.
+// `gated` tabs open only for signed-in members, and are hidden from the menu
+// plus unreachable by URL when signed out. Learn, Tools and Radar are gated:
+// they are the work the group makes for itself, the session material, the
+// internal tooling and the monthly research read, not a public resource.
+// Everything else stays open, so a stranger can see what this is, who comes,
+// what gets built and when it happens, then ask to join.
 // When Supabase is not configured there is no sign-in, so nothing is gated.
 const TABS = [
   { key: 'home',        label: 'Home',     icon: LayoutDashboard },
-  { key: 'learn',       label: 'Learn',    icon: GraduationCap },
+  { key: 'learn',       label: 'Learn',    icon: GraduationCap, gated: true },
   { key: 'projects',    label: 'Projects', icon: Rocket },
   { key: 'news',        label: 'News',     icon: Newspaper },
-  { key: 'members',     label: 'Members', icon: Users, gated: true },
-  { key: 'sessions',    label: 'Photos',   icon: Images, gated: true },
-  { key: 'tools',       label: 'Tools',    icon: Wrench },
+  { key: 'radar',       label: 'Radar',    icon: RadarIcon, gated: true },
+  { key: 'members',     label: 'Members', icon: Users },
+  { key: 'sessions',    label: 'Photos',   icon: Images },
+  { key: 'tools',       label: 'Tools',    icon: Wrench, gated: true },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
 
@@ -419,6 +423,7 @@ export default function App() {
             {tab === 'learn' && <Learn />}
             {tab === 'projects' && <Projects />}
             {tab === 'news' && <News />}
+            {tab === 'radar' && <Radar />}
             {tab === 'tools' && <Tools sessions={data.sessions} />}
             {tab === 'members' && <MembersGallery />}
             {tab === 'sessions' && <SessionsGallery sessions={data.sessions} gaps={data.schedule?.gaps || []} onOpenRecap={openRecap} />}
@@ -472,7 +477,9 @@ export default function App() {
                 );
               })}
             </div>
-            <div className="p-2 pt-0 border-t border-border pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+            <div className="p-2 pt-0 border-t border-border pb-[calc(env(safe-area-inset-bottom)+0.5rem)] grid gap-2">
+              {/* The header hides this on phones, so the drawer carries it. */}
+              <BecomeMember full />
               <ThemeToggle />
             </div>
           </nav>

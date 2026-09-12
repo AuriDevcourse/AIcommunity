@@ -445,6 +445,10 @@ function ToolChips({ tools }) {
 // (Tools tab) with this session preselected, post writing happens there, not here.
 function RecapActions({ date }) {
   const [copied, setCopied] = useState(false);
+  // The Post maker lives on the gated Tools tab, so a signed-out reader gets
+  // the copy link only. Showing the button would bounce them to Home.
+  const { enabled: authEnabled, user } = useAuth();
+  const canMakePost = !authEnabled || Boolean(user);
   const url = typeof window !== 'undefined' ? `${window.location.origin}/#recap/${date}` : '';
 
   async function copyLink() {
@@ -463,9 +467,11 @@ function RecapActions({ date }) {
         {copied ? <Check size={14} strokeWidth={2.4} className="text-ok" /> : <Link2 size={14} strokeWidth={2.2} />}
         {copied ? 'Link copied' : 'Copy link'}
       </button>
-      <button onClick={createPost} className="btn btn-sm btn-primary">
-        <PenLine size={14} strokeWidth={2.2} /> Create a social media post
-      </button>
+      {canMakePost && (
+        <button onClick={createPost} className="btn btn-sm btn-primary">
+          <PenLine size={14} strokeWidth={2.2} /> Create a social media post
+        </button>
+      )}
     </div>
   );
 }
