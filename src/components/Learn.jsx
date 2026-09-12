@@ -2262,6 +2262,26 @@ function StepDiagram({ kind }) {
     );
   }
 
+  // Who would and would not help the clean-up team read the logs. Three boxes,
+  // because the point is the order: the same request, refused by the models with
+  // safety filters and answered by the one without them.
+  if (kind === 'unscramble') {
+    return (
+      <div className={wrap}>
+        <div className="flex items-center justify-between gap-1 flex-wrap sm:flex-nowrap">
+          <DiaBox icon={FileX} label="Scrambled log" note="what the responders had" />
+          <ArrowRight size={18} className="text-muted flex-shrink-0" aria-hidden="true" />
+          <DiaBox icon={Bot} label="Commercial models" tone="err" note="refused to help" />
+          <ArrowRight size={18} className="text-muted flex-shrink-0" aria-hidden="true" />
+          <DiaBox icon={Package} label="A downloadable one" note="did it" />
+        </div>
+        <p className="mt-4 text-xs text-muted text-center">
+          The same request, twice. The filters could not tell the people cleaning up from the people who broke in.
+        </p>
+      </div>
+    );
+  }
+
   // What actually fits in the RAM you have. The deck answered the first question
   // everybody asks with a single clause buried in a paragraph.
   if (kind === 'model-sizes') {

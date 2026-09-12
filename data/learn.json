@@ -3,29 +3,48 @@
     {
       "id": "vibe-code-security",
       "title": "Five ways your quick site gets hacked",
-      "summary": "You built a site in a weekend. Here are the five doors that get opened most, how to test your own site for each in a minute, and how to close them.",
+      "summary": "You built a site in a weekend. The five doors that get opened most, how to test your own site for each in a minute, and how to close them.",
       "level": "Beginner",
       "tags": [
         "security",
         "build"
       ],
-      "slides": "",
       "steps": [
         {
-          "title": "One idea to hold onto",
-          "body": "Everything your site sends to a visitor lives in their browser now. They can read every line of it, change any value, and replay any request a thousand times. Security is just deciding what your server does when someone abuses that freedom. All five problems below are the same mistake in different clothes: trusting the browser too much. Test only sites you own or have written permission to probe.",
-          "section": "Start"
+          "section": "One idea to hold onto",
+          "title": "Everything you send is theirs now",
+          "body": "Whatever your site sends to a visitor **lives in their browser**, and it is not coming back."
         },
         {
-          "title": "1 · The API key hiding in your page",
-          "body": "When your app calls OpenAI or Supabase straight from the front-end, the secret key has to travel to every visitor's browser to make that call. Anyone can open it. A hackathon team once wired their OpenAI key into the React app so the chatbot would work. Within a day a stranger found it in the page, copied it, and burned through the credits on their account before the bill got cut off.",
+          "title": "They can read it, change it, repeat it",
+          "body": "They can read every line, change any value, and **send the same request a thousand times**."
+        },
+        {
+          "title": "All five are the same mistake",
+          "body": "Every problem in this deck is **trusting the browser**, wearing a different coat.",
+          "source": {
+            "label": "OWASP Top 10",
+            "url": "https://owasp.org/www-project-top-ten/"
+          }
+        },
+        {
+          "title": "Test your own, and only your own",
+          "body": "Everything here is safe on a site you own, and **the same moves on someone else’s are a crime**."
+        },
+        {
+          "section": "1 · The key in your page",
+          "title": "A front-end key goes to everyone",
+          "body": "To call OpenAI from the browser, the secret **has to travel to the browser**, where anyone can open it.",
           "code": "// BAD: this key ships to every visitor's browser\nconst key = \"sk-proj-abc123...\";\nfetch(\"https://api.openai.com/v1/chat\", {\n  headers: { Authorization: `Bearer ${key}` }\n});",
-          "section": "1 · Secrets in the browser",
           "lang": "js"
         },
         {
-          "title": "1 · Test it: read your own page",
-          "body": "Open your live site, right-click, choose View Page Source, then press Ctrl+F. Search the page and the loaded scripts for the shape of a key. Then type your domain followed by /.env into the address bar: it should return a 404, never show text. If you find a key or the .env file loads, it is public to the whole internet.",
+          "title": "A hackathon team found out in a day",
+          "body": "They wired the key in so the chatbot would work, and a stranger **spent the credits before the bill was cut off**."
+        },
+        {
+          "title": "Test it: read your own page",
+          "body": "View source, search for the shape of a key, then ask your own domain for **/.env**.",
           "code": "# search the page + bundle for these prefixes:\nsk-      # OpenAI\nAIza     # Google\neyJ      # Supabase / JWT tokens\n\n# then open in the browser:\nhttps://yoursite.com/.env   ->  must be 404",
           "lang": "sh",
           "expect": {
@@ -34,21 +53,37 @@
           }
         },
         {
-          "title": "1 · Fix it: keep secrets on the server",
-          "body": "The browser should never hold a secret. Instead it calls your own small API route, and that route, running on the server, holds the key and talks to OpenAI for it. Never put a secret behind a NEXT_PUBLIC_ name, that prefix ships it to everyone. And if a key was ever public or pushed to GitHub, rotate it now: deleting the line later does not un-leak it.",
-          "code": "// browser -> your server -> OpenAI\n// file: /api/chat.js  (runs on the server only)\nconst key = process.env.OPENAI_API_KEY; // stays server-side\n// the browser just calls /api/chat, never OpenAI directly",
+          "title": "Fix it: the browser calls you, you call them",
+          "body": "Your own route holds the key and **the browser never sees it**.",
           "diagram": "flow-keys",
+          "code": "// browser -> your server -> OpenAI\n// file: /api/chat.js  (runs on the server only)\nconst key = process.env.OPENAI_API_KEY; // stays server-side\n// the browser just calls /api/chat, never OpenAI directly",
           "lang": "js"
         },
         {
-          "title": "2 · The endpoint anyone can call in a loop",
-          "body": "Your chatbot talks to a route like /api/chat that costs you money on every call. There is no login and no limit on it. You feel safe because the URL is not published, but it is sitting right there in the browser's Network tab for anyone to copy. Someone finds it, writes five lines that call it ten thousand times overnight, and by morning your AI bill or your server has fallen over. 'Nobody knows the URL' has never been security.",
-          "diagram": "open-endpoint",
-          "section": "2 · Endpoints with no lock"
+          "title": "NEXT_PUBLIC_ is a public sign",
+          "body": "That prefix means **ship this to every visitor**, which is exactly what it does."
         },
         {
-          "title": "2 · Test it: copy your own request",
-          "body": "Use your app once with DevTools open on the Network tab. Find the request your button fired, right-click it, and choose Copy as cURL. Paste that into a terminal and run it. If it answers with no login and you can run it again and again, so can anyone on the internet.",
+          "title": "A leaked key is rotated, not deleted",
+          "body": "Removing the line from the code **does not un-leak it**, because the copy someone took still works."
+        },
+        {
+          "section": "2 · The route anyone can call",
+          "title": "Every call spends your money",
+          "body": "A chat route with no login is **a payment method with a URL**.",
+          "diagram": "open-endpoint"
+        },
+        {
+          "title": "Nobody knows the URL is not security",
+          "body": "It is sitting in the browser’s **Network tab**, in plain text, for anyone who opens it."
+        },
+        {
+          "title": "Five lines, ten thousand calls, one night",
+          "body": "Nothing gets hacked here: **your own route answers politely** until the bill arrives."
+        },
+        {
+          "title": "Test it: replay your own request",
+          "body": "Copy the request your own button fired, run it in a terminal, and **see whether it answers a stranger**.",
           "code": "# does it still answer with no session? then it is wide open\ncurl -X POST https://yoursite.com/api/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\":\"hi\"}'\n\n# now imagine this line inside a loop that runs 10,000 times",
           "lang": "sh",
           "expect": {
@@ -57,42 +92,87 @@
           }
         },
         {
-          "title": "2 · Fix it: a login, a limit, a cap",
-          "body": "Every route that costs you money should check who is calling and how often. Require a login for it, add a per-user daily cap, and rate-limit by IP so one visitor cannot hammer it. Return a 429 status when the limit is hit. On Vercel, an Upstash rate limiter is a few lines. Also cap the input size so nobody sends a giant payload to burn your tokens.",
+          "title": "Fix it: a login, a limit, a cap",
+          "body": "Check who is calling, how often, and **how much they just sent you**.",
           "code": "// pseudo-code at the top of the route\nif (!session) return res.status(401);   // must be logged in\nif (await tooManyRequests(ip)) return res.status(429);\n// cap the payload so nobody burns tokens with a giant one\nif (body.message.length > 2000) return res.status(413);",
-          "lang": "js"
+          "lang": "js",
+          "source": {
+            "label": "Upstash · rate limiting on Vercel",
+            "url": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview"
+          }
         },
         {
-          "title": "3 · Change the number, see someone else's data",
-          "body": "Your order page is /order/1042. A curious visitor changes it to 1043 and sees a stranger's name, email, and address. The server answered because it trusted the id in the URL instead of checking who is logged in. This is the single most common serious bug in fast-built apps. The same hole opens when your 'admin' button is only hidden in the interface, but the /admin route still answers anyone who visits it directly.",
-          "diagram": "idor",
-          "section": "3 · Other people's data"
+          "title": "Say no with the right number",
+          "body": "A **429** tells an honest client to slow down, and a **413** stops a giant payload from burning your tokens."
         },
         {
-          "title": "3 · Test it: bump the id by one",
-          "body": "Log in as one test user. Find an id in a URL or in a network request. Change it by one and reload the page. If you can read or edit data that is not yours, the ownership check is missing. A safe app returns 403 Forbidden, not the record.",
+          "section": "3 · Change the number",
+          "title": "One digit, and it is not your order",
+          "body": "Change 1042 to 1043 and a stranger’s **name, email and address** load without complaint.",
+          "diagram": "idor"
+        },
+        {
+          "title": "The server trusted the id, not the person",
+          "body": "It answered the question it was asked, and **nobody asked whose record it was**."
+        },
+        {
+          "title": "The most common serious bug in quick builds",
+          "body": "It needs no tools, no skill and no payload: **just an arrow key**.",
+          "source": {
+            "label": "OWASP Top 10",
+            "url": "https://owasp.org/www-project-top-ten/"
+          }
+        },
+        {
+          "title": "A hidden button is not access control",
+          "body": "If the admin route still answers when you type it in, **the interface was the only lock**."
+        },
+        {
+          "title": "Test it: bump the id by one",
+          "body": "Sign in as one test user, change an id in a URL, and **a safe app says 403**.",
+          "demo": "idor",
           "code": "# logged in as user A, ask for user B's record:\nGET /api/orders/1043\n\n# safe response:   403 Forbidden\n# unsafe response: 200 OK  + someone else's order",
           "lang": "http",
-          "demo": "idor",
           "expect": {
             "pass": "It says no: a 403. The record exists, it is simply not yours to read.",
             "fail": "It hands it over, a 200 with a stranger's name, email and address."
           }
         },
         {
-          "title": "3 · Fix it: scope every query to the user",
-          "body": "Do not just look up the id. Look up the id that belongs to the person logged in. Re-check permission on the server for every protected route, because hiding a button in the interface is not access control. If you use Supabase, turn on Row Level Security, without it the public key can read every row in the table.",
+          "title": "Fix it: ask for the id that belongs to them",
+          "body": "Do not look up the id; look up **the id owned by the person logged in**.",
           "code": "// BAD: trusts whatever id the browser sent\ndb.orders.find({ id: params.id })\n\n// GOOD: tied to the logged-in user\ndb.orders.find({ id: params.id, userId: session.userId })",
           "lang": "js"
         },
         {
-          "title": "4 · Whatever the visitor types, the app trusts",
-          "body": "A comment box that saves text and shows it back without cleaning it lets someone save a script tag that then runs inside the next visitor's browser. That is called XSS. A search box glued straight into a database query lets someone rewrite the query itself, called SQL injection. For AI apps there is a third flavour: a user message crafted to override your system prompt and make the model ignore its rules.",
-          "section": "4 · Untrusted input"
+          "title": "On Supabase, turn on row level security",
+          "body": "Without it the public key **can read every row in the table**, which is what the key is for.",
+          "source": {
+            "label": "Supabase · row level security",
+            "url": "https://supabase.com/docs/guides/database/postgres/row-level-security"
+          }
         },
         {
-          "title": "4 · Test it: send a harmless probe",
-          "body": "In one of your own form fields, submit a small probe and watch what happens. If a bold tag comes back as actual bold text, the field is rendering markup instead of escaping it. Try the classic SQL probe in a search box. Then paste a very long string: if the server chokes or the page breaks, there is no size cap.",
+          "section": "4 · Whatever the visitor types",
+          "title": "A comment box that runs in the next visitor’s browser",
+          "body": "Saved text that gets shown back without cleaning **runs as code**, and that is XSS."
+        },
+        {
+          "title": "A search box that rewrites your query",
+          "body": "Text glued straight into SQL stops being text and **becomes part of the question**."
+        },
+        {
+          "title": "And for AI apps, a message that overrides you",
+          "body": "A user message can be written to **talk past your system prompt**, which is the same bug in a new place."
+        },
+        {
+          "title": "See it happen",
+          "body": "The same comment box built twice: one trusts your input, one treats it as text.",
+          "demo": "xss"
+        },
+        {
+          "title": "Test it: send a harmless probe",
+          "body": "If your bold tag **comes back bold**, the field is running markup instead of printing it.",
           "code": "# XSS probe: should show as plain text, not render:\n<b>test</b>\n\n# SQL probe in a search box:\ntest' OR '1'='1\n\n# and paste 50,000 characters to check the size cap",
           "lang": "sh",
           "expect": {
@@ -101,25 +181,32 @@
           }
         },
         {
-          "title": "4 · See it happen",
-          "body": "Here is the same comment box built two ways. Type a tag, or hit an example, and compare. On the left the site trusts your input and the browser acts on it. On the right the site treats it as plain text, so nothing runs. That one difference is the whole fix.",
-          "demo": "xss"
-        },
-        {
-          "title": "4 · Fix it: validate, escape, parameterise",
-          "body": "Check every input against a strict schema (Zod in JavaScript, Pydantic in Python), cap its length and size, and reject anything that does not fit. Use parameterised queries so user text is treated as data, never glued into the SQL string. And never hand raw user content to dangerouslySetInnerHTML, that is the front door for XSS.",
+          "title": "Fix it: validate, escape, parameterise",
+          "body": "A strict schema rejects the junk, and **a parameterised query keeps text as text**.",
           "code": "// validate first\nconst schema = z.object({ message: z.string().max(2000) });\nconst { message } = schema.parse(body); // throws on junk\n\n// parameterised query: the ? is filled safely\ndb.query(\"SELECT * FROM notes WHERE title = ?\", [message]);",
-          "lang": "js"
+          "lang": "js",
+          "source": {
+            "label": "Zod · input validation",
+            "url": "https://zod.dev"
+          }
         },
         {
-          "title": "5 · The site that tells you how it's built",
-          "body": "Two quiet leaks. First, a deployed /.git folder lets a stranger download your entire source code, secrets and all. Second, an error page that prints the full stack trace hands an attacker your database structure, file paths, and library versions, which is a map of exactly where to push next. Neither looks dangerous until someone reads it.",
-          "diagram": "paths",
-          "section": "5 · Leaky defaults"
+          "title": "Never hand raw input to dangerouslySetInnerHTML",
+          "body": "The name is a warning, and **it is the front door for XSS**."
         },
         {
-          "title": "5 · Test it: knock on the quiet doors",
-          "body": "Try these paths on your own domain. Each should return a 404 or a clean error page, never real content. Then force an error on purpose, send a bad or missing field, and read the response. If it shows a stack trace or a database detail, that information is leaking to the public.",
+          "section": "5 · The site that explains itself",
+          "title": "A deployed .git folder is your source code",
+          "body": "Anyone can download **the whole history**, including the secrets you removed later.",
+          "diagram": "paths"
+        },
+        {
+          "title": "A stack trace is a map",
+          "body": "It hands over your database structure, file paths and library versions: **exactly where to push next**."
+        },
+        {
+          "title": "Test it: knock on the quiet doors",
+          "body": "Ask for the paths that should not exist, then **break a route on purpose and read the reply**.",
           "code": "# all of these should be closed (404):\nyoursite.com/.git/config\nyoursite.com/.env\n\n# break a route on purpose and read the reply:\nyoursite.com/api/orders/notanumber",
           "lang": "sh",
           "expect": {
@@ -128,15 +215,37 @@
           }
         },
         {
-          "title": "5 · Fix it: say less when things break",
-          "body": "Never deploy the .git folder. Managed hosts like Vercel handle this for you; on your own server, block it in the nginx config. Show users a clean message with a reference id, and send the full detail to your logs only, never to the screen. Add the basic security headers (a Content-Security-Policy, X-Frame-Options, and nosniff) so the browser refuses the most obvious abuse.",
+          "title": "Fix it: say less when things break",
+          "body": "The user gets a short message and **a reference id**; the detail goes to your logs.",
           "code": "// return this to the user\nres.status(500).json({\n  error: \"Something went wrong\",\n  ref: \"err_8f2a\"   // you look this up in the logs\n});\n// the stack trace goes to the log, not the response",
           "lang": "js"
         },
         {
+          "title": "Then let the browser help",
+          "body": "Send three headers once and **the browser starts refusing things for you**.",
+          "checklist": [
+            {
+              "label": "Content-Security-Policy",
+              "detail": "Names where scripts may come from. A script injected from anywhere else does not run."
+            },
+            {
+              "label": "X-Frame-Options",
+              "detail": "Stops your page being loaded inside somebody else’s, invisibly, over their buttons."
+            },
+            {
+              "label": "nosniff",
+              "detail": "Stops the browser guessing that an uploaded file is really a script."
+            }
+          ],
+          "source": {
+            "label": "OWASP Top 10",
+            "url": "https://owasp.org/www-project-top-ten/"
+          }
+        },
+        {
           "section": "Before you ship",
-          "title": "Your five-minute pre-ship check",
-          "body": "Run these five before you share any link. Most quick builds fail at least one, and you now know how to close each. Practise the moves on a site built to be broken, never on somebody else’s live one: the resources slide has three.",
+          "title": "Five minutes, five checks",
+          "body": "Most quick builds fail at least one of these, and you now know how to close every one.",
           "checklist": [
             {
               "label": "No key in the browser",
@@ -159,6 +268,10 @@
               "detail": "No stack traces, and /.git/config is a 404."
             }
           ]
+        },
+        {
+          "title": "Practise on something built to break",
+          "body": "The next slide has three, and **none of them belongs to anybody who would mind**."
         }
       ],
       "resources": [
@@ -658,7 +771,24 @@
           "source": {
             "label": "Overview of the 2026 agent incidents",
             "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
-          }
+          },
+          "timeline": [
+            {
+              "when": "9 July",
+              "what": "The first command lands on a machine that is not theirs.",
+              "tone": "bad"
+            },
+            {
+              "when": "10 to 17 July",
+              "what": "It keeps running. The logs record something, but not what.",
+              "tone": "bad"
+            },
+            {
+              "when": "weekend of 18 July",
+              "what": "OpenAI traces it back to its own agents.",
+              "tone": "good"
+            }
+          ]
         },
         {
           "title": "The agents had been scrambling their own instructions",
@@ -682,7 +812,8 @@
           "source": {
             "label": "Overview of the 2026 agent incidents",
             "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
-          }
+          },
+          "diagram": "unscramble"
         },
         {
           "title": "A model anyone can download did it instead",
