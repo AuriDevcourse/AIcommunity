@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-09-12T19:15:25.008Z",
   "curatedAt": "2026-09-12",
-  "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app.",
+  "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app. Three items were corrected by hand against primary sources on 2026-09-12: Mistral (figures and source), Nvidia/Hugging Face (added, displacing Meta Muse), Gemini 3.8 Flash (pricing).",
   "windowLabel": "",
   "items": [
     {
@@ -23,24 +23,6 @@
       "n": 1
     },
     {
-      "id": "meta-launches-muse-ai-agent-assistant",
-      "category": "global",
-      "date": "2026-09-10",
-      "title": "Meta Deploys Muse Autonomous Productivity Agent in the US",
-      "subtitle": "Meta enters proactive consumer agent workflows for shopping and inbox tasks",
-      "summary": "Meta introduced Muse, an autonomous AI assistant designed to handle task automation like scheduling, shopping execution, and personal correspondence. Early distribution pushed the client to the top of mobile app charts, though user feedback highlights both practical utility and aggressive data collection prompts.",
-      "whyItMatters": "Consumer platforms are rapidly shifting from passive chat interfaces to proactive execution agents that interact directly with web services.",
-      "whyForUs": "Observe how consumer-grade agents handle user permissions and authentication before designing your own product automations.",
-      "sources": [
-        {
-          "name": "TechCrunch",
-          "url": "https://techcrunch.com/2026/09/10/metas-ai-agent-muse-is-now-the-no-2-app-in-the-us/"
-        }
-      ],
-      "image": null,
-      "n": 2
-    },
-    {
       "id": "openai-pauses-pro-tiers-over-astra-gpu-strain",
       "category": "global",
       "date": "2026-09-10",
@@ -56,7 +38,7 @@
         }
       ],
       "image": null,
-      "n": 3
+      "n": 2
     },
     {
       "id": "ibm-granite-patchtst-time-series-foundation-model",
@@ -71,6 +53,28 @@
         {
           "name": "Hugging Face",
           "url": "https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series"
+        }
+      ],
+      "image": null,
+      "n": 3
+    },
+    {
+      "id": "nvidia-acquires-hugging-face",
+      "category": "global",
+      "date": "2026-09-03",
+      "title": "Nvidia Buys Hugging Face for 12.9 Billion Dollars",
+      "subtitle": "The registry nearly every AI project pulls from now belongs to the chip maker",
+      "summary": "Nvidia agreed to acquire Hugging Face for 12.93 billion dollars, including up to 1 billion in equity retention for staff who join. It is Nvidia’s second largest purchase after the 20 billion dollar Groq asset deal. Nvidia says the platform stays open to the whole ecosystem and will keep supporting open-weight models.",
+      "whyItMatters": "More than 18 million developers and 200,000 companies use Hugging Face to find and ship models, so the default distribution layer for open AI now sits inside the company that sells the hardware.",
+      "whyForUs": "Every project in this room that starts with a model download now depends on a registry with a single commercial owner. Worth knowing before you plan around it.",
+      "sources": [
+        {
+          "name": "Bloomberg",
+          "url": "https://www.bloomberg.com/news/articles/2026-09-03/nvidia-agrees-to-13-billion-deal-for-ai-platform-hugging-face"
+        },
+        {
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/09/03/nvidia-agrees-to-buy-hugging-face-for-almost-13-billion-ai-expansion.html"
         }
       ],
       "image": null,
@@ -100,35 +104,17 @@
       "date": "2026-09-02",
       "title": "Google Ships Gemini 3.8 Flash to Accelerate Low-Latency Tasks",
       "subtitle": "Frequent Flash refreshes continue to squeeze cost and latency for API consumers",
-      "summary": "Google introduced Gemini 3.8 Flash, its third iterative release in the Flash family over a six-week span. The update prioritizes lower time-to-first-token and reduced API costs while retaining high accuracy on multimodal understanding and context management.",
+      "summary": "Google shipped Gemini 3.8 Flash on 2 September, its third Flash release in six weeks, built on 3.7 Flash rather than a new base model. It runs at 0.75 dollars per million input tokens and 3.75 per million output, and both figures double on 1 January 2027. Google says to stay on 3.7 Flash if you care more about efficiency than peak scores.",
       "whyItMatters": "Frontier providers are fiercely competing on the speed-cost frontier, lowering barriers for real-time agent loops and heavy data pipelines.",
       "whyForUs": "Benchmarking this release could help Copenhagen startups slash daily token expenses on high-frequency agent tool calls and summarization pipelines.",
       "sources": [
         {
-          "name": "Ars Technica",
-          "url": "https://arstechnica.com/ai/2026/09/google-releases-gemini-3-8-flash-its-third-flash-model-in-six-weeks/"
+          "name": "The Register",
+          "url": "https://www.theregister.com/ai-and-ml/2026/09/02/with-gemini-38-flash-google-reminds-everyone-its-still-in-the-race/5294049"
         }
       ],
       "image": null,
       "n": 6
-    },
-    {
-      "id": "mistral-raises-mega-round-european-sovereignty",
-      "category": "europe",
-      "date": "2026-09-11",
-      "title": "Mistral Secures Massive Capital Injection to Anchor European AI",
-      "subtitle": "Parisian lab scales compute capacity to compete directly with Silicon Valley",
-      "summary": "Paris-based Mistral closed a substantial new funding round, solidifying its position as Europe's primary challenger to US frontier labs. The capital will fund sovereign compute clusters and support larger open and enterprise-grade models adapted for European regulatory constraints.",
-      "whyItMatters": "Mistral remains the strongest independent European provider offering top-tier models that comply natively with EU data residency demands.",
-      "whyForUs": "Local teams targeting European public sector or privacy-focused enterprise customers get a viable, locally governed alternative to US hyperscalers.",
-      "sources": [
-        {
-          "name": "Sifted",
-          "url": "https://sifted.eu/articles/mistral-fundraise-podcast/"
-        }
-      ],
-      "image": null,
-      "n": 7
     },
     {
       "id": "greenly-acquires-normative-65m-nordic-expansion",
@@ -146,7 +132,7 @@
         }
       ],
       "image": null,
-      "n": 8
+      "n": 7
     },
     {
       "id": "nscale-adds-fidji-simo-board-european-compute",
@@ -164,7 +150,7 @@
         }
       ],
       "image": null,
-      "n": 9
+      "n": 8
     },
     {
       "id": "universal-music-elevenlabs-voice-licensing-platform",
@@ -179,6 +165,28 @@
         {
           "name": "The Verge",
           "url": "https://www.theverge.com/ai-artificial-intelligence/993465/universal-music-elevenlabs-ai"
+        }
+      ],
+      "image": null,
+      "n": 9
+    },
+    {
+      "id": "mistral-3bn-series-d",
+      "category": "europe",
+      "date": "2026-09-08",
+      "title": "Mistral Raises 3 Billion Euro, a European Record",
+      "subtitle": "Samsung leads, and the EU’s own Scaleup fund makes its first investment",
+      "summary": "Paris-based Mistral closed a 3 billion euro Series D led by Samsung Electronics, which put in around 1 billion, alongside PSG Equity and the EU-backed Scaleup Europe Fund making its first ever investment. The round values Mistral above 21 billion euro and is the largest equity raise by a privately owned European technology company. The money goes to compute capacity, infrastructure and international expansion.",
+      "whyItMatters": "Europe now has one frontier lab funded at a scale where sovereignty is an engineering plan rather than a slogan, and Brussels put public money directly behind it.",
+      "whyForUs": "If you build for European public sector or privacy-sensitive customers, the credible non-US option just got a lot better funded.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/"
+        },
+        {
+          "name": "Euronews",
+          "url": "https://www.euronews.com/business/2026/09/08/mistral-ai-raises-record-3-billion-in-samsung-led-funding-round"
         }
       ],
       "image": null,
