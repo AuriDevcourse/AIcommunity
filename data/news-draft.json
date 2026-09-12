@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-09-12T19:15:25.008Z",
   "curatedAt": "2026-09-12",
-  "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app. Three items were corrected by hand against primary sources on 2026-09-12: Mistral (figures and source), Nvidia/Hugging Face (added, displacing Meta Muse), Gemini 3.8 Flash (pricing).",
+  "note": "AUTO-GENERATED DRAFT for review. Copy good items into data/news.json by hand, then run `npm run fetch:news`. Not shown in the app. Three items were corrected by hand against primary sources on 2026-09-12: Mistral (figures and source),  Gemini 3.8 Flash (pricing). The Nvidia/Hugging Face item was removed again: it already ran in the Aug 15 to Aug 29 roundup.",
   "windowLabel": "",
   "items": [
     {
@@ -41,6 +41,24 @@
       "n": 2
     },
     {
+      "id": "meta-launches-muse-ai-agent-assistant",
+      "category": "global",
+      "date": "2026-09-10",
+      "title": "Meta Deploys Muse Autonomous Productivity Agent in the US",
+      "subtitle": "Meta enters proactive consumer agent workflows for shopping and inbox tasks",
+      "summary": "Meta introduced Muse, an autonomous AI assistant designed to handle task automation like scheduling, shopping execution, and personal correspondence. Early distribution pushed the client to the top of mobile app charts, though user feedback highlights both practical utility and aggressive data collection prompts.",
+      "whyItMatters": "Consumer platforms are rapidly shifting from passive chat interfaces to proactive execution agents that interact directly with web services.",
+      "whyForUs": "Observe how consumer-grade agents handle user permissions and authentication before designing your own product automations.",
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/10/metas-ai-agent-muse-is-now-the-no-2-app-in-the-us/"
+        }
+      ],
+      "image": null,
+      "n": 3
+    },
+    {
       "id": "ibm-granite-patchtst-time-series-foundation-model",
       "category": "global",
       "date": "2026-09-09",
@@ -53,28 +71,6 @@
         {
           "name": "Hugging Face",
           "url": "https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series"
-        }
-      ],
-      "image": null,
-      "n": 3
-    },
-    {
-      "id": "nvidia-acquires-hugging-face",
-      "category": "global",
-      "date": "2026-09-03",
-      "title": "Nvidia Buys Hugging Face for 12.9 Billion Dollars",
-      "subtitle": "The registry nearly every AI project pulls from now belongs to the chip maker",
-      "summary": "Nvidia agreed to acquire Hugging Face for 12.93 billion dollars, including up to 1 billion in equity retention for staff who join. It is Nvidia’s second largest purchase after the 20 billion dollar Groq asset deal. Nvidia says the platform stays open to the whole ecosystem and will keep supporting open-weight models.",
-      "whyItMatters": "More than 18 million developers and 200,000 companies use Hugging Face to find and ship models, so the default distribution layer for open AI now sits inside the company that sells the hardware.",
-      "whyForUs": "Every project in this room that starts with a model download now depends on a registry with a single commercial owner. Worth knowing before you plan around it.",
-      "sources": [
-        {
-          "name": "Bloomberg",
-          "url": "https://www.bloomberg.com/news/articles/2026-09-03/nvidia-agrees-to-13-billion-deal-for-ai-platform-hugging-face"
-        },
-        {
-          "name": "CNBC",
-          "url": "https://www.cnbc.com/2026/09/03/nvidia-agrees-to-buy-hugging-face-for-almost-13-billion-ai-expansion.html"
         }
       ],
       "image": null,

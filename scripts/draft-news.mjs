@@ -110,14 +110,36 @@ Return STRICT JSON only (no markdown fences), shape:
 }
 Rules: return exactly 12 items with at least 6 of each category. Write your OWN summaries (never copy article text). Use "europe" only when the story is genuinely European: a company headquartered in Europe, a launch or funding round or event that happened in Europe, or EU/Danish policy. The founders' nationality is not enough, and neither is a European office of an American company. If you cannot find six genuinely European stories in the candidates, return fewer and say so in the last item's whyForUs rather than filing a global story under "europe". Plain text, no emojis, never the em dash character.`;
 
-async function curate(candidates) {
+// The stories that already went out. URL and title-key catch the same article
+// arriving again; the titles go to the model so it can also spot the same story
+// under a different headline from a different outlet, which the keys cannot.
+const titleKey = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+function readPublished() {
+  try {
+    const j = JSON.parse(readFileSync(join(ROOT, 'data', 'news.json'), 'utf8'));
+    const items = Array.isArray(j.items) ? j.items : [];
+    return {
+      titles: items.map((i) => i.title).filter(Boolean),
+      keys: new Set(items.map((i) => titleKey(i.title))),
+      urls: new Set(items.flatMap((i) => (i.sources || []).map((s) => s.url)).filter(Boolean)),
+    };
+  } catch {
+    return { titles: [], keys: new Set(), urls: new Set() };
+  }
+}
+
+async function curate(candidates, alreadyPublished = []) {
   const list = candidates.map((c, i) => `${i + 1}. [${c.source}] ${c.title} (${c.date})\n   ${c.desc}\n   ${c.url}`).join('\n');
+  const exclude = alreadyPublished.length
+    ? `\n\nThese stories ran in the previous roundup. Do not pick any of them again, including the same story reported by a different outlet or under a different headline:\n${alreadyPublished.map((t) => `- ${t}`).join('\n')}`
+    : '';
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-goog-api-key': KEY },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: 'user', parts: [{ text: `Candidate articles:\n\n${list}` }] }],
+      contents: [{ role: 'user', parts: [{ text: `Candidate articles:\n\n${list}${exclude}` }] }],
       generationConfig: { temperature: 0.5, maxOutputTokens: 4000, responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
@@ -148,13 +170,25 @@ async function main() {
 
   // Dedupe by normalized title; cap the list sent to the model.
   const seen = new Set();
-  const candidates = all.filter((c) => {
+  let candidates = all.filter((c) => {
     const k = c.title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     if (seen.has(k)) return false; seen.add(k); return true;
-  }).slice(0, 60);
+  });
+
+  // Anything already published is out. A fortnightly roundup runs on a rolling
+  // window, so a story that broke near the end of the last window is still in
+  // this one's feeds, and running it twice is the most visible way to look like
+  // nobody read it. Nvidia buying Hugging Face made both windows and got caught
+  // by hand rather than here.
+  const published = readPublished();
+  const beforeDedupe = candidates.length;
+  candidates = candidates.filter((c) => !published.urls.has(c.url) && !published.keys.has(titleKey(c.title)));
+  const dropped = beforeDedupe - candidates.length;
+  if (dropped) console.log(`  dropped ${dropped} already in data/news.json`);
+  candidates = candidates.slice(0, 60);
 
   console.log(`draft-news: ${candidates.length} unique candidates → asking ${MODEL} to curate…`);
-  const picked = await curate(candidates);
+  const picked = await curate(candidates, published.titles);
 
   // Shape into the news.json item format, but keep it in the SEPARATE draft file.
   const shaped = picked.map((it, i) => ({
