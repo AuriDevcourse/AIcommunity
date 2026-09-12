@@ -19,6 +19,32 @@ const FOCUSABLE = [
 
 const visible = (el) => el.offsetParent !== null || getComputedStyle(el).position === 'fixed';
 
+/**
+ * Freezes the page behind a full-screen overlay for as long as it is mounted.
+ *
+ * Without it a wheel over an overlay that has nothing to scroll scrolls the
+ * document underneath, so closing the overlay drops the reader somewhere they
+ * never navigated to. Safe to apply bluntly here because `html` already carries
+ * `scrollbar-gutter: stable` (index.css), so removing the scrollbar cannot
+ * shift the layout by the usual 15px.
+ *
+ * Both elements, not just `body`: `html` is the scrolling element on this site,
+ * so locking `body` alone left the page still scrollable behind the overlay.
+ *
+ * Kept separate from useDialog because the inline dialogs elsewhere in the app
+ * have not been checked against it yet; adopt it there deliberately.
+ */
+export function useScrollLock() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const prevRoot = root.style.overflow;
+    const prevBody = document.body.style.overflow;
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => { root.style.overflow = prevRoot; document.body.style.overflow = prevBody; };
+  }, []);
+}
+
 export function useDialog(onClose) {
   const ref = useRef(null);
   // onClose is nearly always an inline arrow, so a new identity every render. Keep

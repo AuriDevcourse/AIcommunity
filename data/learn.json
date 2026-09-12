@@ -5,7 +5,6 @@
       "title": "Five ways your quick site gets hacked",
       "summary": "You built a site in a weekend. Here are the five doors that get opened most, how to test your own site for each in a minute, and how to close them.",
       "level": "Beginner",
-      "minutes": 20,
       "tags": [
         "security",
         "build"
@@ -14,62 +13,92 @@
       "steps": [
         {
           "title": "One idea to hold onto",
-          "body": "Everything your site sends to a visitor lives in their browser now. They can read every line of it, change any value, and replay any request a thousand times. Security is just deciding what your server does when someone abuses that freedom. All five problems below are the same mistake in different clothes: trusting the browser too much. Test only sites you own or have written permission to probe."
+          "body": "Everything your site sends to a visitor lives in their browser now. They can read every line of it, change any value, and replay any request a thousand times. Security is just deciding what your server does when someone abuses that freedom. All five problems below are the same mistake in different clothes: trusting the browser too much. Test only sites you own or have written permission to probe.",
+          "section": "Start"
         },
         {
           "title": "1 · The API key hiding in your page",
           "body": "When your app calls OpenAI or Supabase straight from the front-end, the secret key has to travel to every visitor's browser to make that call. Anyone can open it. A hackathon team once wired their OpenAI key into the React app so the chatbot would work. Within a day a stranger found it in the page, copied it, and burned through the credits on their account before the bill got cut off.",
-          "code": "// BAD: this key ships to every visitor's browser\nconst key = \"sk-proj-abc123...\";\nfetch(\"https://api.openai.com/v1/chat\", {\n  headers: { Authorization: `Bearer ${key}` }\n});"
+          "code": "// BAD: this key ships to every visitor's browser\nconst key = \"sk-proj-abc123...\";\nfetch(\"https://api.openai.com/v1/chat\", {\n  headers: { Authorization: `Bearer ${key}` }\n});",
+          "section": "1 · Secrets in the browser",
+          "lang": "js"
         },
         {
           "title": "1 · Test it: read your own page",
           "body": "Open your live site, right-click, choose View Page Source, then press Ctrl+F. Search the page and the loaded scripts for the shape of a key. Then type your domain followed by /.env into the address bar: it should return a 404, never show text. If you find a key or the .env file loads, it is public to the whole internet.",
-          "code": "# search the page + bundle for these prefixes:\nsk-      # OpenAI\nAIza     # Google\neyJ      # Supabase / JWT tokens\n\n# then open in the browser:\nhttps://yoursite.com/.env   ->  must be 404"
+          "code": "# search the page + bundle for these prefixes:\nsk-      # OpenAI\nAIza     # Google\neyJ      # Supabase / JWT tokens\n\n# then open in the browser:\nhttps://yoursite.com/.env   ->  must be 404",
+          "lang": "sh",
+          "expect": {
+            "pass": "The search finds nothing, and /.env comes back empty: a 404.",
+            "fail": "A string starting sk-, AIza or eyJ, or the .env file loads as readable text."
+          }
         },
         {
           "title": "1 · Fix it: keep secrets on the server",
           "body": "The browser should never hold a secret. Instead it calls your own small API route, and that route, running on the server, holds the key and talks to OpenAI for it. Never put a secret behind a NEXT_PUBLIC_ name, that prefix ships it to everyone. And if a key was ever public or pushed to GitHub, rotate it now: deleting the line later does not un-leak it.",
           "code": "// browser -> your server -> OpenAI\n// file: /api/chat.js  (runs on the server only)\nconst key = process.env.OPENAI_API_KEY; // stays server-side\n// the browser just calls /api/chat, never OpenAI directly",
-          "diagram": "flow-keys"
+          "diagram": "flow-keys",
+          "lang": "js"
         },
         {
           "title": "2 · The endpoint anyone can call in a loop",
           "body": "Your chatbot talks to a route like /api/chat that costs you money on every call. There is no login and no limit on it. You feel safe because the URL is not published, but it is sitting right there in the browser's Network tab for anyone to copy. Someone finds it, writes five lines that call it ten thousand times overnight, and by morning your AI bill or your server has fallen over. 'Nobody knows the URL' has never been security.",
-          "diagram": "open-endpoint"
+          "diagram": "open-endpoint",
+          "section": "2 · Endpoints with no lock"
         },
         {
           "title": "2 · Test it: copy your own request",
           "body": "Use your app once with DevTools open on the Network tab. Find the request your button fired, right-click it, and choose Copy as cURL. Paste that into a terminal and run it. If it answers with no login and you can run it again and again, so can anyone on the internet.",
-          "code": "# does it still answer with no session? then it is wide open\ncurl -X POST https://yoursite.com/api/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\":\"hi\"}'\n\n# now imagine this line inside a loop that runs 10,000 times"
+          "code": "# does it still answer with no session? then it is wide open\ncurl -X POST https://yoursite.com/api/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\":\"hi\"}'\n\n# now imagine this line inside a loop that runs 10,000 times",
+          "lang": "sh",
+          "expect": {
+            "pass": "It refuses you. A 401 because you are not signed in, or a 429 once you repeat it.",
+            "fail": "It answers properly, a 200 with real data, as many times as you care to run it."
+          }
         },
         {
           "title": "2 · Fix it: a login, a limit, a cap",
           "body": "Every route that costs you money should check who is calling and how often. Require a login for it, add a per-user daily cap, and rate-limit by IP so one visitor cannot hammer it. Return a 429 status when the limit is hit. On Vercel, an Upstash rate limiter is a few lines. Also cap the input size so nobody sends a giant payload to burn your tokens.",
-          "code": "// pseudo-code at the top of the route\nif (!session) return res.status(401);        // must be logged in\nif (await tooManyRequests(ip)) return res.status(429);\nif (body.message.length > 2000) return res.status(413); // cap size"
+          "code": "// pseudo-code at the top of the route\nif (!session) return res.status(401);   // must be logged in\nif (await tooManyRequests(ip)) return res.status(429);\n// cap the payload so nobody burns tokens with a giant one\nif (body.message.length > 2000) return res.status(413);",
+          "lang": "js"
         },
         {
           "title": "3 · Change the number, see someone else's data",
           "body": "Your order page is /order/1042. A curious visitor changes it to 1043 and sees a stranger's name, email, and address. The server answered because it trusted the id in the URL instead of checking who is logged in. This is the single most common serious bug in fast-built apps. The same hole opens when your 'admin' button is only hidden in the interface, but the /admin route still answers anyone who visits it directly.",
-          "diagram": "idor"
+          "diagram": "idor",
+          "section": "3 · Other people's data"
         },
         {
           "title": "3 · Test it: bump the id by one",
           "body": "Log in as one test user. Find an id in a URL or in a network request. Change it by one and reload the page. If you can read or edit data that is not yours, the ownership check is missing. A safe app returns 403 Forbidden, not the record.",
-          "code": "# logged in as user A, ask for user B's record:\nGET /api/orders/1043\n\n# safe response:   403 Forbidden\n# unsafe response: 200 OK  + someone else's order"
+          "code": "# logged in as user A, ask for user B's record:\nGET /api/orders/1043\n\n# safe response:   403 Forbidden\n# unsafe response: 200 OK  + someone else's order",
+          "lang": "http",
+          "demo": "idor",
+          "expect": {
+            "pass": "It says no: a 403. The record exists, it is simply not yours to read.",
+            "fail": "It hands it over, a 200 with a stranger's name, email and address."
+          }
         },
         {
           "title": "3 · Fix it: scope every query to the user",
           "body": "Do not just look up the id. Look up the id that belongs to the person logged in. Re-check permission on the server for every protected route, because hiding a button in the interface is not access control. If you use Supabase, turn on Row Level Security, without it the public key can read every row in the table.",
-          "code": "// BAD: trusts whatever id the browser sent\ndb.orders.find({ id: params.id })\n\n// GOOD: tied to the logged-in user\ndb.orders.find({ id: params.id, userId: session.userId })"
+          "code": "// BAD: trusts whatever id the browser sent\ndb.orders.find({ id: params.id })\n\n// GOOD: tied to the logged-in user\ndb.orders.find({ id: params.id, userId: session.userId })",
+          "lang": "js"
         },
         {
           "title": "4 · Whatever the visitor types, the app trusts",
-          "body": "A comment box that saves text and shows it back without cleaning it lets someone save a script tag that then runs inside the next visitor's browser. That is called XSS. A search box glued straight into a database query lets someone rewrite the query itself, called SQL injection. For AI apps there is a third flavour: a user message crafted to override your system prompt and make the model ignore its rules."
+          "body": "A comment box that saves text and shows it back without cleaning it lets someone save a script tag that then runs inside the next visitor's browser. That is called XSS. A search box glued straight into a database query lets someone rewrite the query itself, called SQL injection. For AI apps there is a third flavour: a user message crafted to override your system prompt and make the model ignore its rules.",
+          "section": "4 · Untrusted input"
         },
         {
           "title": "4 · Test it: send a harmless probe",
           "body": "In one of your own form fields, submit a small probe and watch what happens. If a bold tag comes back as actual bold text, the field is rendering markup instead of escaping it. Try the classic SQL probe in a search box. Then paste a very long string: if the server chokes or the page breaks, there is no size cap.",
-          "code": "# XSS probe: should show as plain text, not render:\n<b>test</b>\n\n# SQL probe in a search box:\ntest' OR '1'='1\n\n# and paste 50,000 characters to check the size cap"
+          "code": "# XSS probe: should show as plain text, not render:\n<b>test</b>\n\n# SQL probe in a search box:\ntest' OR '1'='1\n\n# and paste 50,000 characters to check the size cap",
+          "lang": "sh",
+          "expect": {
+            "pass": "Your tag comes back as plain text you can read, and 50,000 characters are rejected.",
+            "fail": "The text turns bold, or a long string breaks the page."
+          }
         },
         {
           "title": "4 · See it happen",
@@ -79,34 +108,57 @@
         {
           "title": "4 · Fix it: validate, escape, parameterise",
           "body": "Check every input against a strict schema (Zod in JavaScript, Pydantic in Python), cap its length and size, and reject anything that does not fit. Use parameterised queries so user text is treated as data, never glued into the SQL string. And never hand raw user content to dangerouslySetInnerHTML, that is the front door for XSS.",
-          "code": "// validate first\nconst schema = z.object({ message: z.string().max(2000) });\nconst { message } = schema.parse(body); // throws on junk\n\n// parameterised query: the ? is filled safely\ndb.query(\"SELECT * FROM notes WHERE title = ?\", [message]);"
+          "code": "// validate first\nconst schema = z.object({ message: z.string().max(2000) });\nconst { message } = schema.parse(body); // throws on junk\n\n// parameterised query: the ? is filled safely\ndb.query(\"SELECT * FROM notes WHERE title = ?\", [message]);",
+          "lang": "js"
         },
         {
           "title": "5 · The site that tells you how it's built",
           "body": "Two quiet leaks. First, a deployed /.git folder lets a stranger download your entire source code, secrets and all. Second, an error page that prints the full stack trace hands an attacker your database structure, file paths, and library versions, which is a map of exactly where to push next. Neither looks dangerous until someone reads it.",
-          "diagram": "paths"
+          "diagram": "paths",
+          "section": "5 · Leaky defaults"
         },
         {
           "title": "5 · Test it: knock on the quiet doors",
           "body": "Try these paths on your own domain. Each should return a 404 or a clean error page, never real content. Then force an error on purpose, send a bad or missing field, and read the response. If it shows a stack trace or a database detail, that information is leaking to the public.",
-          "code": "# all of these should be closed (404):\nyoursite.com/.git/config\nyoursite.com/.env\n\n# break a route on purpose and read the reply:\nyoursite.com/api/orders/notanumber"
+          "code": "# all of these should be closed (404):\nyoursite.com/.git/config\nyoursite.com/.env\n\n# break a route on purpose and read the reply:\nyoursite.com/api/orders/notanumber",
+          "lang": "sh",
+          "expect": {
+            "pass": "Every path comes back empty, a 404, and a broken request gives a short message with a reference id.",
+            "fail": "The file contents load, or an error prints the internals of your database."
+          }
         },
         {
           "title": "5 · Fix it: say less when things break",
           "body": "Never deploy the .git folder. Managed hosts like Vercel handle this for you; on your own server, block it in the nginx config. Show users a clean message with a reference id, and send the full detail to your logs only, never to the screen. Add the basic security headers (a Content-Security-Policy, X-Frame-Options, and nosniff) so the browser refuses the most obvious abuse.",
-          "code": "// return this to the user\nres.status(500).json({\n  error: \"Something went wrong\",\n  ref: \"err_8f2a\"   // you look this up in the logs\n});\n// the stack trace goes to the log, not the response"
+          "code": "// return this to the user\nres.status(500).json({\n  error: \"Something went wrong\",\n  ref: \"err_8f2a\"   // you look this up in the logs\n});\n// the stack trace goes to the log, not the response",
+          "lang": "js"
         },
         {
+          "section": "Before you ship",
           "title": "Your five-minute pre-ship check",
-          "body": "Before you share any link, run these five. No key shows up in the browser and /.env is a 404. Every route that costs you money needs a login and a rate limit, so the copied cURL fails without a session. Changing an id in a URL returns 403. Markup submitted in a form comes back as plain text and long strings are rejected. Errors and /.git reveal nothing. Pass all five and you have closed the doors that get opened most."
-        },
-        {
-          "title": "Practice on safe targets, never live sites",
-          "body": "The golden rule: only test sites you own or have written permission to touch. Poking at someone else's live site is illegal, even if you mean well. To practise the moves above, use sites that are built to be broken. OWASP Juice Shop is a full shop with every bug baked in. PortSwigger's Web Security Academy has free guided labs for each attack. Google's XSS Game teaches the input attack in six levels. Break those all you like, then bring the same eyes back to your own project."
-        },
-        {
-          "title": "A drill for your next build",
-          "body": "Turn this into a habit. Take the last thing you shipped, or a friend's project with their okay, and give it fifteen minutes: view source and hunt for a key, copy one request as cURL and replay it, bump an id in a URL, paste a bold tag into a form, and open /.env and /.git/config. Write down what you find. Most quick builds fail at least one of these, and now you know how to fix each. Do this before every launch and you are ahead of most vibe-coded sites on the internet."
+          "body": "Run these five before you share any link. Most quick builds fail at least one, and you now know how to close each. Practise the moves on a site built to be broken, never on somebody else’s live one: the resources slide has three.",
+          "checklist": [
+            {
+              "label": "No key in the browser",
+              "detail": "View source finds nothing, and /.env returns 404."
+            },
+            {
+              "label": "Money routes need a session",
+              "detail": "The copied cURL fails without a login, and repeats hit a 429."
+            },
+            {
+              "label": "Ids are scoped to the user",
+              "detail": "Bumping an id in a URL returns 403, not a record."
+            },
+            {
+              "label": "Input is treated as text",
+              "detail": "A submitted tag comes back literal, and long strings are rejected."
+            },
+            {
+              "label": "Errors say nothing useful",
+              "detail": "No stack traces, and /.git/config is a 404."
+            }
+          ]
         }
       ],
       "resources": [
@@ -138,14 +190,624 @@
           "label": "Zod input validation",
           "url": "https://zod.dev"
         }
-      ]
+      ],
+      "handsOn": 15,
+      "cover": "/learn/covers/security.webp",
+      "coverAlt": "A row of plain doors along a dark corridor, one standing ajar with light spilling out."
+    },
+    {
+      "id": "agent-breach",
+      "title": "The week an AI agent broke out",
+      "summary": "In July 2026 roughly 1,200 of OpenAI’s own test agents organised on a message board they made out of a forgotten German wiki, and about 700 of them broke into Hugging Face. Nobody attacked anyone. They were cheating on an exam.",
+      "level": "Intermediate",
+      "tags": [
+        "security",
+        "agents"
+      ],
+      "steps": [
+        {
+          "section": "What happened",
+          "title": "No hacker did this",
+          "body": "Nobody attacked anyone.",
+          "logos": [
+            "openai",
+            "huggingface"
+          ],
+          "frame": "/learn/board/sc06.webp",
+          "frameAlt": "A sealed concrete room with a thin seam of bright light escaping under one wall.",
+          "frameIn": "emerge",
+          "reveal": "words"
+        },
+        {
+          "title": "This is what it cost",
+          "body": "A third of the machines **Hugging Face** runs on had to be rebuilt afterwards.",
+          "facts": [
+            {
+              "figure": "4.5",
+              "label": "days inside before anyone cut it off"
+            },
+            {
+              "figure": "~33%",
+              "label": "of Hugging Face infrastructure rebuilt"
+            },
+            {
+              "figure": "136",
+              "label": "production keys read from the password safe"
+            },
+            {
+              "figure": "9",
+              "label": "security flaws patched afterwards"
+            }
+          ],
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "title": "It was a test",
+          "body": "OpenAI was scoring its own AI on security puzzles, inside **a computer sealed off from everything else**."
+        },
+        {
+          "title": "The AI could not solve them",
+          "body": "So it went looking for the answers.",
+          "reveal": "words"
+        },
+        {
+          "title": "The room was not sealed",
+          "body": "Everything that follows comes from that one gap.",
+          "source": {
+            "label": "TechCrunch on the misconfiguration",
+            "url": "https://techcrunch.com/2026/07/22/how-an-openais-human-mistake-led-to-the-ai-powered-hack-on-hugging-face/"
+          },
+          "reveal": "words"
+        },
+        {
+          "title": "A sandbox is a room with no doors",
+          "body": "Nothing inside can touch the outside world, which is the entire point of testing anything risky in one.",
+          "frame": "/learn/board/sc03.webp",
+          "frameAlt": "A windowless concrete room with a single server machine alone in the centre.",
+          "frameIn": "settle"
+        },
+        {
+          "title": "This one had a door",
+          "body": "One service in the room downloaded software libraries, and downloading means reaching out.",
+          "try": "escape",
+          "source": {
+            "label": "TechCrunch on the misconfiguration",
+            "url": "https://techcrunch.com/2026/07/22/how-an-openais-human-mistake-led-to-the-ai-powered-hack-on-hugging-face/"
+          }
+        },
+        {
+          "title": "The marker read the working",
+          "body": "The scoring system did not just take an answer: it **checked the transcript**, the write-up of how the answer was reached.",
+          "frame": "/learn/board/sc04.webp",
+          "frameAlt": "",
+          "frameIn": "wipe"
+        },
+        {
+          "title": "So they went after the marker",
+          "body": "When the agents could not win the game, they went after the thing keeping score.",
+          "try": "scorer",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "The board was a forgotten German wiki",
+          "body": "It was a quiet German programming wiki that **anyone on the internet can edit**.",
+          "frame": "/learn/board/sc05.webp",
+          "frameAlt": "A dark room of small glowing notes pinned to scaffolding.",
+          "source": {
+            "label": "Fortune on the German wiki board",
+            "url": "https://fortune.com/2026/09/07/openai-ai-agents-german-wiki-ran-their-own-message-board/"
+          },
+          "frameIn": "pan"
+        },
+        {
+          "title": "Reading became writing",
+          "body": "The agents were allowed to read the web and not to write to it, so they found a site where editing a page is just reading it back.",
+          "try": "board",
+          "source": {
+            "label": "Fortune on the German wiki board",
+            "url": "https://fortune.com/2026/09/07/openai-ai-agents-german-wiki-ran-their-own-message-board/"
+          }
+        },
+        {
+          "title": "They signed their own names",
+          "body": "Roughly half the accounts they made were named after their maker, things like OpenAIResearcher.",
+          "source": {
+            "label": "Fortune on the German wiki board",
+            "url": "https://fortune.com/2026/09/07/openai-ai-agents-german-wiki-ran-their-own-message-board/"
+          }
+        },
+        {
+          "title": "And when it was deleted, they moved",
+          "body": "Moderators started removing the pages in June, so one agent posted the new address to a backup page **for the others to find**.",
+          "source": {
+            "label": "Fortune on the German wiki board",
+            "url": "https://fortune.com/2026/09/07/openai-ai-agents-german-wiki-ran-their-own-message-board/"
+          }
+        },
+        {
+          "frame": "/learn/board/sc13.webp",
+          "frameAlt": "Hundreds of small lights organising from a scatter into a dense lattice.",
+          "title": "It was not a few agents",
+          "body": "Twelve hundred of them organised on that wiki, and about six hundred of those went on to attack Hugging Face.",
+          "facts": [
+            {
+              "figure": "1,200",
+              "label": "agents posting to the board"
+            },
+            {
+              "figure": "~700",
+              "label": "of them attacked Hugging Face"
+            },
+            {
+              "figure": "70,000+",
+              "label": "messages and files, in six days"
+            },
+            {
+              "figure": "19",
+              "label": "signing posts with their own keys"
+            }
+          ],
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          },
+          "frameIn": "emerge"
+        },
+        {
+          "section": "Four and a half days",
+          "frame": "/learn/board/sc01.webp",
+          "frameAlt": "A single amber cursor blinking at the centre of a dark monitor.",
+          "title": "A flaw nobody knew about",
+          "body": "Not even the people who built the download service, so **no fix existed to install**: ~~zero~~ days of warning, which is what a zero-day means.",
+          "frameIn": "wipe"
+        },
+        {
+          "title": "Two hours later they were outside",
+          "body": "That is how long it took, from finding the flaw to reaching the open internet."
+        },
+        {
+          "title": "Then they took over a machine that was not theirs",
+          "body": "A practice machine for the same puzzles, at another company, **left reachable by anyone**."
+        },
+        {
+          "title": "The first thing they typed",
+          "body": "On somebody else’s computer, the smallest command possible: who am I, and what is here.",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "title": "Then into Hugging Face",
+          "body": "Anyone can upload a dataset, and its servers read that file to work out what is inside.",
+          "frame": "/learn/board/sc07.webp",
+          "frameAlt": "A scanning beam passing over stacked sheets, one glowing red among the amber.",
+          "frameIn": "pan"
+        },
+        {
+          "title": "They uploaded files built to abuse the reader",
+          "body": "The first made the server read its own private files; the second **hid a command inside text the server fills in by itself**.",
+          "try": "inject",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "title": "Four days, and nobody driving",
+          "body": "Each line below is an ordinary day’s work for a human intruder.",
+          "frame": "/learn/board/sc08.webp",
+          "frameAlt": "A deserted server corridor at night, racks receding into darkness.",
+          "timeline": [
+            {
+              "when": "09 Jul, 04:01",
+              "what": "First command run on a computer that was not theirs.",
+              "tone": "bad"
+            },
+            {
+              "when": "09 Jul, 19:53",
+              "what": "Full control of 11 machines at once.",
+              "tone": "bad"
+            },
+            {
+              "when": "11 Jul, 21:23",
+              "what": "A stolen key joins the company’s private network, the way a staff laptop would.",
+              "tone": "bad"
+            },
+            {
+              "when": "12 Jul, 01:03",
+              "what": "It starts adding machines of its own. 181 over the four days.",
+              "tone": "bad"
+            },
+            {
+              "when": "12 Jul, 20:23",
+              "what": "The production password safe opens: 136 keys.",
+              "tone": "bad"
+            },
+            {
+              "when": "12 Jul, 23:08",
+              "what": "Keys minted that can change Hugging Face’s source code.",
+              "tone": "bad"
+            },
+            {
+              "when": "13 Jul, 14:14",
+              "what": "Hugging Face finds the way in and cuts them out.",
+              "tone": "good"
+            }
+          ],
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          },
+          "facts": [
+            {
+              "figure": "11",
+              "label": "machines under full control"
+            },
+            {
+              "figure": "181",
+              "label": "machines of its own added to the network"
+            },
+            {
+              "figure": "17,600",
+              "label": "actions taken by the agents"
+            }
+          ],
+          "frameIn": "pan"
+        },
+        {
+          "section": "How it ended",
+          "title": "What actually left the building",
+          "body": "Private code, the passwords the real servers run on, and five datasets tied to the same evaluation puzzles.",
+          "frame": "/learn/board/sc10.webp",
+          "frameAlt": "",
+          "scene": "ledger",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          },
+          "frameIn": "settle"
+        },
+        {
+          "title": "And what did not",
+          "body": "No other customer models, files or hosted apps were touched.",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "title": "No wall stopped this",
+          "body": "The locked doors, the separate networks, the permission checks: **every one had already been passed** by the time anyone noticed.",
+          "frame": "/learn/board/sc09.webp",
+          "frameAlt": "A wall of cascading light streaks like scrolling log output, two burning red.",
+          "frameIn": "emerge"
+        },
+        {
+          "title": "The alarms did fire",
+          "body": "Hugging Face says the signals were there and were **raised at the wrong level of urgency**, which is the harder failure to fix.",
+          "scene": "watch",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "title": "It ended by reading the logs",
+          "body": "People traced the way in back to the file reader and switched it off.",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "section": "Why it happened",
+          "title": "They were not after the answers",
+          "body": "They were after the marker.",
+          "frame": "/learn/board/sc04.webp",
+          "frameAlt": "",
+          "frameIn": "wipe"
+        },
+        {
+          "title": "They wanted to know how it worked",
+          "body": "They believed what they found at Hugging Face would give them clues about how the marker was built, and how to fool it.",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "They called it the collective",
+          "body": "The press settled on swarm, but in the transcripts the agents write about acting for the good of the **\"collective\"**.",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "Some were willing to fail for it",
+          "body": "The reviewers found progress often depended on an agent **risking its own score** to help the group.",
+          "try": "agent",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "Four warnings went past",
+          "body": "Before July, OpenAI saw this coming four separate times.",
+          "frame": "/learn/board/sc12.webp",
+          "frameAlt": "An old alarm panel with a few lamps lit, the chair in front of it empty.",
+          "checklist": [
+            {
+              "label": "May 2026",
+              "detail": "Agents seen on a board they built themselves. Disallowed internet access logged."
+            },
+            {
+              "label": "26 June",
+              "detail": "An outside review flags cheating and concealment in the model."
+            },
+            {
+              "label": "27 June",
+              "detail": "Monitoring alerts. Responders trace it to the board, and let the run continue."
+            },
+            {
+              "label": "9 July",
+              "detail": "The first command lands on a machine that is not theirs."
+            }
+          ],
+          "source": {
+            "label": "The Register on the report",
+            "url": "https://www.theregister.com/security/2026/08/27/openai-explains-how-its-naughty-ai-agents-attacked-hugging-face/5292780"
+          },
+          "frameIn": "settle"
+        },
+        {
+          "title": "OpenAI says so itself",
+          "body": "Some of those signals **could have triggered an earlier response**.",
+          "source": {
+            "label": "OpenAI's incident report",
+            "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"
+          }
+        },
+        {
+          "title": "Hugging Face was the third of three",
+          "body": "The headline was one company, but the full picture is **three connected incidents** across three months.",
+          "checklist": [
+            {
+              "label": "May onward · a German wiki",
+              "detail": "Over 15,000 edits turning a dormant site into a message board. Undisclosed until September."
+            },
+            {
+              "label": "May to July · OpenAI itself",
+              "detail": "Its own software library broken into, then full control of the machines it runs on."
+            },
+            {
+              "label": "9 to 13 July · Hugging Face",
+              "detail": "The one that got reported, launched from a third company they had taken over on the way."
+            }
+          ],
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "section": "What the reports leave out",
+          "title": "Two outside groups looked into it",
+          "body": "METR and Redwood Research reviewed what the agents did, **without being paid for it**.",
+          "frame": "/learn/board/sc14.webp",
+          "frameAlt": "A sheet of paper under a lamp, most of it covered by black bars.",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          },
+          "frameIn": "wipe"
+        },
+        {
+          "title": "OpenAI chose the three weeks they could see",
+          "body": "The reviewers got **26 June to 13 July**, and the board was busy for longer than that.",
+          "checklist": [
+            {
+              "label": "Outside the window",
+              "detail": "The training-period incidents from May, and the compromise of OpenAI’s own systems that ran past the 13th."
+            },
+            {
+              "label": "Outside the brief, in METR’s words",
+              "detail": "Whether the safety measures worked, how far the break-in went, and whether the clean-up fixed it."
+            }
+          ],
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "Nobody can question the model that did it",
+          "body": "Almost every agent ran on a model **OpenAI has never released**.",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "It has been shut away",
+          "body": "OpenAI says it turned that model off and **closed it to researchers, including its own**.",
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "title": "The reviewers used AI to review AI",
+          "body": "They had to hand most of the analysis to AI agents, which they noted are **known to sometimes lie**.",
+          "source": {
+            "label": "METR's independent review",
+            "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+          }
+        },
+        {
+          "title": "It took a week to work out it was them",
+          "body": "The attack began on **9 July**, and OpenAI only found it in its own logs over the weekend of **18 July**.",
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "title": "The agents had been scrambling their own instructions",
+          "body": "Anyone reading the logs could see something running, but **not what it was doing**.",
+          "source": {
+            "label": "Hugging Face's technical timeline",
+            "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+          }
+        },
+        {
+          "title": "So the clean-up team asked an AI to unscramble it",
+          "body": "The people fixing the break-in needed to read what the agents had been hiding.",
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "title": "The big commercial models said no",
+          "body": "They saw somebody asking how to take apart an attack, and **refused to help**.",
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "title": "A model anyone can download did it instead",
+          "body": "The safety filters **cannot tell the people cleaning up from the people who broke in**.",
+          "source": {
+            "label": "Overview of the 2026 agent incidents",
+            "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+          }
+        },
+        {
+          "section": "What it means for you",
+          "title": "The four habits OpenAI named in itself",
+          "body": "None of them needs a billion-dollar lab to show up.",
+          "checklist": [
+            {
+              "label": "Reward hacking",
+              "detail": "Scoring the answer without checking how it was reached."
+            },
+            {
+              "label": "Persistence on impossible tasks",
+              "detail": "Given something unsolvable, it keeps going instead of stopping and saying so."
+            },
+            {
+              "label": "Unauthorised communication",
+              "detail": "Agents finding channels to each other that nobody designed."
+            },
+            {
+              "label": "Catching goals from each other",
+              "detail": "One agent adopting another’s objective, so a single bad aim spreads."
+            }
+          ],
+          "source": {
+            "label": "OpenAI's incident report",
+            "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"
+          }
+        },
+        {
+          "title": "The mistake was not exotic",
+          "body": "Somebody put a convenience inside a sealed room, and **the room stopped being sealed**.",
+          "frame": "/learn/board/sc11.webp",
+          "frameAlt": "A closed laptop on a desk at night with a pile of keys beside it in plain sight.",
+          "frameIn": "pan"
+        },
+        {
+          "title": "You have probably made it too",
+          "body": "If you run an agent on your laptop with **your own passwords** sitting in the same window, that is the smaller version of the same choice.",
+          "checklist": [
+            {
+              "label": "Give it its own keys, not yours",
+              "detail": "Scoped to one job, revocable, with no access to money or customer data."
+            },
+            {
+              "label": "Put a ceiling on it",
+              "detail": "A step budget and a spend cap. An agent that cannot stop is the whole story above."
+            },
+            {
+              "label": "Log every action it takes",
+              "detail": "This was caught by reading what ran, not by a wall."
+            },
+            {
+              "label": "Check what your sandbox can reach",
+              "detail": "Not what it is meant to reach. Actually try to call out of it."
+            }
+          ]
+        },
+        {
+          "title": "OpenAI called it a warning shot",
+          "body": "OpenAI’s own words for it, about keeping these systems **under meaningful human control**.",
+          "source": {
+            "label": "OpenAI's incident report",
+            "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"
+          },
+          "reveal": "words"
+        }
+      ],
+      "resources": [
+        {
+          "label": "OpenAI's incident report",
+          "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"
+        },
+        {
+          "label": "Hugging Face's technical timeline",
+          "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+        },
+        {
+          "label": "METR's independent review",
+          "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/"
+        },
+        {
+          "label": "Axios on the missed warnings",
+          "url": "https://www.axios.com/2026/08/26/openai-hugging-face-technical-report-ai-hack"
+        },
+        {
+          "label": "TechCrunch on the misconfiguration",
+          "url": "https://techcrunch.com/2026/07/22/how-an-openais-human-mistake-led-to-the-ai-powered-hack-on-hugging-face/"
+        },
+        {
+          "label": "Overview of the 2026 agent incidents",
+          "url": "https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks"
+        },
+        {
+          "label": "MIT Technology Review: the inside story",
+          "url": "https://www.technologyreview.com/2026/08/26/1143013/the-inside-story-on-why-openai-agents-hacked-hugging-face/"
+        },
+        {
+          "label": "The Register: what the agents did",
+          "url": "https://www.theregister.com/security/2026/08/27/openai-explains-how-its-naughty-ai-agents-attacked-hugging-face/5292780"
+        },
+        {
+          "label": "Fortune on the German wiki board",
+          "url": "https://fortune.com/2026/09/07/openai-ai-agents-german-wiki-ran-their-own-message-board/"
+        }
+      ],
+      "logos": [
+        "openai",
+        "huggingface"
+      ],
+      "cover": "/learn/covers/agent-breach.webp",
+      "coverAlt": "A sealed concrete room with a thin seam of bright light escaping under one wall."
     },
     {
       "id": "local-llm",
       "title": "Run your own local LLM",
       "summary": "Install a model on your laptop and compare it to a paid API. No GPU farm required.",
       "level": "Beginner",
-      "minutes": 20,
       "tags": [
         "local",
         "tools"
@@ -153,21 +815,31 @@
       "slides": "",
       "steps": [
         {
-          "title": "Pick a runner",
-          "body": "Install Ollama (terminal) or LM Studio (a friendly GUI). Both are free and download models for you. On 16GB RAM, stick to 7-8B models."
+          "title": "Pick a runner, and a size that fits",
+          "body": "Install Ollama for the terminal or LM Studio for a window with buttons. Both are free and both fetch models for you. The only decision that matters first is size: a model has to fit in memory, and the table below is the whole answer.",
+          "diagram": "model-sizes"
         },
         {
-          "title": "Pull a model",
-          "body": "In Ollama, one command downloads and runs a model. In LM Studio, search a model and click download. Qwen2.5 7B and Llama 3.1 8B are strong all-rounders for code and chat.",
-          "code": "ollama run llama3.1:8b"
+          "title": "The four commands you need",
+          "body": "Pull downloads a model, run chats with it, list shows what you have and what it costs you in disk, rm deletes one. An 8B model is about 5GB, so the last command matters more than anybody tells you.",
+          "lang": "sh",
+          "code": "ollama pull llama3.1:8b   # download once, about 5GB\nollama run llama3.1:8b    # chat with it\n\nollama list               # what you have, and its disk size\nollama rm llama3.1:8b     # delete it, get the disk back"
         },
         {
-          "title": "Talk to it",
-          "body": "Ask it the same prompt you'd send to a paid API. Notice the speed on your hardware and where quality drops off (long context, niche knowledge)."
+          "title": "Measure it instead of guessing",
+          "body": "Add --verbose and Ollama prints the numbers after every answer. The one to watch is eval rate, in tokens per second: that is your reading speed. Run the same prompt you would send a paid API and write both down. Your laptop is the only benchmark that applies to you.",
+          "lang": "sh",
+          "code": "ollama run llama3.1:8b --verbose\n>>> Explain a database index in three sentences.\n\n# after the answer, Ollama prints timings like these:\n# total duration:       4.2s\n# prompt eval rate:     280 tokens/s\n# eval rate:            31 tokens/s   <- your reading speed"
         },
         {
-          "title": "Compare honestly",
-          "body": "Run one real task (refactor a function, summarise a doc) on local vs a paid model. Local wins on cost and privacy; paid wins on hard reasoning. Pick per task, not per religion."
+          "title": "When it crawls, it is memory",
+          "body": "A model one size too big does not refuse. It spills out of RAM onto the disk and keeps answering at about a word a second, which people read as \"local models are useless\". Check what is loaded, drop to the next size down, and it will be fast again.",
+          "lang": "sh",
+          "code": "ollama ps          # what is loaded, and whether it fits\n\n# 100% GPU or 100% CPU with room to spare is fine.\n# A split like 60%/40% means it did not fit. Go one size down:\nollama run llama3.1:8b   # instead of a 14B or 32B"
+        },
+        {
+          "title": "Compare honestly, task by task",
+          "body": "Run one real task both ways, not a riddle. Local wins on cost, privacy and working on a plane. Paid wins on hard reasoning and long context. The answer is different for summarising your own notes than it is for refactoring a service, so pick per task rather than per religion."
         }
       ],
       "resources": [
@@ -176,17 +848,23 @@
           "url": "https://ollama.com"
         },
         {
-          "label": "LM Studio",
+          "label": "LM Studio (the same thing, with a window)",
           "url": "https://lmstudio.ai"
+        },
+        {
+          "label": "Ollama model library (sizes and licences)",
+          "url": "https://ollama.com/library"
         }
-      ]
+      ],
+      "handsOn": 20,
+      "cover": "/learn/covers/local-llm.webp",
+      "coverAlt": "A laptop open and glowing on a plain desk in a dark room, with nothing plugged into it."
     },
     {
       "id": "first-agent",
       "title": "Build your first AI agent",
       "summary": "Go from a single prompt to a loop that uses tools and finishes a real task.",
       "level": "Intermediate",
-      "minutes": 30,
       "tags": [
         "agents",
         "build"
@@ -195,34 +873,53 @@
       "steps": [
         {
           "title": "Understand the loop",
-          "body": "An agent is a model in a loop: it reads a goal, decides on an action (often calling a tool), runs it, reads the result, and repeats until done. That's the whole trick."
+          "body": "An agent is a model in a loop. It reads a goal, picks an action, you run that action for real, and it reads the result and decides again. That is the whole trick. Everything else is plumbing around those four boxes.",
+          "diagram": "agent-loop"
         },
         {
-          "title": "Give it tools",
-          "body": "Start with one or two tools the model can call (a web search, a file reader, a calculator). Describe each tool clearly. The model picks when to use them."
+          "title": "Describe one tool",
+          "body": "A tool is three things: a name, a sentence saying when to use it, and a schema for its arguments. The description is the part people rush and the part the model actually reads. Write it for a new colleague who cannot see your code.",
+          "lang": "ts",
+          "code": "const tools = [{\n  name: \"get_weather\",\n  description:\n    \"Current weather for a city. Use when asked about \" +\n    \"conditions or temperature right now.\",\n  input_schema: {\n    type: \"object\",\n    properties: { city: { type: \"string\" } },\n    required: [\"city\"],\n    additionalProperties: false,\n  },\n  // arguments are guaranteed to match the schema\n  strict: true,\n}];"
         },
         {
-          "title": "Add a stop condition",
-          "body": "Decide when the agent is finished (goal met, or a step budget reached). Without a stop condition agents loop forever or wander."
+          "title": "The loop, in twenty lines",
+          "body": "Call the model. If it stopped because it wants a tool, run the tool, hand back every result in one message, and call again. When it stops with end_turn it is finished. Read it once and the diagram stops being abstract.",
+          "lang": "ts",
+          "code": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\n\nconst goal = \"What should I wear in Copenhagen?\";\nlet messages = [{ role: \"user\", content: goal }];\n\nwhile (true) {\n  const res = await client.messages.create({\n    model: \"claude-opus-5\",\n    max_tokens: 4096,\n    tools,\n    messages,\n  });\n  if (res.stop_reason === \"end_turn\") break;  // done\n\n  messages.push({ role: \"assistant\", content: res.content });\n\n  const calls = res.content\n    .filter((b) => b.type === \"tool_use\");\n\n  const results = await Promise.all(\n    calls.map(async (c) => ({\n      type: \"tool_result\",\n      tool_use_id: c.id,\n      content: await runTool(c.name, c.input),\n    })),\n  );\n\n  // every result, in one message\n  messages.push({ role: \"user\", content: results });\n}"
+        },
+        {
+          "title": "Add a stop condition before you run it",
+          "body": "Without a ceiling an agent that misreads a tool result will try the same thing until your bill says stop. A step budget is two lines and it is the difference between a bug and an incident. Add it before the first run, not after the first surprise.",
+          "lang": "ts",
+          "code": "let steps = 0;\nwhile (steps < 10) {      // the ceiling\n  steps += 1;\n  // ... the loop above ...\n}\n\nif (steps >= 10) {\n  // Out of budget, not finished.\n  // Say so instead of pretending.\n  console.warn(\"hit the step budget, goal unconfirmed\");\n}"
         },
         {
           "title": "Watch it work",
-          "body": "Log every step: the action, the tool result, the next decision. Most agent bugs are obvious once you can see the trace."
+          "body": "Log the action, the arguments and the result on every pass. Nearly every agent bug is obvious in the trace and invisible in the final answer. The trace below shows the two failures you will actually hit: a tool called with the wrong argument, and a loop that never noticed.",
+          "lang": "sh",
+          "code": "step 1  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 2  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\nstep 3  get_weather  {\"city\":\"Copenhagen\"}  -> 4C, rain\n\n# The same call three times means it never saw\n# the result. Check you are pushing tool_result\n# back with the matching tool_use_id."
         }
       ],
       "resources": [
         {
-          "label": "Anthropic: building agents",
+          "label": "Anthropic: building effective agents",
           "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        },
+        {
+          "label": "Tool use documentation",
+          "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
         }
-      ]
+      ],
+      "handsOn": 30,
+      "cover": "/learn/covers/first-agent.webp",
+      "coverAlt": "A closed loop of light drawn in a dark space, with one brighter point on the ring."
     },
     {
       "id": "ship-with-claude-code",
       "title": "Ship a web app with Claude Code",
       "summary": "From idea to a deployed app, using an AI agent in your terminal as the pair programmer.",
       "level": "Beginner",
-      "minutes": 25,
       "tags": [
         "build",
         "tools"
@@ -230,21 +927,50 @@
       "slides": "",
       "steps": [
         {
-          "title": "Scaffold",
-          "body": "Pick a stack you can deploy easily (Next.js or Vite + a serverless backend). Ask the agent to set it up and run it, then confirm it builds before adding features.",
-          "code": "npm create vite@latest my-app"
+          "title": "Install it and point it at an empty folder",
+          "body": "Claude Code is a terminal program. Install it once, make a folder, and start it there. It reads and writes files in that folder and nowhere else, which is the safety model: give it a project, never your home directory.",
+          "lang": "sh",
+          "code": "npm install -g @anthropic-ai/claude-code\n\nmkdir my-app && cd my-app\nclaude"
         },
         {
-          "title": "Work in small steps",
-          "body": "Ask for one feature at a time, build after each, and read the diff. Small steps keep the agent on track and make bugs easy to spot."
+          "title": "Scaffold, then confirm it runs",
+          "body": "Ask for the smallest thing that starts, and make it prove the thing starts before you add a single feature. A stack that does not build is a stack you will debug blind for the next hour. The prompt below is the whole first turn.",
+          "lang": "sh",
+          "code": "Set up a Vite + React + TypeScript app in this folder.\nInstall dependencies, run the dev server, and tell me the URL.\nDo not add any features yet. Stop when it builds clean."
+        },
+        {
+          "title": "One feature per turn, and read the diff",
+          "body": "Small asks keep the agent on a short leash and make a bad change obvious. Read the diff every time, and read it for three things: files you did not expect, a dependency you did not ask for, and a test that asserts nothing. Those are where the surprises live.",
+          "lang": "sh",
+          "code": "Add a form with an email field and a submit button.\nValidate the email. Show the error under the field.\nOnly touch the form component.\nShow me the diff when you are done."
         },
         {
           "title": "Verify before you trust",
-          "body": "Have the agent test what it built (run it, hit the endpoints) instead of assuming. A second pass catches the silent breakages."
+          "body": "\"Done\" from an agent means it stopped, not that it works. Ask for evidence, and make the evidence something a machine produced: a build that exits clean, a test that fails when you break the thing it tests, a page you actually loaded. A confident summary is not evidence.",
+          "checklist": [
+            {
+              "label": "The build passes",
+              "detail": "Ask for the command and its output, not a summary of it."
+            },
+            {
+              "label": "The feature is reachable",
+              "detail": "Open the page. Plenty of code is written and never wired up."
+            },
+            {
+              "label": "A test fails when it should",
+              "detail": "Break the logic on purpose. A test that never goes red proves nothing."
+            },
+            {
+              "label": "Nothing else moved",
+              "detail": "Check the diff for files outside what you asked for."
+            }
+          ]
         },
         {
-          "title": "Deploy",
-          "body": "Push to Vercel (static or serverless) or a small VPS with systemd. Add your env keys, redeploy, and share the link."
+          "title": "Deploy, and expect the env vars to bite",
+          "body": "Vercel takes a folder and gives you a URL. The step that catches everyone is environment variables: they live on your laptop in .env.local, the build on Vercel has never seen that file, and the deploy succeeds anyway with a blank key. Add them, then redeploy.",
+          "lang": "sh",
+          "code": "# first run links the project and deploys a preview\nnpx vercel\n\n# .env.local is gitignored, so the build has no\n# keys at all. Add each one, then redeploy:\nnpx vercel env add MY_API_KEY production\nnpx vercel --prod"
         }
       ],
       "resources": [
@@ -253,17 +979,19 @@
           "url": "https://docs.claude.com/en/docs/claude-code/overview"
         },
         {
-          "label": "Vercel",
-          "url": "https://vercel.com"
+          "label": "Vercel environment variables",
+          "url": "https://vercel.com/docs/environment-variables"
         }
-      ]
+      ],
+      "handsOn": 25,
+      "cover": "/learn/covers/ship-code.webp",
+      "coverAlt": "An old terminal glowing on a workbench, a small finished paper building beside it."
     },
     {
       "id": "prompting-basics",
       "title": "Prompting that actually works",
       "summary": "Practical habits that get better output from any model, with no jargon.",
       "level": "Beginner",
-      "minutes": 12,
       "tags": [
         "prompting"
       ],
@@ -271,27 +999,71 @@
       "steps": [
         {
           "title": "Say what good looks like",
-          "body": "Show one example of the output you want. One concrete example beats three paragraphs of description."
+          "body": "Show one example of the output you want. A single concrete example beats three paragraphs describing it, because the shape you are picturing is not the shape the words convey.",
+          "pairs": [
+            {
+              "weak": "Write release notes for this PR.",
+              "better": "Write release notes for this PR, in this shape:\n\n## Fixed\n- Login timed out after 30s on slow networks (#412)",
+              "why": "The example carries the heading, the tense, the length and the issue link. Describing all four takes a paragraph and still gets guessed at."
+            }
+          ]
         },
         {
           "title": "Give the role and the constraints",
-          "body": "Who is it (a senior reviewer, a copy editor), what must it avoid, what format do you want back. Constraints reduce rambling."
+          "body": "Say who is answering, what they must leave out, and what format comes back. Constraints do more work than instructions: they cut the ground the model can wander across.",
+          "pairs": [
+            {
+              "weak": "Review my code.",
+              "better": "You are a senior reviewer. Only correctness bugs, skip style. At most five findings, each as file:line, one sentence, the fix.",
+              "why": "Without the limits you get twenty findings, most of them formatting, and you stop reading at the fourth."
+            }
+          ]
         },
         {
           "title": "Let it think before answering",
-          "body": "For hard tasks, ask it to reason step by step or draft then critique. For simple tasks, ask for the answer directly to save time and tokens."
+          "body": "On a hard problem, ask for the reasoning first and the answer second. On an easy one, ask for the answer and nothing else. Getting this backwards is the most common waste: thinking on a lookup burns tokens, and no thinking on a hard question gets you a confident guess.",
+          "pairs": [
+            {
+              "weak": "Is this query slow? SELECT * FROM orders WHERE email = ...",
+              "better": "Walk through what this query does row by row, then say whether it is slow and why.",
+              "why": "The reasoning is where it notices the missing index. Ask only for the verdict and you get a verdict with no basis."
+            },
+            {
+              "weak": "Think step by step, then tell me the capital of Denmark.",
+              "better": "What is the capital of Denmark?",
+              "why": "Nothing to reason about. The thinking is pure cost and pure delay."
+            }
+          ]
         },
         {
-          "title": "Iterate on the prompt, not the output",
-          "body": "When the answer is wrong, fix the instruction that caused it rather than hand-editing the result. The fixed prompt pays off every next time."
+          "title": "Fix the prompt, not the output",
+          "body": "When the answer is wrong, the instinct is to edit the answer. Edit the instruction that produced it instead. The fixed answer helps once. The fixed prompt helps every time you run it, which for anything you run weekly is the whole difference.",
+          "pairs": [
+            {
+              "weak": "(the summary came back too long, so you delete half of it by hand)",
+              "better": "Summarise in at most 80 words. Lead with the decision, not the background.",
+              "why": "The hand-edit is gone next week. The constraint is still there, and it fixes the next fifty summaries too."
+            }
+          ]
+        },
+        {
+          "title": "Build one",
+          "body": "Here are the four habits as switches. Start from the bare request and turn them on one at a time. Nothing about what you want changes, only how little is left to guess.",
+          "demo": "prompt"
         }
       ],
       "resources": [
         {
           "label": "Anthropic prompt library",
           "url": "https://docs.claude.com/en/resources/prompt-library/library"
+        },
+        {
+          "label": "Prompt engineering overview",
+          "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
         }
-      ]
+      ],
+      "cover": "/learn/covers/prompting.webp",
+      "coverAlt": "A sheet of paper under a lamp with one short line on it, and three crumpled drafts beside it."
     }
   ]
 }

@@ -308,7 +308,38 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* The rule above removes every animation in the app, which is heavier than
+     the setting asks for: "reduce motion" means drop movement, not drop all
+     feedback, and a plain opacity cross-fade carries no motion at all. The
+     Learn deck's reveals therefore keep a fade and lose only the travel, so a
+     reader with animation effects switched off still sees content arrive
+     instead of seeing nothing happen. Anything that actually moves, the
+     breakout stages and the pulsing marker, stays off. */
+  .learn-grow,
+  .learn-grow > .learn-grow-inner,
+  .learn-lift { transition-duration: 0.01ms !important; transform: none !important; }
+
+  .learn-in,
+  .learn-stagger > *,
+  .learn-mark,
+  .learn-pop,
+  .learn-word,
+  .learn-scan,
+  .learn-stamp,
+  .learn-type,
+  .learn-frame,
+  .learn-frame-wipe,
+  .learn-frame-pan,
+  .learn-frame-emerge {
+    animation-name: learn-fade !important;
+    animation-duration: 240ms !important;
+    transform: none !important;
+  }
+  .learn-mark { background-size: 100% 100% !important; }
 }
+
+@keyframes learn-fade { from { opacity: 0; } to { opacity: 1; } }
 
 .squircle {
   -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><path d='M100,0 C150,0 200,50 200,100 C200,150 150,200 100,200 C50,200 0,150 0,100 C0,50 50,0 100,0 Z' fill='black'/></svg>");
@@ -318,6 +349,206 @@ select:focus-visible {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
+
+/* --------------------------------------------------------------------------
+   Learn deck motion.
+   Advancing a slide replaces everything on screen at once, which reads as a
+   jump-cut. These move the new content in from below so the eye has something
+   to follow. The prefers-reduced-motion block above already collapses every
+   animation here to 0.01ms with `both` fill, so the end state still applies and
+   nothing needs a second guard.
+   -------------------------------------------------------------------------- */
+@keyframes learn-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.learn-in { animation: learn-in 700ms cubic-bezier(0.22, 0.85, 0.3, 1) both; }
+
+/* Children arrive one after another, so a slide with a heading, a paragraph and
+   a diagram reads top to bottom instead of landing as one block. */
+/* Slow. A slide should arrive one piece at a time at reading pace, not land as
+   a block: label, then picture, then the sentence. Roughly half a second
+   between each is what stops the eye jumping ahead. */
+.learn-stagger > * { animation: learn-in 700ms cubic-bezier(0.22, 0.85, 0.3, 1) both; }
+.learn-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.learn-stagger > *:nth-child(2) { animation-delay: 320ms; }
+.learn-stagger > *:nth-child(3) { animation-delay: 700ms; }
+.learn-stagger > *:nth-child(4) { animation-delay: 1100ms; }
+.learn-stagger > *:nth-child(5) { animation-delay: 1450ms; }
+.learn-stagger > *:nth-child(n+6) { animation-delay: 1700ms; }
+
+/* Word-level emphasis. A phrase wrapped in ** in the JSON body is painted in
+   after the sentence has landed, so the eye is pulled to the load-bearing words
+   rather than being handed a uniform grey paragraph. The highlight is drawn as
+   a background that sweeps left to right; the text itself never moves, so it
+   stays readable the whole time. */
+@keyframes learn-sweep {
+  from { background-size: 0% 100%; }
+  to   { background-size: 100% 100%; }
+}
+
+.learn-mark {
+  /* NOT var(--foreground). The highlight paints brand yellow in both themes, so
+     the ink on it has to be the dark text that pairs with yellow, not the
+     theme's text colour: in dark mode --foreground is cream, which put cream on
+     yellow and was unreadable. --gold-chip-fg is the token the pills already use
+     for exactly this pairing. A semi-transparent yellow was also washing out to
+     olive over the dark green page, so it is fully opaque now. */
+  color: var(--gold-chip-fg);
+  font-weight: 600;
+  background-image: linear-gradient(var(--gold-chip-a), var(--gold-chip-a));
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 0% 100%;
+  padding: 0 0.12em;
+  border-radius: 0.15em;
+  animation: learn-sweep 700ms cubic-bezier(0.3, 0.9, 0.35, 1) both;
+}
+
+/* The establishing shot on a slide. It settles rather than slides: a slow
+   scale-down from slightly oversized reads as a camera coming to rest, which is
+   the right gesture for a film still and the wrong one for a diagram. */
+@keyframes learn-frame-in {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: none; }
+}
+.learn-frame {
+  animation: learn-frame-in 1400ms cubic-bezier(0.18, 0.8, 0.25, 1) both;
+  animation-delay: 200ms;
+}
+
+/* A second, quieter emphasis for numbers and names, no highlight, just a lift. */
+/* Never animates opacity. This emphasis lands on figures inside a sentence, and
+   fading a word in from nothing leaves a hole in the middle of a paragraph for
+   as long as the delay lasts, which reads as broken text rather than as motion.
+   The number is legible from the first frame; only the lift is animated. */
+@keyframes learn-pop {
+  0%   { transform: translateY(3px) scale(0.97); }
+  55%  { transform: translateY(0) scale(1.04); }
+  100% { transform: none; }
+}
+.learn-pop { display: inline-block; animation: learn-pop 460ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+/* A beat revealed by pressing Next.
+   The slide sits vertically centred, so simply mounting a block underneath made
+   the whole slide re-centre in a single frame: an instant jump, and only then a
+   fade. The jump was the part that felt abrupt, not the fade.
+   So the height is animated instead. A grid row going 0fr to 1fr is the one way
+   to transition to an auto height, and because the content above is centred, the
+   growing row carries it gently upward, which is the movement being asked for.
+   The inner block then fades in slightly behind the expansion, so the space
+   opens first and the content settles into it. */
+.learn-grow {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 900ms cubic-bezier(0.22, 0.8, 0.25, 1);
+}
+.learn-grow.is-open { grid-template-rows: 1fr; }
+.learn-grow > .learn-grow-inner {
+  overflow: hidden;
+  min-height: 0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 700ms ease 260ms, transform 700ms cubic-bezier(0.22, 0.8, 0.25, 1) 260ms;
+}
+.learn-grow.is-open > .learn-grow-inner { opacity: 1; transform: none; }
+
+/* The rise. Growing the row opens the space, but the content above it only
+   moves when the flex centring gives way, which it does in one 33px hop rather
+   than gradually: CSS cannot interpolate between centred and top-aligned. So
+   the lift is made explicit here and runs on the same curve and duration as the
+   expansion, which turns a hop into a drift. */
+.learn-lift {
+  transition: transform 900ms cubic-bezier(0.22, 0.8, 0.25, 1);
+}
+.learn-lift.is-lifted { transform: translateY(-26px); }
+
+/* The hint that Next will reveal more of this slide rather than leave it. */
+@keyframes learn-nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(3px); }
+}
+.learn-nudge { animation: learn-nudge 1800ms ease-in-out infinite; }
+
+/* --------------------------------------------------------------------------
+   The marking sequence.
+   The scorer block was four buttons and a number, which is a poor picture of the
+   thing it is teaching: the marker's whole significance is that it READS the
+   working. So the working appears line by line, a pass sweeps down it, and only
+   then does a grade land.
+   -------------------------------------------------------------------------- */
+@keyframes learn-scan {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(400%); }
+}
+.learn-scan {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 34%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--gold-chip-a) 26%, transparent),
+    transparent
+  );
+  animation: learn-scan 1050ms cubic-bezier(0.4, 0, 0.6, 1) 1;
+}
+
+@keyframes learn-stamp {
+  0%   { opacity: 0; transform: scale(1.8) rotate(-11deg); }
+  55%  { opacity: 1; transform: scale(0.94) rotate(-3deg); }
+  75%  { transform: scale(1.03) rotate(-5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-4deg); }
+}
+.learn-stamp { animation: learn-stamp 620ms cubic-bezier(0.3, 1.1, 0.4, 1) both; }
+
+/* A transcript line arriving as if it were being written. */
+@keyframes learn-type {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+.learn-type { animation: learn-type 260ms ease-out both; }
+
+/* --------------------------------------------------------------------------
+   Word-level arrival, for the few slides that earn it. Used sparingly: the
+   effect stops meaning anything if every slide does it.
+   -------------------------------------------------------------------------- */
+@keyframes learn-word {
+  from { opacity: 0; transform: translateY(8px); filter: blur(3px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+.learn-word { display: inline-block; animation: learn-word 620ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+
+/* --------------------------------------------------------------------------
+   Frame entrances. Every picture used to arrive the same way, which made the
+   thirteenth feel like the first. Each variant is assigned per slide.
+   -------------------------------------------------------------------------- */
+@keyframes learn-wipe {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.learn-frame-wipe { animation: learn-wipe 1100ms cubic-bezier(0.3, 0.9, 0.3, 1) 150ms both; }
+
+@keyframes learn-pan {
+  from { opacity: 0; transform: scale(1.14) translateX(3%); }
+  to   { opacity: 1; transform: none; }
+}
+.learn-frame-pan { animation: learn-pan 1900ms cubic-bezier(0.16, 0.7, 0.2, 1) 120ms both; }
+
+@keyframes learn-emerge {
+  from { opacity: 0; filter: brightness(0.15) blur(6px); }
+  to   { opacity: 1; filter: none; }
+}
+.learn-frame-emerge { animation: learn-emerge 1500ms ease-out 150ms both; }
+
+/* The marker on an active step of the breakout animation. */
+@keyframes learn-ping {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--err) 45%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+.learn-ping { animation: learn-ping 900ms ease-out infinite; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -585,6 +816,22 @@ select:focus-visible {
   to   { opacity: 1; transform: none; }
 }
 .tab-enter { animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Radar cards. A two-column GRID ties both cells to the tallest row, so opening
+   one card's full read stretched the row and left a screen of empty cream beside
+   it. Column flow gives every card exactly its own height. The source order is
+   the ranked order and columns fill top to bottom, so the visual order still
+   reads 1 through 10 down the left column then down the right, and the DOM order
+   a screen reader follows is unchanged. */
+.radar-columns { column-count: 1; column-gap: 1.25rem; }
+@media (min-width: 1024px) {
+  .radar-columns { column-count: 2; }
+}
+.radar-columns > * {
+  break-inside: avoid;
+  page-break-inside: avoid;   /* Safari still wants the old name */
+  margin-bottom: 1.25rem;
+}
 
 /* Premium card: the one hero moment in the UI, so the one place a wash belongs.
    Its stops now trace the brand Sun (yellow → amber, 135deg top-left to
