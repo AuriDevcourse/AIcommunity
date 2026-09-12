@@ -990,76 +990,280 @@
     {
       "id": "prompting-basics",
       "title": "Prompting that actually works",
-      "summary": "Practical habits that get better output from any model, with no jargon.",
+      "summary": "Why output comes back wrong, and the habits that fix it. No jargon, and nothing that was true only in 2023.",
       "level": "Beginner",
       "tags": [
         "prompting"
       ],
-      "slides": "",
       "steps": [
         {
-          "title": "Say what good looks like",
-          "body": "Show one example of the output you want. A single concrete example beats three paragraphs describing it, because the shape you are picturing is not the shape the words convey.",
+          "section": "Why it comes back wrong",
+          "title": "Most bad answers start with a bad ask",
+          "body": "You swap the model, reword it, run it again, and **the instruction is the one thing nobody fixes**."
+        },
+        {
+          "title": "It cannot see what you can see",
+          "body": "Your screen, your repo, last week’s conversation and the deadline are **not in the message you sent**.",
+          "diagram": "prompt-context"
+        },
+        {
+          "title": "And it will not ask you",
+          "body": "A colleague would stop and check; the model **fills the gap and keeps going**."
+        },
+        {
+          "title": "So it guesses",
+          "body": "Every detail you leave out turns into a guess, and **you never find out which ones it took**.",
+          "try": "guesses"
+        },
+        {
+          "title": "The golden rule",
+          "body": "Anthropic’s own test is to hand the prompt to a colleague with no context, because **if they would be confused, the model is too**.",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "A new hire, not a mind reader",
+          "body": "The docs say to treat it as **a brilliant new employee** who has never seen how your team works.",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "section": "Show what good looks like",
+          "title": "An example carries what a paragraph cannot",
+          "body": "One sample output pins **the heading, the tense, the length and the link** at once.",
           "pairs": [
             {
               "weak": "Write release notes for this PR.",
               "better": "Write release notes for this PR, in this shape:\n\n## Fixed\n- Login timed out after 30s on slow networks (#412)",
-              "why": "The example carries the heading, the tense, the length and the issue link. Describing all four takes a paragraph and still gets guessed at."
+              "why": "Describing those four things takes a paragraph, and the shape still gets guessed at."
             }
           ]
         },
         {
-          "title": "Give the role and the constraints",
-          "body": "Say who is answering, what they must leave out, and what format comes back. Constraints do more work than instructions: they cut the ground the model can wander across.",
+          "title": "Three to five, not one",
+          "body": "Anthropic recommends **~~3 to 5~~ examples** for the best results, which is more than most people bother with.",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "Vary them on purpose",
+          "body": "If every example is a happy path, **the edge case comes back looking like a happy path**.",
+          "checklist": [
+            {
+              "label": "Relevant",
+              "detail": "Mirror the real task, not a tidied-up version of it."
+            },
+            {
+              "label": "Diverse",
+              "detail": "Cover the edge cases, and vary them enough that no accidental pattern gets copied."
+            },
+            {
+              "label": "Structured",
+              "detail": "Wrap each one in <example> tags so it is read as a sample, not as another instruction."
+            }
+          ],
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "Tag them so they are not read as orders",
+          "body": "Without a wrapper, your sample output is **just more text telling it what to do**.",
+          "code": "<instructions>\nWrite release notes for the diff below.\n</instructions>\n\n<example>\n## Fixed\n- Login timed out after 30s on slow networks (#412)\n</example>\n\n<diff>\n...\n</diff>",
+          "lang": "text",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "section": "Constraints do the work",
+          "title": "A constraint beats an instruction",
+          "body": "An instruction adds one more thing to do; a constraint **takes away the ground it can wander across**."
+        },
+        {
+          "title": "Say who is answering, and what they skip",
+          "body": "Without the limits you get twenty findings, most of them formatting, and **you stop reading at the fourth**.",
           "pairs": [
             {
               "weak": "Review my code.",
               "better": "You are a senior reviewer. Only correctness bugs, skip style. At most five findings, each as file:line, one sentence, the fix.",
-              "why": "Without the limits you get twenty findings, most of them formatting, and you stop reading at the fourth."
+              "why": "Role, scope, count and format. Four limits, and none of them describes the task itself."
             }
           ]
         },
         {
-          "title": "Let it think before answering",
-          "body": "On a hard problem, ask for the reasoning first and the answer second. On an easy one, ask for the answer and nothing else. Getting this backwards is the most common waste: thinking on a lookup burns tokens, and no thinking on a hard question gets you a confident guess.",
+          "title": "Ask for the behaviour, not the ban",
+          "body": "A rule with nothing to aim at leaves it **guessing what to do instead**.",
           "pairs": [
             {
-              "weak": "Is this query slow? SELECT * FROM orders WHERE email = ...",
-              "better": "Walk through what this query does row by row, then say whether it is slow and why.",
-              "why": "The reasoning is where it notices the missing index. Ask only for the verdict and you get a verdict with no basis."
+              "weak": "Do not use markdown in your response.",
+              "better": "Write your response as smoothly flowing prose paragraphs.",
+              "why": "Straight from the docs: tell it what to do, not what to avoid."
+            }
+          ],
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "One clause of why is worth ten rules",
+          "body": "Give the reason and it **generalises to the twenty cases you never listed**.",
+          "pairs": [
+            {
+              "weak": "Never use ellipses.",
+              "better": "This gets read aloud by a speech engine, so never use ellipses: it cannot pronounce them.",
+              "why": "The second one also fixes the em-dash, the emoji and the ASCII table you forgot to ban."
+            }
+          ],
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "How you write is part of the ask",
+          "body": "Markdown in your prompt **pulls markdown into the answer**, so your own formatting is a request you did not mean to make.",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "The four worth setting every time",
+          "body": "Set these and most of the guessing stops before it starts.",
+          "checklist": [
+            {
+              "label": "Role",
+              "detail": "Who is answering, and what they are good at."
             },
             {
-              "weak": "Think step by step, then tell me the capital of Denmark.",
-              "better": "What is the capital of Denmark?",
-              "why": "Nothing to reason about. The thinking is pure cost and pure delay."
+              "label": "Scope",
+              "detail": "What to leave out. Usually shorter than describing what to include."
+            },
+            {
+              "label": "Format",
+              "detail": "The shape that comes back, ideally as an example rather than a description."
+            },
+            {
+              "label": "Limit",
+              "detail": "A number: five findings, eighty words, three options."
             }
           ]
         },
         {
-          "title": "Fix the prompt, not the output",
-          "body": "When the answer is wrong, the instinct is to edit the answer. Edit the instruction that produced it instead. The fixed answer helps once. The fixed prompt helps every time you run it, which for anything you run weekly is the whole difference.",
+          "section": "Thinking has changed",
+          "title": "Forget think step by step",
+          "body": "That line was written for models that **would not reason unless you told them to**."
+        },
+        {
+          "title": "It decides for itself now",
+          "body": "Claude’s thinking is adaptive: more of it on a hard question, and **an easy one gets answered straight away**.",
+          "diagram": "thinking-depth",
+          "source": {
+            "label": "Anthropic · adaptive thinking",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+          }
+        },
+        {
+          "title": "So you steer the amount, not the switch",
+          "body": "The job moved from asking for reasoning to **telling it when to stop exploring**.",
+          "code": "When you are deciding how to approach a problem, choose an\napproach and commit to it. Avoid revisiting decisions unless you\nencounter new information that contradicts your reasoning.",
+          "lang": "text",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "title": "Long input goes first, your question last",
+          "body": "Putting the documents above the question tested **up to ~~30%~~ better** on multi-document work.",
+          "source": {
+            "label": "Anthropic · prompting best practices",
+            "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+          }
+        },
+        {
+          "section": "Fix the prompt, not the output",
+          "title": "The instinct is to fix the answer",
+          "body": "You cut the summary in half by hand, and **the same summary comes back next week**."
+        },
+        {
+          "title": "Fix the instruction that produced it",
+          "body": "The hand-edit helps once; the constraint **helps the next fifty times you run it**.",
           "pairs": [
             {
               "weak": "(the summary came back too long, so you delete half of it by hand)",
               "better": "Summarise in at most 80 words. Lead with the decision, not the background.",
-              "why": "The hand-edit is gone next week. The constraint is still there, and it fixes the next fifty summaries too."
+              "why": "Next week the hand-edit is gone. The limit is still sitting in the prompt."
             }
           ]
         },
         {
-          "title": "Build one",
-          "body": "Here are the four habits as switches. Start from the bare request and turn them on one at a time. Nothing about what you want changes, only how little is left to guess.",
+          "title": "Anything you run twice is a tool",
+          "body": "A prompt you have used more than once belongs **in a file, not in your chat history**."
+        },
+        {
+          "title": "Try it on five real inputs",
+          "body": "A prompt that works on **the example you wrote it for** is not finished, it is untested."
+        },
+        {
+          "section": "Build one",
+          "title": "Four habits, one request",
+          "body": "Start from the bare ask and switch each habit on, watching how little is left to guess.",
           "demo": "prompt"
+        },
+        {
+          "title": "The whole deck, as a list",
+          "body": "None of this needs a better model, a longer prompt or a paid plan.",
+          "checklist": [
+            {
+              "label": "Show one",
+              "detail": "An example of the output beats a description of it. Three to five if the task varies."
+            },
+            {
+              "label": "Fence it in",
+              "detail": "Role, scope, format, limit. Ask for the behaviour, not the ban."
+            },
+            {
+              "label": "Say why",
+              "detail": "One clause of motivation covers the cases you did not think to list."
+            },
+            {
+              "label": "Long stuff first",
+              "detail": "Documents at the top, your question at the bottom."
+            },
+            {
+              "label": "Edit the prompt",
+              "detail": "Fixing the answer helps once. Fixing the ask helps every run after it."
+            },
+            {
+              "label": "Test it properly",
+              "detail": "Five real inputs, not the one you wrote it against."
+            }
+          ]
+        },
+        {
+          "title": "The model is rarely the variable",
+          "body": "Writing the ask as if the reader had just walked in **fixes more than switching models ever does**."
         }
       ],
       "resources": [
         {
-          "label": "Anthropic prompt library",
-          "url": "https://docs.claude.com/en/resources/prompt-library/library"
+          "label": "Anthropic · prompting best practices",
+          "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
         },
         {
-          "label": "Prompt engineering overview",
-          "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+          "label": "Anthropic · adaptive thinking",
+          "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
         }
       ],
       "cover": "/learn/covers/prompting.webp",

@@ -30,6 +30,7 @@
     "news:check": "node scripts/news-check.mjs",
     "learn:check": "node scripts/learn-check.mjs",
     "interact:check": "node scripts/learn-interact-check.mjs",
+    "read:check": "node scripts/read-check.mjs",
     "csp:check": "node scripts/csp-check.mjs",
     "audit": "node scripts/audit.mjs"
   },

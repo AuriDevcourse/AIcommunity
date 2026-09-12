@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { GraduationCap, Clock, ChevronLeft, ChevronRight, X, ExternalLink, Presentation, Play, Copy, Check, ArrowRight, KeyRound, Server, Globe, Unlock, ShieldCheck, User, FileX, AlertTriangle, List, CheckCircle2, RotateCcw, Layers, Wrench, Circle, FileCode, ThumbsUp, ThumbsDown, Bot, Hammer, Flag, MemoryStick, Gauge, Terminal, Repeat, FileSearch, BookOpen, Package, Eye, ChevronDown } from 'lucide-react';
+import { GraduationCap, Clock, ChevronLeft, ChevronRight, X, ExternalLink, Presentation, Play, Copy, Check, ArrowRight, KeyRound, Server, Globe, Unlock, ShieldCheck, User, FileX, AlertTriangle, List, CheckCircle2, RotateCcw, Layers, Wrench, Circle, FileCode, ThumbsUp, ThumbsDown, Bot, Hammer, Flag, MemoryStick, Gauge, Terminal, Repeat, FileSearch, BookOpen, Package, Eye, ChevronDown, Monitor, MessageSquare, Brain, Zap, Dices, FolderGit2, CalendarClock } from 'lucide-react';
 import learn from '../../data/learn.json';
 import { useDialog, useScrollLock } from '../lib/useDialog.js';
 import { readProgress, saveProgress } from '../lib/learnProgress.js';
@@ -945,6 +945,7 @@ function Scene({ kind }) {
    -------------------------------------------------------------------------- */
 
 function TryIt({ kind }) {
+  if (kind === 'guesses') return <TryGuesses />;
   if (kind === 'escape') return <TryEscape />;
   if (kind === 'scorer') return <TryScorer />;
   if (kind === 'board') return <TryBoard />;
@@ -980,6 +981,112 @@ function TryShell({ title, lede, children, result, onReset }) {
 const tryBtn = (on) => `tap-target rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
   on ? 'bg-foreground text-background border-foreground' : 'bg-background text-foreground border-border hover:bg-accent'
 }`;
+
+/**
+ * The gaps in a four-word request, opened one at a time.
+ *
+ * "It lacks context" is a sentence people nod at and do not act on. Pressing
+ * four blanks and watching each one turn into three equally reasonable readings
+ * is the same claim, except it arrives as a count: eighty-one versions of the
+ * thing you asked for, and you wanted one of them.
+ *
+ * Every pick is authored, not random. A random choice here would re-roll on
+ * each render, and the reader would think the demo was broken rather than that
+ * the ambiguity was the point.
+ */
+const GAPS = [
+  {
+    key: 'format',
+    label: 'Format',
+    question: 'What shape comes back?',
+    readings: ['A bulleted changelog', 'Two paragraphs of prose', 'A markdown table'],
+    picked: 1,
+  },
+  {
+    key: 'length',
+    label: 'Length',
+    question: 'How long is it?',
+    readings: ['Three lines', 'Half a page', 'Everything in the diff'],
+    picked: 2,
+  },
+  {
+    key: 'audience',
+    label: 'Audience',
+    question: 'Who reads it?',
+    readings: ['Your team', 'Customers', 'A recruiter looking at the repo'],
+    picked: 0,
+  },
+  {
+    key: 'tone',
+    label: 'Tone',
+    question: 'How does it sound?',
+    readings: ['Flat and factual', 'Upbeat launch copy', 'Formal release language'],
+    picked: 1,
+  },
+];
+
+function TryGuesses() {
+  const [open, setOpen] = useState(() => new Set());
+  const all = open.size === GAPS.length;
+
+  return (
+    <TryShell
+      title="Four words, four blanks"
+      lede="This is the whole request. Press each blank to see what had to be decided for you."
+      onReset={open.size ? () => setOpen(new Set()) : null}
+      result={all
+        ? 'Four blanks, three readings each. That is 81 versions of the thing you asked for, and one of them is the one you wanted.'
+        : open.size === 0
+          ? 'Nothing here is a trick question. Every reading below is a reasonable way to read the same sentence.'
+          : `${open.size} of 4 opened. None of these choices was reported back to you.`}
+    >
+      <pre className="rounded-lg border border-border bg-background p-3 text-xs num">Write release notes for this PR.</pre>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {GAPS.map((g) => (
+          <button
+            key={g.key}
+            onClick={() => setOpen((prev) => {
+              const next = new Set(prev);
+              if (next.has(g.key)) next.delete(g.key); else next.add(g.key);
+              return next;
+            })}
+            aria-expanded={open.has(g.key)}
+            className={tryBtn(open.has(g.key))}
+          >
+            {open.has(g.key) ? <Check size={12} strokeWidth={2.5} className="inline-block -mt-0.5 mr-1" aria-hidden="true" /> : null}
+            {g.label}
+          </button>
+        ))}
+      </div>
+
+      {open.size > 0 && (
+        <div className="mt-3 space-y-2">
+          {GAPS.filter((g) => open.has(g.key)).map((g) => (
+            <div key={g.key} className="rounded-lg border border-border bg-background p-3">
+              <div className="flex items-center gap-1.5 text-xs font-medium">
+                <Dices size={13} strokeWidth={2} className="text-muted flex-shrink-0" aria-hidden="true" />
+                {g.question}
+              </div>
+              <ul className="mt-2 space-y-1">
+                {g.readings.map((r, n) => (
+                  <li key={r} className={`flex items-center gap-2 text-xs ${n === g.picked ? 'text-foreground font-medium' : 'text-muted'}`}>
+                    <span
+                      aria-hidden="true"
+                      className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${n === g.picked ? 'bg-ok' : 'bg-border'}`}
+                    />
+                    <span>{r}</span>
+                    {n === g.picked && <span className="ml-auto text-[10px] text-muted">what it went with</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </TryShell>
+  );
+}
 
 /** Four plausible ways out of a sealed room. One of them is not sealed. */
 function TryEscape() {
@@ -1888,6 +1995,70 @@ function StepDiagram({ kind }) {
         <p className="mt-4 text-xs text-muted text-center">
           The room was sealed except for one service that fetched software packages, and that service could reach the internet.
         </p>
+      </div>
+    );
+  }
+
+  // The gap between what you know and what you sent. Two columns, because the
+  // whole point is that the left one is invisible to the thing on the right,
+  // and a list of four things you forgot to mention makes that concrete faster
+  // than the sentence "it lacks context" ever has.
+  if (kind === 'prompt-context') {
+    const yours = [
+      { icon: Monitor, label: 'The screen you are looking at' },
+      { icon: FolderGit2, label: 'The rest of the repo' },
+      { icon: MessageSquare, label: 'What you decided last week' },
+      { icon: CalendarClock, label: 'That it ships on Friday' },
+    ];
+    return (
+      <div className={wrap}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <div className="h-section">What you have</div>
+            <ul className="mt-2 space-y-1.5">
+              {yours.map((y) => (
+                <li key={y.label} className="flex items-center gap-2 text-xs text-muted">
+                  <y.icon size={14} strokeWidth={1.75} className="flex-shrink-0" aria-hidden="true" />
+                  <span>{y.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div className="h-section">What it gets</div>
+            <div className="mt-2 rounded-lg border border-border bg-background p-3">
+              <p className="num text-xs">&quot;can you fix the login thing&quot;</p>
+            </div>
+            <p className="mt-2 text-[11px] text-muted leading-relaxed">Six words, and every one of the four on the left has to be guessed.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Why "think step by step" stopped being advice. The two rows are the whole
+  // change: the model now picks the depth, so the reader's job moved from
+  // switching thinking on to telling it when to stop.
+  if (kind === 'thinking-depth') {
+    return (
+      <div className={wrap}>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5">
+            <Zap size={16} strokeWidth={2} className="text-muted flex-shrink-0" aria-hidden="true" />
+            <span className="num text-xs">Capital of Denmark?</span>
+            <ArrowRight size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
+            <span className="text-xs font-medium">Copenhagen</span>
+            <span className="ml-auto text-[10px] text-muted">no thinking</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg border border-ok/50 bg-background px-3 py-2.5">
+            <Brain size={16} strokeWidth={2} className="text-ok flex-shrink-0" aria-hidden="true" />
+            <span className="num text-xs">Why is this query slow?</span>
+            <ArrowRight size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
+            <span className="text-xs font-medium">reasons first, then answers</span>
+            <span className="ml-auto text-[10px] text-muted">thinks</span>
+          </div>
+        </div>
+        <p className="mt-4 text-xs text-muted text-center">Same model, same settings. It reads the question and picks the depth itself.</p>
       </div>
     );
   }

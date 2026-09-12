@@ -57,10 +57,12 @@ const clickText = (t) => ev(`(()=>{const c=document.querySelector('[data-interac
   const b=[...c.querySelectorAll('button')].find(x=>x.textContent.includes(${JSON.stringify(t)}));
   if(!b)return false; b.click(); return true;})()`);
 
-async function openStep(title) {
+// `deck` is any text on the card that opens it, so this walks more than the one
+// deck it was written for.
+async function openStep(title, deck = 'agent broke out') {
   await ev("document.querySelector('[aria-label=\"Close this deck\"]')?.click()");
   await sleep(400);
-  await ev(`(()=>{const b=[...document.querySelectorAll('.warm-card')].find(x=>x.textContent.includes('agent broke out'));b.focus();b.click();})()`);
+  await ev(`(()=>{const b=[...document.querySelectorAll('.warm-card')].find(x=>x.textContent.includes(${JSON.stringify(deck)}));b.focus();b.click();})()`);
   await sleep(800);
   await ev("[...document.querySelectorAll('[role=\"dialog\"] button')].find(b=>/of/.test(b.textContent))?.click()");
   await sleep(350);
@@ -147,6 +149,25 @@ const joinedAll = await panel();
 check('agent: joining all four names the real number', /700/.test(joinedAll));
 check('agent: the two paths end differently', joinedAll !== refused);
 check('agent: findings are attributed, not asserted', /METR/.test(joinedAll));
+
+// --- 6. the four blanks, in the prompting deck --------------------------------
+// The claim on that slide is a count, so the count is what gets asserted. A
+// version of this block that opened the gaps but never reached 81 would look
+// completely fine on screen.
+await openStep('So it guesses', 'Prompting that actually works');
+const g0 = await panel();
+check('guesses: renders the bare request before any press', /Write release notes for this PR/.test(g0));
+check('guesses: no reading is shown yet', !/what it went with/.test(g0));
+await clickText('Format'); await sleep(350);
+const g1 = await panel();
+check('guesses: opening a blank shows three readings', g1 !== g0 && /markdown table/i.test(g1));
+check('guesses: exactly one is marked as taken', (g1.match(/what it went with/g) || []).length === 1);
+for (const b of ['Length', 'Audience', 'Tone']) { await clickText(b); await sleep(300); }
+const g2 = await panel();
+check('guesses: all four open reaches the real count', /81 versions/.test(g2));
+check('guesses: four blanks, four picks', (g2.match(/what it went with/g) || []).length === 4);
+await clickText('Start over'); await sleep(350);
+check('guesses: start over clears every blank', !/what it went with/.test(await panel()));
 
 check('no console exceptions', errs.length === 0, errs.slice(0, 2).join(' | '));
 
