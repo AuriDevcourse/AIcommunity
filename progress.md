@@ -2,6 +2,41 @@
 
 A running log of what's built, what needs setup, and what's planned. Live at https://a-icommunity.vercel.app
 
+## Where things stand (2026-09-12, the covers say what the deck is)
+
+**The six deck thumbnails are redrawn, and they are drawn now rather than generated.** `npm run learn:covers` (`scripts/build-learn-covers.mjs`) renders all six from code to `public/learn/covers/*.webp`. 70KB for the set, near enough what the generated one cost.
+
+**Why the old set failed, which only shows up on the index page.** They were six cinematic stills on one locked style string, and as a set they were handsome. As thumbnails:
+
+- **Five of the six were the same picture.** A dark room, one warm practical, low contrast. At the ~400px a card actually gets, you could not tell the security deck from the local-LLM deck without reading the title underneath. A thumbnail that needs its own caption is decoration.
+- **Three were metaphors with no subject.** A ring of light, a corridor of doors, a seam under a wall. A ring says nothing about tool calls or stop reasons, and the decks underneath had just been rewritten to be extremely specific.
+
+**Each cover now draws its deck's mechanism:**
+
+| Deck | Cover |
+|---|---|
+| Prompting that actually works | One ask fanning into eleven readings, one picked out |
+| Build your first AI agent | Four steps in a ring, the tool step in yellow |
+| Run your own local LLM | Three memory tracks; the third runs off the end |
+| Ship a web app with Claude Code | A terminal, an arrow, a published page |
+| Five ways your quick site gets hacked | Five padlocks, one hanging open |
+| The week an AI agent broke out | A dashed enclosure with one path through the gap |
+
+**Drawn in code because a diagram wants exact brand colour, exact stroke weight and a silhouette tuned to 400px**, none of which survives a generation roll. The set holds together through a system rather than a mood: one ground, one safe area, one stroke weight, one yellow accent per cover, no text anywhere. Nano Banana is still the right tool for the board frames inside the breach deck; it was the wrong tool for a chart of memory tiers.
+
+**Three fixes came from looking at the output rather than the code:**
+- The security glow was a flat ellipse at 10% yellow, which reads as a shape someone drew by mistake. It needed a radial falloff.
+- The breach cover drew its right wall as two stubs off the same corner and they vanished into it, so the enclosure had no visible gap for the escape to pass through. Now one continuous dashed path with the two lips of the gap marked.
+- The overflow block on local-llm stopped dead at the canvas edge and read as a rendering artifact. It fades out of frame instead, which is the point: the model runs off the end.
+
+**And one caught only by putting the covers on the dark card ground.** On `#0B2E1E` they dissolved into the dark theme's card (`#103A26`): the thumbnail stopped being a picture and became the top of the card. The ground is `#061D13` now, which separates from the card in dark and from the cream page in light. Checked at 1440 and at 390.
+
+**`coverAlt` was rewritten on all six.** The old alt text described photographs that no longer exist, which is an accessibility defect, not a tidiness one.
+
+`capture.mjs` gained `learn-light` and `learn-mobile`; the Learn tab only had a dark shot.
+
+**Verified:** `read:check`, `learn:check` 26/26, `interact:check` 46/46, `smoke`, `csp:check` 5/5, `shell:check` 18/18, `theme:check` PASS on a preview build, build green.
+
 ## Where things stand (2026-09-12, every deck brought up to the breach-deck standard)
 
 **The standard is a number now, not a memory.** `npm run read:check` (`scripts/read-check.mjs`) measures every deck the way agent-breach was measured by hand: Flesch-Kincaid per slide, sentences per body, the longest run of slides with nothing to look at, and where the emphasis sits. It gates at FK 12 per slide, FK 9 per deck, 4 text-only slides in a row, 12 steps minimum. Slides under 12 words are reported but cannot fail a deck, because FK is noise on "Nobody attacked anyone." (which scores 13.1).

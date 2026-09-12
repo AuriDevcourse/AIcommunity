@@ -306,7 +306,7 @@
       ],
       "handsOn": 15,
       "cover": "/learn/covers/security.webp",
-      "coverAlt": "A row of plain doors along a dark corridor, one standing ajar with light spilling out."
+      "coverAlt": "Five padlocks in a row. Four are shut and grey, and the middle one is yellow and hanging open."
     },
     {
       "id": "agent-breach",
@@ -932,7 +932,7 @@
         "huggingface"
       ],
       "cover": "/learn/covers/agent-breach.webp",
-      "coverAlt": "A sealed concrete room with a thin seam of bright light escaping under one wall."
+      "coverAlt": "A dashed enclosure holding ten grey dots, with one yellow dot escaping through a gap in the wall and branching into three outside."
     },
     {
       "id": "local-llm",
@@ -1127,7 +1127,7 @@
       ],
       "handsOn": 20,
       "cover": "/learn/covers/local-llm.webp",
-      "coverAlt": "A laptop open and glowing on a plain desk in a dark room, with nothing plugged into it."
+      "coverAlt": "Three memory tracks of equal length. The first two hold a model with room to spare; the third is full and runs off the end of its track."
     },
     {
       "id": "first-agent",
@@ -1392,7 +1392,7 @@
       ],
       "handsOn": 30,
       "cover": "/learn/covers/first-agent.webp",
-      "coverAlt": "A closed loop of light drawn in a dark space, with one brighter point on the ring."
+      "coverAlt": "Four steps arranged in a ring with arrows between them: a goal, a model, a tool highlighted in yellow, and a result."
     },
     {
       "id": "ship-with-claude-code",
@@ -1640,7 +1640,7 @@
       ],
       "handsOn": 25,
       "cover": "/learn/covers/ship-code.webp",
-      "coverAlt": "An old terminal glowing on a workbench, a small finished paper building beside it."
+      "coverAlt": "A terminal window with four typed lines, an arrow, and a published web page with a yellow address bar."
     },
     {
       "id": "prompting-basics",
@@ -1922,7 +1922,7 @@
         }
       ],
       "cover": "/learn/covers/prompting.webp",
-      "coverAlt": "A sheet of paper under a lamp with one short line on it, and three crumpled drafts beside it."
+      "coverAlt": "One short request on the left, fanning out into eleven faint possible answers, with one of them picked out in yellow."
     }
   ]
 }

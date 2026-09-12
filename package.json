@@ -14,6 +14,7 @@
     "gen:icons": "node scripts/gen-icons.mjs",
     "fetch:learn-logos": "node scripts/fetch-learn-logos.mjs",
     "radar:banners": "node scripts/build-radar-banners.mjs",
+    "learn:covers": "node scripts/build-learn-covers.mjs",
     "dev": "npm run build:data && vite",
     "build": "npm run optimize:images && npm run build:data && vite build",
     "preview": "vite preview",
