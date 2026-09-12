@@ -806,54 +806,192 @@
     {
       "id": "local-llm",
       "title": "Run your own local LLM",
-      "summary": "Install a model on your laptop and compare it to a paid API. No GPU farm required.",
+      "summary": "A model on your own laptop, free and offline. Which one fits, why the wrong one crawls, and where paid still wins.",
       "level": "Beginner",
       "tags": [
         "local",
         "tools"
       ],
-      "slides": "",
       "steps": [
         {
-          "title": "Pick a runner, and a size that fits",
-          "body": "Install Ollama for the terminal or LM Studio for a window with buttons. Both are free and both fetch models for you. The only decision that matters first is size: a model has to fit in memory, and the table below is the whole answer.",
+          "section": "Two choices, one of them hard",
+          "title": "The app and the model are separate",
+          "body": "You pick a program to run models, then you pick a model, and **only the second one can go wrong**."
+        },
+        {
+          "title": "They all read the same files",
+          "body": "Every one of these opens the same model format, so switching apps later **costs you nothing you downloaded**.",
+          "checklist": [
+            {
+              "label": "LM Studio",
+              "detail": "A window with buttons. Shows whether a model fits your memory before you download it. Turn analytics off in Settings, Privacy."
+            },
+            {
+              "label": "Jan",
+              "detail": "The same idea, open source, no account and no telemetry."
+            },
+            {
+              "label": "Ollama",
+              "detail": "A terminal command and a local API on port 11434. This is the one you wire into other tools."
+            }
+          ]
+        },
+        {
+          "title": "Pick by what you want to do next",
+          "body": "If you want a chat window, take the window; if you want to plug it into something, **take the one with an API**."
+        },
+        {
+          "section": "Memory decides everything",
+          "title": "One number decides what you can run",
+          "body": "Not the processor, not the year of the laptop: **the memory**, and VRAM counts before system RAM.",
           "diagram": "model-sizes"
         },
         {
-          "title": "The four commands you need",
-          "body": "Pull downloads a model, run chats with it, list shows what you have and what it costs you in disk, rm deletes one. An 8B model is about 5GB, so the last command matters more than anybody tells you.",
+          "title": "Find yours",
+          "body": "A tier table tells you someone else’s answer, so put your own number in.",
+          "try": "fit"
+        },
+        {
+          "title": "Parameters are not the file size",
+          "body": "A model is shrunk to fit by **storing its numbers at lower precision**, which is where the file size actually comes from."
+        },
+        {
+          "title": "Q4 is the one to take",
+          "body": "Look for **Q4_K_M**: about a quarter of the full size, and the drop in quality is small enough to be hard to notice."
+        },
+        {
+          "title": "Half the parameters, in gigabytes",
+          "body": "At Q4 a model needs roughly **half its parameter count in GB**, plus about ~~15%~~ overhead, so 8B lands near 4.6 GB.",
+          "facts": [
+            {
+              "figure": "1.7 GB",
+              "label": "a 3B model at Q4"
+            },
+            {
+              "figure": "4.6 GB",
+              "label": "an 8B model at Q4"
+            },
+            {
+              "figure": "40 GB",
+              "label": "a 70B model at Q4"
+            }
+          ]
+        },
+        {
+          "title": "A Mac gets more than the number suggests",
+          "body": "Apple Silicon shares one pool of memory between processor and graphics, so **a 16 GB Mac runs what a 16 GB PC cannot**."
+        },
+        {
+          "section": "Get one running",
+          "title": "Four commands is the whole tool",
+          "body": "Download, chat, check, delete, and the last one matters more than anyone says because **an 8B model is about 5 GB**.",
+          "code": "ollama pull llama3.2:3b   # tiny, runs on anything\nollama run qwen3:8b       # the comfortable size on 16 GB\n\nollama list               # what you have, and its disk size\nollama rm qwen3:8b        # delete it, get the disk back",
           "lang": "sh",
-          "code": "ollama pull llama3.1:8b   # download once, about 5GB\nollama run llama3.1:8b    # chat with it\n\nollama list               # what you have, and its disk size\nollama rm llama3.1:8b     # delete it, get the disk back"
+          "source": {
+            "label": "Ollama model library",
+            "url": "https://ollama.com/library"
+          }
         },
         {
           "title": "Measure it instead of guessing",
-          "body": "Add --verbose and Ollama prints the numbers after every answer. The one to watch is eval rate, in tokens per second: that is your reading speed. Run the same prompt you would send a paid API and write both down. Your laptop is the only benchmark that applies to you.",
-          "lang": "sh",
-          "code": "ollama run llama3.1:8b --verbose\n>>> Explain a database index in three sentences.\n\n# after the answer, Ollama prints timings like these:\n# total duration:       4.2s\n# prompt eval rate:     280 tokens/s\n# eval rate:            31 tokens/s   <- your reading speed"
+          "body": "Add **--verbose** and you get the numbers after every answer, which beats an argument about whether it feels slow.",
+          "code": "ollama run qwen3:8b --verbose\n>>> Explain a database index in three sentences.\n\n# after the answer:\n# total duration:       4.2s\n# prompt eval rate:     280 tokens/s\n# eval rate:            31 tokens/s   <- your reading speed",
+          "lang": "sh"
         },
         {
-          "title": "When it crawls, it is memory",
-          "body": "A model one size too big does not refuse. It spills out of RAM onto the disk and keeps answering at about a word a second, which people read as \"local models are useless\". Check what is loaded, drop to the next size down, and it will be fast again.",
-          "lang": "sh",
-          "code": "ollama ps          # what is loaded, and whether it fits\n\n# 100% GPU or 100% CPU with room to spare is fine.\n# A split like 60%/40% means it did not fit. Go one size down:\nollama run llama3.1:8b   # instead of a 14B or 32B"
+          "title": "Eval rate is your reading speed",
+          "body": "It is the only number in that list you will feel, and **anything above about 20 reads like a person typing fast**."
         },
         {
-          "title": "Compare honestly, task by task",
-          "body": "Run one real task both ways, not a riddle. Local wins on cost, privacy and working on a plane. Paid wins on hard reasoning and long context. The answer is different for summarising your own notes than it is for refactoring a service, so pick per task rather than per religion."
+          "section": "When it crawls",
+          "title": "One size too big does not refuse",
+          "body": "It spills out of memory onto the disk and **keeps answering at about a word a second**."
+        },
+        {
+          "title": "This is what people mean by useless",
+          "body": "Almost every \"local models are hopeless\" story is **a model that did not fit**, not a model that was bad."
+        },
+        {
+          "title": "Check what is loaded",
+          "body": "A clean **100% GPU or 100% CPU** is fine; a split means part of it is sitting somewhere slow.",
+          "code": "ollama ps\n\n# NAME        SIZE     PROCESSOR\n# qwen3:8b    5.2 GB   100% GPU      <- fine\n# gemma3:12b  9.1 GB   60%/40% CPU   <- did not fit",
+          "lang": "sh"
+        },
+        {
+          "title": "The fix is a smaller model, not a faster laptop",
+          "body": "Drop one size and the same machine **goes back to answering as fast as you read**."
+        },
+        {
+          "section": "The trick that does not do what you hope",
+          "title": "You can run a 70B on a 4 GB card",
+          "body": "Tools like AirLLM load **one layer at a time from disk**, compute it, then swap in the next.",
+          "source": {
+            "label": "AirLLM",
+            "url": "https://github.com/lyogavin/airllm"
+          }
+        },
+        {
+          "title": "Every layer, for every token",
+          "body": "The whole model gets read off the disk **for each word it produces**, so a fast SSD is required and it is still slow."
+        },
+        {
+          "title": "A smaller model that fits wins",
+          "body": "This is a way to run something you otherwise could not, **not a way to make it usable**."
+        },
+        {
+          "title": "Partial offload is the practical middle",
+          "body": "When a model is only slightly too big, run **some layers on the GPU and the rest on the processor** rather than all or nothing.",
+          "code": "# llama.cpp: put 20 layers on the GPU, rest on CPU\nllama-cli -m model.gguf -ngl 20\n\n# Ollama does this automatically, and ollama ps\n# shows you the split it chose.",
+          "lang": "sh"
+        },
+        {
+          "section": "Is it worth it",
+          "title": "Run one real task both ways",
+          "body": "Not a riddle and not a benchmark: **the thing you were going to do anyway**, once locally and once on the paid API."
+        },
+        {
+          "title": "Where local genuinely wins",
+          "body": "Three of these have nothing to do with quality, which is why the comparison is not about quality.",
+          "checklist": [
+            {
+              "label": "Cost",
+              "detail": "Nothing per token, forever, after the download."
+            },
+            {
+              "label": "Privacy",
+              "detail": "The text never leaves the machine. This is the one that changes what you are willing to paste in."
+            },
+            {
+              "label": "Offline",
+              "detail": "A plane, a train, a conference wifi."
+            },
+            {
+              "label": "No rate limit",
+              "detail": "Run it in a loop all night if you want."
+            }
+          ]
+        },
+        {
+          "title": "Where paid still wins",
+          "body": "Hard reasoning, long documents and **the tasks where being almost right is worthless**."
+        },
+        {
+          "title": "Decide per task, not per side",
+          "body": "Tidying your own notes and rewriting a service are **not the same question**."
         }
       ],
       "resources": [
         {
-          "label": "Ollama",
-          "url": "https://ollama.com"
+          "label": "Ollama model library",
+          "url": "https://ollama.com/library"
         },
         {
-          "label": "LM Studio (the same thing, with a window)",
+          "label": "LM Studio",
           "url": "https://lmstudio.ai"
         },
         {
-          "label": "Ollama model library (sizes and licences)",
-          "url": "https://ollama.com/library"
+          "label": "Jan",
+          "url": "https://jan.ai"
         }
       ],
       "handsOn": 20,

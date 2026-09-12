@@ -187,6 +187,22 @@ check('loop: the last turn ends the loop', /end_turn/.test(t3) && /Two of those 
 await clickText('Start over'); await sleep(350);
 check('loop: start over returns to one turn', !/end_turn/.test(await panel()));
 
+// --- 8. will it fit, in the local-LLM deck -----------------------------------
+// The numbers are computed from the rule of thumb the deck teaches two slides
+// earlier, so they are asserted as numbers. A block that drifted from the rule
+// would still render a plausible-looking table.
+await openStep('Find yours', 'Run your own local LLM');
+const f0 = await panel();
+check('fit: asks before it answers', /Pick the memory/.test(f0) && !/fits in memory/.test(f0));
+await clickText('8 GB'); await sleep(350);
+const f8 = await panel();
+check('fit: 8 GB tops out at 3B', /3B/.test(f8) && /5 GB free/.test(f8));
+check('fit: a model that does not fit still answers', /about a word a second/.test(f8));
+await clickText('32 GB'); await sleep(350);
+const f32 = await panel();
+check('fit: more memory raises the ceiling', /32B is your ceiling/.test(f32));
+check('fit: 70B is still out of reach at 32 GB', /40\.3 GB/.test(f32));
+
 check('no console exceptions', errs.length === 0, errs.slice(0, 2).join(' | '));
 
 console.log(pass.concat(fail).join('\n'));

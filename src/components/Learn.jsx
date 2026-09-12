@@ -947,6 +947,7 @@ function Scene({ kind }) {
 function TryIt({ kind }) {
   if (kind === 'guesses') return <TryGuesses />;
   if (kind === 'loop') return <TryLoop />;
+  if (kind === 'fit') return <TryFit />;
   if (kind === 'escape') return <TryEscape />;
   if (kind === 'scorer') return <TryScorer />;
   if (kind === 'board') return <TryBoard />;
@@ -1141,6 +1142,83 @@ function TryLoop() {
           <Play size={12} strokeWidth={2.2} className="inline-block -mt-0.5 mr-1" aria-hidden="true" />
           Run the next turn
         </button>
+      )}
+    </TryShell>
+  );
+}
+
+/**
+ * Does it fit, and what happens when it does not.
+ *
+ * The deck's own claim is that a model one size too big does not refuse, it
+ * crawls, and that this is what people mean when they say local models are
+ * useless. A table of hardware tiers states that; picking your own memory and
+ * watching the row that spills say "still answers, about a word a second" is
+ * the same fact arriving as a consequence.
+ *
+ * The numbers are computed from the rule of thumb rather than typed, so the
+ * block cannot drift from the slide that teaches the rule: at Q4 a model needs
+ * roughly half its parameter count in GB, plus about 15% overhead.
+ */
+const RAM_OPTIONS = [8, 16, 32, 64];
+const MODEL_SIZES = [3, 8, 14, 32, 70];
+const needGb = (b) => (b / 2) * 1.15;
+// The OS, the browser and everything else you have open. A machine with 8GB
+// does not have 8GB for a model, which is the part the tier tables leave out.
+const usableGb = (ram) => ram - (ram <= 8 ? 3 : 4);
+
+function TryFit() {
+  const [ram, setRam] = useState(null);
+  const free = ram ? usableGb(ram) : 0;
+  const fits = ram ? MODEL_SIZES.filter((b) => needGb(b) <= free) : [];
+  const biggest = fits[fits.length - 1];
+
+  return (
+    <TryShell
+      title="Will it fit?"
+      lede="Pick the memory in the machine you actually have. VRAM if you have a dedicated GPU, otherwise system RAM."
+      onReset={ram ? () => setRam(null) : null}
+      result={ram
+        ? biggest
+          ? `${free} GB free after the operating system takes its share, so ${biggest}B is your ceiling. The row below it is the one to start with.`
+          : 'Nothing on this list fits comfortably. A 1B model will still run, and a browser with forty tabs open is competing with it.'
+        : 'Same model, same question, two machines: one answers as fast as you read, the other takes a minute. The difference is this number.'}
+    >
+      <div className="flex flex-wrap gap-2">
+        {RAM_OPTIONS.map((r) => (
+          <button key={r} onClick={() => setRam(r)} aria-pressed={ram === r} className={tryBtn(ram === r)}>
+            {r} GB
+          </button>
+        ))}
+      </div>
+
+      {ram && (
+        <div className="mt-3 space-y-1.5">
+          {MODEL_SIZES.map((b) => {
+            const need = needGb(b);
+            const ok = need <= free;
+            // Spilling onto disk keeps working up to roughly this much over,
+            // which is the row the deck cares about: it answers, just slowly.
+            // Past it the thing is not a slow model, it is not a model.
+            const close = !ok && need <= free * 2.5;
+            return (
+              <div
+                key={b}
+                className={`flex items-center gap-2 rounded-lg border bg-background px-3 py-2 ${ok ? 'border-ok/50' : 'border-border'}`}
+              >
+                <MemoryStick size={14} strokeWidth={1.75} className={`flex-shrink-0 ${ok ? 'text-ok' : 'text-muted'}`} aria-hidden="true" />
+                <span className="num text-xs font-medium w-10">{b}B</span>
+                <span className="num text-[11px] text-muted w-16">{need.toFixed(1)} GB</span>
+                <span className={`text-xs ${ok ? '' : 'text-muted'}`}>
+                  {ok ? 'fits in memory' : close ? 'still answers, about a word a second' : 'will not load usefully'}
+                </span>
+              </div>
+            );
+          })}
+          <p className="pt-1 text-[11px] text-muted leading-relaxed">
+            At Q4, a model needs roughly half its parameter count in GB plus about 15%. Nothing here refuses to run: the rows that do not fit spill onto the disk and keep going, slowly.
+          </p>
+        </div>
       )}
     </TryShell>
   );
