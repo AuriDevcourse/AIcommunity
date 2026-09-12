@@ -203,6 +203,20 @@ const f32 = await panel();
 check('fit: more memory raises the ceiling', /32B is your ceiling/.test(f32));
 check('fit: 70B is still out of reach at 32 GB', /40\.3 GB/.test(f32));
 
+// --- 9. five changed files, in the Claude Code deck ---------------------------
+// The slide's claim is that a true summary hides three surprises, so the block
+// has to start by looking clean and end with the count.
+await openStep('Find them in a real one', 'Ship a web app with Claude Code');
+const d0 = await panel();
+check('diff: starts with the summary that was true', /all tests passing/.test(d0) && !/Not asked for/.test(d0));
+await clickText('package.json'); await sleep(300);
+check('diff: an unasked dependency is named as one', /Not asked for/.test(await panel()));
+for (const f of ['SignupForm.tsx', 'App.tsx', 'analytics.ts', 'SignupForm.test.tsx']) { await clickText(f); await sleep(250); }
+const d1 = await panel();
+check('diff: three of the five are surprises', /3 of the 5 are not what you asked for/.test(d1));
+check('diff: the dead test is called out', /never go red/.test(d1));
+check('diff: the wiring file is not called a surprise', /Two lines, and the feature is reachable/.test(d1));
+
 check('no console exceptions', errs.length === 0, errs.slice(0, 2).join(' | '));
 
 console.log(pass.concat(fail).join('\n'));

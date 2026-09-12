@@ -1266,35 +1266,176 @@
     {
       "id": "ship-with-claude-code",
       "title": "Ship a web app with Claude Code",
-      "summary": "From idea to a deployed app, using an AI agent in your terminal as the pair programmer.",
+      "summary": "From an empty folder to a deployed URL, with an agent doing the typing. The habits that keep it honest, and the two steps that bite everyone.",
       "level": "Beginner",
       "tags": [
         "build",
         "tools"
       ],
-      "slides": "",
       "steps": [
         {
-          "title": "Install it and point it at an empty folder",
-          "body": "Claude Code is a terminal program. Install it once, make a folder, and start it there. It reads and writes files in that folder and nowhere else, which is the safety model: give it a project, never your home directory.",
-          "lang": "sh",
-          "code": "npm install -g @anthropic-ai/claude-code\n\nmkdir my-app && cd my-app\nclaude"
+          "section": "Get it running",
+          "title": "It edits your files, in your folder",
+          "body": "This is not a chat window you paste code into: it **reads and writes the project you point it at**."
         },
         {
-          "title": "Scaffold, then confirm it runs",
-          "body": "Ask for the smallest thing that starts, and make it prove the thing starts before you add a single feature. A stack that does not build is a stack you will debug blind for the next hour. The prompt below is the whole first turn.",
+          "title": "Install it",
+          "body": "The installer is the way now, and **npm is no longer how you get it**.",
+          "code": "# macOS, Linux, WSL\ncurl -fsSL https://claude.ai/install.sh | bash\n\n# Windows PowerShell\nirm https://claude.ai/install.ps1 | iex\n\n# or, without piping a script into a shell:\nwinget install Anthropic.ClaudeCode     # Windows\nbrew install --cask claude-code         # macOS",
           "lang": "sh",
-          "code": "Set up a Vite + React + TypeScript app in this folder.\nInstall dependencies, run the dev server, and tell me the URL.\nDo not add any features yet. Stop when it builds clean."
+          "source": {
+            "label": "Claude Code docs",
+            "url": "https://code.claude.com/docs/en/overview"
+          }
         },
         {
-          "title": "One feature per turn, and read the diff",
-          "body": "Small asks keep the agent on a short leash and make a bad change obvious. Read the diff every time, and read it for three things: files you did not expect, a dependency you did not ask for, and a test that asserts nothing. Those are where the surprises live.",
-          "lang": "sh",
-          "code": "Add a form with an email field and a submit button.\nValidate the email. Show the error under the field.\nOnly touch the form component.\nShow me the diff when you are done."
+          "title": "On Windows, install Git for Windows too",
+          "body": "Without it Claude Code falls back to PowerShell, so **every shell command in every guide you read stops matching yours**.",
+          "source": {
+            "label": "Claude Code docs",
+            "url": "https://code.claude.com/docs/en/overview"
+          }
         },
         {
-          "title": "Verify before you trust",
-          "body": "\"Done\" from an agent means it stopped, not that it works. Ask for evidence, and make the evidence something a machine produced: a build that exits clean, a test that fails when you break the thing it tests, a page you actually loaded. A confident summary is not evidence.",
+          "title": "Point it at a project, never your home folder",
+          "body": "It works in the folder you start it in, which **is the safety model, not a limitation**.",
+          "code": "mkdir my-app && cd my-app\nclaude",
+          "lang": "sh"
+        },
+        {
+          "title": "The terminal is one of five places",
+          "body": "The same engine, the same CLAUDE.md and the same settings, wherever you happen to be working.",
+          "checklist": [
+            {
+              "label": "Terminal",
+              "detail": "The full CLI. Everything else is this with a different front."
+            },
+            {
+              "label": "VS Code and JetBrains",
+              "detail": "Inline diffs and plan review inside the editor."
+            },
+            {
+              "label": "Desktop app",
+              "detail": "Visual diffs, several sessions side by side, scheduled tasks."
+            },
+            {
+              "label": "Web and phone",
+              "detail": "Start something long, close the laptop, read it later."
+            }
+          ],
+          "source": {
+            "label": "Claude Code docs",
+            "url": "https://code.claude.com/docs/en/overview"
+          }
+        },
+        {
+          "section": "The first turn",
+          "title": "Ask for the smallest thing that starts",
+          "body": "No features in the first turn: **something that builds and runs**, and nothing else.",
+          "code": "Set up a Vite + React + TypeScript app in this folder.\nInstall dependencies, run the dev server, and tell me the URL.\nDo not add any features yet. Stop when it builds clean.",
+          "lang": "sh"
+        },
+        {
+          "title": "Make it prove the thing runs",
+          "body": "A stack that does not build is **an hour of debugging blind**, and you will be debugging the agent as well as the code."
+        },
+        {
+          "title": "Then stop and look at it yourself",
+          "body": "Open the URL before the second turn, because **everything after this is built on whatever is there now**."
+        },
+        {
+          "section": "Keep it on a short leash",
+          "title": "One feature per turn",
+          "body": "Small asks make a bad change **obvious instead of buried**.",
+          "code": "Add a form with an email field and a submit button.\nValidate the email. Show the error under the field.\nOnly touch the form component.\nShow me the diff when you are done.",
+          "lang": "sh"
+        },
+        {
+          "title": "Read the diff for three things",
+          "body": "Not line by line: **three specific surprises**, and you can scan for all three in about a minute.",
+          "checklist": [
+            {
+              "label": "A file you did not expect",
+              "detail": "Especially one outside what you named."
+            },
+            {
+              "label": "A dependency you did not ask for",
+              "detail": "It is in the lockfile and the bundle now, and it stays."
+            },
+            {
+              "label": "A test that asserts nothing",
+              "detail": "Green, permanently, whatever the code does."
+            }
+          ]
+        },
+        {
+          "title": "Find them in a real one",
+          "body": "The summary said the form was added and every test passed, and **all of that was true**.",
+          "try": "diff"
+        },
+        {
+          "title": "Work on a branch, never on main",
+          "body": "Some projects deploy from main on push, so **a bad turn ships**."
+        },
+        {
+          "section": "Tell it the rules once",
+          "title": "CLAUDE.md is read at the start of every session",
+          "body": "A markdown file in the project root, and **whatever is in it arrives before your first message does**.",
+          "source": {
+            "label": "Claude Code · CLAUDE.md and memory",
+            "url": "https://code.claude.com/docs/en/memory"
+          }
+        },
+        {
+          "title": "Put the things you would otherwise repeat",
+          "body": "Every correction you have typed twice belongs in that file.",
+          "checklist": [
+            {
+              "label": "The stack",
+              "detail": "Package manager, framework version, the library you actually use for dates."
+            },
+            {
+              "label": "The rules",
+              "detail": "Never commit without asking. Never edit main. Run the build before saying done."
+            },
+            {
+              "label": "The taste",
+              "detail": "The things you keep rewriting by hand afterwards."
+            }
+          ]
+        },
+        {
+          "title": "It writes its own memory as well",
+          "body": "Claude Code saves what it learns between sessions, so **the second week is less repetitive than the first**.",
+          "source": {
+            "label": "Claude Code · CLAUDE.md and memory",
+            "url": "https://code.claude.com/docs/en/memory"
+          }
+        },
+        {
+          "title": "A workflow you run weekly is a skill",
+          "body": "Package the steps once and it becomes **a command you and everyone else can type**.",
+          "source": {
+            "label": "Claude Code · skills",
+            "url": "https://code.claude.com/docs/en/skills"
+          }
+        },
+        {
+          "title": "A rule you cannot trust it to follow is a hook",
+          "body": "Hooks run your own shell commands around its actions, which is how you make formatting **automatic rather than requested**.",
+          "source": {
+            "label": "Claude Code · hooks",
+            "url": "https://code.claude.com/docs/en/hooks"
+          }
+        },
+        {
+          "section": "Done means it stopped",
+          "title": "Done from an agent means it stopped",
+          "body": "It does not mean the thing works, and **a confident summary is not evidence**."
+        },
+        {
+          "title": "Ask for evidence a machine produced",
+          "body": "Command output, a page you loaded, a test you watched go red.",
           "checklist": [
             {
               "label": "The build passes",
@@ -1302,7 +1443,7 @@
             },
             {
               "label": "The feature is reachable",
-              "detail": "Open the page. Plenty of code is written and never wired up."
+              "detail": "Open the page. Plenty of code gets written and never wired up."
             },
             {
               "label": "A test fails when it should",
@@ -1315,16 +1456,51 @@
           ]
         },
         {
-          "title": "Deploy, and expect the env vars to bite",
-          "body": "Vercel takes a folder and gives you a URL. The step that catches everyone is environment variables: they live on your laptop in .env.local, the build on Vercel has never seen that file, and the deploy succeeds anyway with a blank key. Add them, then redeploy.",
+          "title": "Break it on purpose",
+          "body": "Delete the validation and run the test: **if it still passes, the test was decoration**."
+        },
+        {
+          "title": "Green tests do not mean it was a good idea",
+          "body": "They tell you the code does what the code does, and **say nothing about whether you wanted it**."
+        },
+        {
+          "section": "Ship it",
+          "title": "A folder becomes a URL",
+          "body": "The first run links the project and gives you **a preview link before anything is public**.",
+          "code": "npx vercel          # preview\nnpx vercel --prod   # the real one",
+          "lang": "sh"
+        },
+        {
+          "title": "The environment variables are the bite",
+          "body": "Your keys live in a gitignored file on your laptop, and **the build has never seen it**.",
+          "code": "# .env.local is gitignored, so the build has no keys\n# at all. Add each one, then deploy again:\nnpx vercel env add MY_API_KEY production\nnpx vercel --prod",
           "lang": "sh",
-          "code": "# first run links the project and deploys a preview\nnpx vercel\n\n# .env.local is gitignored, so the build has no\n# keys at all. Add each one, then redeploy:\nnpx vercel env add MY_API_KEY production\nnpx vercel --prod"
+          "source": {
+            "label": "Vercel environment variables",
+            "url": "https://vercel.com/docs/environment-variables"
+          }
+        },
+        {
+          "title": "It deploys successfully anyway",
+          "body": "Nothing fails: **you get a working site where one feature quietly does nothing**, which is why this catches everyone once."
+        },
+        {
+          "title": "The habits matter more than the prompts",
+          "body": "Small turns, read the diff, evidence before trust: **none of that changes when the model does**.",
+          "source": {
+            "label": "Claude Code · best practices",
+            "url": "https://code.claude.com/docs/en/best-practices"
+          }
         }
       ],
       "resources": [
         {
           "label": "Claude Code docs",
-          "url": "https://docs.claude.com/en/docs/claude-code/overview"
+          "url": "https://code.claude.com/docs/en/overview"
+        },
+        {
+          "label": "Claude Code · best practices",
+          "url": "https://code.claude.com/docs/en/best-practices"
         },
         {
           "label": "Vercel environment variables",

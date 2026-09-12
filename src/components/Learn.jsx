@@ -948,6 +948,7 @@ function TryIt({ kind }) {
   if (kind === 'guesses') return <TryGuesses />;
   if (kind === 'loop') return <TryLoop />;
   if (kind === 'fit') return <TryFit />;
+  if (kind === 'diff') return <TryDiff />;
   if (kind === 'escape') return <TryEscape />;
   if (kind === 'scorer') return <TryScorer />;
   if (kind === 'board') return <TryBoard />;
@@ -1220,6 +1221,68 @@ function TryFit() {
           </p>
         </div>
       )}
+    </TryShell>
+  );
+}
+
+/**
+ * Five changed files after a one-sentence request, three of which are not what
+ * was asked for.
+ *
+ * "Read the diff" is advice everyone agrees with and nobody can act on until
+ * they know what they are looking for. The three surprises here are the three
+ * the slide names: a file you did not ask for, a dependency you did not ask
+ * for, and a test that cannot fail.
+ */
+const DIFF_FILES = [
+  { path: 'src/components/SignupForm.tsx', delta: '+48', ok: true, why: 'What you asked for. Read it, but it is not a surprise.' },
+  { path: 'src/App.tsx', delta: '+2', ok: true, why: 'The form had to be wired in somewhere. Two lines, and the feature is reachable because of them.' },
+  { path: 'package.json', delta: '+1', ok: false, why: 'A form library you never mentioned. Now it is a dependency, in the lockfile and in the bundle.' },
+  { path: 'src/lib/analytics.ts', delta: '+12', ok: false, why: 'A new file outside the one component you named. Nothing asked for this.' },
+  { path: 'src/components/SignupForm.test.tsx', delta: '+9', ok: false, why: 'A test whose only assertion passes whatever the form does. It will never go red.' },
+];
+
+function TryDiff() {
+  const [seen, setSeen] = useState(() => new Set());
+  const all = seen.size === DIFF_FILES.length;
+  const surprises = DIFF_FILES.filter((f) => !f.ok).length;
+
+  return (
+    <TryShell
+      title="Five files changed"
+      lede="You asked for one thing: a form with an email field, and only touch the form component. Press each file."
+      onReset={seen.size ? () => setSeen(new Set()) : null}
+      result={all
+        ? `${surprises} of the 5 are not what you asked for. None of them would have shown up in a summary that said "added the signup form".`
+        : seen.size === 0
+          ? 'The summary said "added the signup form, all tests passing", and that was true.'
+          : `${seen.size} of 5 opened.`}
+    >
+      <ul className="space-y-1.5">
+        {DIFF_FILES.map((f) => (
+          <li key={f.path}>
+            <button
+              onClick={() => setSeen((prev) => new Set(prev).add(f.path))}
+              aria-expanded={seen.has(f.path)}
+              className={`tap-target w-full rounded-lg border bg-background px-3 py-2 text-left transition-colors ${
+                seen.has(f.path) ? (f.ok ? 'border-ok/50' : 'border-err/40') : 'border-border hover:bg-accent'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <FileCode size={13} strokeWidth={1.75} className="flex-shrink-0 text-muted" aria-hidden="true" />
+                <span className="num text-xs truncate">{f.path}</span>
+                <span className="num ml-auto text-[11px] text-muted">{f.delta}</span>
+              </span>
+              {seen.has(f.path) && (
+                <span className={`mt-1.5 block text-[11px] leading-relaxed ${f.ok ? 'text-muted' : 'text-foreground'}`}>
+                  {f.ok ? 'Expected. ' : 'Not asked for. '}
+                  <span className="text-muted">{f.why}</span>
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
     </TryShell>
   );
 }
