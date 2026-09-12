@@ -1,6 +1,6 @@
 {
   "_readme": "The Radar is a hand-curated watchlist, not a scraper. `momentum` is the maintainer's 0-100 read of how much a thing is being talked about and actually adopted, so it is an opinion with a number attached, and the UI says so out loud. `primer` is the explainer above the list (the agent loop, the buying checklist, the glossary) and is edited like prose, not generated. Each item's `origin` block carries founders, location, funding rounds, business model and direction; every figure in it must come from a named source in `origin.sources`, and if a claim cannot be sourced it gets cut rather than softened. Prices and valuations move faster than this file does: to refresh, bump `reviewedAt`, re-check each `momentum` (set `delta` to the change since the last review, or \"new\"), re-read the pricing pages, and re-check any round that was the latest one last cycle.",
-  "reviewedAt": "2026-09-06",
+  "reviewedAt": "2026-09-12",
   "windowLabel": "What the timeline is arguing about, September 2026",
   "reviewedBy": "AI Sundays",
   "standfirst": "Sixteen things that moved this cycle, grouped into the four layers they belong to. Every number is a note taken on the review date with a link beside it. Open the link before you budget anything.",
@@ -46,6 +46,10 @@
     {
       "title": "Open weights set the price floor",
       "body": "DeepSeek, Qwen, GLM and the Gemma and gpt-oss families are free to download and cheap to rent. They do not top the leaderboards, but they are close enough that every paid provider now has to justify the gap in public."
+    },
+    {
+      "title": "The binding constraint stopped being price",
+      "body": "On 10 September OpenAI stopped selling its 200 dollar tier because the Astra rollout was eating the capacity it needed. Not a price rise, a closed door. If the thing you are building assumes you can buy more inference whenever you need it, that assumption now has a counter-example with a date on it."
     }
   ],
   "items": [
@@ -581,8 +585,8 @@
       "license": "Mixed, mostly permissive",
       "runsLocal": true,
       "byoKey": false,
-      "momentum": 82,
-      "delta": 7,
+      "momentum": 84,
+      "delta": 2,
       "firstSeen": "2024-01",
       "surface": "Your own hardware, or any inference host",
       "bestFor": "High-volume, low-stakes work: classification, extraction, drafting, anything you run a hundred thousand times.",
@@ -632,6 +636,13 @@
         "started": "DeepSeek spun out of High-Flyer in 2023 and became globally famous in January 2025.",
         "rounds": [
           {
+            "when": "Sep 2026",
+            "round": "Mistral Series D",
+            "amount": "3B euro",
+            "valuation": "Over 21B euro",
+            "investors": "Samsung Electronics leading with about 1B euro, PSG Equity, and the EU-backed Scaleup Europe Fund making its first ever investment."
+          },
+          {
             "when": "Jun 2026",
             "round": "DeepSeek, first ever external round",
             "amount": "Over 50B yuan, about $7.4B",
@@ -648,7 +659,7 @@
         ],
         "money": "Cheap metered inference, cloud contracts and, for Alibaba, pulling developers onto its cloud. The weights themselves are given away.",
         "next": "Qwen has passed a billion cumulative downloads on Hugging Face and overtaken Llama as the most downloaded open model family. Expect the gap to the paid frontier to keep being measured in months, not years.",
-        "edge": "Look at who wrote the cheque. DeepSeek’s founder personally funded close to half of his own company’s first outside round. A lab whose largest investor is its founder is not under pressure to raise prices for a return, and that is the actual mechanism keeping the floor under every model bill you pay, including the ones you pay to Western vendors.",
+        "edge": "Look at who wrote the cheque. DeepSeek’s founder personally funded close to half of his own company’s first outside round, and a lab whose largest investor is its founder is not under pressure to raise prices for a return. That is the mechanism holding the floor under every model bill you pay. As of September the floor has a second leg: Mistral raised 3 billion euro with the EU’s own fund in the round, which puts European public money behind keeping open weights available rather than merely wishing for it.",
         "sources": [
           {
             "label": "SCMP on the DeepSeek round",
@@ -657,6 +668,14 @@
           {
             "label": "Open LLM leaderboard",
             "url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard"
+          },
+          {
+            "label": "TechCrunch, Mistral raises 3B euro",
+            "url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/"
+          },
+          {
+            "label": "Euronews, Samsung-led round",
+            "url": "https://www.euronews.com/business/2026/09/08/mistral-ai-raises-record-3-billion-in-samsung-led-funding-round"
           }
         ],
         "summary": "DeepSeek raised $7.4B at just under $60B"
@@ -674,8 +693,8 @@
       "license": false,
       "runsLocal": false,
       "byoKey": true,
-      "momentum": 76,
-      "delta": 5,
+      "momentum": 79,
+      "delta": 3,
       "firstSeen": "2026-01",
       "surface": "API, every provider",
       "bestFor": "Understanding your own bill before it arrives.",
@@ -705,7 +724,7 @@
       "what": "The current top tier from the three large labs, priced per million tokens in and out, with cheaper small models beneath each flagship. Every provider now also sells prompt caching and batch processing, both of which cut real bills substantially and both of which most teams forget to switch on.",
       "hidden": "Two levers most people never pull. Prompt caching charges a reduced rate for the repeated part of a prompt, which is most of the prompt in any agent or chatbot. Batch processing halves the price for anything that does not need an answer this second. Together they routinely take a bill down by more than switching models would.",
       "peek": "The tiering keeps splitting: a flagship, a mid model at a fraction of the price, and a very cheap small one, all under one brand. Picking the right size for each call matters more each quarter than picking the right vendor.",
-      "watch": "Do not budget from a blog post, including this one. Open the provider's own pricing page on the day you plan, because the rate you costed in August is not the rate you pay in September.",
+      "watch": "Do not budget from a blog post, including this one. Open the provider’s own pricing page on the day you plan. Google shipped Gemini 3.8 Flash on 2 September at 0.75 dollars per million input tokens and 3.75 out, and said in the same breath that the introductory price doubles in the new year. A rate with an expiry date is the normal case, not the exception.",
       "links": [
         {
           "label": "Anthropic pricing",
@@ -728,6 +747,11 @@
         {
           "label": "Cross-provider comparison",
           "url": "https://www.cloudzero.com/blog/llm-api-pricing-comparison/",
+          "kind": "read"
+        },
+        {
+          "label": "The Register on Gemini 3.8 Flash pricing",
+          "url": "https://www.theregister.com/ai-and-ml/2026/09/02/with-gemini-38-flash-google-reminds-everyone-its-still-in-the-race/5294049",
           "kind": "read"
         }
       ],
@@ -760,7 +784,7 @@
           }
         ],
         "money": "Per-token API billing plus consumer and enterprise subscriptions. OpenAI added advertising, at about $1B annualised by August 2026.",
-        "next": "Both leaders are heading for public markets: OpenAI reported past a $40B run rate ahead of its IPO, Anthropic filed confidentially for one around October 2026.",
+        "next": "Both leaders are heading for public markets: OpenAI reported past a $40B run rate ahead of its IPO, Anthropic filed confidentially for one around October 2026. Capacity is now visibly the limit as well as the cost: OpenAI paused new Pro subscriptions on 10 September because Astra demand outran its infrastructure.",
         "edge": "Today’s per-token price is not a market price, it is a subsidised one, funded by the two largest private rounds ever raised. Both companies are now filing to go public, where the subsidy becomes a quarterly line item somebody has to defend. Budget for inference getting more expensive, not less, and design so you can switch providers when it does.",
         "sources": [
           {
@@ -778,6 +802,10 @@
           {
             "label": "CNBC, OpenAI at $852B",
             "url": "https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html"
+          },
+          {
+            "label": "TechCrunch, OpenAI pauses Pro sign-ups",
+            "url": "https://techcrunch.com/2026/09/10/openai-puts-pro-subscriptions-on-hold-due-to-astra-demand/"
           }
         ],
         "summary": "Anthropic at $965B, OpenAI at $852B"
