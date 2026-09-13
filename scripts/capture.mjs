@@ -41,6 +41,8 @@ const SHOTS = [
   { name: 'tools-dark', hash: 'tools', w: 1440, h: 1000, scheme: 'dark' },
   { name: 'discussions-dark', hash: 'discussions', w: 1440, h: 1000, scheme: 'dark' },
   { name: 'learn-dark', hash: 'learn', w: 1440, h: 1000, scheme: 'dark' },
+  { name: 'learn-light', hash: 'learn', w: 1440, h: 1000, scheme: 'light' },
+  { name: 'learn-mobile', hash: 'learn', w: 390, h: 844, scheme: 'light', mobile: true },
   { name: 'home-mobile-dark', hash: 'home', w: 390, h: 844, scheme: 'dark', mobile: true },
 ];
 

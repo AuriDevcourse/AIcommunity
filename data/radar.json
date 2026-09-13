@@ -1,0 +1,1915 @@
+{
+  "_readme": "The Radar is a hand-curated watchlist, not a scraper. `momentum` is the maintainer's 0-100 read of how much a thing is being talked about and actually adopted, so it is an opinion with a number attached, and the UI says so out loud. `primer` is the explainer above the list (the agent loop, the buying checklist, the glossary) and is edited like prose, not generated. Each item's `origin` block carries founders, location, funding rounds, business model and direction; every figure in it must come from a named source in `origin.sources`, and if a claim cannot be sourced it gets cut rather than softened. Prices and valuations move faster than this file does: to refresh, bump `reviewedAt`, re-check each `momentum` (set `delta` to the change since the last review, or \"new\"), re-read the pricing pages, and re-check any round that was the latest one last cycle.",
+  "reviewedAt": "2026-09-12",
+  "windowLabel": "What the timeline is arguing about, September 2026",
+  "reviewedBy": "AI Sundays",
+  "standfirst": "Sixteen things that moved this cycle, grouped into the four layers they belong to. Every number is a note taken on the review date with a link beside it. Open the link before you budget anything.",
+  "categories": [
+    {
+      "key": "agents",
+      "label": "Coding agents",
+      "blurb": "Software that opens files, runs tests and sends a pull request.",
+      "look": "Whose model it can use, whether it runs your tests, and what it is allowed to do without asking.",
+      "art": "/radar/sections/agents.webp"
+    },
+    {
+      "key": "models",
+      "label": "Models",
+      "blurb": "The engines everything else rents.",
+      "look": "Price per million tokens, context window, and whether you can take the weights and leave.",
+      "art": "/radar/sections/models.webp"
+    },
+    {
+      "key": "build",
+      "label": "Build layer",
+      "blurb": "Protocols and SDKs you wire into your own product.",
+      "look": "Who governs it, how much of your product it locks up, and what happens if it disappears.",
+      "art": "/radar/sections/build.webp"
+    },
+    {
+      "key": "work",
+      "label": "Everyday work",
+      "blurb": "Tools that shave an hour off a normal week.",
+      "look": "Where your data goes, whether it works offline, and what it costs per seat once the trial ends.",
+      "art": "/radar/sections/work.webp"
+    }
+  ],
+  "shifts": [
+    {
+      "title": "Autocomplete is over, the unit of work is now a task",
+      "body": "A year ago the pitch was faster typing. This cycle every serious tool plans the change, edits several files, runs the test suite, reads the failure and opens the pull request. That changes what you review: not lines, but a diff somebody else already argued themselves into."
+    },
+    {
+      "title": "The model stopped being the product",
+      "body": "Most of the tools below let you bring your own key and swap the engine. The moat moved from who has the best weights to who has the best harness around them: tool loops, file access, session memory, permissions."
+    },
+    {
+      "title": "Open weights set the price floor",
+      "body": "DeepSeek, Qwen, GLM and the Gemma and gpt-oss families are free to download and cheap to rent. They do not top the leaderboards, but they are close enough that every paid provider now has to justify the gap in public."
+    },
+    {
+      "title": "The binding constraint stopped being price",
+      "body": "On 10 September OpenAI stopped selling its 200 dollar tier because the Astra rollout was eating the capacity it needed. Not a price rise, a closed door. If the thing you are building assumes you can buy more inference whenever you need it, that assumption now has a counter-example with a date on it."
+    }
+  ],
+  "items": [
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "maker": "SST",
+      "category": "agents",
+      "tagline": "An open-source coding agent that lives in your terminal and rents whichever model you already pay for.",
+      "status": "stable",
+      "license": "MIT",
+      "runsLocal": true,
+      "byoKey": true,
+      "momentum": 94,
+      "delta": 18,
+      "firstSeen": "2026-05",
+      "surface": "Terminal, desktop app (beta), IDE extension",
+      "bestFor": "Anyone who wants an agent without also buying a subscription to somebody's IDE.",
+      "cost": {
+        "band": "byo",
+        "headline": "The tool is free. You pay the model provider directly.",
+        "detail": "No seat fee and no markup on inference, so your bill is whatever your Anthropic, OpenAI, Google or OpenRouter key costs. That is cheaper than a bundled subscription on a light month and more expensive on a heavy one, because nothing is capped for you."
+      },
+      "capabilities": [
+        {
+          "label": "Multi-file edits",
+          "score": 5
+        },
+        {
+          "label": "Runs your tests",
+          "score": 5
+        },
+        {
+          "label": "Model choice",
+          "score": 5
+        },
+        {
+          "label": "Team features",
+          "score": 2
+        }
+      ],
+      "what": "A full agent harness rather than a chat box: a tool loop, language-server integration, session management, and separate plan and build modes so you can make it think before it touches anything. It ships as a terminal interface, a desktop app and an editor extension, all driving the same engine.",
+      "hidden": "It speaks to something in the region of seventy-five model providers, which sounds like a spec-sheet number until you use it. The real effect is that a model regression stops being your problem. When a provider ships a worse version, you change one line of config instead of waiting for a vendor to notice.",
+      "peek": "The desktop app is still labelled beta on macOS, Windows and Linux. The direction of travel is obvious: the terminal build is the reference implementation and the graphical one is catching up to it, so expect the desktop version to be the thing most people meet first.",
+      "watch": "Bring-your-own-key means bring-your-own-spend-limit. There is no monthly ceiling protecting you from a bad afternoon, so set a hard cap in the provider console before you hand it a large refactor.",
+      "links": [
+        {
+          "label": "opencode.ai",
+          "url": "https://opencode.ai/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Docs",
+          "url": "https://opencode.ai/docs/",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "LogRocket power rankings",
+          "url": "https://blog.logrocket.com/ai-dev-tool-power-rankings/",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Anomaly Innovations, the team behind the SST framework",
+        "people": "Jay V (CEO) and Frank Wang (CTO), who met in their first week at the University of Waterloo, with Dax Raad and Adam Elmore",
+        "based": "United States, distributed team",
+        "started": "SST went through Y Combinator in 2021. opencode itself launched on 19 June 2025.",
+        "rounds": [
+          {
+            "when": "2021",
+            "round": "Y Combinator, then angels",
+            "amount": "~$1M",
+            "valuation": null,
+            "investors": "Angel investors including founders of PayPal, LinkedIn, Yelp and YouTube"
+          },
+          {
+            "when": "2025",
+            "round": "Pre-seed for opencode",
+            "amount": "Undisclosed",
+            "valuation": null,
+            "investors": "Spearhead, a16z Scout Fund"
+          }
+        ],
+        "money": "Nothing, directly. The agent is MIT-licensed and you pay your model provider, not them. The company sells developer infrastructure around SST, and a business model for the agent itself has not been announced.",
+        "next": "The desktop app is still beta on all three platforms and is clearly meant to become the front door. Watch for how they eventually charge, because eight million monthly users on a pre-seed budget is not a resting state.",
+        "edge": "The highest-momentum tool on this page has raised less money than Cursor books in a week. It reached roughly eight million monthly active users and 160,000 GitHub stars on a pre-seed cheque, which tells you the moat in this category is the harness and the community, not the capital.",
+        "sources": [
+          {
+            "label": "Crunchbase, opencode",
+            "url": "https://www.crunchbase.com/organization/opencode"
+          },
+          {
+            "label": "Background on the team",
+            "url": "https://techfundingnews.com/opencode-the-background-story-on-the-most-popular-open-source-coding-agent-in-the-world/"
+          }
+        ],
+        "summary": "Pre-seed, backed by Spearhead and a16z Scout"
+      },
+      "logo": "/radar/opencode.png",
+      "talkingPoint": "Eight million developers on a pre-seed cheque. The tool winning this category has barely raised money.",
+      "tier": 1
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "maker": "Anthropic",
+      "category": "agents",
+      "tagline": "Anthropic's own agent, in the terminal, the desktop app, the browser and your editor.",
+      "status": "stable",
+      "license": false,
+      "runsLocal": false,
+      "byoKey": true,
+      "momentum": 91,
+      "delta": 6,
+      "firstSeen": "2025-02",
+      "surface": "Terminal, desktop app, web, VS Code and JetBrains",
+      "bestFor": "Long, multi-step work in a repository you already know well.",
+      "cost": {
+        "band": "mid",
+        "headline": "Included in the Claude subscription tiers, or metered through an API key.",
+        "detail": "The subscription route gives you a usage allowance that resets, which is the predictable option. The API-key route bills per token with no ceiling. Frontier-tier output tokens are the expensive half of any bill, so an agent that writes a lot of code costs more than one that reads a lot of it."
+      },
+      "capabilities": [
+        {
+          "label": "Multi-file edits",
+          "score": 5
+        },
+        {
+          "label": "Runs your tests",
+          "score": 5
+        },
+        {
+          "label": "Model choice",
+          "score": 2
+        },
+        {
+          "label": "Team features",
+          "score": 4
+        }
+      ],
+      "what": "An agent that reads the repository, plans, edits, runs commands and reports back, with permission modes controlling how much it may do unattended. It reads project instruction files, so a team can encode its own conventions once and have every session follow them.",
+      "hidden": "The instruction file is doing more work than people give it credit for. Most complaints about an agent ignoring house style come from a repository that never wrote the style down. Twenty lines of conventions in a project file changes the output more reliably than a longer prompt does.",
+      "peek": "The interesting movement is away from the terminal: a desktop app, a browser version and scheduled runs that fire without a human present. The terminal stops being the product and becomes one of several front doors.",
+      "watch": "It is tied to one model family, so you cannot route around a bad day the way OpenCode lets you. That is the trade you make for the tighter integration.",
+      "links": [
+        {
+          "label": "claude.com/claude-code",
+          "url": "https://claude.com/product/claude-code",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.claude.com/en/docs/claude-code/overview",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "Pricing",
+          "url": "https://claude.com/pricing",
+          "kind": "pricing",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Anthropic",
+        "people": "Founded by Dario Amodei (CEO) and Daniela Amodei (President) with five other former OpenAI researchers",
+        "based": "San Francisco, United States",
+        "started": "Company founded 2021. Claude Code shipped as a research preview in February 2025.",
+        "rounds": [
+          {
+            "when": "Mar 2025",
+            "round": "Series E",
+            "amount": "$3.5B",
+            "valuation": "$61.5B",
+            "investors": "Lightspeed leading, with Bessemer, Cisco Investments, D1, Fidelity, General Catalyst, Jane Street, Menlo and Salesforce Ventures"
+          },
+          {
+            "when": "Sep 2025",
+            "round": "Series F",
+            "amount": "$13B",
+            "valuation": "$183B",
+            "investors": "ICONIQ leading, co-led by Fidelity and Lightspeed"
+          },
+          {
+            "when": "Nov 2025",
+            "round": "Series G",
+            "amount": "$30B",
+            "valuation": "$380B",
+            "investors": "GIC and Coatue leading"
+          },
+          {
+            "when": "May 2026",
+            "round": "Series H",
+            "amount": "$65B",
+            "valuation": "$965B",
+            "investors": "Altimeter, Dragoneer, Greenoaks and Sequoia leading; Amazon added $5B; Capital Group, Coatue, D1, GIC, ICONIQ, XN and sovereign funds from Singapore and Abu Dhabi"
+          }
+        ],
+        "money": "Subscriptions and metered API usage. Claude Code is included in the Claude subscription tiers or billed per token through an API key.",
+        "next": "A confidential S-1 went to the SEC on 1 June 2026 with a Nasdaq listing targeted for around October 2026. Reported run rate went from $47B in May to about $65B by the end of July.",
+        "edge": "Four rounds in fourteen months took the valuation from $61.5B to $965B, and the last one is the largest private venture round in history, raised by a company already filing to go public. Read that as the subsidy phase ending. Once the numbers are quarterly and public, per-token prices stop being a growth lever and become a margin line somebody has to defend.",
+        "sources": [
+          {
+            "label": "CNBC on the $965B round",
+            "url": "https://www.cnbc.com/2026/05/28/anthropic-open-ai-startup-value.html"
+          },
+          {
+            "label": "Axios, Anthropic tops OpenAI",
+            "url": "https://www.axios.com/2026/05/28/anthropic-ai-fundraising-openai"
+          }
+        ],
+        "summary": "$65B Series H at $965B, now filing to go public"
+      },
+      "logo": "/radar/claude-code.png",
+      "talkingPoint": "Anthropic went from $61B to $965B in fourteen months and is now filing to go public.",
+      "tier": 2
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "maker": "Anysphere",
+      "category": "agents",
+      "tagline": "The editor that got there first, now mostly an agent runner with a text editor attached.",
+      "status": "stable",
+      "license": false,
+      "runsLocal": false,
+      "byoKey": true,
+      "momentum": 84,
+      "delta": -4,
+      "firstSeen": "2023-03",
+      "surface": "Desktop editor, VS Code fork",
+      "bestFor": "People who want the agent and the diff in the same window, with a mouse.",
+      "cost": {
+        "band": "mid",
+        "headline": "Free tier, then a paid seat per developer per month, with team and enterprise tiers above it.",
+        "detail": "Heavy agent use on the paid tier can exhaust the included allowance, at which point you either wait for the reset or pay usage on top. Read the current tier table before you commit a team, because the shape of the allowance has changed more than once."
+      },
+      "capabilities": [
+        {
+          "label": "Multi-file edits",
+          "score": 5
+        },
+        {
+          "label": "Runs your tests",
+          "score": 4
+        },
+        {
+          "label": "Model choice",
+          "score": 4
+        },
+        {
+          "label": "Team features",
+          "score": 5
+        }
+      ],
+      "what": "A full editor built around inline edits, a codebase-aware chat and a background agent that works through a task while you do something else. The visual diff review is still the best in the category, which is the actual reason people stay.",
+      "hidden": "The slight slide in the rankings is not a quality problem. The terminal agents caught up on capability and undercut the seat price, so the question changed from whether Cursor is good to whether an editor is where you want the agent to live. For a designer who reads diffs visually, it very much is.",
+      "peek": "The competitive pressure is all on pricing clarity. Expect the allowance model to keep moving toward something a finance person can predict.",
+      "watch": "It is a VS Code fork, so extension compatibility is close but not identical, and it lags upstream releases. Check anything you depend on before switching a whole team.",
+      "links": [
+        {
+          "label": "cursor.com",
+          "url": "https://cursor.com/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Pricing",
+          "url": "https://cursor.com/pricing",
+          "kind": "pricing",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Anysphere, now a SpaceX subsidiary",
+        "people": "Founded by four MIT students: Michael Truell, Sualeh Asif, Arvid Lunnemark and Aman Sanger",
+        "based": "San Francisco, United States",
+        "started": "Founded 2022. Cursor reached roughly $4B in annualised revenue by May 2026, from about $100M sixteen months earlier.",
+        "rounds": [
+          {
+            "when": "Aug 2024",
+            "round": "Series A",
+            "amount": "Over $60M",
+            "valuation": "$400M",
+            "investors": "Co-led by Andreessen Horowitz and Thrive Capital"
+          },
+          {
+            "when": "Dec 2024",
+            "round": "Series B",
+            "amount": "$105M",
+            "valuation": "$2.6B",
+            "investors": "Thrive Capital leading"
+          },
+          {
+            "when": "Jun 2025",
+            "round": "Series C",
+            "amount": "$900M",
+            "valuation": "$9.9B",
+            "investors": "Thrive, Accel, a16z and DST"
+          },
+          {
+            "when": "Nov 2025",
+            "round": "Series D",
+            "amount": "$2.3B",
+            "valuation": "$29.3B",
+            "investors": "Accel and Coatue leading"
+          },
+          {
+            "when": "Aug 2026",
+            "round": "Acquired by SpaceX",
+            "amount": "$60B in stock",
+            "valuation": null,
+            "investors": "All-stock merger with X67, a SpaceX subsidiary. Announced 16 June, closed 14 August 2026."
+          }
+        ],
+        "money": "Per-seat subscriptions with usage tiers on top. Now a business unit inside SpaceX rather than a standalone company.",
+        "next": "Cursor says the deal buys it access to the largest GPU fleet in the world. The cost is independence: on 29 August 2026 OpenAI ended developer access to its models on Cursor, two weeks after the deal closed.",
+        "edge": "This is the entry where the buying decision changed for a reason that has nothing to do with the product. Cursor was independent in March, an option on SpaceX’s books in April, a subsidiary in August, and short one major model family by the end of it. If you were choosing an editor on the promise of model neutrality, that promise is now somebody else’s corporate strategy.",
+        "sources": [
+          {
+            "label": "TechCrunch, SpaceX closes the acquisition",
+            "url": "https://techcrunch.com/2026/08/15/spacex-officially-closes-its-cursor-acquisition/"
+          },
+          {
+            "label": "CNBC, OpenAI ends model access",
+            "url": "https://www.cnbc.com/2026/08/29/openai-cursor-spacex-model-access.html"
+          },
+          {
+            "label": "CNBC, the $2.3B Series D",
+            "url": "https://www.cnbc.com/2025/11/13/cursor-ai-startup-funding-round-valuation.html"
+          }
+        ],
+        "summary": "Acquired by SpaceX for $60B, August 2026"
+      },
+      "logo": "/radar/cursor.png",
+      "talkingPoint": "Bought by SpaceX in August. Two weeks later OpenAI cut off its models.",
+      "tier": 2
+    },
+    {
+      "id": "gemini-cli",
+      "name": "Gemini CLI",
+      "maker": "Google",
+      "category": "agents",
+      "tagline": "Google's open-source terminal agent, with the most generous free tier in the category.",
+      "status": "stable",
+      "license": "Apache-2.0",
+      "runsLocal": false,
+      "byoKey": true,
+      "momentum": 78,
+      "delta": 9,
+      "firstSeen": "2025-06",
+      "surface": "Terminal",
+      "bestFor": "Trying agentic coding without putting a card down, and for very large contexts.",
+      "cost": {
+        "band": "free",
+        "headline": "A free tier you sign into with a Google account, then metered API pricing above it.",
+        "detail": "The free allowance is the reason this one spreads. It is rate-limited per minute and per day rather than unlimited, and Google has adjusted those limits before, so treat the current numbers as this month's numbers."
+      },
+      "capabilities": [
+        {
+          "label": "Multi-file edits",
+          "score": 4
+        },
+        {
+          "label": "Runs your tests",
+          "score": 4
+        },
+        {
+          "label": "Model choice",
+          "score": 2
+        },
+        {
+          "label": "Team features",
+          "score": 2
+        }
+      ],
+      "what": "An open-source agent in the same shape as the others: reads your project, plans, edits, runs commands. It leans on the very large Gemini context window, so it can hold more of a codebase in its head at once than most competitors.",
+      "hidden": "Free tiers are a data question as much as a money question. The free consumer route and the paid API route do not carry the same terms about what happens to your prompts. If the repository is client work, read that section before you save an hour.",
+      "peek": "It is Apache-licensed and moving fast in public, so the useful thing to watch is the pull requests, not the blog. You can see features land weeks before anyone announces them.",
+      "watch": "One vendor, one model family, and a free tier that exists to move you onto the paid one eventually. Fine for evaluation, plan for the migration.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/google-gemini/gemini-cli",
+          "kind": "repo",
+          "official": true
+        },
+        {
+          "label": "Gemini API pricing",
+          "url": "https://ai.google.dev/pricing",
+          "kind": "pricing",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Google, through Google DeepMind and the Gemini developer team",
+        "people": "A Google product team, not a startup. No named founders.",
+        "based": "Mountain View, United States",
+        "started": "Announced June 2025, Apache-2.0 from day one.",
+        "rounds": [
+          {
+            "when": "n/a",
+            "round": "Funded by Alphabet",
+            "amount": "No external rounds",
+            "valuation": null,
+            "investors": "Alphabet Inc. The relevant number is Google’s own capital expenditure on AI infrastructure, not a cap table."
+          }
+        ],
+        "money": "It does not make money. It is a funnel into paid Gemini API usage and Google Cloud, which is exactly why the free tier is the most generous in the category.",
+        "next": "Tied to the Gemini release train rather than to its own roadmap. When a new Gemini ships, the CLI gets it; when Google reprices, the CLI reprices.",
+        "edge": "The free tier has a trap in it that costs people money. Signing in with a personal Google account gives you around 1,000 model requests a day on the top Gemini model with the full context window. Pasting in an unpaid API key instead gives you fewer: roughly 250 a day and Flash models only. The intuitive move, getting an API key, is the downgrade.",
+        "sources": [
+          {
+            "label": "Gemini CLI quotas and pricing",
+            "url": "https://google-gemini.github.io/gemini-cli/docs/quota-and-pricing.html"
+          },
+          {
+            "label": "Gemini API pricing",
+            "url": "https://ai.google.dev/gemini-api/docs/pricing"
+          }
+        ],
+        "summary": "Funded by Alphabet, not a startup"
+      },
+      "logo": "/radar/gemini-cli.png",
+      "talkingPoint": "The free tier has a trap: signing in with Google gives you four times more than an API key does.",
+      "tier": 2
+    },
+    {
+      "id": "mcp",
+      "name": "Model Context Protocol",
+      "maker": "Anthropic, now a wide ecosystem",
+      "category": "build",
+      "tagline": "The plug standard that let every agent talk to every tool. Boring, and the most consequential thing on this list.",
+      "status": "stable",
+      "license": "MIT",
+      "runsLocal": true,
+      "byoKey": false,
+      "momentum": 89,
+      "delta": 14,
+      "firstSeen": "2024-11",
+      "surface": "A protocol, implemented by servers you run and clients that connect",
+      "bestFor": "Giving an agent access to your database, your calendar or your internal API without writing bespoke glue for each tool.",
+      "cost": {
+        "band": "free",
+        "headline": "Free and open. Your cost is the hosting for whatever server you run.",
+        "detail": "The protocol costs nothing. What it costs in practice is context: every connected server advertises its tools to the model, and a large set of them eats the context window before you have asked a question."
+      },
+      "capabilities": [
+        {
+          "label": "Tool access",
+          "score": 5
+        },
+        {
+          "label": "Portability",
+          "score": 5
+        },
+        {
+          "label": "Maturity",
+          "score": 4
+        },
+        {
+          "label": "Easy to secure",
+          "score": 2
+        }
+      ],
+      "what": "A common interface between a model and the outside world. Write one server for your API and every compliant agent can use it, instead of each tool inventing its own integration format. It won because Anthropic pushed it and then everyone else shipped support rather than fighting it.",
+      "hidden": "The security story is the part the tutorials skip. A server you install runs on your machine with your permissions, and its tool descriptions are text the model reads and follows. A malicious or careless description is an instruction injected straight into your session. Treat installing a community MCP server the way you would treat installing a browser extension that can read every page.",
+      "peek": "The direction is toward remote, authenticated servers rather than local processes, which fixes the distribution problem and moves the trust question to whoever hosts them. Registries are appearing. Curation is not solved.",
+      "watch": "Keep the set small. Every server you add is context spent and attack surface added, and most people notice the context cost first.",
+      "links": [
+        {
+          "label": "modelcontextprotocol.io",
+          "url": "https://modelcontextprotocol.io/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Spec",
+          "url": "https://modelcontextprotocol.io/specification",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/modelcontextprotocol",
+          "kind": "repo",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Created by Anthropic, now governed by the Linux Foundation",
+        "people": "Maintainers drawn from across the ecosystem rather than one company",
+        "based": "Neutral foundation, global contributors",
+        "started": "Published by Anthropic in November 2024. Donated to the Linux Foundation on 9 December 2025.",
+        "rounds": [
+          {
+            "when": "Dec 2025",
+            "round": "Donated to the Agentic AI Foundation",
+            "amount": "Not a company, no funding",
+            "valuation": null,
+            "investors": "Founded by Anthropic, Block and OpenAI, with Google, AWS, Microsoft, Cloudflare and Bloomberg supporting. Block contributed goose, OpenAI contributed AGENTS.md."
+          }
+        ],
+        "money": "Nothing. It is a specification. The money is made by everyone building on top of it.",
+        "next": "Eight platinum members anchor the board, and membership passed 140 organisations in early 2026. Governance stayed with the existing maintainers rather than moving to a committee.",
+        "edge": "The most important fact about MCP is a legal one, not a technical one. It is no longer owned by the company that invented it, and its board seats are held by direct competitors who now have to agree with each other to change it. That is the reason it is safe to build a year of work on top of. A standard controlled by one vendor is a roadmap; a standard controlled by eight rivals is infrastructure.",
+        "sources": [
+          {
+            "label": "Anthropic, donating MCP",
+            "url": "https://www.anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation"
+          },
+          {
+            "label": "Linux Foundation announcement",
+            "url": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation"
+          }
+        ],
+        "summary": "Donated to the Linux Foundation, no single owner"
+      },
+      "logo": "/radar/mcp.png",
+      "talkingPoint": "Anthropic gave it away. Eight rival companies govern it now, which is exactly why it is safe to build on.",
+      "tier": 1
+    },
+    {
+      "id": "open-weights",
+      "name": "Open-weight models",
+      "maker": "DeepSeek, Alibaba, Z.AI, Google, OpenAI, Meta",
+      "category": "models",
+      "tagline": "DeepSeek, Qwen, GLM, Gemma and gpt-oss. Free to download, cheap to rent, and the reason frontier pricing keeps sliding.",
+      "status": "stable",
+      "license": "Mixed, mostly permissive",
+      "runsLocal": true,
+      "byoKey": false,
+      "momentum": 84,
+      "delta": 2,
+      "firstSeen": "2024-01",
+      "surface": "Your own hardware, or any inference host",
+      "bestFor": "High-volume, low-stakes work: classification, extraction, drafting, anything you run a hundred thousand times.",
+      "cost": {
+        "band": "free",
+        "headline": "Zero for the weights. Rented inference runs an order of magnitude under frontier pricing.",
+        "detail": "Free weights are not free inference. Self-hosting means GPUs, and for anything below constant load a hosted endpoint is cheaper than the hardware. The saving is real at volume and imaginary at prototype scale."
+      },
+      "capabilities": [
+        {
+          "label": "Cost",
+          "score": 5
+        },
+        {
+          "label": "Privacy control",
+          "score": 5
+        },
+        {
+          "label": "Peak reasoning",
+          "score": 3
+        },
+        {
+          "label": "Ready out of the box",
+          "score": 2
+        }
+      ],
+      "what": "Full model weights published for download under permissive licences. You can run them on your own machines, fine-tune them, or rent them from a dozen hosts competing on price. They sit a step below the frontier on hard reasoning and are frequently indistinguishable on ordinary work.",
+      "hidden": "The pricing pressure is the story, not the benchmarks. Once anyone can rent a competent model for a few cents per million tokens, every closed provider has to explain in public what the premium buys. That argument is why frontier prices have moved so much this year, and you benefit from it whether or not you ever run an open model.",
+      "peek": "The gap that still matters is not raw quality, it is tool use and long-horizon reliability. Watch the agentic benchmarks rather than the chat ones, because that is where the open families are closing last.",
+      "watch": "Permissive is not the same as unrestricted. Several of these carry acceptable-use terms or commercial thresholds, and a few popular ones are not OSI-approved open source at all. Read the licence file before you ship on top of one.",
+      "links": [
+        {
+          "label": "Pricing comparison",
+          "url": "https://benchlm.ai/llm-pricing",
+          "kind": "read"
+        },
+        {
+          "label": "Open LLM leaderboard",
+          "url": "https://huggingface.co/open-llm-leaderboard",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "DeepSeek, Alibaba (Qwen), Zhipu (GLM), Moonshot (Kimi), plus Google’s Gemma and OpenAI’s gpt-oss",
+        "people": "DeepSeek was founded by Liang Wenfeng, who built it out of his quantitative hedge fund High-Flyer",
+        "based": "Mostly Hangzhou and Beijing, China. Gemma is Google, gpt-oss is OpenAI.",
+        "started": "DeepSeek spun out of High-Flyer in 2023 and became globally famous in January 2025.",
+        "rounds": [
+          {
+            "when": "Sep 2026",
+            "round": "Mistral Series D",
+            "amount": "3B euro",
+            "valuation": "Over 21B euro",
+            "investors": "Samsung Electronics leading with about 1B euro, PSG Equity, and the EU-backed Scaleup Europe Fund making its first ever investment."
+          },
+          {
+            "when": "Jun 2026",
+            "round": "DeepSeek, first ever external round",
+            "amount": "Over 50B yuan, about $7.4B",
+            "valuation": "Just under $60B",
+            "investors": "Liang Wenfeng personally, around 20B yuan, nearly half the round. Tencent about 10B, CATL about 5B, NetEase and JD about 3B each."
+          },
+          {
+            "when": "2026",
+            "round": "The sector, for scale",
+            "amount": null,
+            "valuation": "~$159B combined",
+            "investors": "The four pure-play Chinese labs, Zhipu, DeepSeek, MiniMax and Moonshot, taken together, up from near zero eighteen months earlier."
+          }
+        ],
+        "money": "Cheap metered inference, cloud contracts and, for Alibaba, pulling developers onto its cloud. The weights themselves are given away.",
+        "next": "Qwen has passed a billion cumulative downloads on Hugging Face and overtaken Llama as the most downloaded open model family. Expect the gap to the paid frontier to keep being measured in months, not years.",
+        "edge": "Look at who wrote the cheque. DeepSeek’s founder personally funded close to half of his own company’s first outside round, and a lab whose largest investor is its founder is not under pressure to raise prices for a return. That is the mechanism holding the floor under every model bill you pay. As of September the floor has a second leg: Mistral raised 3 billion euro with the EU’s own fund in the round, which puts European public money behind keeping open weights available rather than merely wishing for it.",
+        "sources": [
+          {
+            "label": "SCMP on the DeepSeek round",
+            "url": "https://www.scmp.com/tech/big-tech/article/3355818/deepseek-nears-us7b-haul-first-ever-funding-round-backing-tencent-catl"
+          },
+          {
+            "label": "Open LLM leaderboard",
+            "url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard"
+          },
+          {
+            "label": "TechCrunch, Mistral raises 3B euro",
+            "url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/"
+          },
+          {
+            "label": "Euronews, Samsung-led round",
+            "url": "https://www.euronews.com/business/2026/09/08/mistral-ai-raises-record-3-billion-in-samsung-led-funding-round"
+          }
+        ],
+        "summary": "DeepSeek raised $7.4B at just under $60B"
+      },
+      "talkingPoint": "DeepSeek’s founder personally funded nearly half of his own first round. That is what holds your model bill down.",
+      "tier": 1
+    },
+    {
+      "id": "frontier-pricing",
+      "name": "The frontier price war",
+      "maker": "Anthropic, OpenAI, Google",
+      "category": "models",
+      "tagline": "Top-tier models sit roughly between two and five dollars per million input tokens, and output costs about five times input.",
+      "status": "stable",
+      "license": false,
+      "runsLocal": false,
+      "byoKey": true,
+      "momentum": 79,
+      "delta": 3,
+      "firstSeen": "2026-01",
+      "surface": "API, every provider",
+      "bestFor": "Understanding your own bill before it arrives.",
+      "cost": {
+        "band": "high",
+        "headline": "Input around two to five dollars per million tokens at the top tier. Output four to five times that.",
+        "detail": "The published rates change often enough that any number written into a page is wrong within weeks. The ratio is the stable part: output is the expensive half, so a system that generates long answers costs far more than one that reads long documents. Budget on output tokens."
+      },
+      "capabilities": [
+        {
+          "label": "Reasoning",
+          "score": 5
+        },
+        {
+          "label": "Tool use",
+          "score": 5
+        },
+        {
+          "label": "Cost",
+          "score": 2
+        },
+        {
+          "label": "Price stability",
+          "score": 2
+        }
+      ],
+      "what": "The current top tier from the three large labs, priced per million tokens in and out, with cheaper small models beneath each flagship. Every provider now also sells prompt caching and batch processing, both of which cut real bills substantially and both of which most teams forget to switch on.",
+      "hidden": "Two levers most people never pull. Prompt caching charges a reduced rate for the repeated part of a prompt, which is most of the prompt in any agent or chatbot. Batch processing halves the price for anything that does not need an answer this second. Together they routinely take a bill down by more than switching models would.",
+      "peek": "The tiering keeps splitting: a flagship, a mid model at a fraction of the price, and a very cheap small one, all under one brand. Picking the right size for each call matters more each quarter than picking the right vendor.",
+      "watch": "Do not budget from a blog post, including this one. Open the provider’s own pricing page on the day you plan. Google shipped Gemini 3.8 Flash on 2 September at 0.75 dollars per million input tokens and 3.75 out, and said in the same breath that the introductory price doubles in the new year. A rate with an expiry date is the normal case, not the exception.",
+      "links": [
+        {
+          "label": "Anthropic pricing",
+          "url": "https://claude.com/pricing/api",
+          "kind": "pricing",
+          "official": true
+        },
+        {
+          "label": "OpenAI pricing",
+          "url": "https://openai.com/api/pricing/",
+          "kind": "pricing",
+          "official": true
+        },
+        {
+          "label": "Google pricing",
+          "url": "https://ai.google.dev/pricing",
+          "kind": "pricing",
+          "official": true
+        },
+        {
+          "label": "Cross-provider comparison",
+          "url": "https://www.cloudzero.com/blog/llm-api-pricing-comparison/",
+          "kind": "read"
+        },
+        {
+          "label": "The Register on Gemini 3.8 Flash pricing",
+          "url": "https://www.theregister.com/ai-and-ml/2026/09/02/with-gemini-38-flash-google-reminds-everyone-its-still-in-the-race/5294049",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Anthropic, OpenAI and Google",
+        "people": "Three companies setting the price of everything else on this page",
+        "based": "San Francisco and Mountain View",
+        "started": "The current round of cuts and tier splits runs through 2025 and 2026.",
+        "rounds": [
+          {
+            "when": "Mar 2026",
+            "round": "OpenAI",
+            "amount": "$122B committed",
+            "valuation": "$852B",
+            "investors": "Amazon $50B, Nvidia $30B, SoftBank $30B, plus $3B from retail investors"
+          },
+          {
+            "when": "May 2026",
+            "round": "Anthropic Series H",
+            "amount": "$65B",
+            "valuation": "$965B",
+            "investors": "Altimeter, Dragoneer, Greenoaks, Sequoia, Amazon and others"
+          },
+          {
+            "when": "n/a",
+            "round": "Google",
+            "amount": "Alphabet balance sheet",
+            "valuation": null,
+            "investors": "No round needed, which is its own kind of pricing power"
+          }
+        ],
+        "money": "Per-token API billing plus consumer and enterprise subscriptions. OpenAI added advertising, at about $1B annualised by August 2026.",
+        "next": "Both leaders are heading for public markets: OpenAI reported past a $40B run rate ahead of its IPO, Anthropic filed confidentially for one around October 2026. Capacity is now visibly the limit as well as the cost: OpenAI paused new Pro subscriptions on 10 September because Astra demand outran its infrastructure.",
+        "edge": "Today’s per-token price is not a market price, it is a subsidised one, funded by the two largest private rounds ever raised. Both companies are now filing to go public, where the subsidy becomes a quarterly line item somebody has to defend. Budget for inference getting more expensive, not less, and design so you can switch providers when it does.",
+        "sources": [
+          {
+            "label": "Anthropic pricing",
+            "url": "https://www.anthropic.com/pricing#api"
+          },
+          {
+            "label": "OpenAI pricing",
+            "url": "https://openai.com/api/pricing/"
+          },
+          {
+            "label": "Google Gemini pricing",
+            "url": "https://ai.google.dev/gemini-api/docs/pricing"
+          },
+          {
+            "label": "CNBC, OpenAI at $852B",
+            "url": "https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html"
+          },
+          {
+            "label": "TechCrunch, OpenAI pauses Pro sign-ups",
+            "url": "https://techcrunch.com/2026/09/10/openai-puts-pro-subscriptions-on-hold-due-to-astra-demand/"
+          }
+        ],
+        "summary": "Anthropic at $965B, OpenAI at $852B"
+      },
+      "talkingPoint": "The price you pay is subsidised by the two biggest private rounds in history. Both are heading for an IPO.",
+      "tier": 2
+    },
+    {
+      "id": "ai-sdk",
+      "name": "Vercel AI SDK",
+      "maker": "Vercel",
+      "category": "build",
+      "tagline": "The default way to put a streaming model response into a React app without writing the plumbing.",
+      "status": "stable",
+      "license": "Apache-2.0",
+      "runsLocal": true,
+      "byoKey": true,
+      "momentum": 74,
+      "delta": 3,
+      "firstSeen": "2023-06",
+      "surface": "npm package, works with any React or Node stack",
+      "bestFor": "Shipping a chat, a generator or an agent inside a product you already have.",
+      "cost": {
+        "band": "free",
+        "headline": "The library is free and open. You pay whichever model provider you point it at.",
+        "detail": "It is a client library, not a service, so there is no bill attached to it. Hosting it on Vercel is a separate decision with a separate price."
+      },
+      "capabilities": [
+        {
+          "label": "Streaming",
+          "score": 5
+        },
+        {
+          "label": "Provider switching",
+          "score": 5
+        },
+        {
+          "label": "Tool calling",
+          "score": 4
+        },
+        {
+          "label": "Learning curve",
+          "score": 4
+        }
+      ],
+      "what": "One interface over every major provider, with streaming, structured output, tool calling and React hooks that handle the awkward parts: partial responses, cancellation, error states mid-stream. Swapping providers is a one-line change.",
+      "hidden": "The cancellation support is the part that pays for itself. A user who closes the tab halfway through a long generation is still costing you tokens unless something aborts the request. Wiring an abort signal is ten minutes of work and it shows up on the invoice.",
+      "peek": "The library keeps absorbing agent patterns that used to be your code: multi-step tool loops, durable runs that survive a restart, and workflow primitives. Less to write, more framework to learn.",
+      "watch": "It moves fast and the major versions have broken things. Pin the version and read the migration guide rather than letting a caret range decide when you upgrade.",
+      "links": [
+        {
+          "label": "ai-sdk.dev",
+          "url": "https://ai-sdk.dev/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Docs",
+          "url": "https://ai-sdk.dev/docs",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/vercel/ai",
+          "kind": "repo",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Vercel",
+        "people": "Vercel was founded by Guillermo Rauch (CEO), who also created Socket.io and Next.js’ home, with Naoyuki Kanezawa",
+        "based": "San Francisco, United States",
+        "started": "Vercel founded 2015. The AI SDK arrived in 2023 and became the default way to stream a model into a React app.",
+        "rounds": [
+          {
+            "when": "Nov 2021",
+            "round": "Series D",
+            "amount": "$150M",
+            "valuation": "$2.5B",
+            "investors": "GGV Capital leading"
+          },
+          {
+            "when": "2024",
+            "round": "Series E",
+            "amount": "$250M",
+            "valuation": "$3.25B",
+            "investors": "Accel leading, with CRV, GGV, Bedrock and others"
+          },
+          {
+            "when": "Sep 2025",
+            "round": "Series F",
+            "amount": "$300M",
+            "valuation": "$9.3B",
+            "investors": "Co-led by Accel and GIC, with BlackRock among the new names. About $863M raised in total."
+          }
+        ],
+        "money": "Not from the SDK. It is MIT-licensed and free, and it runs anywhere. Vercel sells hosting, and the library is the friendliest possible on-ramp to it.",
+        "next": "Expect the SDK to keep tracking whatever agent pattern is current, because its job is to make the newest thing easy to deploy on Vercel within a week of it existing.",
+        "edge": "Worth knowing exactly what the free thing is for. The SDK is genuinely portable, MIT, no lock-in in the code. The lock-in is one layer down, in the deployment defaults you accept while moving fast. Use the library freely; make the hosting decision on its own merits, separately.",
+        "sources": [
+          {
+            "label": "Vercel Series F",
+            "url": "https://vercel.com/blog/vercel-raises-300m-series-f"
+          },
+          {
+            "label": "AI SDK docs",
+            "url": "https://ai-sdk.dev/"
+          }
+        ],
+        "summary": "$300M Series F at $9.3B"
+      },
+      "logo": "/radar/ai-sdk.png",
+      "talkingPoint": "Free and genuinely portable. The lock-in is one layer down, in the hosting you accept while moving fast.",
+      "tier": 2
+    },
+    {
+      "id": "wispr-flow",
+      "name": "Wispr Flow",
+      "maker": "Wispr",
+      "category": "work",
+      "tagline": "Dictation that keeps up with speech, cleans up the ums, and types into whatever window you are in.",
+      "status": "stable",
+      "license": false,
+      "runsLocal": false,
+      "byoKey": false,
+      "momentum": 69,
+      "delta": 11,
+      "firstSeen": "2025-01",
+      "surface": "macOS, Windows, iOS",
+      "bestFor": "Long prompts, long messages, and anyone whose thinking outruns their typing.",
+      "cost": {
+        "band": "low",
+        "headline": "Free tier with a weekly word allowance, then a modest monthly subscription for unlimited use.",
+        "detail": "Cheap enough that the decision is about whether you like dictating, not about the money. Check the current allowance on the pricing page, it has changed."
+      },
+      "capabilities": [
+        {
+          "label": "Accuracy",
+          "score": 5
+        },
+        {
+          "label": "Speed",
+          "score": 5
+        },
+        {
+          "label": "Works everywhere",
+          "score": 4
+        },
+        {
+          "label": "Privacy",
+          "score": 3
+        }
+      ],
+      "what": "Hold a key, talk, release, and formatted text appears wherever the cursor is. It removes filler words, applies punctuation, and learns names and jargon you use often. It works in any application rather than in its own window.",
+      "hidden": "It changes what you write, not just how fast. Dictated prompts are longer, more conversational and carry more context than typed ones, which is exactly what a model wants. Several people who describe it as a typing tool are actually getting better model output from it.",
+      "peek": "The dictionary and tone features are where the product is going: it learns your vocabulary and your register, so the gap between what you said and what you meant keeps narrowing.",
+      "watch": "Audio leaves your machine. For a client call, a medical note or anything under an NDA, check the retention terms first or use a local transcription tool instead.",
+      "links": [
+        {
+          "label": "wisprflow.ai",
+          "url": "https://wisprflow.ai/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Pricing",
+          "url": "https://wisprflow.ai/pricing",
+          "kind": "pricing",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Wispr AI",
+        "people": "Tanay Kothari (CEO) and Sahaj Garg, who met as freshman dormmates at Stanford",
+        "based": "San Francisco, United States",
+        "started": "Started as a silent-speech wearable, closer to a brain-computer interface than an app. Pivoted to software, and Flow shipped in 2024.",
+        "rounds": [
+          {
+            "when": "Jun 2025",
+            "round": "Series A",
+            "amount": "$30M",
+            "valuation": null,
+            "investors": "Menlo Ventures leading, with NEA, 8VC and angels including Pinterest co-founder Evan Sharp and Carta’s CEO"
+          },
+          {
+            "when": "Nov 2025",
+            "round": "Series A extension",
+            "amount": "$25M",
+            "valuation": "$700M",
+            "investors": "Existing backers"
+          },
+          {
+            "when": "Aug 2026",
+            "round": "Series B",
+            "amount": "$280M",
+            "valuation": "$2B",
+            "investors": "Menlo Ventures leading again, with Notable Capital, NEA and Neo; new money from Acrew, Forerunner, Goodwater and Peak XV; plus a roster of athletes and artists"
+          }
+        ],
+        "money": "Consumer and team subscriptions. Used across more than 10,000 companies.",
+        "next": "The Series B is explicitly to go beyond dictation: a proprietary speech model of their own, and a meeting transcription product.",
+        "edge": "Read the last line again, then look four entries down. Wispr just raised $280M to build meeting transcription, which is precisely Granola’s business. Two separate entries on this radar are on a collision course, and the one with the bigger cheque is the one moving. If you are picking a voice tool for the year, you are also making a bet on which of them wins the overlap.",
+        "sources": [
+          {
+            "label": "TechCrunch, the $280M Series B",
+            "url": "https://techcrunch.com/2026/08/17/wispr-raises-280m-at-2b-valuation-as-it-looks-beyond-dictation/"
+          },
+          {
+            "label": "Wispr on the round",
+            "url": "https://wisprflow.ai/post/series-b"
+          }
+        ],
+        "summary": "$280M Series B at $2B, Menlo led"
+      },
+      "logo": "/radar/wispr-flow.png",
+      "talkingPoint": "Just raised $280M to move into meeting notes, which is Granola’s entire business.",
+      "tier": 2
+    },
+    {
+      "id": "granola",
+      "name": "Granola",
+      "maker": "Granola",
+      "category": "work",
+      "tagline": "Meeting notes that do not send a bot into your call.",
+      "status": "stable",
+      "license": false,
+      "runsLocal": false,
+      "byoKey": false,
+      "momentum": 66,
+      "delta": 4,
+      "firstSeen": "2024-05",
+      "surface": "macOS, Windows",
+      "bestFor": "Back-to-back calls where you want to be present rather than typing.",
+      "cost": {
+        "band": "low",
+        "headline": "Free trial by meeting count, then a per-seat monthly subscription with business tiers above it.",
+        "detail": "Priced per person, so the cost scales with how many people in a team want their own notes rather than with meeting volume."
+      },
+      "capabilities": [
+        {
+          "label": "Note quality",
+          "score": 5
+        },
+        {
+          "label": "No bot in the call",
+          "score": 5
+        },
+        {
+          "label": "Search across meetings",
+          "score": 4
+        },
+        {
+          "label": "Privacy",
+          "score": 3
+        }
+      ],
+      "what": "It captures system audio locally and merges the transcript with the rough notes you typed yourself, producing a summary that reflects what you thought was important rather than a flat transcript. Nobody in the meeting sees a recording bot join.",
+      "hidden": "The design choice is the point. A visible bot changes a meeting: people say less, and in several jurisdictions its presence is what makes consent a formality rather than a conversation. Capturing audio quietly avoids the awkwardness and moves the entire consent problem onto you. Under Danish and wider EU practice you are still expected to tell people they are being recorded.",
+      "peek": "The value keeps shifting from single notes to the archive: asking questions across months of meetings. That is the feature that makes it hard to leave.",
+      "watch": "No bot does not mean no recording. Say it out loud at the start of the call. It costs three seconds and it is the difference between a tool and a problem.",
+      "links": [
+        {
+          "label": "granola.ai",
+          "url": "https://granola.ai/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Pricing",
+          "url": "https://granola.ai/pricing",
+          "kind": "pricing",
+          "official": true
+        }
+      ],
+      "origin": {
+        "builtBy": "Granola",
+        "people": "Chris Pedregal (CEO) and Sam Stephenson. Pedregal previously co-founded Socratic, the AI tutoring app Google bought in 2018.",
+        "based": "London, United Kingdom",
+        "started": "Founded 2023, public launch May 2024.",
+        "rounds": [
+          {
+            "when": "May 2024",
+            "round": "Seed",
+            "amount": "$4.25M",
+            "valuation": null,
+            "investors": "Lightspeed leading, with betaworks and Firstminute Capital"
+          },
+          {
+            "when": "2024",
+            "round": "Series A",
+            "amount": "$20M",
+            "valuation": null,
+            "investors": "Spark Capital leading, with Nat Friedman and Daniel Gross"
+          },
+          {
+            "when": "May 2025",
+            "round": "Series B",
+            "amount": "$43M",
+            "valuation": "$250M",
+            "investors": "Nat Friedman and Daniel Gross (NFDG) leading, with Lightspeed and Spark continuing"
+          },
+          {
+            "when": "Mar 2026",
+            "round": "Series C",
+            "amount": "$125M",
+            "valuation": "$1.5B",
+            "investors": "Index Ventures leading, with Kleiner Perkins, and existing backers Lightspeed, Spark, Nat Friedman and Daniel Gross"
+          }
+        ],
+        "money": "Per-seat subscriptions, increasingly to teams rather than individuals. Customers include Asana, Mistral AI and Vanta.",
+        "next": "Moving from a notetaker to a general enterprise AI surface, which is the standard route out of being a one-feature app before someone bundles that feature.",
+        "edge": "The only European company on this page, London based, valued at $1.5B, and the one most exposed to another entry here: Wispr is spending its new $280M on exactly this product. Granola’s answer has to be the enterprise move, which is why the Series C language is about becoming a platform rather than a better notetaker.",
+        "sources": [
+          {
+            "label": "TechCrunch, the $125M Series C",
+            "url": "https://techcrunch.com/2026/03/25/granola-raises-125m-hits-1-5b-valuation-as-it-expands-from-meeting-notetaker-to-enterprise-ai-app/"
+          },
+          {
+            "label": "Sifted on the round",
+            "url": "https://sifted.eu/articles/ai-notetaking-startup-granola-hits-unicorn-status"
+          }
+        ],
+        "summary": "$125M Series C at $1.5B, Index led"
+      },
+      "logo": "/radar/granola.png",
+      "talkingPoint": "London, $1.5B, and about to be attacked by the $280M Wispr raised four entries up this page.",
+      "tier": 2
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "maker": "Ollama",
+      "category": "models",
+      "tagline": "One command to run an open model on your own machine, with nothing leaving it.",
+      "status": "stable",
+      "license": "MIT",
+      "runsLocal": true,
+      "byoKey": false,
+      "momentum": 80,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "macOS, Windows, Linux, plus a local HTTP API on port 11434",
+      "bestFor": "Private work, offline work, and anything you would rather not put through somebody else’s logs.",
+      "cost": {
+        "band": "free",
+        "headline": "Free, and there is no per-token bill because the tokens are yours.",
+        "detail": "You pay in hardware and electricity instead of API calls. A machine with 16GB of memory runs the small models comfortably; the good ones want 32GB or more, and a laptop on battery will get warm and slow. The saving is real but it is a capital cost, not a zero."
+      },
+      "capabilities": [
+        {
+          "label": "Setup effort",
+          "score": 5
+        },
+        {
+          "label": "Privacy",
+          "score": 5
+        },
+        {
+          "label": "Peak quality",
+          "score": 3
+        },
+        {
+          "label": "Speed on a laptop",
+          "score": 3
+        }
+      ],
+      "what": "A runner and a model library. `ollama run <model>` downloads the weights, loads them, and gives you a chat prompt plus a local API that mimics the shape everything else already speaks, so most tools that talk to a cloud model can be pointed at your laptop with one config change.",
+      "hidden": "Fourteen employees. That is the whole company behind roughly nine million developers and, by their own account, use inside 85% of the Fortune 500. When people argue about whether open models are serious infrastructure, the answer is that the layer distributing them is smaller than most startups’ design teams.",
+      "peek": "The pitch has moved from hobbyists to companies who cannot legally send data to an API. Expect the paid surface to grow around teams and deployment rather than around the runner, which stays free.",
+      "watch": "A model that fits your laptop is not the model you read about in the benchmarks. Local means smaller, and smaller means it will confidently get things wrong that a frontier model would catch. Use it where privacy or offline matters more than the last twenty percent of quality.",
+      "links": [
+        {
+          "label": "ollama.com",
+          "url": "https://ollama.com/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/ollama/ollama",
+          "kind": "repo",
+          "official": true
+        },
+        {
+          "label": "TechCrunch on the $65M round",
+          "url": "https://techcrunch.com/2026/07/09/popular-open-source-ai-developer-tool-ollama-raises-65m-grows-to-nearly-9m-users/",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Ollama, a Y Combinator company",
+        "people": "Founded by Jeffrey Morgan and Michael Chiang. Roughly fourteen people in total.",
+        "based": "Palo Alto, United States",
+        "started": "Founded 2023, out of Y Combinator.",
+        "summary": "$65M Series B, Theory Ventures led",
+        "rounds": [
+          {
+            "when": "2024",
+            "round": "Series A",
+            "amount": "Part of $88M total",
+            "valuation": null,
+            "investors": "Benchmark leading"
+          },
+          {
+            "when": "Jul 2026",
+            "round": "Series B",
+            "amount": "$65M",
+            "valuation": "Undisclosed",
+            "investors": "Theory Ventures leading, with Benchmark, 8VC, Y Combinator, Pace Capital, 49 Palms and GTMFund. $88M raised in total."
+          }
+        ],
+        "money": "The runner is free and MIT-licensed. Revenue comes from the cloud and team offering layered on top, which is a young business next to nine million free users.",
+        "next": "Pushing from individual developers into companies that cannot send data to an API at all, which is the market where \"runs on your own hardware\" is a requirement rather than a preference.",
+        "edge": "Fourteen people, nearly nine million developers, and no disclosed valuation on a $65M round. The distribution layer for every open model on earth is a rounding error next to the labs producing the weights, which is worth remembering when somebody tells you open models are backed by nobody.",
+        "sources": [
+          {
+            "label": "TechCrunch, the $65M Series B",
+            "url": "https://techcrunch.com/2026/07/09/popular-open-source-ai-developer-tool-ollama-raises-65m-grows-to-nearly-9m-users/"
+          },
+          {
+            "label": "Ollama’s announcement",
+            "url": "https://www.businesswire.com/news/home/20260709429551/en/Ollama-Raises-$65M-Series-B-Funding-to-Grow-its-Open-source-AI-Platform"
+          }
+        ]
+      },
+      "logo": "/radar/ollama.png",
+      "talkingPoint": "Fourteen employees distribute open models to nine million developers and most of the Fortune 500.",
+      "tier": 2
+    },
+    {
+      "id": "image-models",
+      "name": "Image models",
+      "maker": "Black Forest Labs, Google, ByteDance",
+      "category": "models",
+      "tagline": "Picture generation stopped being a toy and became a production dependency for design teams.",
+      "status": "stable",
+      "license": "Mixed, FLUX has open weights",
+      "runsLocal": true,
+      "byoKey": true,
+      "momentum": 72,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "APIs, Hugging Face weights, and inside Adobe, Canva and Figma",
+      "bestFor": "Mockups, concept work, listing photography and anything where a stock photo used to do.",
+      "cost": {
+        "band": "low",
+        "headline": "Cents per image through an API, or free if you run open weights on your own GPU.",
+        "detail": "Per-image pricing is low enough that the cost is your time, not the render. The bill arrives when a workflow generates variations in a loop, so cap iterations before you point one at a batch job. Running FLUX yourself is free per image and expensive per GPU."
+      },
+      "capabilities": [
+        {
+          "label": "Photoreal quality",
+          "score": 5
+        },
+        {
+          "label": "Text in images",
+          "score": 4
+        },
+        {
+          "label": "Editing an existing image",
+          "score": 4
+        },
+        {
+          "label": "Consistent characters",
+          "score": 3
+        }
+      ],
+      "what": "Three families now do most of the work: FLUX from Black Forest Labs, which publishes open weights you can run yourself, Google’s Gemini image models, and ByteDance’s. All of them will now edit an image you supply rather than only generating from a blank prompt, which is the change that made them useful for real design work instead of moodboards.",
+      "hidden": "The most consequential image lab in the world is in Freiburg, Germany, and its CEO co-created Stable Diffusion. Black Forest Labs signed a reported $140M multi-year deal with Meta and has around $300M in total contract value across Adobe, Canva and Snap. Europe does have a frontier lab; it just makes pictures rather than chatbots.",
+      "peek": "Editing is where the competition has moved. Generating something plausible from nothing is solved; changing one element of an existing image without disturbing the rest is not, and that is the feature design teams actually need.",
+      "watch": "Spelling. Text rendered inside an image is still the reliable failure, and hyphens and unusual punctuation come out wrong often enough that anything with words on it needs a human read before it ships. Licensing also varies by model, so check what you are allowed to sell before you sell it.",
+      "links": [
+        {
+          "label": "bfl.ai",
+          "url": "https://bfl.ai/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "FLUX weights",
+          "url": "https://huggingface.co/black-forest-labs",
+          "kind": "repo"
+        },
+        {
+          "label": "Their Series B post",
+          "url": "https://bfl.ai/blog/our-300m-series-b",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Black Forest Labs, plus Google and ByteDance in the closed lane",
+        "people": "Black Forest Labs was founded by Robin Rombach, Andreas Blattmann and Patrick Esser, the researchers behind Stable Diffusion.",
+        "based": "Freiburg im Breisgau, Germany",
+        "started": "Founded 2024 by the original Stable Diffusion team after they left Stability AI.",
+        "summary": "$300M Series B at $3.25B, Dec 2025",
+        "rounds": [
+          {
+            "when": "Aug 2024",
+            "round": "Seed",
+            "amount": "$31M",
+            "valuation": null,
+            "investors": "Andreessen Horowitz leading"
+          },
+          {
+            "when": "Dec 2025",
+            "round": "Series B",
+            "amount": "$300M",
+            "valuation": "$3.25B",
+            "investors": "Co-led by Salesforce Ventures and Anjney Midha, with a16z, NVIDIA, General Catalyst and Temasek. Over $450M raised in total."
+          }
+        ],
+        "money": "API usage plus large licensing contracts. A reported $140M multi-year agreement with Meta, and roughly $300M in total contract value including Adobe, Canva and Snap.",
+        "next": "Moving from images toward what they call visual intelligence, meaning editing, video and models that understand a scene rather than only painting one.",
+        "edge": "Their business is licensing, not the API. Meta, Adobe, Canva and Snap contracts dwarf what developers spend per image, which means the weights stay open for a commercial reason rather than an ideological one: open weights are the distribution that makes the enterprise contract worth signing.",
+        "sources": [
+          {
+            "label": "TechCrunch on the $300M round",
+            "url": "https://techcrunch.com/2025/12/01/black-forest-labs-raises-300m-at-3-25b-valuation"
+          },
+          {
+            "label": "Black Forest Labs, Series B",
+            "url": "https://bfl.ai/blog/our-300m-series-b"
+          }
+        ]
+      },
+      "logo": "/radar/image-models.png",
+      "talkingPoint": "Europe does have a frontier lab. It is in Freiburg and it makes pictures rather than chatbots.",
+      "tier": 2
+    },
+    {
+      "id": "agents-md",
+      "name": "AGENTS.md",
+      "maker": "OpenAI, now the Agentic AI Foundation",
+      "category": "build",
+      "tagline": "One file in your repository that tells every coding agent how your project works.",
+      "status": "stable",
+      "license": "Open standard",
+      "runsLocal": true,
+      "byoKey": false,
+      "momentum": 81,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "A markdown file at the root of your repository",
+      "bestFor": "Any repository more than one person or more than one agent touches.",
+      "cost": {
+        "band": "free",
+        "headline": "Free. It is a filename and a convention.",
+        "detail": "The only cost is the twenty minutes it takes to write down the conventions you have been repeating in prompts, and the discipline to update it when they change. A stale instruction file is worse than none, because agents follow it confidently."
+      },
+      "capabilities": [
+        {
+          "label": "Tool support",
+          "score": 5
+        },
+        {
+          "label": "Effort to adopt",
+          "score": 5
+        },
+        {
+          "label": "Effect on output",
+          "score": 4
+        },
+        {
+          "label": "Portability",
+          "score": 5
+        }
+      ],
+      "what": "A plain markdown file at the repository root holding the things an agent cannot infer from the code: how to run the tests, which package manager, the conventions, what never to touch. Agents read it automatically at the start of a session, so you write the house rules once instead of at the top of every prompt.",
+      "hidden": "It went from a launch in August 2025 to more than 60,000 repositories and roughly 28 tools with native support, and it did that by being deliberately boring. No schema, no parser, no version negotiation. It is a text file with an agreed name, and that is the entire reason every vendor could adopt it in an afternoon.",
+      "peek": "The Linux Foundation put it under the Agentic AI Foundation in December 2025, next to MCP and Block’s goose. That means the name is now safe from any one vendor deciding to change it.",
+      "watch": "Twenty tight lines beat two hundred. Agents weigh what is in that file heavily, so a long, aspirational document full of rules nobody actually follows will make the output worse, not better. Write what is true, delete what is stale.",
+      "links": [
+        {
+          "label": "agents.md",
+          "url": "https://agents.md/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "OpenAI on the foundation",
+          "url": "https://openai.com/index/agentic-ai-foundation/",
+          "kind": "read"
+        },
+        {
+          "label": "Agentic AI Foundation",
+          "url": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Published by OpenAI, governed by the Linux Foundation",
+        "people": "Maintained across the ecosystem rather than by one vendor",
+        "based": "Neutral foundation, global contributors",
+        "started": "Released August 2025. Contributed to the Agentic AI Foundation in December 2025.",
+        "summary": "Donated to the Linux Foundation, no single owner",
+        "rounds": [
+          {
+            "when": "Dec 2025",
+            "round": "Contributed to the Agentic AI Foundation",
+            "amount": "Not a company, no funding",
+            "valuation": null,
+            "investors": "OpenAI’s contribution alongside Anthropic’s MCP and Block’s goose, with Google, AWS, Microsoft, Cloudflare and Bloomberg supporting."
+          }
+        ],
+        "money": "Nothing. Every vendor benefits from agents behaving predictably in other people’s repositories.",
+        "next": "Adoption is the roadmap. More than 60,000 repositories carry one, and the tools that read it now include Codex, Cursor, Gemini CLI, Copilot, Jules and VS Code.",
+        "edge": "The two rival standards in agent land, MCP from Anthropic and AGENTS.md from OpenAI, are now governed by the same foundation with both companies on the board. The interesting fact is not that they cooperated; it is that the plumbing layer got standardised while the model layer stayed a price war. Competition moved up the stack, and your integration work stopped being throwaway.",
+        "sources": [
+          {
+            "label": "OpenAI, the Agentic AI Foundation",
+            "url": "https://openai.com/index/agentic-ai-foundation/"
+          },
+          {
+            "label": "agents.md",
+            "url": "https://agents.md/"
+          }
+        ]
+      },
+      "logo": "/radar/agents-md.png",
+      "talkingPoint": "One boring text file, sixty thousand repositories. The cheapest quality win on this page.",
+      "tier": 2
+    },
+    {
+      "id": "langfuse",
+      "name": "Langfuse",
+      "maker": "Langfuse, part of ClickHouse",
+      "category": "build",
+      "tagline": "Traces and scores for the LLM feature you shipped, so you can tell whether a change helped.",
+      "status": "stable",
+      "license": "MIT core",
+      "runsLocal": true,
+      "byoKey": true,
+      "momentum": 64,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "Cloud, or self-hosted with Docker",
+      "bestFor": "The moment a prompt change goes to real users and \"it seemed better\" stops being good enough.",
+      "cost": {
+        "band": "free",
+        "headline": "Open source and self-hostable for free. The cloud version has a free tier and paid plans above it.",
+        "detail": "Self-hosting costs you a container and a database rather than a subscription, which is the honest option for a side project. The paid cloud tiers price on trace volume, so a chatty product gets expensive faster than a careful one."
+      },
+      "capabilities": [
+        {
+          "label": "Tracing detail",
+          "score": 5
+        },
+        {
+          "label": "Eval tooling",
+          "score": 4
+        },
+        {
+          "label": "Self-host effort",
+          "score": 4
+        },
+        {
+          "label": "Framework coverage",
+          "score": 5
+        }
+      ],
+      "what": "It records every model call your app makes, with the prompt, the response, the tokens, the latency and the cost, then lets you attach scores to those records. Prompt versioning and datasets sit on top, so you can replay yesterday’s real traffic against today’s prompt and see the difference as a number.",
+      "hidden": "This is the category everybody skips and then wishes they had not. Without traces, a prompt change is a vibe; with them it is a measurement. Most AI side projects have no idea what their own feature costs per user, and this is the tool that answers it in an afternoon.",
+      "peek": "ClickHouse acquired Langfuse in January 2026, the same day it announced a $400M Series D. The team stayed in Berlin and the open-source commitment held, which is unusual enough to be worth watching rather than assuming.",
+      "watch": "You are shipping your prompts and your users’ inputs into an observability tool. On the cloud tier that is a third-party processor to name in your privacy policy; self-hosting avoids that entirely, and for anything touching personal data it is the version to run.",
+      "links": [
+        {
+          "label": "langfuse.com",
+          "url": "https://langfuse.com/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Docs",
+          "url": "https://langfuse.com/docs",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/langfuse/langfuse",
+          "kind": "repo"
+        },
+        {
+          "label": "ClickHouse on the acquisition",
+          "url": "https://clickhouse.com/blog/clickhouse-acquires-langfuse-open-source-llm-observability",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Langfuse, acquired by ClickHouse",
+        "people": "Founded by Marc Klingen, Clemens Rawert and Max Deichmann. Y Combinator W23.",
+        "based": "Berlin, Germany, with go-to-market in San Francisco",
+        "started": "Founded 2022, through Y Combinator in early 2023.",
+        "summary": "Acquired by ClickHouse, January 2026",
+        "rounds": [
+          {
+            "when": "Nov 2023",
+            "round": "Seed",
+            "amount": "$4M",
+            "valuation": null,
+            "investors": "Lightspeed, La Famiglia and Y Combinator"
+          },
+          {
+            "when": "Jan 2026",
+            "round": "Acquired by ClickHouse",
+            "amount": "Undisclosed",
+            "valuation": null,
+            "investors": "Announced 16 January 2026 alongside ClickHouse’s $400M Series D, which valued ClickHouse at about $15B."
+          }
+        ],
+        "money": "Open-source core with paid cloud tiers, now sold as part of ClickHouse’s data platform.",
+        "next": "The team stayed in Berlin and says the roadmap and the open-source and self-hosting commitments are unchanged. Langfuse already ran on ClickHouse underneath, so the acquisition was a database company buying its own best showcase.",
+        "edge": "A €4M seed round, no Series A, and an exit to a $15B company inside three years. That is the shape of this whole layer: the tooling around models is being bought by the infrastructure companies underneath it, not by the labs above it. If you are picking a tool here, ask who is likely to own it, because the answer is usually a database vendor.",
+        "sources": [
+          {
+            "label": "ClickHouse on acquiring Langfuse",
+            "url": "https://clickhouse.com/blog/clickhouse-acquires-langfuse-open-source-llm-observability"
+          },
+          {
+            "label": "TechCrunch, ClickHouse at $15B",
+            "url": "https://techcrunch.com/2026/01/16/snowflake-databricks-challenger-clickhouse-hits-15b-valuation/"
+          }
+        ]
+      },
+      "logo": "/radar/langfuse.png",
+      "talkingPoint": "Berlin, $4M seed, no Series A, sold to ClickHouse. The tooling layer is being bought by database companies.",
+      "tier": 2
+    },
+    {
+      "id": "gemini-notebook",
+      "name": "Gemini Notebook",
+      "maker": "Google",
+      "category": "work",
+      "tagline": "Upload your own sources and ask questions the answers have to come from.",
+      "status": "stable",
+      "license": null,
+      "runsLocal": false,
+      "byoKey": false,
+      "momentum": 71,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "Web, plus inside the Gemini app",
+      "bestFor": "Reading a stack of PDFs you do not have time to read, and being able to check the answer.",
+      "cost": {
+        "band": "free",
+        "headline": "Free with a Google account, with higher limits on paid Google AI plans.",
+        "detail": "The free tier is generous enough that most people never hit the ceiling. Limits are per-notebook and per-day and Google has changed their shape more than once, so treat any specific number you read as provisional."
+      },
+      "capabilities": [
+        {
+          "label": "Grounded answers",
+          "score": 5
+        },
+        {
+          "label": "Source citations",
+          "score": 5
+        },
+        {
+          "label": "Handles long documents",
+          "score": 5
+        },
+        {
+          "label": "Export and reuse",
+          "score": 3
+        }
+      ],
+      "what": "You give it sources, PDFs, docs, links, and it answers only from those, with a citation on every claim you can click back to the sentence it came from. That constraint is the product: it is the difference between a chatbot that might be right and a research tool you can check.",
+      "hidden": "Google renamed it. NotebookLM became Gemini Notebook on 16 July 2026, so every tutorial, course and bookmark you have from before then points at a name that no longer exists. The tool is the same and better, the search results are now a mess.",
+      "peek": "Every notebook now gets a secure cloud machine that can run code, so it will analyse a spreadsheet rather than only describe one, and outputs have expanded to charts, decks and structured files. It is turning from a reader into a small research team.",
+      "watch": "It is Google, and your sources go to Google. For public research that is nothing; for a client’s confidential documents it is a decision you should make deliberately rather than by dragging a file in. Check what tier you are on and what that tier says about training.",
+      "links": [
+        {
+          "label": "notebooklm.google.com",
+          "url": "https://notebooklm.google.com/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Google on the rename",
+          "url": "https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/",
+          "kind": "read"
+        },
+        {
+          "label": "TechCrunch on the rename",
+          "url": "https://techcrunch.com/2026/07/16/google-continues-its-renaming-streak-by-turning-notebooklm-to-gemini-notebook/",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "Google, out of Google Labs",
+        "people": "A Google product team. It began as an experiment called Project Tailwind.",
+        "based": "Mountain View, United States",
+        "started": "Launched 2023 as NotebookLM. Renamed Gemini Notebook on 16 July 2026.",
+        "summary": "Funded by Alphabet, 30M+ users",
+        "rounds": [
+          {
+            "when": "n/a",
+            "round": "Funded by Alphabet",
+            "amount": "No external rounds",
+            "valuation": null,
+            "investors": "Alphabet Inc. Reported at more than 30 million people and over 600,000 organisations."
+          }
+        ],
+        "money": "Free, and a reason to hold a paid Google AI subscription. It sells Gemini, not itself.",
+        "next": "Folding into the Gemini app and into AI Mode in Search, with notebooks syncing between them. The standalone product survives, but it is being absorbed into the wider Gemini surface.",
+        "edge": "The rename tells you the strategy. A well-loved standalone name got dropped into the Gemini brand the moment it hit thirty million users, which is what happens to a Google product that works: it stops being its own thing and becomes a feature of the flagship. Build habits on it, not workflows that assume the name or the URL stays put.",
+        "sources": [
+          {
+            "label": "Google, NotebookLM is now Gemini Notebook",
+            "url": "https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/"
+          },
+          {
+            "label": "TechCrunch on the rename",
+            "url": "https://techcrunch.com/2026/07/16/google-continues-its-renaming-streak-by-turning-notebooklm-to-gemini-notebook/"
+          }
+        ]
+      },
+      "logo": "/radar/gemini-notebook.png",
+      "talkingPoint": "Google renamed NotebookLM in July, so every tutorial you saved points at a name that no longer exists.",
+      "tier": 2
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "maker": "n8n",
+      "category": "work",
+      "tagline": "Wire your tools together on a canvas, with a model in the middle when you need one.",
+      "status": "stable",
+      "license": "Fair-code, source available",
+      "runsLocal": true,
+      "byoKey": true,
+      "momentum": 86,
+      "delta": "new",
+      "firstSeen": "2026-09",
+      "surface": "Self-hosted with Docker, or their cloud",
+      "bestFor": "The recurring job you keep doing by hand: triage, digests, syncing two systems that will never integrate.",
+      "cost": {
+        "band": "low",
+        "headline": "Free to self-host. The cloud is a monthly subscription priced on executions.",
+        "detail": "Self-hosting on a small server costs you the server, which for most personal automations is a few euros a month. The cloud plans price per workflow execution rather than per seat, so a chatty automation costs more than a busy team does. Model calls are billed separately by whoever you point it at."
+      },
+      "capabilities": [
+        {
+          "label": "Integrations",
+          "score": 5
+        },
+        {
+          "label": "Self-host effort",
+          "score": 4
+        },
+        {
+          "label": "Escape to real code",
+          "score": 5
+        },
+        {
+          "label": "Debugging a broken run",
+          "score": 3
+        }
+      ],
+      "what": "A visual canvas of nodes: a trigger, some steps, a result. Hundreds of prebuilt connectors for the usual services, an HTTP node for everything else, and a JavaScript node when the visual version stops being the clearest way to say it. The AI nodes let a model make a decision partway through a flow rather than at the end.",
+      "hidden": "It is German and it is enormous. Berlin-based, valuation doubled to $5.2B in seven months after SAP invested in May 2026. The tool most people think of as the free Zapier alternative is now one of Europe’s most valuable private software companies.",
+      "peek": "The centre of gravity has moved from \"connect two apps\" to \"run an agent with tools\", which puts it in competition with code-first agent frameworks while keeping the audience that does not want to write code.",
+      "watch": "Fair-code is not open source. You can read it, self-host it and modify it, but the licence restricts selling it as a service, so check the terms before you build a product on top rather than a workflow inside it. And a broken run in a long visual flow is genuinely harder to debug than a stack trace.",
+      "links": [
+        {
+          "label": "n8n.io",
+          "url": "https://n8n.io/",
+          "kind": "site",
+          "official": true
+        },
+        {
+          "label": "Docs",
+          "url": "https://docs.n8n.io/",
+          "kind": "docs",
+          "official": true
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/n8n-io/n8n",
+          "kind": "repo"
+        },
+        {
+          "label": "Tech.eu on the SAP investment",
+          "url": "https://tech.eu/2026/05/12/n8n-s-valuation-doubles-to-5-2bn-following-sap-strategic-investment/",
+          "kind": "read"
+        }
+      ],
+      "origin": {
+        "builtBy": "n8n GmbH",
+        "people": "Founded by Jan Oberhauser, who built the first version while working as a technical director in film production.",
+        "based": "Berlin, Germany",
+        "started": "Started as a side project in 2019, open-sourced the same year.",
+        "summary": "$5.2B valuation after SAP invested, May 2026",
+        "rounds": [
+          {
+            "when": "Mar 2024",
+            "round": "Series A",
+            "amount": "$12M",
+            "valuation": null,
+            "investors": "Sequoia leading"
+          },
+          {
+            "when": "Mar 2025",
+            "round": "Series B",
+            "amount": "$60M",
+            "valuation": null,
+            "investors": "Highland Europe leading"
+          },
+          {
+            "when": "Oct 2025",
+            "round": "Series C",
+            "amount": "$180M",
+            "valuation": "$2.5B",
+            "investors": "Accel leading"
+          },
+          {
+            "when": "May 2026",
+            "round": "Strategic investment",
+            "amount": "Undisclosed",
+            "valuation": "$5.2B",
+            "investors": "SAP. About $493M raised in total across five rounds."
+          }
+        ],
+        "money": "Cloud subscriptions priced on executions, plus enterprise licences. Self-hosting stays free.",
+        "next": "Agents rather than integrations. The AI nodes are where the product is being pushed, and the SAP money points at large European enterprises with data-residency requirements.",
+        "edge": "SAP investing is the tell. A German enterprise giant putting money into a source-available automation tool is a bet on European companies wanting workflows that never leave their own infrastructure. If you are in the EU and worried about where data goes, that is the reason this is the automation tool to look at first, ahead of the American ones.",
+        "sources": [
+          {
+            "label": "Tech.eu on the $5.2B valuation",
+            "url": "https://tech.eu/2026/05/12/n8n-s-valuation-doubles-to-5-2bn-following-sap-strategic-investment/"
+          },
+          {
+            "label": "n8n",
+            "url": "https://n8n.io/"
+          }
+        ]
+      },
+      "logo": "/radar/n8n.png",
+      "talkingPoint": "SAP invested and the valuation doubled to $5.2B. The automation tool that keeps your data in Europe.",
+      "tier": 1
+    }
+  ],
+  "primer": {
+    "title": "Before the list",
+    "standfirst": "Sixteen things across four layers. The layers are worth thirty seconds first, because a protocol, a model, an agent and a desk tool are judged on completely different questions, and this page is grouped so you can read only the layer you are shopping in.",
+    "loop": {
+      "title": "What a coding agent actually is",
+      "body": "Not a chat box that writes a function. An agent is a loop that runs until the work is done or it gives up. Every tool on this list runs some version of these five steps, and the differences between them are mostly differences in how well each step goes.",
+      "steps": [
+        {
+          "icon": "search",
+          "label": "Reads",
+          "detail": "Opens the repository itself. Greps, follows imports, builds a picture of how your code actually fits together, instead of guessing from the file you pasted."
+        },
+        {
+          "icon": "list",
+          "label": "Plans",
+          "detail": "Writes down the change list before touching anything. The good ones let you read and edit that plan first, which is where you catch a wrong approach cheaply."
+        },
+        {
+          "icon": "pencil",
+          "label": "Edits",
+          "detail": "Changes several files at once, because a real change is rarely in one place: the function, its caller, the type, the test."
+        },
+        {
+          "icon": "play",
+          "label": "Runs",
+          "detail": "Executes your tests or your build and reads the failure. This is the step that separates a tool that works from a tool that produces plausible code."
+        },
+        {
+          "icon": "repeat",
+          "label": "Loops",
+          "detail": "Feeds its own error message back in and tries again, until it passes or it runs out of ideas. Then it hands you a diff to review."
+        }
+      ],
+      "shift": "That last part is the change nobody warns you about. You stop reviewing lines and start reviewing an argument that something else already had with your compiler. It is faster and it is a different skill.",
+      "scope": "Coding agents"
+    },
+    "checklist": {
+      "title": "How to pick a coding agent",
+      "body": "Seven questions, in the order that actually costs you money if you get them wrong. Every entry in the Coding agents section is written to answer them. The other three layers each carry their own one-line version at the top of their section.",
+      "items": [
+        {
+          "q": "Whose model can it use?",
+          "why": "A tool locked to one model family means a bad model release is automatically your bad week. A tool that takes your own key means you change one config line and carry on."
+        },
+        {
+          "q": "Can it run your tests?",
+          "why": "An agent that cannot execute the code is guessing. One that runs the suite and reads the failure is checking. The gap between those two is most of the value."
+        },
+        {
+          "q": "What shape is the price?",
+          "why": "A seat fee is predictable and caps your downside. Metered tokens are cheaper on a quiet week and unbounded on a bad one. Free tool plus your own key means nobody is protecting you from a runaway loop except you."
+        },
+        {
+          "q": "Where does your code go?",
+          "why": "Local process, vendor cloud, or both. Ask what is retained and for how long, and ask before you point it at a client repository rather than after."
+        },
+        {
+          "q": "What can it do without asking?",
+          "why": "Editing files, running shell commands, opening pull requests, installing packages. Good tools make this a setting you choose. Check what the default is, because most people never change it."
+        },
+        {
+          "q": "Does it read your conventions?",
+          "why": "A project instruction file (CLAUDE.md, AGENTS.md) lets you write the house style down once instead of repeating it in every prompt. Twenty lines of conventions beats a long prompt, reliably."
+        },
+        {
+          "q": "Who owns it next year?",
+          "why": "Not a paranoid question any more. Cursor was independent in March 2026 and a SpaceX subsidiary by August, and one major model provider cut it off two weeks later. Ownership is a product feature now."
+        }
+      ]
+    },
+    "glossary": {
+      "title": "The words, in plain English",
+      "terms": [
+        {
+          "term": "Token",
+          "plain": "A chunk of text, roughly three quarters of a word. Everything is billed per million of them.",
+          "matters": "Prices below are quoted per million tokens, split into input (what you send) and output (what it writes). Output is always the expensive half, usually four to five times the input price."
+        },
+        {
+          "term": "Context window",
+          "plain": "How much the model can hold in its head at once, measured in tokens.",
+          "matters": "A one million token window is roughly a medium codebase. When it fills, something has to be dropped or summarised, and that is when an agent starts forgetting what you told it an hour ago."
+        },
+        {
+          "term": "Tool call",
+          "plain": "The model asking the software around it to do something real: read this file, run this command, search the web.",
+          "matters": "This is the whole trick. A model on its own only writes text. Tool calls are what turn text into a program that actually edits your repository."
+        },
+        {
+          "term": "Harness",
+          "plain": "The program wrapped around the model: the loop, the file access, the permissions, the memory of the session.",
+          "matters": "Everyone can rent the same models. The harness is the actual product, and it is why two tools using identical models feel completely different."
+        },
+        {
+          "term": "MCP",
+          "plain": "Model Context Protocol. One standard plug so any agent can talk to any tool, instead of every pair needing custom glue.",
+          "matters": "It is why your agent can reach your database, your issue tracker and your docs without anyone building a specific integration for your combination."
+        },
+        {
+          "term": "Bring your own key",
+          "plain": "The tool is free; you paste in an API key and pay the model provider directly.",
+          "matters": "No markup and no seat fee, but also no ceiling. Set a hard spend cap in the provider console on day one."
+        },
+        {
+          "term": "Open weights",
+          "plain": "The trained model file is published, so you can download it, run it, or rent it from whoever hosts it cheapest.",
+          "matters": "Not the same as open source, the training data and code usually stay private. What it gives you is a price floor and an exit if a vendor changes terms."
+        },
+        {
+          "term": "Prompt caching",
+          "plain": "Paying once to keep the unchanged front of your conversation warm, then reading it back cheap.",
+          "matters": "On a long agent session the same project context is resent on every single turn. Caching is the difference between a sane bill and a shocking one, often around ten times on the cached part."
+        }
+      ]
+    },
+    "stack": {
+      "title": "The four layers, bottom to top",
+      "body": "Everything here sits somewhere in one stack. Reading it bottom-up explains why the prices move together: when the bottom layer gets cheaper, everything above it reprices.",
+      "layers": [
+        {
+          "category": "models",
+          "role": "The engine",
+          "detail": "The thing that actually generates. Everyone above rents it, so its price is the floor under every bill on this page. You choose here on cost per million tokens, context size, and whether you can take the weights and walk."
+        },
+        {
+          "category": "build",
+          "role": "The plumbing",
+          "detail": "Protocols, SDKs and standards you wire into your own product. This layer got standardised in the last year, which is why integration work stopped being throwaway. You choose here on who governs it, not who sells it."
+        },
+        {
+          "category": "agents",
+          "role": "The worker",
+          "detail": "Software that opens your files, runs your tests and hands back a diff. This is where the loudest competition is, and where the biggest money moved. You choose here on model freedom, whether it can run your code, and what it may do unattended."
+        },
+        {
+          "category": "work",
+          "role": "The desk",
+          "detail": "Tools that take an hour off a normal week without you writing anything. Notes, dictation, automation, research. You choose here on where your data goes and what a seat costs after the trial."
+        }
+      ]
+    },
+    "foldLabel": "New to this? How the four layers fit, how to pick an agent, and the words"
+  },
+  "headline": {
+    "title": "If you only read one thing",
+    "points": [
+      {
+        "kind": "changed",
+        "label": "What changed",
+        "text": "Ownership became a product feature. Cursor was independent in March, a SpaceX subsidiary by August, and lost access to OpenAI’s models two weeks after the deal closed."
+      },
+      {
+        "kind": "cost",
+        "label": "What will cost you",
+        "text": "Today’s token prices are subsidised by the two largest private funding rounds ever raised, and both of those companies are now filing to go public. Budget for inference getting dearer, not cheaper."
+      },
+      {
+        "kind": "try",
+        "label": "Try this before the next session",
+        "text": "Put an AGENTS.md in one repository. Twenty lines of your actual conventions, free, and it changes what an agent produces more reliably than a longer prompt does."
+      }
+    ]
+  }
+}

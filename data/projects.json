@@ -9,7 +9,28 @@
       "thumb": "/projects/breach-protocol.svg",
       "cta": "Play the game",
       "by": "Auri",
-      "tags": ["security", "game", "learn"],
+      "tags": [
+        "security",
+        "game",
+        "learn"
+      ],
+      "status": "live",
+      "public": true
+    },
+    {
+      "id": "dealround",
+      "name": "Dealround",
+      "tagline": "Every Copenhagen deal on one map",
+      "desc": "An independent aggregator for Copenhagen. A Python scraper walks eight Danish deal sites and four event sources, strips the junk listings and the cross-site duplicates, translates the Danish titles into English, and puts what survives on one searchable map. Next.js frontend on Vercel, scraper on a Hetzner box.",
+      "url": "https://dealround.online",
+      "thumb": "/projects/dealround.jpg",
+      "cta": "Open Dealround",
+      "by": "Auri",
+      "tags": [
+        "copenhagen",
+        "scraping",
+        "nextjs"
+      ],
       "status": "live",
       "public": true
     }

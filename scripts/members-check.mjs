@@ -3,12 +3,17 @@
 //
 //   node scripts/members-check.mjs [baseUrl]
 //
-// The data is baked into src/data.json at build time, so this runs fine against
-// vite preview; no API layer is involved.
+// The member list used to sit in src/data.json. It does not any more: the
+// gating rework moved it to api/_members-data.js, a server-only module behind
+// the signed-in /api/members route, and src/data.json kept only a memberCount.
+// This check went on importing the old path, so `data.members` was undefined
+// and every assertion died on the first `.length`. Read it from where it lives.
 
 import { spawn } from 'node:child_process';
 import { rmSync } from 'node:fs';
-import data from '../src/data.json' with { type: 'json' };
+import membersData from '../api/_members-data.js';
+
+const data = { members: membersData.members || [] };
 
 const BASE = process.argv[2] || process.env.SMOKE_URL || 'http://127.0.0.1:5281';
 const CHROME = process.env.CHROME || (

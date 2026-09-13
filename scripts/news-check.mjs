@@ -6,7 +6,26 @@
 // news.json is bundled at build time, so vite preview is fine here.
 
 import { spawn } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { rmSync, readFileSync } from 'node:fs';
+
+// Two assertions below used to carry literals from whichever roundup was
+// current when they were written: "exactly 5 official sources" and a search for
+// "deepseek". Both broke the first time the news was updated, which makes the
+// check a thing you edit rather than a thing you trust. They read the data now.
+const NEWS = JSON.parse(readFileSync(new URL('../data/news.json', import.meta.url), 'utf8'));
+const OFFICIAL_COUNT = NEWS.items.reduce((n, i) => n + (i.sources || []).filter((s) => s.official).length, 0);
+const ONLY_OFFICIAL = NEWS.items.some((i) => (i.sources || []).length > 0 && i.sources.every((s) => s.official));
+// A word that appears in exactly one headline, so searching it must narrow.
+const SEARCH_TERM = (() => {
+  const words = NEWS.items.map((i) => i.title.toLowerCase().match(/[a-z]{5,}/g) || []);
+  const counts = new Map();
+  words.flat().forEach((w) => counts.set(w, (counts.get(w) || 0) + 1));
+  for (const list of words) {
+    const unique = list.find((w) => counts.get(w) === 1);
+    if (unique) return unique;
+  }
+  return NEWS.items[0].title.toLowerCase().split(/\s+/)[0];
+})();
 
 const BASE = process.argv[2] || process.env.SMOKE_URL || 'http://127.0.0.1:5281';
 const CHROME = process.env.CHROME || (
@@ -110,8 +129,12 @@ try {
 
   // Added the same day: the subject's own announcements are marked, and a story
   // resting on nothing else says so.
-  check('official sources are marked', await evalJs(`[...document.querySelectorAll('article a span')].filter((s) => /official/i.test(s.textContent)).length`) === 5);
-  check('a story with no independent source says so', await evalJs(`/Only the subject.s own announcement/.test(document.body.innerText)`));
+  check('official sources are marked',
+    await evalJs(`[...document.querySelectorAll('article a span')].filter((s) => /official/i.test(s.textContent)).length`) === OFFICIAL_COUNT,
+    `expected ${OFFICIAL_COUNT} from news.json`);
+  check('a story with no independent source says so',
+    !ONLY_OFFICIAL || await evalJs(`/Only the subject.s own announcement/.test(document.body.innerText)`),
+    ONLY_OFFICIAL ? 'a story rests only on the subject' : 'no such story this roundup');
 
   // Generated title cards duplicated the headline, subtitle, category and date
   // as baked-in raster text; they now fall back to the brand pattern.
@@ -123,9 +146,9 @@ try {
   check('external links carry a visible affordance',
     await evalJs(`document.querySelectorAll('article a svg').length`) > 0);
 
-  await search('deepseek');
+  await search(SEARCH_TERM);
   const few = await cardCount();
-  check('search narrows the list', few > 0 && few < total, `${few} of ${total}`);
+  check('search narrows the list', few > 0 && few < total, `"${SEARCH_TERM}": ${few} of ${total}`);
 
   await search('zzzznothing');
   check('an empty search result explains itself',

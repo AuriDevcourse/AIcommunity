@@ -216,7 +216,9 @@ try {
   })()`);
   await sleep(900);
   const homeHash = await evalJs(`location.hash`);
-  check('Back returns to Home', backHome === true && homeHash === '#home', `hash="${homeHash}"`);
+  // Home is the bare URL since 2026-09-04 (commit 35afa89 dropped `#home`), so
+  // an empty hash is the pass here, not `#home`.
+  check('Back returns to Home', backHome === true && homeHash === '', `hash="${homeHash}"`);
 } catch (e) {
   fails.push(`threw: ${e.message}`);
   console.log(`\n  ERROR ${e.message}`);
