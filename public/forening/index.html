@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AI Sundays bliver en forening. Stiftende generalforsamling søndag den 27. september 2026, kl. 12:30, Matrikel1, København.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Stiftende generalforsamling · Foreningen AI Sundays">
+<meta property="og:description" content="AI Sundays bliver en forening. Stiftende generalforsamling søndag den 27. september 2026, kl. 12:30, Matrikel1, København.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.aisundays.org/forening/">
+<link rel="icon" href="/favicon.svg">
+<title>AI Sundays Founding Meeting</title>
+  <link rel="stylesheet" href="./fonts.css">
+<style>
+  :root {
+    --ground: #F8F0E4;
+    --surface: #FFFBF4;
+    --surface-2: #F1E7D6;
+    --ink: #17140E;
+    --ink-soft: #5D5B4C;
+    --rule: #DFD4C0;
+    --rule-strong: #C6B89E;
+    --green: #124A30;
+    --green-deep: #0B2E1E;
+    --masthead-bg: #0B2E1E;
+    --yellow: #F8B800;
+    --lime: #D4F53A;
+    --accent-text: #124A30;
+    --on-green: #F8F0E4;
+    --focus: #124A30;
+
+    --step-0: 1.0625rem;
+    --step-1: 1.1875rem;
+    --step-2: clamp(1.25rem, 2.4vw, 1.5rem);
+    --step-3: clamp(1.6rem, 3.4vw, 2.05rem);
+    --step-4: clamp(2.1rem, 6.2vw, 3.3rem);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0B2E1E;
+      --surface: #113A27;
+      --surface-2: #0E3322;
+      --ink: #F4ECDC;
+      --ink-soft: #A6BCAD;
+      --rule: #1E5138;
+      --rule-strong: #2C6A4A;
+      --masthead-bg: #072116;
+      --green: #D4F53A;
+      --accent-text: #D4F53A;
+      --on-green: #0B2E1E;
+      --focus: #D4F53A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0B2E1E;
+    --surface: #113A27;
+    --surface-2: #0E3322;
+    --ink: #F4ECDC;
+    --ink-soft: #A6BCAD;
+    --rule: #1E5138;
+    --rule-strong: #2C6A4A;
+    --masthead-bg: #072116;
+    --green: #D4F53A;
+    --accent-text: #D4F53A;
+    --on-green: #0B2E1E;
+    --focus: #D4F53A;
+  }
+
+  * { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding-inline: 20px;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: var(--step-3);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-family: "Karla", sans-serif;
+    font-weight: 700;
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+  p { margin: 0; }
+  a { color: var(--accent-text); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    background: var(--masthead-bg);
+    color: #F4ECDC;
+    padding-block: 0 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .sunrise { display: block; width: 100%; height: auto; }
+  .masthead-body {
+    padding-block: 0 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .masthead h1 { color: #F4ECDC; margin-top: -0.12em; }
+  .deck {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: #CFE0D2;
+    max-width: 34rem;
+  }
+  .datechip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    align-self: flex-start;
+    background: var(--yellow);
+    color: #17140E;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+    padding: 8px 13px;
+    border-radius: 2px;
+  }
+
+  /* ---------- sections ---------- */
+  main { padding-block: 44px 0; display: flex; flex-direction: column; gap: 52px; }
+  section { display: flex; flex-direction: column; gap: 18px; }
+  .lede { font-size: var(--step-1); line-height: 1.55; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: 0.9375rem; }
+
+  /* stakes list */
+  .stakes { display: grid; gap: 2px; border-top: 1px solid var(--rule); }
+  .stake {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 4px 20px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .stake dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stake dd { margin: 0; }
+  @media (max-width: 30rem) { .stake { grid-template-columns: 1fr; } }
+
+  /* steps */
+  .steps { display: grid; gap: 14px; }
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 15px 17px;
+  }
+  .step.later { background: transparent; }
+  .step.later .step-num { color: var(--ink-soft); }
+  .step-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.2rem;
+    padding-top: 0.12em;
+  }
+  .step-body { display: grid; gap: 9px; }
+  .step-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .step-title { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
+  .step-body p { font-size: 0.9375rem; }
+  .when {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--on-green);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .when.soft {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 2px 7px;
+  }
+  .needs { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+  .needs li {
+    position: relative;
+    padding-left: 1.55rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .needs li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.40625rem;
+    color: var(--ink-soft);
+    content: "\2013";
+  }
+  .needs li.done::before { content: "\2713"; color: var(--accent-text); font-weight: 700; }
+  .needs li.todo::before { content: "\25CB"; color: var(--ink-soft); }
+
+  /* agenda */
+  .agenda { list-style: none; margin: 0; padding: 0; counter-reset: ag; display: grid; gap: 0; }
+  .agenda li {
+    counter-increment: ag;
+    position: relative;
+    padding-left: 2.1rem;
+    padding-block: 10px;
+    border-bottom: 1px dotted var(--rule-strong);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .agenda li::before {
+    content: counter(ag, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.40625rem;
+    color: var(--ink-soft);
+  }
+
+  /* roles */
+  .roles { display: grid; gap: 12px; }
+  .role {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 15px 17px;
+    display: grid;
+    gap: 5px;
+  }
+  .role-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .role-name { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
+  .cost {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--on-green);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .role p { font-size: 0.9375rem; color: var(--ink-soft); }
+  .role.taken { background: transparent; }
+  .role.taken .role-name { color: var(--ink-soft); }
+  .cost.filled {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 2px 7px;
+  }
+
+  .note {
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    padding: 14px 17px;
+    font-size: 0.9375rem;
+  }
+  .note strong { font-weight: 700; }
+
+  /* ---------- form ---------- */
+  .formwrap {
+    background: var(--surface-2);
+    border-top: 1px solid var(--rule-strong);
+    padding-block: 40px 48px;
+    margin-top: 8px;
+  }
+  form { display: flex; flex-direction: column; gap: 30px; }
+  fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  legend {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fields .wide { grid-column: 1 / -1; }
+  @media (max-width: 34rem) { .fields { grid-template-columns: 1fr; } }
+  label.field { display: grid; gap: 5px; }
+  .label-text { font-size: 0.875rem; font-weight: 700; }
+  .label-note { font-weight: 400; color: var(--ink-soft); }
+  input[type="text"], input[type="email"], input[type="tel"], textarea {
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 2px;
+    padding: 9px 11px;
+    width: 100%;
+    min-width: 0;
+  }
+  textarea { resize: vertical; min-height: 4.5rem; line-height: 1.5; }
+  input::placeholder, textarea::placeholder { color: var(--ink-soft); opacity: 0.85; }
+
+  .choices { display: grid; gap: 7px; }
+  .choice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 11px;
+    align-items: start;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.9375rem;
+  }
+  .choice:hover { border-color: var(--rule-strong); }
+  .choice input { margin: 0.28em 0 0; accent-color: var(--green); width: 1.05em; height: 1.05em; }
+  .choice-body { display: grid; gap: 2px; }
+  .choice-name { font-weight: 700; }
+  .choice-why { font-size: 0.875rem; color: var(--ink-soft); }
+  .choice:has(input:checked) { border-color: var(--accent-text); background: var(--surface); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  button {
+    font: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px solid var(--green);
+    border-radius: 2px;
+    padding: 11px 20px;
+    cursor: pointer;
+    background: var(--green);
+    color: var(--on-green);
+  }
+  button.ghost { background: transparent; color: var(--accent-text); }
+  button:hover { filter: brightness(1.08); }
+
+  .output { display: grid; gap: 12px; }
+  #summary {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    min-height: 15rem;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .status { font-size: 0.875rem; color: var(--accent-text); min-height: 1.4em; font-weight: 700; }
+
+  /* statutes */
+  .statutes-wrap { padding-block: 52px 0; }
+  .statutes { display: grid; gap: 26px; }
+  .statute { display: grid; gap: 8px; }
+  .statute h3 {
+    position: relative;
+    padding-left: 3.1rem;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    color: var(--accent-text);
+  }
+  .snum { position: absolute; left: 0; top: 0; line-height: 1.5; color: var(--ink-soft); }
+  .clause {
+    position: relative;
+    padding-left: 3.1rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+  .cnum, .lnum {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.453rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .sub-let, .sub-num {
+    margin: 2px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 6px;
+  }
+  .sub-let li, .sub-num li {
+    position: relative;
+    padding-left: 3.1rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+  .sub-num { counter-reset: sn; }
+  .sub-num li { counter-increment: sn; }
+  .sub-num li::before {
+    content: counter(sn) ".";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.453rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .privacy {
+    border-top: 1px solid var(--rule);
+    padding-block: 26px 44px;
+    display: grid;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+  .privacy strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+
+<header class="masthead">
+  <div class="wrap">
+    <svg class="sunrise" viewBox="0 0 700 118" role="img" aria-label="Sunrise over a horizon line">
+      <defs>
+        <linearGradient id="dome" x1="0" y1="1" x2="0.35" y2="0">
+          <stop offset="0" stop-color="#F08A00"/>
+          <stop offset="0.55" stop-color="#F8B800"/>
+          <stop offset="1" stop-color="#D4F53A"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#F8B800" stroke-width="3" stroke-linecap="round" opacity="0.55">
+        <line x1="350" y1="18" x2="350" y2="34"/>
+        <line x1="286" y1="30" x2="294" y2="44"/>
+        <line x1="414" y1="30" x2="406" y2="44"/>
+        <line x1="238" y1="62" x2="252" y2="70"/>
+        <line x1="462" y1="62" x2="448" y2="70"/>
+      </g>
+      <path d="M 272 118 A 78 78 0 0 1 428 118 Z" fill="url(#dome)"/>
+      <line x1="0" y1="117" x2="700" y2="117" stroke="#1E5138" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="wrap masthead-body">
+    <h1>AI Sundays is becoming a forening</h1>
+    <p class="deck">Twelve Sunday workshops in a year, on nobody's budget and in whatever room was free. Registering as a Danish association gives the group a legal name of its own, a CVR number and a bank account, so the community stops living inside one person's phone.</p>
+    <p class="datechip"><span>Sunday 27 September 2026 · 12:30 · Matrikel1</span></p>
+  </div>
+</header>
+
+<main>
+  <section class="wrap">
+    <h2>What registering actually does</h2>
+    <p class="lede">The first one happens the evening we sign. The other two are what it opens up afterwards.</p>
+    <dl class="stakes">
+      <div class="stake">
+        <dt>Its own name</dt>
+        <dd>A legal identity, an address and a bank account that belong to the community rather than to Auri. Under § 9.4 of the statutes the association is liable only with its own money: <strong>no member and no board member is personally liable for anything it does.</strong> This part is true the moment the paperwork is signed.</dd>
+      </div>
+      <div class="stake">
+        <dt>65 to 75%</dt>
+        <dd>Lokaletilskud from Københavns Kommune, covering most of the rent on a room we book. Matrikel1 stays home for now, and this is what makes anywhere else possible: a bigger room, a projector, a Sunday when Matrikel1 is taken. It needs the municipal approval in step 2, not just the CVR number.</dd>
+      </div>
+      <div class="stake">
+        <dt>Up to 100.000 kr.</dt>
+        <dd>Tuborgfondet's Drømmepuljen, answered in about a week, average grant 30.000. It carries a real condition: the members who apply have to be between 16 and 30, and the activity has to be aimed at that group. Roughly three of us qualify, so it stays on the table. Nobody is applying for anything this month.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="wrap">
+    <h2>Two steps, and only the first is happening now</h2>
+    <p>These get mixed up constantly, so here they are separated. Step 1 makes the association exist. Step 2 is a separate application to the municipality, later, and it is the one carrying the membership rules.</p>
+    <div class="steps">
+      <div class="step">
+        <p class="step-num">1</p>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-title">Found it, then register the CVR number</span>
+            <span class="when">27 September</span>
+          </div>
+          <p>One evening, then a form on virk.dk that takes minutes and costs nothing. What comes out is a CVR number and a public registration certificate: the thing you send anyone who asks whether AI Sundays is a real organisation.</p>
+          <ul class="needs">
+            <li class="done">A board of three, the legal minimum. Settled</li>
+            <li class="done">Statutes, drafted and checked point by point against the municipality's list</li>
+            <li class="done">Signed minutes from the founding meeting</li>
+            <li class="done">A name, a registered address and a stated purpose</li>
+          </ul>
+          <p class="muted">Everything on that list is already in hand. Nothing in step 1 is waiting on a fifth person.</p>
+        </div>
+      </div>
+      <div class="step later">
+        <p class="step-num">2</p>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-title">Apply to be a folkeoplysende forening</span>
+            <span class="when soft">later, no deadline</span>
+          </div>
+          <p>The municipal approval that unlocks the venue money. A separate application, processed in about eight days, and there is no deadline if you are only asking for the right to book rooms.</p>
+          <ul class="needs">
+            <li class="todo"><strong>Five paying members.</strong> They count people who have actually paid, not people in a group chat. Four of us hold posts, so the fifth has to come from somewhere</li>
+            <li class="todo"><strong>Twelve activities a year.</strong> Their wording is "kontinuerligt". We have twelve documented sessions and thirteen more dates booked through March</li>
+            <li class="todo">A member list with name, address and date of birth for everyone on it</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>The meeting</h2>
+    <p><strong>Sunday 27 September, 12:30 to 13:30, at Matrikel1, Højbro Plads 10.</strong> About an hour, run as a proper <em>stiftende generalforsamling</em> because the minutes go to the authorities afterwards. The usual workshop follows straight after, so the day is the normal one with a meeting bolted to the front.</p>
+    <ol class="agenda">
+      <li>Electing a chair and a minute-taker for the evening</li>
+      <li>The decision to found the association</li>
+      <li>Approving the <a href="#vedtaegter">vedtægter</a>, our statutes</li>
+      <li>Setting the kontingent at 100 kr. a year</li>
+      <li>Electing the board</li>
+      <li>Electing the revisor</li>
+      <li>Authorising registration with CVR, the bank and the municipality</li>
+      <li>Any other business</li>
+    </ol>
+    <p class="note"><strong>Bring your address and date of birth.</strong> The member list has exactly three columns: name, address, date of birth. Collecting them later means going back to every member and asking twice. The Lithuanian Youth Society skipped this step and is now chasing thirty-two people for the same information.</p>
+  </section>
+
+  <section class="wrap">
+    <h2>Who is doing what</h2>
+    <p>Every post is unpaid and none of them is a second job. All four are now spoken for, which leaves the two jobs that last exactly one evening, and ordinary membership.</p>
+    <div class="roles">
+      <div class="role taken">
+        <div class="role-head"><span class="role-name">Formand</span><span class="cost filled">Auri</span></div>
+        <p>Chair. Runs the meetings, signs alongside the treasurer, carries the applications.</p>
+      </div>
+      <div class="role taken">
+        <div class="role-head"><span class="role-name">Kasserer</span><span class="cost filled">Eividas</span></div>
+        <p>Treasurer. Keeps the accounts and the bank account, and is the one the bank will want to meet.</p>
+      </div>
+      <div class="role taken">
+        <div class="role-head"><span class="role-name">Bestyrelsesmedlem</span><span class="cost filled">Ignas</span></div>
+        <p>Board member. Third seat on a board of three, which is the legal minimum under § 7.1.</p>
+      </div>
+      <div class="role taken">
+        <div class="role-head"><span class="role-name">Revisor</span><span class="cost filled">Andrei</span></div>
+        <p>Auditor. Reads the annual accounts once a year and signs them off, about two hours. No accounting qualification needed. The one rule is that the revisor cannot sit on the board.</p>
+      </div>
+      <div class="role open">
+        <div class="role-head"><span class="role-name">Dirigent and referent</span><span class="cost">open, one evening</span></div>
+        <p>Chair and minute-taker for the founding meeting itself. Two people, and the job ends when the meeting does. Board members can take these.</p>
+      </div>
+      <div class="role open">
+        <div class="role-head"><span class="role-name">Member</span><span class="cost">open, 100 kr. / year</span></div>
+        <p>No post, no obligation, just paid up and on the list. The four above are already counted, so the fifth signature the municipality wants in step 2 has to come from here.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="formwrap">
+  <div class="wrap">
+    <section>
+      <h2>Count me in</h2>
+      <p>Fill this in, press the button, and you get a block of text to paste back to Auri in WhatsApp or email. Nothing is sent or saved from this page.</p>
+
+      <form id="signup" autocomplete="on">
+        <fieldset>
+          <legend>Your details</legend>
+          <div class="fields">
+            <label class="field wide" for="f-name">
+              <span class="label-text">Full name</span>
+              <input type="text" id="f-name" name="name" autocomplete="name" placeholder="As it appears on your ID">
+            </label>
+            <label class="field wide" for="f-address">
+              <span class="label-text">Street address</span>
+              <input type="text" id="f-address" name="address" autocomplete="street-address" placeholder="Street and number">
+            </label>
+            <label class="field" for="f-post">
+              <span class="label-text">Postcode and city</span>
+              <input type="text" id="f-post" name="post" autocomplete="postal-code" placeholder="2200 København N">
+            </label>
+            <label class="field" for="f-dob">
+              <span class="label-text">Date of birth <span class="label-note">DD-MM-YYYY</span></span>
+              <input type="text" id="f-dob" name="dob" inputmode="numeric" placeholder="14-03-1994">
+            </label>
+            <label class="field" for="f-email">
+              <span class="label-text">Email</span>
+              <input type="email" id="f-email" name="email" autocomplete="email" placeholder="you@example.com">
+            </label>
+            <label class="field" for="f-phone">
+              <span class="label-text">Phone</span>
+              <input type="tel" id="f-phone" name="phone" autocomplete="tel" placeholder="+45 12 34 56 78">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Membership</legend>
+          <div class="choices">
+            <label class="choice" for="m-yes"><input type="radio" id="m-yes" name="member" value="Yes, joining and paying 100 kr. for 2026" checked>
+              <span class="choice-body"><span class="choice-name">Yes, I am joining</span><span class="choice-why">100 kr. for 2026, paid at or shortly after the meeting</span></span></label>
+            <label class="choice" for="m-more"><input type="radio" id="m-more" name="member" value="Wants to hear more first">
+              <span class="choice-body"><span class="choice-name">I want to hear more first</span></span></label>
+            <label class="choice" for="m-no"><input type="radio" id="m-no" name="member" value="Not joining">
+              <span class="choice-body"><span class="choice-name">Not this time</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>27 September</legend>
+          <div class="choices">
+            <label class="choice" for="a-yes"><input type="radio" id="a-yes" name="attend" value="Coming" checked>
+              <span class="choice-body"><span class="choice-name">I will be there</span></span></label>
+            <label class="choice" for="a-no"><input type="radio" id="a-no" name="attend" value="Cannot come, still wants to be a member">
+              <span class="choice-body"><span class="choice-name">Cannot make it, count me as a member anyway</span><span class="choice-why">You can be a member without attending the founding meeting</span></span></label>
+            <label class="choice" for="a-maybe"><input type="radio" id="a-maybe" name="attend" value="Not sure yet">
+              <span class="choice-body"><span class="choice-name">Not sure yet</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Jobs on the night</legend>
+          <div class="choices">
+            <label class="choice" for="r-dir"><input type="checkbox" name="role" value="Dirigent on 27 September" id="r-dir">
+              <span class="choice-body"><span class="choice-name">Dirigent</span><span class="choice-why">Chairs the founding meeting. One evening, and the job ends when the meeting does</span></span></label>
+            <label class="choice" for="r-ref"><input type="checkbox" name="role" value="Referent on 27 September" id="r-ref">
+              <span class="choice-body"><span class="choice-name">Referent</span><span class="choice-why">Takes the minutes on the night. One evening</span></span></label>
+            <label class="choice" for="r-u30"><input type="checkbox" name="role" value="Under 30, can front a Tuborgfondet application" id="r-u30">
+              <span class="choice-body"><span class="choice-name">I am under 30</span><span class="choice-why">Not a job. Tuborgfondet only accepts applicants aged 16 to 30, so this tells us whether that money is reachable later</span></span></label>
+            <label class="choice" for="r-none"><input type="checkbox" name="role" value="No job, member only" id="r-none">
+              <span class="choice-body"><span class="choice-name">Nothing, just a member</span><span class="choice-why">Entirely fine, and still counts towards the five the municipality wants</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>What you can help with</legend>
+          <div class="choices">
+            <label class="choice" for="h-venue"><input type="checkbox" name="help" value="A venue or a contact for one" id="h-venue">
+              <span class="choice-body"><span class="choice-name">A venue, or a contact who has one</span></span></label>
+            <label class="choice" for="h-talk"><input type="checkbox" name="help" value="Talks and demos" id="h-talk">
+              <span class="choice-body"><span class="choice-name">Giving a talk or a demo</span></span></label>
+            <label class="choice" for="h-grant"><input type="checkbox" name="help" value="Grant applications" id="h-grant">
+              <span class="choice-body"><span class="choice-name">Writing grant applications</span></span></label>
+            <label class="choice" for="h-social"><input type="checkbox" name="help" value="Social media and LinkedIn" id="h-social">
+              <span class="choice-body"><span class="choice-name">Social media and LinkedIn</span></span></label>
+            <label class="choice" for="h-photo"><input type="checkbox" name="help" value="Photo and video" id="h-photo">
+              <span class="choice-body"><span class="choice-name">Photo and video</span></span></label>
+            <label class="choice" for="h-contacts"><input type="checkbox" name="help" value="Contacts at companies, schools or libraries" id="h-contacts">
+              <span class="choice-body"><span class="choice-name">Contacts at companies, schools or libraries</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>What you want out of it</legend>
+          <label class="field" for="f-want">
+            <span class="label-text">A couple of lines <span class="label-note">this feeds the activity description we file later</span></span>
+            <textarea id="f-want" name="want" placeholder="What would make the next year of Sundays worth your time?"></textarea>
+          </label>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="build">Build my answers</button>
+          <button type="button" class="ghost" id="copy">Copy to clipboard</button>
+          <span class="status" id="status" role="status"></span>
+        </div>
+
+        <div class="output">
+          <label class="field" for="summary">
+            <span class="label-text">Paste this to Auri</span>
+            <textarea id="summary" readonly aria-label="Your answers, ready to paste"></textarea>
+          </label>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+
+<div class="wrap statutes-wrap" id="vedtaegter">
+  <section>
+    <h2>The statutes, in full</h2>
+    <p>This is the document the meeting votes on, in Danish, exactly as it stands. Eleven sections. The three that affect you personally are <strong>§ 3</strong> on membership, <strong>§ 4</strong> on the 100 kr., and <strong>§ 9.4</strong>, which says neither members nor board members are ever personally liable for what the association does.</p>
+    <div class="statutes">
+      <div class="statute">
+        <h3><span class="snum">§ 1</span>Navn og hjemsted</h3>
+        <p class="clause"><span class="cnum">1.1</span>Foreningens navn er <strong>Foreningen AI Sundays</strong>. I daglig tale, i kommunikation og på foreningens materialer anvendes den korte form <strong>AI Sundays</strong>.</p>
+        <p class="clause"><span class="cnum">1.2</span>Foreningen er hjemmehørende i Københavns Kommune.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 2</span>Formål</h3>
+        <p class="clause"><span class="cnum">2.1</span>Foreningens formål er at drive folkeoplysende virksomhed, der styrker deltagernes praktiske forståelse af kunstig intelligens og digitale værktøjer gennem regelmæssig, fælles læring.</p>
+        <p class="clause"><span class="cnum">2.2</span>Formålet søges opnået ved:</p>
+        <ul class="sub-let">
+          <li><span class="lnum">a)</span>At afholde tilbagevendende åbne værksteder, hvor deltagerne lærer at bruge kunstig intelligens til at bygge og færdiggøre egne projekter. Værkstederne afholdes som udgangspunkt hver anden søndag og mindst 12 gange årligt.</li>
+          <li><span class="lnum">b)</span>At understøtte deltagernes faglige udvikling, portefølje og beskæftigelsesmuligheder gennem kollegial vejledning og deling af viden.</li>
+          <li><span class="lnum">c)</span>At samarbejde med uddannelsesinstitutioner, biblioteker, foreninger, virksomheder og offentlige institutioner om oplysning om kunstig intelligens.</li>
+          <li><span class="lnum">d)</span>At formidle viden om ansvarlig og kritisk brug af kunstig intelligens.</li>
+        </ul>
+        <p class="clause"><span class="cnum">2.3</span>Foreningen er almennyttig, non-profit, uafhængig af partipolitiske og religiøse interesser og drives af frivillige. Et eventuelt overskud anvendes udelukkende til foreningens formål og kan ikke udbetales til medlemmerne.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 3</span>Medlemskreds</h3>
+        <p class="clause"><span class="cnum">3.1</span>Foreningen er <strong>åben for alle</strong>, som tilslutter sig foreningens formål og betaler kontingent. Der stilles ingen krav om nationalitet, bopælsland, uddannelse, faglig baggrund eller forudgående kendskab til kunstig intelligens.</p>
+        <p class="clause"><span class="cnum">3.2</span>Medlemskab opnås ved indmeldelse og betaling af kontingent. Bestyrelsen fører en medlemsfortegnelse med navn, adresse, fødselsdato og kontaktoplysninger. Medlemsfortegnelsen behandles fortroligt og i overensstemmelse med databeskyttelseslovgivningen.</p>
+        <p class="clause"><span class="cnum">3.3</span>Medlemskab gælder for det regnskabsår, kontingentet dækker.</p>
+        <p class="clause"><span class="cnum">3.4</span>Udmeldelse sker ved skriftlig meddelelse til bestyrelsen og har virkning fra udgangen af den periode, kontingentet dækker. Betalt kontingent refunderes ikke.</p>
+        <p class="clause"><span class="cnum">3.5</span>Et medlem, der ikke betaler kontingent inden 30 dage efter påkrav, betragtes som udmeldt uden yderligere varsel.</p>
+        <p class="clause"><span class="cnum">3.6</span>Bestyrelsen kan ekskludere et medlem, der handler til væsentlig skade for foreningen eller groft tilsidesætter vedtægterne. Eksklusionen kan af medlemmet kræves prøvet på den førstkommende generalforsamling, som træffer endelig afgørelse ved simpelt flertal.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 4</span>Kontingent</h3>
+        <p class="clause"><span class="cnum">4.1</span>Kontingentet fastsættes af generalforsamlingen for et år ad gangen.</p>
+        <p class="clause"><span class="cnum">4.2</span>Kontingentet ved foreningens stiftelse er <strong>100 DKK pr. år</strong>.</p>
+        <p class="clause"><span class="cnum">4.3</span>Bestyrelsen kan i enkelttilfælde bevilge hel eller delvis kontingentfritagelse af sociale hensyn. Kontingentfritagelse påvirker ikke medlemmets rettigheder.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 5</span>Generalforsamling</h3>
+        <p class="clause"><span class="cnum">5.1</span>Generalforsamlingen er foreningens <strong>højeste myndighed</strong>.</p>
+        <p class="clause"><span class="cnum">5.2</span>Ordinær generalforsamling afholdes hvert år inden udgangen af <strong>april</strong>.</p>
+        <p class="clause"><span class="cnum">5.3</span>Indkaldelse sker skriftligt, herunder ved e-mail, med mindst <strong>14 dages varsel</strong> og med angivelse af dagsorden.</p>
+        <p class="clause"><span class="cnum">5.4</span>Dagsordenen for den ordinære generalforsamling skal mindst indeholde:</p>
+        <ol class="sub-num">
+          <li>Valg af dirigent og referent</li>
+          <li>Bestyrelsens beretning om det forløbne år</li>
+          <li>Fremlæggelse og godkendelse af det reviderede årsregnskab</li>
+          <li>Fremlæggelse af budget og fastsættelse af kontingent</li>
+          <li>Behandling af indkomne forslag</li>
+          <li>Valg af bestyrelse</li>
+          <li>Valg af revisor</li>
+          <li>Eventuelt</li>
+        </ol>
+        <p class="clause"><span class="cnum">5.5</span>Forslag fra medlemmer skal være bestyrelsen i hænde senest <strong>7 dage</strong> før generalforsamlingen.</p>
+        <p class="clause"><span class="cnum">5.6</span>Alle medlemmer, der har betalt kontingent, har møde-, tale- og stemmeret. Hvert medlem har én stemme. Der kan ikke stemmes ved fuldmagt.</p>
+        <p class="clause"><span class="cnum">5.7</span>Generalforsamlingen er beslutningsdygtig uanset antallet af fremmødte medlemmer. Beslutninger træffes ved simpelt flertal blandt de fremmødte, medmindre vedtægterne kræver kvalificeret flertal. Ved stemmelighed bortfalder forslaget.</p>
+        <p class="clause"><span class="cnum">5.8</span>Der afholdes skriftlig afstemning, hvis blot ét medlem begærer det.</p>
+        <p class="clause"><span class="cnum">5.9</span>Der udarbejdes referat, som underskrives af dirigenten og formanden.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 6</span>Ekstraordinær generalforsamling</h3>
+        <p class="clause"><span class="cnum">6.1</span>Ekstraordinær generalforsamling afholdes, når bestyrelsen finder det nødvendigt, eller når mindst <strong>1/3 af medlemmerne</strong> skriftligt kræver det med angivelse af de emner, der ønskes behandlet.</p>
+        <p class="clause"><span class="cnum">6.2</span>Den ekstraordinære generalforsamling indkaldes med mindst 14 dages varsel og afholdes senest 6 uger efter, at kravet er modtaget.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 7</span>Bestyrelsen</h3>
+        <p class="clause"><span class="cnum">7.1</span>Foreningen ledes mellem generalforsamlingerne af en bestyrelse på <strong>3 til 7 medlemmer</strong>, valgt af generalforsamlingen for <strong>ét år</strong> ad gangen. Genvalg er muligt.</p>
+        <p class="clause"><span class="cnum">7.2</span>Bestyrelsen konstituerer sig selv med <strong>formand</strong>, <strong>kasserer</strong> og eventuelt næstformand og sekretær.</p>
+        <p class="clause"><span class="cnum">7.3</span>Bestyrelsen er beslutningsdygtig, når mindst halvdelen af medlemmerne er til stede. Beslutninger træffes ved simpelt flertal. Ved stemmelighed er formandens stemme afgørende.</p>
+        <p class="clause"><span class="cnum">7.4</span>Bestyrelsen afholder møde mindst <strong>fire gange årligt</strong> og fører referat over sine beslutninger.</p>
+        <p class="clause"><span class="cnum">7.5</span>Bestyrelsen varetager foreningens daglige ledelse, fastlægger aktiviteterne, søger tilskud og fondsmidler, forvalter foreningens midler i overensstemmelse med formålet og fører foreningens arkiv.</p>
+        <p class="clause"><span class="cnum">7.6</span>Bestyrelsen kan nedsætte arbejdsgrupper og inddrage frivillige, som ikke er bestyrelsesmedlemmer.</p>
+        <p class="clause"><span class="cnum">7.7</span>Bestyrelsesarbejdet er ubetalt. Dokumenterede udgifter afholdt på foreningens vegne refunderes efter bestyrelsens godkendelse.</p>
+        <p class="clause"><span class="cnum">7.8</span>Udtræder et bestyrelsesmedlem i utide, kan bestyrelsen supplere sig selv indtil næste generalforsamling, forudsat at bestyrelsen fortsat består af mindst 3 medlemmer.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 8</span>Økonomi, regnskab og revision</h3>
+        <p class="clause"><span class="cnum">8.1</span>Foreningens regnskabsår er <strong>kalenderåret</strong>. Første regnskabsår løber fra stiftelsen til den 31. december samme år.</p>
+        <p class="clause"><span class="cnum">8.2</span>Foreningens indtægter kan bestå af kontingenter, offentlige tilskud, fondsmidler, sponsorater, donationer, deltagerbetaling ved enkelte arrangementer og andre lovlige indtægter.</p>
+        <p class="clause"><span class="cnum">8.3</span>Kassereren fører foreningens regnskab og forvalter foreningens midler. Foreningens midler indsættes på en konto i foreningens navn. Kontant beholdning holdes på et minimum.</p>
+        <p class="clause"><span class="cnum">8.4</span>Årsregnskabet revideres af den revisor, generalforsamlingen har valgt, og fremlægges til godkendelse på den ordinære generalforsamling.</p>
+        <p class="clause"><span class="cnum">8.5</span>Generalforsamlingen vælger for ét år ad gangen <strong>én revisor</strong>, som ikke må være medlem af bestyrelsen. Generalforsamlingen kan i stedet vælge en registreret eller statsautoriseret revisor, hvis et tilskud kræver det.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 9</span>Tegningsret og hæftelse</h3>
+        <p class="clause"><span class="cnum">9.1</span>Foreningen tegnes af <strong>formanden i forening med kassereren</strong>, eller af formanden i forening med to øvrige bestyrelsesmedlemmer.</p>
+        <p class="clause"><span class="cnum">9.2</span>Ved køb, salg eller pantsætning af fast ejendom samt ved optagelse af lån tegnes foreningen af den samlede bestyrelse.</p>
+        <p class="clause"><span class="cnum">9.3</span>Bestyrelsen kan meddele kassereren fuldmagt til at disponere over foreningens konti i det daglige inden for et af bestyrelsen fastsat beløb.</p>
+        <p class="clause"><span class="cnum">9.4</span>Foreningen hæfter alene med sin formue. <strong>Hverken medlemmer eller bestyrelsesmedlemmer hæfter personligt</strong> for foreningens forpligtelser.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 10</span>Vedtægtsændringer</h3>
+        <p class="clause"><span class="cnum">10.1</span>Vedtægtsændringer kræver, at mindst <strong>2/3 af de fremmødte</strong> stemmeberettigede medlemmer på en generalforsamling stemmer for.</p>
+        <p class="clause"><span class="cnum">10.2</span>Forslag til vedtægtsændringer skal fremgå af indkaldelsen og udsendes til medlemmerne sammen med denne.</p>
+        <p class="clause"><span class="cnum">10.3</span>Ændringer træder i kraft ved generalforsamlingens vedtagelse, medmindre andet besluttes.</p>
+      </div>
+      <div class="statute">
+        <h3><span class="snum">§ 11</span>Opløsning</h3>
+        <p class="clause"><span class="cnum">11.1</span>Foreningen kan opløses, når mindst <strong>2/3 af de fremmødte</strong> stemmeberettigede medlemmer stemmer for på to generalforsamlinger afholdt med mindst 14 dages og højst 6 ugers mellemrum.</p>
+        <p class="clause"><span class="cnum">11.2</span>Ved opløsning anvendes foreningens eventuelle formue til <strong>almennyttige, folkeoplysende formål</strong> i Københavns Kommune efter den opløsende generalforsamlings beslutning. Formuen kan under ingen omstændigheder udbetales til medlemmerne.</p>
+        <p class="clause"><span class="cnum">11.3</span>Eventuelle uforbrugte offentlige tilskud tilbagebetales til tilskudsgiver.</p>
+      </div>
+    </div>
+    <p class="small muted">Adopted at the stiftende generalforsamling in København on 27 September 2026. Changing a word afterwards takes two thirds of those present at a generalforsamling, with the proposed change written into the notice beforehand, § 10.</p>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="privacy">
+    <p><strong>This page stores nothing.</strong> There is no server behind it and no database. What you type stays in your browser until you paste it somewhere yourself.</p>
+    <p>Once you are a member, the association keeps your name, address and date of birth in a member register under § 3.2 of the vedtægter. That register lives in one place with the treasurer, and goes to Københavns Kommune only if and when we apply for folkeoplysende status. It is deleted when your membership ends, and you can ask to see, correct or delete it at any time.</p>
+    <p>Questions go to Auri in the WhatsApp group.</p>
+  </div>
+</div>
+
+<script src="./signup.js"></script>
+</body>
+</html>
