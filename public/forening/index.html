@@ -442,6 +442,14 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .lang-toggle { display:flex; gap:8px; margin:18px 0 8px; }
+  .lang-btn { padding:8px 18px; border:1.5px solid var(--ink); border-radius:6px;
+    background:transparent; color:var(--ink); font:500 14px/1 var(--body); cursor:pointer;
+    transition:background .15s,color .15s; }
+  .lang-btn.active { background:var(--ink); color:var(--ground); }
+  .lang-btn:hover:not(.active) { background:color-mix(in srgb, var(--ink) 10%, transparent); }
+  .lang-note { margin:0 0 12px; font-style:italic; }
+
   .privacy {
     border-top: 1px solid var(--rule);
     padding-block: 26px 44px;
@@ -712,8 +720,13 @@
 <div class="wrap statutes-wrap" id="vedtaegter">
   <section>
     <h2>The statutes, in full</h2>
-    <p>This is the document the meeting votes on, in Danish, exactly as it stands. Eleven sections. The three that affect you personally are <strong>§ 3</strong> on membership, <strong>§ 4</strong> on the 100 kr., and <strong>§ 9.4</strong>, which says neither members nor board members are ever personally liable for what the association does.</p>
-    <div class="statutes">
+    <p>This is the document the meeting votes on. Eleven sections, 48 clauses. The three that affect you personally are <strong>§ 3</strong> on membership, <strong>§ 4</strong> on the 100 kr., and <strong>§ 9.4</strong>, which says neither members nor board members are ever personally liable for what the association does.</p>
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="da">Dansk (legal version)</button>
+      <button class="lang-btn" data-lang="en">English (unofficial translation)</button>
+    </div>
+    <p class="small muted lang-note" id="lang-note" style="display:none">Unofficial English translation. In the event of any discrepancy, the Danish version shall prevail.</p>
+    <div class="statutes" id="statutes-da">
       <div class="statute">
         <h3><span class="snum">§ 1</span>Navn og hjemsted</h3>
         <p class="clause"><span class="cnum">1.1</span>Foreningens navn er <strong>Foreningen AI Sundays</strong>. I daglig tale, i kommunikation og på foreningens materialer anvendes den korte form <strong>AI Sundays</strong>.</p>
@@ -814,6 +827,106 @@
     </div>
     <p class="small muted">Adopted at the stiftende generalforsamling in København on 27 September 2026. Changing a word afterwards takes two thirds of those present at a generalforsamling, with the proposed change written into the notice beforehand, § 10.</p>
   </section>
+</div>
+
+<div class="statutes" id="statutes-en" style="display:none">
+  <div class="statute">
+    <h3><span class="snum">§ 1</span>Name and registered office</h3>
+    <p class="clause"><span class="cnum">1.1</span>The name of the association is <strong>Foreningen AI Sundays</strong>. In everyday use, in communications and on the association's materials, the short form <strong>AI Sundays</strong> is used.</p>
+    <p class="clause"><span class="cnum">1.2</span>The association is domiciled in Københavns Kommune.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 2</span>Purpose</h3>
+    <p class="clause"><span class="cnum">2.1</span>The purpose of the association is to carry out non-formal public education activities (folkeoplysning) that strengthen the participants' practical understanding of artificial intelligence and digital tools through regular, collaborative learning.</p>
+    <p class="clause"><span class="cnum">2.2</span>The purpose is pursued by:</p>
+    <ul class="sub-let">
+      <li><span class="lnum">a)</span>Holding recurring open workshops where participants learn to use artificial intelligence to build and complete their own projects. The workshops are held, as a starting point, every other Sunday and at least 12 times per year.</li>
+      <li><span class="lnum">b)</span>Supporting participants' professional development, portfolio and employment opportunities through peer guidance and knowledge sharing.</li>
+      <li><span class="lnum">c)</span>Collaborating with educational institutions, libraries, associations, businesses and public bodies on public education about artificial intelligence.</li>
+      <li><span class="lnum">d)</span>Disseminating knowledge about the responsible and critical use of artificial intelligence.</li>
+    </ul>
+    <p class="clause"><span class="cnum">2.3</span>The association is charitable, non-profit, independent of party-political and religious interests, and run by volunteers. Any surplus shall be used exclusively to further the association's purpose and may not be distributed to the members.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 3</span>Membership</h3>
+    <p class="clause"><span class="cnum">3.1</span>The association is <strong>open to all</strong> who support the association's purpose and pay the membership fee. No requirements are imposed regarding nationality, country of residence, education, professional background or prior knowledge of artificial intelligence.</p>
+    <p class="clause"><span class="cnum">3.2</span>Membership is obtained by enrolment and payment of the membership fee. The board maintains a membership register containing name, address, date of birth and contact details. The membership register is treated confidentially and in accordance with data protection legislation.</p>
+    <p class="clause"><span class="cnum">3.3</span>Membership is valid for the financial year covered by the fee.</p>
+    <p class="clause"><span class="cnum">3.4</span>Withdrawal is effected by written notice to the board and takes effect at the end of the period covered by the fee. Fees already paid are not refunded.</p>
+    <p class="clause"><span class="cnum">3.5</span>A member who fails to pay the membership fee within 30 days of a payment demand is deemed to have withdrawn without further notice.</p>
+    <p class="clause"><span class="cnum">3.6</span>The board may expel a member who acts to the material detriment of the association or grossly disregards the articles of association. The expelled member may demand that the expulsion be reviewed at the next general assembly, which shall make a final decision by simple majority.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 4</span>Membership fee</h3>
+    <p class="clause"><span class="cnum">4.1</span>The membership fee is determined by the general assembly for one year at a time.</p>
+    <p class="clause"><span class="cnum">4.2</span>The membership fee at the founding of the association is <strong>DKK 100 per year</strong>.</p>
+    <p class="clause"><span class="cnum">4.3</span>The board may in individual cases grant full or partial exemption from the membership fee on social grounds. An exemption from the fee does not affect the member's rights.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 5</span>General assembly</h3>
+    <p class="clause"><span class="cnum">5.1</span>The general assembly is the association's <strong>supreme authority</strong>.</p>
+    <p class="clause"><span class="cnum">5.2</span>An ordinary general assembly is held every year no later than the end of <strong>April</strong>.</p>
+    <p class="clause"><span class="cnum">5.3</span>Notice is given in writing, including by e-mail, with at least <strong>14 days' notice</strong> and stating the agenda.</p>
+    <p class="clause"><span class="cnum">5.4</span>The agenda for the ordinary general assembly shall include at least the following:</p>
+    <ol class="sub-num">
+      <li>Election of chairperson of the meeting and minute-taker</li>
+      <li>The board's report on the past year</li>
+      <li>Presentation and approval of the audited annual accounts</li>
+      <li>Presentation of the budget and determination of the membership fee</li>
+      <li>Consideration of proposals received</li>
+      <li>Election of the board</li>
+      <li>Election of an auditor</li>
+      <li>Any other business</li>
+    </ol>
+    <p class="clause"><span class="cnum">5.5</span>Proposals from members must reach the board no later than <strong>7 days</strong> before the general assembly.</p>
+    <p class="clause"><span class="cnum">5.6</span>All members who have paid the membership fee have the right to attend, speak and vote. Each member has one vote. Proxy voting is not permitted.</p>
+    <p class="clause"><span class="cnum">5.7</span>The general assembly has a quorum regardless of the number of members present. Decisions are made by simple majority of those present, unless the articles of association require a qualified majority. In the event of a tie, the proposal is defeated.</p>
+    <p class="clause"><span class="cnum">5.8</span>A written ballot shall be held if so requested by even a single member.</p>
+    <p class="clause"><span class="cnum">5.9</span>Minutes shall be drawn up and signed by the chairperson of the meeting and the chairperson of the board.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 6</span>Extraordinary general assembly</h3>
+    <p class="clause"><span class="cnum">6.1</span>An extraordinary general assembly shall be held when the board deems it necessary, or when at least <strong>1/3 of the members</strong> request it in writing, stating the matters to be considered.</p>
+    <p class="clause"><span class="cnum">6.2</span>The extraordinary general assembly shall be convened with at least 14 days' notice and held no later than 6 weeks after the request has been received.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 7</span>The board</h3>
+    <p class="clause"><span class="cnum">7.1</span>Between general assemblies the association is managed by a board of <strong>3 to 7 members</strong>, elected by the general assembly for <strong>one year</strong> at a time. Re-election is possible.</p>
+    <p class="clause"><span class="cnum">7.2</span>The board constitutes itself with a <strong>chairperson</strong>, a <strong>treasurer</strong> and, optionally, a vice-chairperson and a secretary.</p>
+    <p class="clause"><span class="cnum">7.3</span>The board has a quorum when at least half of its members are present. Decisions are made by simple majority. In the event of a tie, the chairperson's vote is decisive.</p>
+    <p class="clause"><span class="cnum">7.4</span>The board shall meet at least <strong>four times per year</strong> and keep minutes of its decisions.</p>
+    <p class="clause"><span class="cnum">7.5</span>The board is responsible for the day-to-day management of the association, determines its activities, applies for grants and funding, manages the association's funds in accordance with the purpose and maintains the association's archives.</p>
+    <p class="clause"><span class="cnum">7.6</span>The board may establish working groups and involve volunteers who are not board members.</p>
+    <p class="clause"><span class="cnum">7.7</span>Board work is unpaid. Documented expenses incurred on behalf of the association are reimbursed upon approval by the board.</p>
+    <p class="clause"><span class="cnum">7.8</span>If a board member resigns before the end of their term, the board may co-opt a replacement until the next general assembly, provided the board continues to consist of at least 3 members.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 8</span>Finances, accounts and audit</h3>
+    <p class="clause"><span class="cnum">8.1</span>The association's financial year is the <strong>calendar year</strong>. The first financial year runs from the date of founding to 31 December of the same year.</p>
+    <p class="clause"><span class="cnum">8.2</span>The association's income may consist of membership fees, public grants, foundation funding, sponsorships, donations, participation fees for individual events and other lawful income.</p>
+    <p class="clause"><span class="cnum">8.3</span>The treasurer keeps the association's accounts and manages its funds. The association's funds shall be deposited in an account in the association's name. Cash holdings shall be kept to a minimum.</p>
+    <p class="clause"><span class="cnum">8.4</span>The annual accounts are audited by the auditor elected by the general assembly and presented for approval at the ordinary general assembly.</p>
+    <p class="clause"><span class="cnum">8.5</span>The general assembly elects for one year at a time <strong>one auditor</strong>, who may not be a member of the board. The general assembly may instead elect a registered or state-authorised auditor, if required by a grant condition.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 9</span>Power to bind the association and liability</h3>
+    <p class="clause"><span class="cnum">9.1</span>The association is bound by the joint signatures of the <strong>chairperson together with the treasurer</strong>, or by the chairperson together with two other board members.</p>
+    <p class="clause"><span class="cnum">9.2</span>For the purchase, sale or mortgaging of real property and for the taking out of loans, the association is bound by the full board acting jointly.</p>
+    <p class="clause"><span class="cnum">9.3</span>The board may grant the treasurer a power of attorney to operate the association's accounts in the day-to-day course of business within a limit set by the board.</p>
+    <p class="clause"><span class="cnum">9.4</span>The association is liable only to the extent of its assets. <strong>Neither members nor board members are personally liable</strong> for the obligations of the association.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 10</span>Amendments to the articles of association</h3>
+    <p class="clause"><span class="cnum">10.1</span>Amendments to the articles of association require that at least <strong>2/3 of the members present</strong> who are entitled to vote at a general assembly vote in favour.</p>
+    <p class="clause"><span class="cnum">10.2</span>Proposed amendments to the articles of association must be included in the notice of meeting and distributed to the members together with said notice.</p>
+    <p class="clause"><span class="cnum">10.3</span>Amendments take effect upon adoption by the general assembly, unless otherwise decided.</p>
+  </div>
+  <div class="statute">
+    <h3><span class="snum">§ 11</span>Dissolution</h3>
+    <p class="clause"><span class="cnum">11.1</span>The association may be dissolved when at least <strong>2/3 of the members present</strong> who are entitled to vote do so at two general assemblies held with an interval of at least 14 days and no more than 6 weeks.</p>
+    <p class="clause"><span class="cnum">11.2</span>Upon dissolution, any remaining assets of the association shall be applied to <strong>charitable, public-education purposes</strong> in Københavns Kommune as decided by the dissolving general assembly. Under no circumstances may the assets be distributed to the members.</p>
+    <p class="clause"><span class="cnum">11.3</span>Any unspent public grants shall be returned to the granting authority.</p>
+  </div>
 </div>
 
 <div class="wrap">
