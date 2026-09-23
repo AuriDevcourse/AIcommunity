@@ -1,4 +1,23 @@
 (function () {
+    // --- Language toggle for the statutes ---
+    var da = document.getElementById('statutes-da');
+    var en = document.getElementById('statutes-en');
+    var note = document.getElementById('lang-note');
+    var btns = document.querySelectorAll('.lang-btn');
+    if (da && en && btns.length) {
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var lang = btn.getAttribute('data-lang');
+          da.style.display = lang === 'da' ? '' : 'none';
+          en.style.display = lang === 'en' ? '' : 'none';
+          if (note) note.style.display = lang === 'en' ? '' : 'none';
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+        });
+      });
+    }
+
+    // --- Signup form builder ---
     var form = document.getElementById('signup');
     var out = document.getElementById('summary');
     var status = document.getElementById('status');
