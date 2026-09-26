@@ -70,6 +70,8 @@ The dashboard is shaped by `Community Operations Framework.md` (lives in the mar
 AI Sundays is being registered as a Danish frivillig forening. The founding
 meeting is Sunday 27 September 2026 and CVR registration follows the week after.
 
+- **[docs/forening-status.md](docs/forening-status.md)** — the running
+  checklist: what is done, what is missing, what to do next
 - **[docs/forening-registration.md](docs/forening-registration.md)** — what
   information we need from whom, and the click-path through virk.dk
 - **[public/forening/](public/forening/)** — the member-facing page, live at

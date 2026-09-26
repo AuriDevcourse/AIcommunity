@@ -92,11 +92,16 @@ try {
   })).result?.value;
 
   ok('page renders', (await evalq('document.querySelectorAll("h1").length')) > 0);
+  // The statutes sit inside a collapsed <details>, so open it before counting:
+  // a closed <details> still has the nodes, but the toggle assertions below
+  // read computed display and would see everything as hidden.
+  await evalq(`(document.querySelector('details.statutes')||{}).open = true`);
+  await sleep(200);
   // The page carries the vedtægter twice since the DA/EN toggle landed: 48
   // clauses and 11 sections in each language. Assert per-language rather than
   // on the total, so a missing translation fails instead of being averaged away.
   const daClauses = await evalq(
-    `document.querySelectorAll('.statutes-wrap .clause, #vedtaegter .clause').length`);
+    `document.querySelectorAll('#statutes-da .clause').length`);
   const allClauses = await evalq('document.querySelectorAll(".clause").length');
   const allSections = await evalq('document.querySelectorAll(".snum").length');
   ok('vedtaegter present, 48 clauses per language',
@@ -124,6 +129,50 @@ try {
 
   ok('no console errors', errors.length === 0, errors.join(' | '));
   ok('no failed requests', failedReqs.length === 0, failedReqs.join(' | '));
+
+  // The page must look like the rest of the site, not like a stray document.
+  // These four are what "same design system" reduces to in a machine check:
+  // the site header, the site's page colour, the site's typeface, and the
+  // theme-init script that stops a dark-mode user seeing a cream flash.
+  const font = await evalq(`getComputedStyle(document.body).fontFamily`);
+  ok('uses the site typeface (Geist)', /Geist/i.test(font || ''), font);
+
+  const bg = await evalq(`getComputedStyle(document.body).backgroundColor`);
+  // Cream #F8F0E4 in light, deep green #0B2E1E in dark.
+  ok('uses a site page colour',
+     bg === 'rgb(248, 240, 228)' || bg === 'rgb(11, 46, 30)', bg);
+
+  ok('has the site header with the logo',
+     (await evalq(`!!document.querySelector('.app-header img[src*="logo"]')`)) === true);
+  ok('theme-init is loaded',
+     (await evalq(`!!document.querySelector('script[src="/theme-init.js"]')`)) === true);
+
+  // The language toggle is a button that must actually swap the two blocks.
+  const daVisibleBefore = await evalq(
+    `getComputedStyle(document.getElementById('statutes-da')).display !== 'none'`);
+  await evalq(`document.querySelector('.lang-btn[data-lang="en"]').click()`);
+  await sleep(200);
+  const enVisibleAfter = await evalq(
+    `getComputedStyle(document.getElementById('statutes-en')).display !== 'none'`);
+  const daHiddenAfter = await evalq(
+    `getComputedStyle(document.getElementById('statutes-da')).display === 'none'`);
+  ok('language toggle swaps DA for EN',
+     daVisibleBefore && enVisibleAfter && daHiddenAfter,
+     `da before ${daVisibleBefore}, en after ${enVisibleAfter}, da hidden ${daHiddenAfter}`);
+
+  // A clause ending in a colon promises a list. § 2.2 and § 5.4 both do, and
+  // both had lost their sub-items: the page showed the room something other
+  // than what it was voting on. Any clause that ends in ':' must be followed
+  // by a list.
+  const danglingColons = await evalq(`
+    Array.from(document.querySelectorAll('.clause'))
+      .filter(p => p.textContent.trim().endsWith(':'))
+      .filter(p => !(p.nextElementSibling && p.nextElementSibling.matches('ol,ul')))
+      .map(p => p.querySelector('.cnum') ? p.querySelector('.cnum').textContent : '?')
+  `);
+  ok('no clause promises a list it does not show',
+     Array.isArray(danglingColons) && danglingColons.length === 0,
+     `dangling: ${(danglingColons || []).join(', ')}`);
 } catch (e) {
   console.error('FAIL harness —', e.message);
   failures++;
