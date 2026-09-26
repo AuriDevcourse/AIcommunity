@@ -60,24 +60,30 @@ columns. Collect all four **on the night**, at the same moment as the signature.
 
 ### From the three board members only · at CVR filing
 
-| Field | Who | Notes |
-|---|---|---|
-| **CPR number** | Formand, kasserer, bestyrelsesmedlem | Typed into virk.dk and **stored nowhere else** |
+**Nothing.** An earlier version of this file said CPR numbers were needed. They
+are not, for a *frivillig forening*: that requirement belongs to an almindelig
+forening, a different CVR category. See
+[the correction](#-a-frivillig-forening-asks-for-three-things-not-thirty).
 
-The **revisor does not need a CPR number.** They are elected in the referat but
-are not part of the ledelse, so they do not go in the board field on virk.dk.
+CPR numbers and board ID **are** asked for later, by the **bank**, when the
+account is opened. If anyone ever does need them: they go in the form at the
+moment of filing and are written down nowhere.
 
 ---
 
 ## Who holds which post
 
-| Role | Person | Pays kontingent? | CPR needed? |
-|---|---|---|---|
-| Formand | Aurimas Baciauskas | Yes | Yes |
-| Kasserer | Eividas Mačiulis | Yes | Yes |
-| Bestyrelsesmedlem | Ignas Valavičius | Yes | Yes |
-| Revisor | Andrei Prusu | Yes | No |
-| Member | *(fifth person)* | Yes | No |
+| Role | Person | Pays kontingent? |
+|---|---|---|
+| Formand | Aurimas Baciauskas | Yes |
+| Kasserer | Eividas Mačiulis | Yes |
+| Bestyrelsesmedlem | Ignas Valavičius | Yes |
+| Revisor | Andrei Prusu | Yes |
+| Member | *(fifth person)* | Yes |
+
+CVR registration for a frivillig forening does not ask who the board is, so no
+CPR number is needed from anyone. The board matters to the bank and to the
+kommune, not to virk.dk.
 
 **There is no exemption for the board.** Vedtægternes § 4.2 means all five pay
 the 100 DKK. Four people hold posts, so the fifth signature has to come from an
@@ -106,7 +112,7 @@ This repo is public, so the split is not a style preference.
 | Member names, addresses, birth dates | `Medlemsliste AI Sundays.xlsx`, held by the kasserer | Never in git |
 | Signed deltagerliste | Scanned PDF in the vault, `AI Workshop/Forening/` | Never in git |
 | Emails and phone numbers | The same spreadsheet | Never in git |
-| **CPR numbers** | Typed into virk.dk at the moment of filing | **Never written down anywhere** |
+| **CPR numbers** | Not needed for CVR. Asked for by the bank, at the counter | **Never written down anywhere** |
 
 The member list is personal data under GDPR. It lives in one place with the
 kasserer, goes to Københavns Kommune only as an application attachment, and is
@@ -147,46 +153,49 @@ signed and scanned. It is free and takes minutes.
 2. **Have two PDFs ready**, both signed on the night. Scans, not photos:
    - `PDF/01 Vedtaegter - Foreningen AI Sundays.pdf`
    - `PDF/02 Stiftende generalforsamling - referat.pdf`
-3. **Have the three board members' CPR numbers to hand.** Not in a file, not in
-   a chat message.
+3. **An email address for the forening.** This is the only field that causes
+   lasting damage if you get it wrong. See the warning below.
 
-### The form
+You do **not** need CPR numbers, a branchekode, or the board list. See the
+correction below.
 
-Start here: **https://virk.dk/myndigheder/stat/ERST/Frivillige_foreninger/**
-then **Start selvbetjening**. Log in with Auri's **personal MitID** — the
-forening has no MitID of its own yet, which is the part that confuses people.
+### 🟢 A frivillig forening asks for three things, not thirty
+
+**Checked against erhvervsstyrelsen.dk on 2026-09-26, and this corrects an
+earlier version of this file.** To be issued a CVR number as a *frivillig
+forening*, Erhvervsstyrelsen asks for exactly:
+
+- **Foreningens navn**
+- **Adresse**
+- **E-mailadresse**
+
+That is the whole list. The longer list — branchekode, regnskabsår, startdato,
+board members with CPR numbers, uploaded vedtægter and referat — belongs to an
+**almindelig forening** or a **særlig forening**, which is a different CVR
+category with tax and reporting obligations. We are not one of those.
+
+Keep the signed documents to hand anyway: the **bank** will want the vedtægter,
+the referat and board ID when you open the account, and **Københavns Kommune**
+wants nine attachments for folkeoplysende status. Neither of those is CVR.
+
+### The form, click by click
+
+1. Go to **[virk.dk](https://virk.dk/)** and choose **Start virksomhed**
+2. **Log på** with Auri's **personal MitID**. The forening has no MitID of its
+   own yet, and it does not need one: anyone may register a frivillig forening
+   with a private MitID, and it does not even have to be a board member
+3. Choose the tab **Foreninger, institutioner og fonde**
+4. Choose **Frivillig forening**
+5. Fill in the three fields and submit
+
+Direct link to the self-service:
+**https://virk.dk/myndigheder/stat/ERST/Frivillige_foreninger/**
 
 | Field | Value |
 |---|---|
-| Virksomhedsform | **Frivillig forening** |
 | Navn | **Foreningen AI Sundays** · matches vedtægternes § 1.1 word for word |
 | Adresse | Else Alfelts Vej 58A, 2300 København S |
-| Kommune | Københavns Kommune |
-| Startdato | **2026-09-27**, the founding date, not the day you file |
-| Branchekode | `94.99.00` Andre organisationer og foreninger i.a.n. |
-| Regnskabsår | Calendar year. First one runs 2026-09-27 to 2026-12-31 |
 | E-mail | See the warning below |
-| Ejerforhold | None. A forening has members, not owners |
-
-**Formål**, paste from vedtægternes § 2.1:
-
-> Foreningens formål er at drive folkeoplysende virksomhed, der styrker
-> deltagernes praktiske forståelse af kunstig intelligens og digitale værktøjer
-> gennem regelmæssig, fælles læring.
-
-**Ledelse**, from referatets § 5. Three people, each with their CPR number:
-
-| Navn | Rolle | Tiltrådt |
-|---|---|---|
-| Aurimas Baciauskas | Formand | 2026-09-27 |
-| Eividas Mačiulis | Kasserer | 2026-09-27 |
-| Ignas Valavičius | Bestyrelsesmedlem | 2026-09-27 |
-
-**Tegningsregel**, paste from § 9.1 exactly. The bank reads this back later and
-a mismatch between CVR and the vedtægter means a second appointment:
-
-> Foreningen tegnes af formanden i forening med kassereren, eller af formanden i
-> forening med to øvrige bestyrelsesmedlemmer.
 
 ### 🔴 The email address is the trap
 
@@ -196,7 +205,8 @@ registration, and nowhere else.
 
 Registering with a personal Gmail means the reminder arrives at an address that
 may not belong to the forening in 2029. Create a forening-controlled address
-first if you possibly can.
+first if you possibly can. Erhvervsstyrelsen's own advice is to **give more than
+one address**, so a single lapsed inbox cannot kill the registration.
 
 ### Foreningsrepræsentant · read this before setting up MitID Erhverv
 
@@ -204,16 +214,19 @@ The form offers a **foreningsrepræsentant**: a named person who can then act fo
 the forening digitally with their own private MitID, including reading the
 forening's Digital Post.
 
-**This is probably all we need, and it avoids administering MitID Erhverv
-entirely.** Note that a representative's name and address stay visible in CVR
-even after they step down.
+**For a small forening this is all you need, and it avoids administering MitID
+Erhverv entirely.** MitID Erhverv is only worth it when several people need
+access, or when you have employees. Note that a representative's name and
+address stay visible in CVR even after they step down.
 
 ### What you get
 
 - A **CVR number**
 - A receipt by email the same day
 - A public entry on datacvr.virk.dk **the following day**, not instantly
-- A downloadable **registreringsbevis**, which is the documentation you send
+- **Skattestyrelsen approves the registration automatically**, then sends a
+  message to the forening's digital postkasse saying the certificate can be
+  downloaded from **skat.dk**. That certificate is the documentation you send
   anyone who asks whether AI Sundays is a real organisation
 
 ### The same day the number arrives

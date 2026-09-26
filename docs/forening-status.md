@@ -59,18 +59,30 @@ builds a message they paste into WhatsApp. The paper signature is still required
 
 ## The week after · the CVR number
 
-Free, on virk.dk, takes minutes. Full field-by-field walkthrough in
-[forening-registration.md](forening-registration.md#gate-2--registering-the-cvr-number-on-virkdk).
+Free, on virk.dk, takes minutes. **It asks for three things: the name, the
+address, and an email.** Not the board, not CPR numbers, not the documents.
 
-- [ ] Search datacvr.virk.dk for a name collision on **Foreningen AI Sundays**
-- [ ] Have the two signed PDFs and the three board members' CPR numbers ready
-- [ ] File at virk.dk → Start frivillig forening, with Auri's **personal MitID**
-- [ ] 🔴 **Use a forening-controlled email, not a personal Gmail.** The CVR number
-      dies after three years unless renewed, and the only reminder goes to this
-      address
-- [ ] Consider registering a **foreningsrepræsentant**, which lets a named person
-      act for the forening with their own MitID and probably removes the need for
-      MitID Erhverv entirely
+1. **[virk.dk](https://virk.dk/)** → **Start virksomhed**
+2. **Log på** with Auri's own private MitID
+3. Tab: **Foreninger, institutioner og fonde**
+4. Choose **Frivillig forening**
+5. Fill in three fields, submit
+
+| Field | Value |
+|---|---|
+| Navn | **Foreningen AI Sundays** |
+| Adresse | Else Alfelts Vej 58A, 2300 København S |
+| E-mail | 🔴 see below |
+
+- [ ] First, search datacvr.virk.dk for a name collision on **Foreningen AI Sundays**
+- [ ] 🔴 **Use a forening email, not a personal Gmail, and give more than one
+      address.** The CVR number dies after three years unless renewed, and the
+      only reminder goes to this address
+- [ ] Consider registering a **foreningsrepræsentant**: a named person who acts
+      for the forening with their own MitID. For a forening this size it removes
+      the need for MitID Erhverv completely
+
+Full walkthrough: [forening-registration.md](forening-registration.md#the-form-click-by-click).
 
 ### The same day the number arrives
 
@@ -99,7 +111,7 @@ Detail on the bank and tax: [aisundays.org/forening/praktisk/](https://www.aisun
 |---|---|
 | Member names, addresses, birth dates | `Medlemsliste AI Sundays.xlsx`, on the kasserer's machine. **Never in this repo** |
 | Signed deltagerliste and referat | Scanned PDFs in the vault |
-| CPR numbers | Typed into virk.dk at the moment of filing, **written down nowhere** |
+| CPR numbers | Not needed for CVR. The bank asks, at the counter. **Written down nowhere** |
 | The empty template | `docs/templates/medlemsliste-TEMPLATE.csv` |
 
 This repository is public. `.gitignore` blocks the obvious filenames, but that is
