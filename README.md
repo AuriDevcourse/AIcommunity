@@ -64,3 +64,23 @@ Note: the markdown notes path is hardcoded to a local user directory, this dashb
 ## Operations framework
 
 The dashboard is shaped by `Community Operations Framework.md` (lives in the markdown vault, not in this repo), defining the per-session lifecycle, rotatable roles, and quarterly health metrics that the dashboard tracks.
+
+## Becoming a forening
+
+AI Sundays is being registered as a Danish frivillig forening. The founding
+meeting is Sunday 27 September 2026 and CVR registration follows the week after.
+
+- **[docs/forening-registration.md](docs/forening-registration.md)** — what
+  information we need from whom, and the click-path through virk.dk
+- **[public/forening/](public/forening/)** — the member-facing page, live at
+  https://www.aisundays.org/forening/, carrying the full vedtægter and a form
+  that builds a person's details into a message they can send back
+- `npm run forening:check` verifies that page renders and its form works
+
+The legal documents themselves are in Danish, in the Obsidian vault under
+`AI Workshop/Forening/`.
+
+> **This repo is public.** Member addresses, dates of birth and CPR numbers must
+> never be committed. `.gitignore` blocks the obvious filenames, but the policy
+> is that the filled member list lives on the kasserer's machine and nowhere
+> else.

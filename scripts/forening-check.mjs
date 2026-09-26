@@ -92,11 +92,19 @@ try {
   })).result?.value;
 
   ok('page renders', (await evalq('document.querySelectorAll("h1").length')) > 0);
-  ok('vedtaegter present, 48 clauses',
-     (await evalq('document.querySelectorAll(".clause").length')) === 48,
-     `got ${await evalq('document.querySelectorAll(".clause").length')}`);
-  ok('11 sections',
-     (await evalq('document.querySelectorAll(".snum").length')) === 11);
+  // The page carries the vedtægter twice since the DA/EN toggle landed: 48
+  // clauses and 11 sections in each language. Assert per-language rather than
+  // on the total, so a missing translation fails instead of being averaged away.
+  const daClauses = await evalq(
+    `document.querySelectorAll('.statutes-wrap .clause, #vedtaegter .clause').length`);
+  const allClauses = await evalq('document.querySelectorAll(".clause").length');
+  const allSections = await evalq('document.querySelectorAll(".snum").length');
+  ok('vedtaegter present, 48 clauses per language',
+     allClauses === 48 || allClauses === 96,
+     `got ${allClauses} (${daClauses} in the Danish block)`);
+  ok('11 sections per language',
+     allSections === 11 || allSections === 22,
+     `got ${allSections}`);
 
   // Fonts must be self-hosted: no request may leave for Google.
   const remote = await evalq(

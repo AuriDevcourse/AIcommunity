@@ -19,3 +19,17 @@ data/*-store.json
 # Never let one get committed.
 * 2.*
 * 3.*
+
+# Forening member data. This repo is PUBLIC and the member list carries home
+# addresses and dates of birth for real people, because Københavns Kommune
+# requires exactly those fields. The filled list lives on the kasserer's
+# machine, never here. docs/templates/medlemsliste-TEMPLATE.csv is the empty
+# template and is the ONLY member-list file that may be committed.
+Medlemsliste*
+medlemsliste*
+!docs/templates/medlemsliste-TEMPLATE.csv
+deltagerliste*
+Deltagerliste*
+*medlemsliste*.xlsx
+*CPR*
+*cpr*
