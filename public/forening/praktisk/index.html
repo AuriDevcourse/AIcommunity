@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Foreningen AI Sundays: bank account, NemKonto, tax and email after the founding meeting.">
+<link rel="icon" href="/favicon.svg">
+<title>Money, the bank and the email · Foreningen AI Sundays</title>
+<link rel="stylesheet" href="../fonts.css">
+<style>
+  :root {
+    --ground: #F8F0E4;
+    --surface: #FFFBF4;
+    --surface-2: #F1E7D6;
+    --ink: #17140E;
+    --ink-soft: #5D5B4C;
+    --rule: #DFD4C0;
+    --rule-strong: #C6B89E;
+    --green: #124A30;
+    --green-deep: #0B2E1E;
+    --masthead-bg: #0B2E1E;
+    --yellow: #F8B800;
+    --lime: #D4F53A;
+    --accent-text: #124A30;
+    --on-green: #F8F0E4;
+    --focus: #124A30;
+
+    --step-0: 1.0625rem;
+    --step-1: 1.1875rem;
+    --step-2: clamp(1.25rem, 2.4vw, 1.5rem);
+    --step-3: clamp(1.6rem, 3.4vw, 2.05rem);
+    --step-4: clamp(2.1rem, 6.2vw, 3.3rem);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0B2E1E;
+      --surface: #113A27;
+      --surface-2: #0E3322;
+      --ink: #F4ECDC;
+      --ink-soft: #A6BCAD;
+      --rule: #1E5138;
+      --rule-strong: #2C6A4A;
+      --masthead-bg: #072116;
+      --green: #D4F53A;
+      --accent-text: #D4F53A;
+      --on-green: #0B2E1E;
+      --focus: #D4F53A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0B2E1E;
+    --surface: #113A27;
+    --surface-2: #0E3322;
+    --ink: #F4ECDC;
+    --ink-soft: #A6BCAD;
+    --rule: #1E5138;
+    --rule-strong: #2C6A4A;
+    --masthead-bg: #072116;
+    --green: #D4F53A;
+    --accent-text: #D4F53A;
+    --on-green: #0B2E1E;
+    --focus: #D4F53A;
+  }
+
+  * { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding-inline: 20px;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: var(--step-3);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-family: "Karla", sans-serif;
+    font-weight: 700;
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+  p { margin: 0; }
+  a { color: var(--accent-text); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    background: var(--masthead-bg);
+    color: #F4ECDC;
+    padding-block: 0 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .sunrise { display: block; width: 100%; height: auto; }
+  .masthead-body {
+    padding-block: 0 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .masthead h1 { color: #F4ECDC; margin-top: -0.12em; }
+  .deck {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: #CFE0D2;
+    max-width: 34rem;
+  }
+  .datechip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    align-self: flex-start;
+    background: var(--yellow);
+    color: #17140E;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+    padding: 8px 13px;
+    border-radius: 2px;
+  }
+
+  /* ---------- sections ---------- */
+  main { padding-block: 44px 0; display: flex; flex-direction: column; gap: 52px; }
+  section { display: flex; flex-direction: column; gap: 18px; }
+  .lede { font-size: var(--step-1); line-height: 1.55; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: 0.9375rem; }
+
+  /* stakes list */
+  .stakes { display: grid; gap: 2px; border-top: 1px solid var(--rule); }
+  .stake {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 4px 20px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .stake dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stake dd { margin: 0; }
+  @media (max-width: 30rem) { .stake { grid-template-columns: 1fr; } }
+
+  /* steps */
+  .steps { display: grid; gap: 14px; }
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 15px 17px;
+  }
+  .step.later { background: transparent; }
+  .step.later .step-num { color: var(--ink-soft); }
+  .step-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.2rem;
+    padding-top: 0.12em;
+  }
+  .step-body { display: grid; gap: 9px; }
+  .step-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .step-title { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
+  .step-body p { font-size: 0.9375rem; }
+  .when {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--on-green);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .when.soft {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 2px 7px;
+  }
+  .needs { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+  .needs li {
+    position: relative;
+    padding-left: 1.55rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .needs li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.40625rem;
+    color: var(--ink-soft);
+    content: "\2013";
+  }
+  .needs li.done::before { content: "\2713"; color: var(--accent-text); font-weight: 700; }
+  .needs li.todo::before { content: "\25CB"; color: var(--ink-soft); }
+
+  /* agenda */
+  .agenda { list-style: none; margin: 0; padding: 0; counter-reset: ag; display: grid; gap: 0; }
+  .agenda li {
+    counter-increment: ag;
+    position: relative;
+    padding-left: 2.1rem;
+    padding-block: 10px;
+    border-bottom: 1px dotted var(--rule-strong);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .agenda li::before {
+    content: counter(ag, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.40625rem;
+    color: var(--ink-soft);
+  }
+
+  /* roles */
+  .roles { display: grid; gap: 12px; }
+  .role {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 15px 17px;
+    display: grid;
+    gap: 5px;
+  }
+  .role-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .role-name { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
+  .cost {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--on-green);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .role p { font-size: 0.9375rem; color: var(--ink-soft); }
+  .role.taken { background: transparent; }
+  .role.taken .role-name { color: var(--ink-soft); }
+  .cost.filled {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 2px 7px;
+  }
+
+  .note {
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    padding: 14px 17px;
+    font-size: 0.9375rem;
+  }
+  .note strong { font-weight: 700; }
+
+  .privacy {
+    border-top: 1px solid var(--rule);
+    padding-block: 26px 44px;
+    display: grid;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+  .privacy strong { color: var(--ink); }
+
+  .kicker { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: #CFE0D2; }
+  .kicker a { color: #F8B800; text-decoration: none; }
+  .kicker a:hover { text-decoration: underline; }
+  main > *, section > * { min-width: 0; }
+  .tablewrap { overflow-x: auto; border-top: 1px solid var(--rule); max-width: 100%; }
+  @media (max-width: 34rem) {
+    .options thead { display: none; }
+    .options, .options tbody, .options tr { display: block; }
+    .options tr { display: grid; grid-template-columns: 1fr 1fr auto; gap: 2px 12px; padding-block: 12px; border-bottom: 1px solid var(--rule); }
+    .options tbody tr > th, .options tbody tr > td { border: 0; padding: 0; }
+    .options tbody th { grid-column: 1 / -1; margin-bottom: 4px; }
+    .options td:nth-of-type(1)::before { content: "setup "; color: var(--ink-soft); }
+    .options td:nth-of-type(2)::before { content: "year "; color: var(--ink-soft); }
+  }
+  .options { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+  .options th, .options td { text-align: left; padding: 11px 10px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+  .options thead th { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .options tbody th { font-weight: 700; }
+  .options td { font-family: "IBM Plex Mono", monospace; font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+  .options .sub { display: block; font-weight: 400; font-size: 0.8125rem; color: var(--ink-soft); }
+  .options tr.pick th::before { content: "\2192\00a0"; color: var(--accent-text); }
+  .options tr.out { color: var(--ink-soft); }
+  .options .yes { color: var(--accent-text); font-weight: 500; }
+  .options .no { color: #B3261E; font-weight: 500; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .options .no { color: #FF8A80; } }
+  .quote { border-left: 3px solid var(--yellow); background: var(--surface); padding: 14px 17px; display: grid; gap: 6px; }
+  .quote-label { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-text); }
+  .quote p[lang] { font-family: "Fraunces", Georgia, serif; font-size: var(--step-1); line-height: 1.45; }
+  .sources { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; font-size: 0.9375rem; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <svg class="sunrise" viewBox="0 0 700 118" role="img" aria-label="Sunrise over a horizon line">
+      <defs>
+        <linearGradient id="dome" x1="0" y1="1" x2="0.35" y2="0">
+          <stop offset="0" stop-color="#F08A00"/>
+          <stop offset="0.55" stop-color="#F8B800"/>
+          <stop offset="1" stop-color="#D4F53A"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#F8B800" stroke-width="3" stroke-linecap="round" opacity="0.55">
+        <line x1="350" y1="18" x2="350" y2="34"/>
+        <line x1="286" y1="30" x2="294" y2="44"/>
+        <line x1="414" y1="30" x2="406" y2="44"/>
+        <line x1="238" y1="62" x2="252" y2="70"/>
+        <line x1="462" y1="62" x2="448" y2="70"/>
+      </g>
+      <path d="M 272 118 A 78 78 0 0 1 428 118 Z" fill="url(#dome)"/>
+      <line x1="0" y1="117" x2="700" y2="117" stroke="#1E5138" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="wrap masthead-body">
+    <p class="kicker"><a href="../">Foreningen AI Sundays</a> · after the 27th</p>
+    <h1>Money, the bank and the email</h1>
+    <p class="deck">What happens between signing the statutes and receiving the first krone of funding. Written for the board, readable by anyone who wants to know where the 100 kr. goes.</p>
+    <p class="datechip"><span>Researched September 2026 · prices change, confirm with the bank</span></p>
+  </div>
+</header>
+
+<main>
+  <section class="wrap">
+    <h2>The order things happen in</h2>
+    <p class="lede">Each step needs the one before it. The bank is the slow one, so it gets booked the same week the CVR number arrives.</p>
+    <div class="steps">
+      <div class="step">
+        <p class="step-num">1</p>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">Founding meeting</span><span class="when">27 September</span></div>
+          <p>Signed statutes and signed minutes. From this evening the association exists.</p>
+        </div>
+      </div>
+      <div class="step">
+        <p class="step-num">2</p>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">Forening email and CVR number</span><span class="when">the week after</span></div>
+          <p>Create the association's own email first, because it goes on the registration. Then register on virk.dk as a frivillig forening. Free, takes minutes, done with the formand's personal MitID.</p>
+        </div>
+      </div>
+      <div class="step">
+        <p class="step-num">3</p>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">Bank account, registered as NemKonto</span><span class="when">2 to 4 weeks</span></div>
+          <p>Book the meeting the week the CVR number arrives. Registering the account as NemKonto is one extra line on the bank's form.</p>
+        </div>
+      </div>
+      <div class="step later">
+        <p class="step-num">4</p>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">Funding</span><span class="when soft">when we are ready</span></div>
+          <p>Private foundations can pay into the account from step 3. Money from Københavns Kommune also needs the folkeoplysende approval and five paying members.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Why not just use someone's own account</h2>
+    <p>It is the first idea every small association has. The Danish tax authorities treat it as the account holder's money.</p>
+    <dl class="stakes">
+      <div class="stake">
+        <dt>Tax</dt>
+        <dd>An almennyttig forening is its own tax subject and pays no tax on membership fees or grants. A person does. <strong>Money that lands on a personal account can be taxed as that person's income</strong>, and it is up to them to prove it was not. Skattestyrelsen has taken this to court and won: in one published case, the people holding power of attorney over an association's accounts were personally assessed on what went through them.</dd>
+      </div>
+      <div class="stake">
+        <dt>Continuity</dt>
+        <dd>Board members change. If the money is tied to one person's CPR number, every change of treasurer means a new account, and illness or a falling-out locks the association out of its own funds.</dd>
+      </div>
+      <div class="stake">
+        <dt>Trust</dt>
+        <dd>Only the account holder can see a private account. That puts the treasurer in the position of being suspected the moment anything looks off, which is unfair to them.</dd>
+      </div>
+    </dl>
+    <p class="note"><strong>So: no personal account, not even for a few weeks.</strong> The 100 kr. collected on the 27th goes in an envelope, recorded on the member list, and is deposited when the association's account opens. A MobilePay Box pays out to a personal account, so it has the same problem on a smaller scale.</p>
+  </section>
+
+  <section class="wrap">
+    <h2>NemKonto, and when it matters</h2>
+    <p>NemKonto is not a separate account. It is a label on an ordinary Danish bank account that tells public authorities where to pay the association. The bank sets it at no cost.</p>
+    <dl class="stakes">
+      <div class="stake">
+        <dt>Needed for</dt>
+        <dd>Any money from a public authority. Lokaletilskud and the Udviklingspulje from Københavns Kommune, and state puljer. <strong>Public money is paid to NemKonto and nowhere else.</strong></dd>
+      </div>
+      <div class="stake">
+        <dt>Not needed for</dt>
+        <dd>Registering the CVR number, collecting membership fees, private foundations like Tuborgfondet, and sponsors. They pay to any account in the association's name.</dd>
+      </div>
+      <div class="stake">
+        <dt>The catch</dt>
+        <dd>Only institutions on nemkonto.dk's list can hold one. Wise and Revolut are not on it. Picking one of them now means switching banks later, exactly when a grant is waiting.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="wrap">
+    <h2>Every option we looked at</h2>
+    <p>Cheapest first among the ones that can be a NemKonto. Prices are the banks' published lists in 2026, or older where marked.</p>
+    <div class="tablewrap">
+      <table class="options">
+        <thead>
+          <tr><th scope="col">Option</th><th scope="col">Setup</th><th scope="col">Per year</th><th scope="col">NemKonto</th></tr>
+        </thead>
+        <tbody>
+          <tr class="pick">
+            <th scope="row">Basal erhvervskonto<span class="sub">AL Sydbank, Danske, Nordea, Jyske, Nykredit, Spar Nord</span></th>
+            <td>free or reasonable</td><td>median about 600 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr class="pick">
+            <th scope="row">Merkur Andelskasse<span class="sub">values-based cooperative bank</span></th>
+            <td>0 kr.</td><td>0 to 560 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">Coop Bank<span class="sub">old list, unclear if it covers foreninger</span></th>
+            <td>about 100 kr.</td><td>about 480 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">Sparekassen Danmark<span class="sub">basal foreningskonto, 2023 figure</span></th>
+            <td>ask</td><td>about 750 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">AL Sydbank Foreningspakke Basis<span class="sub">formerly Arbejdernes Landsbank</span></th>
+            <td>ask</td><td>1.200 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">Nordea Foreningspakken</th>
+            <td>1.500 kr.</td><td>1.250 kr. + 600 per user</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">Danske Foreningskonto</th>
+            <td>3.000 kr.</td><td>about 1.950 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr>
+            <th scope="row">Lunar Business</th>
+            <td>1.495 kr.</td><td>2.890 kr.</td><td class="yes">yes</td>
+          </tr>
+          <tr class="out">
+            <th scope="row">Wise Business<span class="sub">e-money institution, not a bank</span></th>
+            <td>375 kr.</td><td>0 kr.</td><td class="no">no</td>
+          </tr>
+          <tr class="out">
+            <th scope="row">Revolut Business<span class="sub">no Danish IBAN</span></th>
+            <td>0 kr.</td><td>1.020 kr.</td><td class="no">no</td>
+          </tr>
+          <tr class="out">
+            <th scope="row">A board member's own account</th>
+            <td>0 kr.</td><td>0 kr.</td><td class="no">tax risk</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">The basal erhvervskonto comes from a law in force since 1 January 2025: the largest banks must offer associations a basic account, free or for a "rimeligt gebyr". The law does not define reasonable. The ministry's own figures put the median fee for associations at 600 kr. a year.</p>
+  </section>
+
+  <section class="wrap">
+    <h2>What we are going to do</h2>
+    <p class="lede">Ask two banks for the basic account by name, and take the cheaper answer.</p>
+    <ol class="agenda">
+      <li>Email AL Sydbank and Merkur Andelskasse the week the CVR number arrives</li>
+      <li>Ask for the basal erhvervskonto, registered as NemKonto, and ask for the setup and yearly fee in writing</li>
+      <li>Anything above 1.500 kr. in the first year is too much for an association turning over a few thousand kroner</li>
+      <li>Formand and kasserer go to the meeting together, since § 9.1 says the two of them sign jointly</li>
+    </ol>
+    <div class="quote">
+      <p class="quote-label">The line to send the bank</p>
+      <p lang="da">Vi er en nystiftet frivillig forening og ønsker en basal erhvervskonto jf. lov om betalingskonti, registreret som NemKonto. Hvad er jeres opstartsgebyr og årlige gebyr?</p>
+    </div>
+    <h3>What to bring</h3>
+    <ul class="needs">
+      <li>Signed vedtægter and signed minutes from the founding meeting</li>
+      <li>The CVR number</li>
+      <li>Passport or driving licence for everyone who will sign on the account</li>
+      <li>§ 9 of the statutes marked, so the bank sees who may bind the association</li>
+    </ul>
+    <p class="note"><strong>If a grant arrives before the account does:</strong> a larger association or a frivilligcenter can receive it for us under a written agreement, with the grant-giver told. It is a bridge, not a plan.</p>
+  </section>
+
+  <section class="wrap">
+    <h2>The association's email</h2>
+    <p>§ 5.3 makes email the official way to call a general assembly, and the registration asks for a contact address. It should belong to the association, so it survives a change of formand.</p>
+    <dl class="stakes">
+      <div class="stake">
+        <dt>Now</dt>
+        <dd><strong>A free Gmail account</strong> such as aisundays@gmail.com. Five minutes, no cost, no DNS. The Lithuanian Youth Society runs on exactly this. The password sits with the formand and the kasserer.</dd>
+      </div>
+      <div class="stake">
+        <dt>Later, optional</dt>
+        <dd>An address on aisundays.org that forwards to the Gmail. Forwarding is free. Sending as @aisundays.org needs a paid mail service, which is not worth it for a handful of emails a year.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="wrap">
+    <h2>Sources</h2>
+    <ul class="sources">
+      <li><a href="https://frivillighed.dk/analyser/artikler/skal-vi-have-en-foreningskonto-i-en-bank-eller-kan-vi-bruge-kassererens-private-konto" rel="noopener">frivillighed.dk: association account or the treasurer's private account</a></li>
+      <li><a href="https://frivillighed.dk/guides/saadan-faar-i-en-bankkonto-til-foreningens-penge" rel="noopener">frivillighed.dk: getting a bank account, and the basal erhvervskonto</a></li>
+      <li><a href="https://info.skat.dk/data.aspx?oid=2397427" rel="noopener">skat.dk: court case on association accounts and personal taxation</a></li>
+      <li><a href="https://www.nemkonto.dk/finansielt-institut/oversigt-over-tilmeldte-institutter" rel="noopener">nemkonto.dk: institutions that can hold a NemKonto</a></li>
+      <li><a href="https://erhvervsstyrelsen.dk/vejledning-om-foreninger" rel="noopener">Erhvervsstyrelsen: CVR and NemKonto for associations</a></li>
+      <li><a href="https://www.nordea.dk/privat/produkter/konti-og-betalinger/foreninger.html" rel="noopener">Nordea price list for associations</a></li>
+    </ul>
+  </section>
+</main>
+
+<div class="wrap">
+  <div class="privacy">
+    <p><strong>Not legal or tax advice.</strong> This is what the board found reading the public sources above. When a bank quotes a price, the bank's number wins.</p>
+    <p><a href="../">Back to the founding meeting page</a></p>
+  </div>
+</div>
+
+</body>
+</html>
