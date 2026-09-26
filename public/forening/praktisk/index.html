@@ -35,14 +35,14 @@
   .opts tr.pick .name::before { content: '\2192'; color: var(--primary); margin-right: 6px; font-weight: 700; }
   .opts tr.out { color: var(--muted); }
 
-  /* Below 560px the table stops being a table: each option becomes a block. */
-  @media (max-width: 560px) {
+  /* Below 620px the table stops being a table: each option becomes a block. */
+  @media (max-width: 620px) {
     .opts, .opts tbody, .opts tr, .opts td { display: block; width: 100%; }
     .opts thead { display: none; }
     .opts tr { padding: 14px 0; border-bottom: 1px solid var(--border); }
     .opts td { border: 0; padding: 0; }
     .opts td.name { margin-bottom: 6px; }
-    .opts td.num, .opts td.can { display: inline-block; width: auto; margin-right: 18px; }
+    .opts td.num, .opts td.can { display: inline-block; width: auto; margin-right: 16px; }
     .opts td.num::before { content: attr(data-label) ' '; color: var(--muted); font-family: var(--font-sans); font-size: 13px; }
   }
 
@@ -83,25 +83,31 @@
 
   <div class="card card-gold">
     <p style="margin:0">
-      <strong>Nothing here is needed on 27 September.</strong> The founding meeting
-      needs signatures, not a bank account. This is the month after.
+      <strong>Two things here do happen on 27 September.</strong> Photograph every
+      board member's ID before people leave, and send the bank application the same
+      evening. Neither needs a CVR number, and both start a clock that otherwise
+      starts a week later.
     </p>
   </div>
 
   <h2>The order things happen in</h2>
-  <p>Each step needs the one before it. The bank is the slow one, so it gets booked the same week the CVR number arrives.</p>
+  <p>Everything below can start on the day of the founding meeting. The old plan, waiting for the CVR number before talking to a bank, wastes a week for no reason.</p>
   <ol class="steps">
     <li>
-      <h3>Founding meeting</h3>
-      <p>Signed statutes and signed minutes. From this evening the association exists.</p>
+      <h3>Founding meeting, and collect ID</h3>
+      <p>Signed statutes and signed minutes. From this evening the association exists. Photograph every board member's passport or driving licence before people leave: the bank will ask for all of them, and chasing them afterwards is the single most common delay.</p>
     </li>
     <li>
-      <h3>Email, then the CVR number</h3>
-      <p>Create the association's own email first, because it goes on the registration. Then register on virk.dk as a frivillig forening. Free, takes minutes, done with the chair's personal MitID.</p>
+      <h3>Same day: the email, and the bank application</h3>
+      <p>Create the association's own email, then send the bank application. <strong>A CVR number is not required</strong> to apply for a basal erhvervskonto, and Nykredit's form asks whether you have one. Applying now rather than after the CVR starts the legal clock a week earlier.</p>
     </li>
     <li>
-      <h3>Bank account, registered as NemKonto</h3>
-      <p>Two to four weeks. Book the meeting the week the CVR number arrives. Registering the account as NemKonto is one extra line on the bank's form.</p>
+      <h3>In parallel: the CVR number</h3>
+      <p>Register on virk.dk as a frivillig forening, with the chair's personal MitID. Free, a few minutes, receipt the same day and the number published the next. Choose <em>frivillig forening</em>, not <em>almindelig forening</em>: it needs no document uploads. It must be renewed every three years.</p>
+    </li>
+    <li>
+      <h3>The bank answers within 10 working days</h3>
+      <p>That deadline is the law, not a service promise, as long as the application was complete and the bank is one that the rule binds. Then register the account as NemKonto, which is one line on the bank's form.</p>
     </li>
     <li>
       <h3>Funding</h3>
@@ -177,139 +183,210 @@
 
   <h2>Every option we looked at</h2>
   <p>
-    Cheapest first among the ones that can be a NemKonto. Prices are the banks'
-    published lists in 2026, or older where marked.
+    Every figure below is the bank's own published price, checked in September
+    2026. Year one is setup plus twelve months. The right-hand column is what
+    matters most: only six banks in Denmark are legally obliged to give an
+    association an account, and only they are bound by the ten-day deadline.
   </p>
   <table class="opts">
     <thead>
-      <tr><th>Option</th><th>Setup</th><th>Per year</th><th>NemKonto</th></tr>
+      <tr><th>Option</th><th>Setup</th><th>Year one</th><th>Then per year</th><th>Obliged</th></tr>
     </thead>
     <tbody>
       <tr class="pick">
-        <td class="name">Basal erhvervskonto<span class="sub">AL Sydbank, Danske, Nordea, Jyske, Nykredit, Spar Nord</span></td>
-        <td class="num" data-label="Setup">free or reasonable</td>
-        <td class="num" data-label="Per year">~600 kr. median</td>
-        <td class="can"><span class="yes">Yes</span></td>
-      </tr>
-      <tr class="pick">
-        <td class="name">Merkur Andelskasse<span class="sub">values-based cooperative bank</span></td>
-        <td class="num" data-label="Setup">0 kr.</td>
-        <td class="num" data-label="Per year">0&ndash;560 kr.</td>
+        <td class="name">Nykredit<span class="sub">Basal Betalingskonto Erhverv, 175 kr./month</span></td>
+        <td class="num" data-label="Setup">2.400 kr.</td>
+        <td class="num" data-label="Year one">4.500 kr.</td>
+        <td class="num" data-label="Then">2.100 kr.</td>
         <td class="can"><span class="yes">Yes</span></td>
       </tr>
       <tr>
-        <td class="name">Coop Bank<span class="sub">2022 list, unclear if it covers foreninger</span></td>
-        <td class="num" data-label="Setup">~100 kr.</td>
-        <td class="num" data-label="Per year">~480 kr.</td>
-        <td class="can"><span class="yes">Yes</span></td>
-      </tr>
-      <tr>
-        <td class="name">Sparekassen Danmark<span class="sub">basal foreningskonto, 2023 figure</span></td>
-        <td class="num" data-label="Setup">ask</td>
-        <td class="num" data-label="Per year">~750 kr.</td>
-        <td class="can"><span class="yes">Yes</span></td>
-      </tr>
-      <tr>
-        <td class="name">AL Sydbank Foreningspakke Basis<span class="sub">formerly Arbejdernes Landsbank</span></td>
-        <td class="num" data-label="Setup">ask</td>
-        <td class="num" data-label="Per year">1.200 kr.</td>
-        <td class="can"><span class="yes">Yes</span></td>
-      </tr>
-      <tr>
-        <td class="name">Nordea Foreningspakken</td>
+        <td class="name">Merkur Andelskasse<span class="sub">discounted rate, conditional on holding the NemKonto there</span></td>
         <td class="num" data-label="Setup">1.500 kr.</td>
-        <td class="num" data-label="Per year">1.250 kr. + 600/user</td>
+        <td class="num" data-label="Year one">3.700 kr.</td>
+        <td class="num" data-label="Then">2.200 kr.</td>
+        <td class="can"><span class="no">No</span></td>
+      </tr>
+      <tr>
+        <td class="name">Andelskassen<span class="sub">Danske Andelskassers Bank, 125 kr./month</span></td>
+        <td class="num" data-label="Setup">5.000 kr.</td>
+        <td class="num" data-label="Year one">6.500 kr.</td>
+        <td class="num" data-label="Then">1.500 kr.</td>
+        <td class="can"><span class="no">No</span></td>
+      </tr>
+      <tr>
+        <td class="name">Fælleskassen<span class="sub">Foreningspakke, 875 kr./quarter</span></td>
+        <td class="num" data-label="Setup">2.000 kr.</td>
+        <td class="num" data-label="Year one">5.500 kr.</td>
+        <td class="num" data-label="Then">3.500 kr.</td>
+        <td class="can"><span class="no">No</span></td>
+      </tr>
+      <tr>
+        <td class="name">AL Sydbank<span class="sub">Basal Erhvervskonto, 200 kr./month</span></td>
+        <td class="num" data-label="Setup">5.000 kr.</td>
+        <td class="num" data-label="Year one">7.400 kr.</td>
+        <td class="num" data-label="Then">2.400 kr.</td>
         <td class="can"><span class="yes">Yes</span></td>
       </tr>
       <tr>
-        <td class="name">Danske Foreningskonto</td>
+        <td class="name">Jyske Bank<span class="sub">Basal Erhvervskonto, 230 kr./month</span></td>
+        <td class="num" data-label="Setup">4.800 kr.</td>
+        <td class="num" data-label="Year one">7.560 kr.</td>
+        <td class="num" data-label="Then">2.760 kr.</td>
+        <td class="can"><span class="yes">Yes</span></td>
+      </tr>
+      <tr>
+        <td class="name">Nordea<span class="sub">Foreningspakken; its basal account has no published price</span></td>
+        <td class="num" data-label="Setup">1.500 kr.</td>
+        <td class="num" data-label="Year one">2.750 kr.</td>
+        <td class="num" data-label="Then">1.250 kr.</td>
+        <td class="can"><span class="yes">Yes</span></td>
+      </tr>
+      <tr>
+        <td class="name">Danske Bank<span class="sub">Foreningskonto; its basal account has no published price</span></td>
         <td class="num" data-label="Setup">3.000 kr.</td>
-        <td class="num" data-label="Per year">~1.950 kr.</td>
-        <td class="can"><span class="yes">Yes</span></td>
-      </tr>
-      <tr>
-        <td class="name">Lunar Business</td>
-        <td class="num" data-label="Setup">1.495 kr.</td>
-        <td class="num" data-label="Per year">2.890 kr.</td>
+        <td class="num" data-label="Year one">3.948 kr.</td>
+        <td class="num" data-label="Then">948 kr. + netbank</td>
         <td class="can"><span class="yes">Yes</span></td>
       </tr>
       <tr class="out">
         <td class="name">Wise Business<span class="sub">e-money institution, not a bank</span></td>
         <td class="num" data-label="Setup">375 kr.</td>
-        <td class="num" data-label="Per year">0 kr.</td>
-        <td class="can"><span class="no">No</span></td>
+        <td class="num" data-label="Year one">375 kr.</td>
+        <td class="num" data-label="Then">0 kr.</td>
+        <td class="can"><span class="no">No NemKonto</span></td>
       </tr>
       <tr class="out">
         <td class="name">Revolut Business<span class="sub">no Danish IBAN</span></td>
         <td class="num" data-label="Setup">0 kr.</td>
-        <td class="num" data-label="Per year">1.020 kr.</td>
-        <td class="can"><span class="no">No</span></td>
+        <td class="num" data-label="Year one">1.020 kr.</td>
+        <td class="num" data-label="Then">1.020 kr.</td>
+        <td class="can"><span class="no">No NemKonto</span></td>
       </tr>
       <tr class="out">
         <td class="name">A board member's own account</td>
         <td class="num" data-label="Setup">0 kr.</td>
-        <td class="num" data-label="Per year">0 kr.</td>
+        <td class="num" data-label="Year one">0 kr.</td>
+        <td class="num" data-label="Then">0 kr.</td>
         <td class="can"><span class="no">Tax risk</span></td>
       </tr>
     </tbody>
   </table>
   <p style="color:var(--muted);font-size:14px">
-    The basal erhvervskonto comes from a law in force since 1 January 2025: the
-    largest banks must offer associations a basic account, free or for a
-    <span lang="da">rimeligt gebyr</span>. The law does not define reasonable. The
-    ministry's own figures put the median fee for associations at 600 kr. a year.
+    Nordea and Danske Bank both confirm they offer the statutory basal account but
+    publish no price for it, so their rows show their ordinary association product
+    instead. Ask them for the basal account by name and the figure may drop.
+    Danske Bank's netbank for associations is a further 1.000 kr. a year. Merkur's
+    rate is the halved one, which applies only if the association also holds its
+    NemKonto there; the full rate is 4.400 kr. a year.
+  </p>
+
+  <div class="card card-gold">
+    <h3>Why Nykredit</h3>
+    <p>
+      Cheapest first year of the banks that are actually obliged to say yes,
+      cheapest thereafter, and the only one with an application form you can fill
+      in online instead of booking a branch meeting. Its page states the ten
+      working days explicitly, and its form has a <span lang="da">N/A (Forening)</span>
+      option for the audit question, which is a sign associations are expected
+      rather than tolerated.
+    </p>
+    <p style="margin-bottom:0">
+      Merkur is about 800 kr. cheaper in year one and is the better fit on values,
+      but it carries no legal deadline and no right to an account, and its cheap
+      rate is conditional. Worth asking in parallel, not worth waiting for.
+    </p>
+  </div>
+
+  <h2>The ten-day rule, and what to do if a bank stalls</h2>
+  <p>
+    Since 1 January 2025, <span lang="da">lov om betalingskonti</span> § 13 b gives
+    associations a <strong>legal right</strong> to a basic business account, and
+    § 13 b stk. 5 gives the bank a deadline: it must open the account or refuse
+    <strong>within 10 working days</strong> of a complete application.
+  </p>
+  <table class="fields">
+    <thead>
+      <tr><th>Point</th><th>What it means</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="who">Which banks</td>
+        <td>Only banks designated systemically important. For 2026: Danske Bank, Nykredit, Jyske Bank, AL Sydbank, Nordea and Saxo Bank. Merkur, Fælleskassen and Andelskassen are <strong>not</strong> on the list, so with them there is no deadline and no right.</td>
+      </tr>
+      <tr>
+        <td class="who">No CVR needed</td>
+        <td>The law requires an address in Denmark, not a CVR number. The application can go in before the registration comes back.</td>
+      </tr>
+      <tr>
+        <td class="who">Refusal is limited</td>
+        <td>Eight grounds, exhaustive, mostly about money-laundering suspicion or refusing to supply ID. "We would rather not take associations" is not one of them.</td>
+      </tr>
+      <tr>
+        <td class="who">A refusal must be written</td>
+        <td>Free of charge, on paper or another durable medium, and it must tell you how to appeal.</td>
+      </tr>
+      <tr>
+        <td class="who">Where to appeal</td>
+        <td>The bank's own complaints officer first, then <span lang="da">Det finansielle ankenævn</span>. In June 2025 it ruled one refusal of a basic business account unlawful, so the route works.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="quote" lang="da">
+    Vi er en frivillig forening med hjemsted i København og ansøger om en basal
+    erhvervskonto efter lov om betalingskonti § 13 b, som også skal fungere som
+    foreningens NemKonto. Vedlagt er vedtægter, referat fra den stiftende
+    generalforsamling samt legitimation på samtlige bestyrelsesmedlemmer. Vi
+    beder om svar inden for fristen på 10 arbejdsdage, jf. § 13 b, stk. 5.
   </p>
 
   <h2>What we are going to do</h2>
-  <p>Ask two banks for the basic account by name, and take the cheaper answer.</p>
+  <p>One application, sent the same evening, to the bank that is both cheapest and obliged to answer.</p>
   <ol class="steps">
     <li>
-      <h3>Email AL Sydbank and Merkur</h3>
-      <p>The week the CVR number arrives, not before. They will ask for it.</p>
+      <h3>Collect ID at the meeting</h3>
+      <p>Passport or driving licence for all three board members, photographed before anyone leaves. This is what banks stall on.</p>
     </li>
     <li>
-      <h3>Ask for the basal erhvervskonto by name</h3>
-      <p>Registered as NemKonto, with the setup and yearly fee in writing.</p>
+      <h3>Apply to Nykredit the same evening</h3>
+      <p>The online form, with the statutes, the minutes and the ID attached, and the paragraph above quoted. A complete application starts the clock; an incomplete one does not.</p>
     </li>
     <li>
-      <h3>Compare, then decide</h3>
-      <p>Anything above 1.500 kr. in the first year is too much for an association turning over a few thousand kroner.</p>
+      <h3>Ask Merkur in parallel</h3>
+      <p>Cheaper and a better fit on values, but no deadline and no obligation. If they answer well before Nykredit, take them.</p>
     </li>
     <li>
-      <h3>Chair and treasurer go together</h3>
-      <p>§ 9.1 says the two of them sign jointly, so the bank will want both.</p>
+      <h3>Register the CVR the next morning</h3>
+      <p>virk.dk, frivillig forening, the chair's MitID. Send the number on to whichever bank is still processing.</p>
+    </li>
+    <li>
+      <h3>Day 11, if it has gone quiet</h3>
+      <p>Write to the bank citing § 13 b stk. 5 and ask for the written refusal the law requires. That sentence alone usually moves things.</p>
     </li>
   </ol>
 
   <div class="card">
-    <h3>The line to send the bank</h3>
-    <p class="quote" lang="da">
-      Vi er en nystiftet frivillig forening og ønsker en basal erhvervskonto jf. lov
-      om betalingskonti, registreret som NemKonto. Hvad er jeres opstartsgebyr og
-      årlige gebyr?
-    </p>
-  </div>
-
-  <div class="card">
-    <h3>What to bring</h3>
+    <h3>What the bank needs</h3>
     <ul class="status" style="margin-top:4px">
       <li>
         <span class="mark todo" aria-hidden="true"></span>
-        <div><div class="what">Signed vedtægter and signed minutes</div></div>
+        <div><div class="what">Signed vedtægter and signed minutes</div>
+        <div class="note">The minutes must name who was elected, and § 9 shows who may bind the association.</div></div>
+      </li>
+      <li>
+        <span class="mark now" aria-hidden="true">!</span>
+        <div><div class="what">ID for every board member, not just the two signatories</div>
+        <div class="note">Passport or driving licence. Banks treat the whole board as reelle ejere under the money-laundering rules, and this is the single most common cause of delay. Collect it on the night.</div></div>
       </li>
       <li>
         <span class="mark todo" aria-hidden="true"></span>
-        <div><div class="what">The CVR number</div></div>
+        <div><div class="what">A sentence on what the account is for</div>
+        <div class="note">Membership fees and grants, a few thousand kroner a year. Banks ask, and a vague answer slows things down.</div></div>
       </li>
       <li>
         <span class="mark todo" aria-hidden="true"></span>
-        <div><div class="what">Passport or driving licence</div>
-        <div class="note">For everyone who will sign on the account.</div></div>
-      </li>
-      <li>
-        <span class="mark todo" aria-hidden="true"></span>
-        <div><div class="what">§ 9 of the statutes, marked</div>
-        <div class="note">So the bank can see who may bind the association.</div></div>
+        <div><div class="what">The CVR number, when it arrives</div>
+        <div class="note">Not needed to apply. Send it on once virk.dk has published it.</div></div>
       </li>
     </ul>
   </div>
@@ -344,12 +421,20 @@
 
   <h2>Sources</h2>
   <ul class="sources">
+    <li><a href="https://www.retsinformation.dk/api/pdf/252291" rel="noopener">Lov om betalingskonti &mdash; § 13 a&ndash;f, the right to a basal erhvervskonto and the 10-day deadline</a></li>
+    <li><a href="https://finanswatch.dk/Finansnyt/Regulering/article17750619.ece" rel="noopener">FinansWatch &mdash; the eight grounds on which a bank may refuse</a></li>
+    <li><a href="https://www.finanstilsynet.dk/vores-organisation/aarlig-udpegning-af-sifi-institutter" rel="noopener">Finanstilsynet &mdash; the 2026 SIFI list, i.e. which banks are bound</a></li>
+    <li><a href="https://www.danskerhverv.dk/presse-og-nyheder/nyheder/2025/juni/ny-kendelse-afslag-pa-oprettelse-af-basal-erhvervskonto-i-et-pengeinstitut-var-ulovlig/" rel="noopener">Dansk Erhverv &mdash; June 2025 ruling that a refusal was unlawful</a></li>
+    <li><a href="https://www.nykredit.dk/din-virksomhed/behov/daglig-drift/produkter/basal-betalingskonto/" rel="noopener">Nykredit &mdash; Basal Betalingskonto Erhverv, application form and terms</a></li>
+    <li><a href="https://www.nykredit.dk/globalassets/din-virksomhed/pdf/basal-betalingskonto/generelle-gebyrer-basal-betalingskonto-erhverv.pdf" rel="noopener">Nykredit &mdash; fee schedule (175 kr./month, 2.400 kr. association setup)</a></li>
+    <li><a href="https://www.jyskebank.dk/erhverv/erhvervskonti/basal-erhvervskonto" rel="noopener">Jyske Bank &mdash; Basal Erhvervskonto price and document list</a></li>
+    <li><a href="https://merkur.dk/media/fbyhs0y2/prisliste-pr-24-september-2026-hjemmesiden.pdf" rel="noopener">Merkur Andelskasse &mdash; price list, September 2026</a></li>
+    <li><a href="https://web-cdn.andelskassen.dk/oj1btln2/fordele_forening.pdf" rel="noopener">Andelskassen &mdash; Kundeprogram Foreninger</a></li>
+    <li><a href="https://virk.dk/myndigheder/stat/ERST/selvbetjening/Frivillige_foreninger/" rel="noopener">virk.dk &mdash; registering a frivillig forening</a></li>
     <li><a href="https://frivillighed.dk/analyser/artikler/skal-vi-have-en-foreningskonto-i-en-bank-eller-kan-vi-bruge-kassererens-private-konto" rel="noopener">frivillighed.dk &mdash; association account, or the treasurer's private one</a></li>
-    <li><a href="https://frivillighed.dk/guides/saadan-faar-i-en-bankkonto-til-foreningens-penge" rel="noopener">frivillighed.dk &mdash; getting a bank account, and the basal erhvervskonto</a></li>
     <li><a href="https://info.skat.dk/data.aspx?oid=2397427" rel="noopener">skat.dk &mdash; court case on association accounts and personal taxation</a></li>
     <li><a href="https://www.nemkonto.dk/finansielt-institut/oversigt-over-tilmeldte-institutter" rel="noopener">nemkonto.dk &mdash; institutions that can hold a NemKonto</a></li>
-    <li><a href="https://erhvervsstyrelsen.dk/vejledning-om-foreninger" rel="noopener">Erhvervsstyrelsen &mdash; CVR and NemKonto for associations</a></li>
-    <li><a href="https://www.nordea.dk/privat/produkter/konti-og-betalinger/foreninger.html" rel="noopener">Nordea &mdash; price list for associations</a></li>
+    <li><a href="https://www.finanstilsynet.dk/finansielle-temaer/forbruger-og-investorinformation/her-kan-du-klage" rel="noopener">Finanstilsynet &mdash; where to complain</a></li>
   </ul>
 
   <div class="foot">
